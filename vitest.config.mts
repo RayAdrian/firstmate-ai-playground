@@ -10,7 +10,7 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     // Unit tests live in tests/unit/<ws>/ (ws = m0, a-f, m2, content). Shared helpers: tests/support/.
     include: ["tests/unit/**/*.test.{ts,tsx}"],
-    exclude: [...configDefaults.exclude, ".claude/**"],
+    exclude: [...configDefaults.exclude, ".claude/**", "exercises/**"],
     css: false,
   },
 });

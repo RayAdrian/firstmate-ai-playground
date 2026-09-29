@@ -31,6 +31,8 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     ".claude/**",
+    // Exercise starters are deliberately broken standalone projects.
+    "exercises/**",
     "playwright-report/**",
     "test-results/**",
   ]),
