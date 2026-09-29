@@ -12,8 +12,8 @@ export async function freezeClock(page: Page, iso: string = DEFAULT_NOW): Promis
 }
 
 /**
- * Override the server's "now" via the `fm_test_now` cookie (test-cases README section 4.1).
- * Only works if the app runs with FM_TEST_MODE=1 and implements that hook; ignored otherwise.
+ * Override the server's "now" via the `fm_test_now` cookie read by `getNow()` (src/lib/time/now.ts).
+ * The e2e webServer sets FM_TEST_MODE=1 for this; without it the cookie is ignored.
  */
 export async function setServerNow(
   context: BrowserContext,

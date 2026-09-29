@@ -46,6 +46,8 @@ export default defineConfig({
       ? `npm run build && npm run start -- --port ${PORT}`
       : `npm run dev -- --port ${PORT}`,
     url: `http://localhost:${PORT}`,
+    // FM_TEST_MODE enables the server-side test clock (src/lib/time/now.ts). Only ever set here.
+    env: { FM_TEST_MODE: "1" },
     reuseExistingServer: false,
     timeout: PROD ? 300_000 : 120_000,
   },
