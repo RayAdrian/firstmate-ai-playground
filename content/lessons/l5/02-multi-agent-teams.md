@@ -81,7 +81,7 @@ db-lock.sh npm run db:reset:test
 db-lock.sh env PLAYWRIGHT_PORT=3457 npm run e2e
 ```
 
-The brief tells each worker to "keep lock holds short" and to kill only the process IDs it started, never by name. List shared resources in the spec (database, ports, third-party sandboxes, rate limits) before you dispatch, and give each one an owner or a lock.
+This is a lesson-sized lock: two waiters can both decide a stale lock is dead, and one can delete the other's fresh lock. Use a real lock (`flock`, or a database advisory lock) when the stakes are higher. The brief tells each worker to "keep lock holds short" and to kill only the process IDs it started, never by name. List shared resources in the spec (database, ports, third-party sandboxes, rate limits) before you dispatch, and give each one an owner or a lock.
 
 ### When not to use a team
 
@@ -154,7 +154,7 @@ handoffs/<name>.md when done. Wait for all three before you integrate.
 
 Things the docs are clear about: teammates start with your project context (`CLAUDE.md`, MCP servers, skills) but not the lead's conversation, so put task details in the spawn prompt; two teammates editing the same file overwrite each other, so split the files; 3-5 teammates is a sensible start; and the lead can start doing the work itself unless you tell it to wait. Teams cost significantly more tokens than one session. Because the feature is experimental, `/resume` and `/rewind` do not restore in-process teammates.
 
-Hooks can enforce your rules: `TaskCompleted` and `TeammateIdle` run when a task is marked done or a teammate goes idle, and exiting with code 2 sends feedback and keeps the work going.
+Hooks can enforce your rules. `TaskCreated` and `TaskCompleted` run when a task is created or marked done, and exiting with code 2 blocks that action and sends feedback. `TeammateIdle` runs when a teammate is about to go idle, and exit code 2 sends feedback and keeps it working.
 
 If you want plain subagents instead of a team, leave the variable unset. Setting `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` to `1` makes named subagents launch as teammates.
 
@@ -175,7 +175,7 @@ Define reusable roles as TOML files in `.codex/agents/` (project) or `~/.codex/a
 # .codex/agents/renderer.toml
 name = "renderer"
 description = "Implements src/render.mjs from SPEC.md Part C"
-model = "gpt-5.6-luna"
+model = "<fast-model>"
 model_reasoning_effort = "low"
 sandbox_mode = "workspace-write"
 developer_instructions = """

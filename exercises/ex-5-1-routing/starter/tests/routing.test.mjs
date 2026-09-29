@@ -8,7 +8,7 @@ import path from "node:path";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (rel) => readFileSync(path.join(root, rel), "utf8");
 
-const EFFORT = ["low", "medium", "high", "xhigh", "max"];
+const EFFORT = ["low", "medium", "high", "xhigh", "max", "ultra"];
 const STRONG_CLAUDE = ["opus", "claude-opus-5-5"];
 const FAST_CLAUDE = ["sonnet", "haiku", "claude-sonnet-5-5"];
 

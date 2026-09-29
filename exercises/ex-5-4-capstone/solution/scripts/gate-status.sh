@@ -15,6 +15,11 @@ STATE="$3"
 REVIEWED="$4"
 DESC="$5"
 
+if [[ ! "$REVIEWED" =~ ^[0-9a-f]{40}$ ]]; then
+  echo "sha must be a full 40-character lowercase hex commit SHA, not a branch or abbreviated ref" >&2
+  exit 2
+fi
+
 case "$GATE" in browser | review | uiux) ;; *)
   echo "gate must be browser, review or uiux" >&2
   exit 2

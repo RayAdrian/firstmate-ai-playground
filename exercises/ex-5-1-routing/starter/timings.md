@@ -3,7 +3,7 @@
 Task: implement `titleCase` in `src/text.mjs` so `npm test` passes.
 Measure wall-clock seconds for each phase (a stopwatch, or `time` around `claude -p` / `codex exec`).
 One row per phase per tool. Phase is `plan`, `implement` or `review`. Tool is `claude` or `codex`.
-Effort is one of `low`, `medium`, `high`, `xhigh`, `max`.
+Effort is one of `low`, `medium`, `high`, `xhigh`, `max`, or `ultra` if your Codex model lists it.
 
 | Phase | Tool | Model | Effort | Seconds |
 |---|---|---|---|---|

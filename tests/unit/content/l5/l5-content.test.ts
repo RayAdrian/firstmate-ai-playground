@@ -99,6 +99,17 @@ describe("L5 lessons", () => {
   });
 });
 
+describe("ex-5-4 script copies", () => {
+  for (const which of ["starter", "solution"]) {
+    for (const script of ["gate-status.sh", "gate-merge.sh"]) {
+      it(`${which}/scripts/${script} is identical to scripts/${script}`, () => {
+        const copy = readFileSync(path.join(exercisesDir, "ex-5-4-capstone", which, "scripts", script), "utf8");
+        expect(copy).toBe(readFileSync(path.join(root, "scripts", script), "utf8"));
+      });
+    }
+  }
+});
+
 describe("L5 exercises", () => {
   const dirs = readdirSync(exercisesDir).filter(
     (d) => d.startsWith("ex-5-") && statSync(path.join(exercisesDir, d)).isDirectory(),

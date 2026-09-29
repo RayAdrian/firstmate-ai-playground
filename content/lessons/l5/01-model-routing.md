@@ -145,11 +145,19 @@ time claude -p --model opus --effort high "Review the diff on this branch. Read 
 Pick the model per run with `-m`, and override effort with `-c`:
 
 ```bash
-codex -m gpt-5.6-sol -c model_reasoning_effort="high"
-codex exec -m gpt-5.6-luna -c model_reasoning_effort="low" "Implement titleCase in src/text.mjs"
+codex -m <frontier-model> -c model_reasoning_effort="high"
+codex exec -m <fast-model> -c model_reasoning_effort="low" "Implement titleCase in src/text.mjs"
 ```
 
-Inside a session, `/model` opens the picker for the model and, when the model supports it, the reasoning effort. `/plan` switches to plan mode. Model names change often, so run `/model` and use what it lists. The names above are the ones on the machine this lesson was verified on.
+Inside a session, `/model` opens the picker for the model and, when the model supports it, the reasoning effort. `/plan` switches to plan mode.
+
+Do not copy model names from a guide, including this one. Codex fetches its model catalog per account, so the right names depend on your account and the day. Discover them, then substitute them for `<frontier-model>` (the most capable, for planning and review) and `<fast-model>` (a faster or cheaper one, for implementation) in every snippet below:
+
+```bash
+codex debug models | jq -r '.models[] | select(.visibility=="list") | "\(.slug)\t\(.description)"'
+```
+
+Read the descriptions: the frontier model is described as such, and older generations say so. As of Sep 2026 on our accounts, for example, `gpt-6-astra` was the frontier model and `gpt-5.6-luna` an older, faster one. Yours may differ. The effort levels a model supports are in the same output, and some models offer `ultra`.
 
 ### Profiles: named bundles of settings
 
@@ -157,7 +165,7 @@ In Codex 0.154.0 a profile is its own file. Create `~/.codex/<name>.config.toml`
 
 ```toml
 # ~/.codex/fm-plan.config.toml
-model = "gpt-5.6-sol"
+model = "<frontier-model>"
 model_reasoning_effort = "high"
 approval_policy = "on-request"
 sandbox_mode = "read-only"
@@ -165,7 +173,7 @@ sandbox_mode = "read-only"
 
 ```toml
 # ~/.codex/fm-impl.config.toml
-model = "gpt-5.6-luna"
+model = "<fast-model>"
 model_reasoning_effort = "low"
 approval_policy = "on-request"
 sandbox_mode = "workspace-write"
@@ -187,7 +195,7 @@ Project-scoped subagents are TOML files in `.codex/agents/`. Each needs `name`, 
 # .codex/agents/reviewer.toml
 name = "reviewer"
 description = "Reviews a diff for correctness bugs and missing tests. Use after an implementation pass."
-model = "gpt-5.6-sol"
+model = "<frontier-model>"
 model_reasoning_effort = "high"
 sandbox_mode = "read-only"
 developer_instructions = """
@@ -199,7 +207,7 @@ To set a default for every spawned agent, use `[agents]` in `config.toml`:
 
 ```toml
 [agents]
-default_subagent_model = "gpt-5.6-luna"
+default_subagent_model = "<fast-model>"
 default_subagent_reasoning_effort = "low"
 ```
 

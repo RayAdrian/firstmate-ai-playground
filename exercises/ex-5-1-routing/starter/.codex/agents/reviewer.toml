@@ -1,6 +1,7 @@
+# Replace <frontier-model> / <fast-model> with slugs from `codex debug models` (the list is per account).
 name = "reviewer"
 description = "Reviews a diff for correctness bugs and missing tests. Use after an implementation pass."
-model = "gpt-5.6-luna"
+model = "<fast-model>"
 model_reasoning_effort = "low"
 sandbox_mode = "workspace-write"
 developer_instructions = """

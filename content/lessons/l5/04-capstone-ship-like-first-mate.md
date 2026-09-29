@@ -115,6 +115,7 @@ Gate agents are separate sessions, so the author does not grade its own work. Ea
 
 ```bash
 SHA="$(gh pr view 1 --json headRefOid --jq .headRefOid)"
+test "$(git rev-parse HEAD)" = "$SHA" || { echo "checkout is not the PR head"; exit 1; }
 npm test                  # gate/browser for this repo: the suite on the head commit
 ```
 
@@ -158,7 +159,7 @@ workstreams with explicit file ownership. Show it to me before anything else.
 A read-only sandbox cannot write files, so the spec comes back as text. Save it yourself, or run the writing step with a workspace-write sandbox:
 
 ```bash
-codex -m gpt-5.6-sol -s workspace-write "Write SPEC.md from the draft above, then write a failing test for every P0 criterion. No implementation. Run npm test and show each new test failing."
+codex -m <frontier-model> -s workspace-write "Write SPEC.md from the draft above, then write a failing test for every P0 criterion. No implementation. Run npm test and show each new test failing."
 ```
 
 Commit `SPEC.md`, `PLAN.md` and the red tests on `main`.
@@ -182,6 +183,7 @@ wait
 ```bash
 git fetch origin && git rebase origin/main && git push --force-with-lease
 SHA="$(gh pr view 1 --json headRefOid --jq .headRefOid)"
+test "$(git rev-parse HEAD)" = "$SHA" || { echo "checkout is not the PR head"; exit 1; }
 npm test
 codex review --base main
 ```

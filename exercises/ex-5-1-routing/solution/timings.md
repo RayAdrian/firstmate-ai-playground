@@ -3,7 +3,7 @@
 Task: implement `titleCase` in `src/text.mjs` so `npm test` passes.
 Measure wall-clock seconds for each phase (a stopwatch, or `time` around `claude -p` / `codex exec`).
 One row per phase per tool. Phase is `plan`, `implement` or `review`. Tool is `claude` or `codex`.
-Effort is one of `low`, `medium`, `high`, `xhigh`, `max`.
+Effort is one of `low`, `medium`, `high`, `xhigh`, `max`, or `ultra` if your Codex model lists it.
 
 The numbers below are an example run, not a benchmark. Yours will differ.
 
@@ -12,9 +12,9 @@ The numbers below are an example run, not a benchmark. Yours will differ.
 | plan | claude | opus | high | 41 |
 | implement | claude | sonnet | medium | 18 |
 | review | claude | opus | high | 33 |
-| plan | codex | gpt-5.6-sol | high | 38 |
+| plan | codex | gpt-6-astra | high | 38 |
 | implement | codex | gpt-5.6-luna | low | 12 |
-| review | codex | gpt-5.6-sol | high | 35 |
+| review | codex | gpt-6-astra | high | 35 |
 
 ## Decision
 

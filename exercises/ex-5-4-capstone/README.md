@@ -4,17 +4,17 @@ Ship one small feature to a real GitHub repo through the full loop: spec, plan, 
 
 ## Setup
 
-You need `gh` authenticated, and a private GitHub repo you can throw away.
+You need `gh` authenticated, and a throwaway GitHub repo (public; it holds no secrets).
 
 ```bash
 cp -r exercises/ex-5-4-capstone/starter ~/fm-ex/ex-5-4-capstone && cd ~/fm-ex/ex-5-4-capstone && npm i
 git init -b main && git add -A && git commit -m "starter"
-gh repo create fm-capstone --private --source . --push
+gh repo create fm-capstone --public --source . --push
 for l in gate:browser-green gate:review-green gate:uiux-green; do gh label create "$l"; done
 npm test    # 3 passing tests: the baseline
 ```
 
-Protect `main` in the repo settings so nobody can push to it directly. The gate scripts in `scripts/` are the ones this app was built with: `gate-status.sh` posts a status on the commit that was reviewed, and `gate-merge.sh` (`npm run gate:merge`) refuses to merge unless everything is green on the head commit.
+Branch protection needs a public repo or an org/Pro account (a private repo on a free personal account cannot use it). If you cannot protect `main`, `gate:merge` is still your only merge path. The gate scripts in `scripts/` are the ones this app was built with: `gate-status.sh` posts a status on the commit that was reviewed, and `gate-merge.sh` (`npm run gate:merge`) refuses to merge unless everything is green on the head commit.
 
 ## The feature
 

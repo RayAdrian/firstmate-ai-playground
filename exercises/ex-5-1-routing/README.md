@@ -35,7 +35,7 @@ Copy the two Codex profiles into `~/.codex/` (they are additive, named `fm-*`) s
 cp codex/fm-plan.config.toml codex/fm-impl.config.toml ~/.codex/
 ```
 
-Codex model names change often. Open `/model` in Codex and use two models it actually lists. The verify script only requires that the effort and sandbox differ the right way, not a specific model name.
+Codex model names change often. Run `codex debug models` (or open `/model`) and use two models your account lists: a frontier one and a faster or cheaper one. Replace `<frontier-model>` and `<fast-model>` in the configs with their slugs. The verify script only requires that the effort and sandbox differ the right way, not a specific model name.
 
 ## Verify
 
