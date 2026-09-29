@@ -34,6 +34,8 @@ export interface VerifyOptions {
 interface CmdResult {
   outcome: RunOutcome;
   output: string;
+  /** Set when the setup step (npm install) failed: never counts as the verify command failing. */
+  setupFailed?: boolean;
 }
 
 /** Environment for verify commands: inherited, minus any *_API_KEY (verification must never need a paid key). */
@@ -91,7 +93,7 @@ async function runInCopy(src: string, verifyCmd: string, timeoutMs: number, env:
     cpSync(src, tmp, { recursive: true, filter: (s) => path.basename(s) !== "node_modules" });
     if (hasDeps(tmp)) {
       const install = await run("npm install --no-audit --no-fund --prefer-offline", tmp, timeoutMs, env);
-      if (install.outcome !== "pass") return { outcome: install.outcome, output: `npm install failed\n${install.output}` };
+      if (install.outcome !== "pass") return { outcome: install.outcome, output: install.output, setupFailed: true };
     }
     return await run(verifyCmd, tmp, timeoutMs, env);
   } finally {
@@ -151,9 +153,16 @@ export async function verifyExercises(opts: VerifyOptions): Promise<VerifyReport
     const starter = await runInCopy(path.join(dir, "starter"), verify, opts.timeoutMs, env);
     const solution = await runInCopy(path.join(dir, "solution"), verify, opts.timeoutMs, env);
     const problems: string[] = [];
-    if (starter.outcome === "timeout") problems.push(`${slug}: starter timed out after ${opts.timeoutMs}ms (\`${verify}\`)`);
+    for (const [name, r] of [["starter", starter], ["solution", solution]] as const) {
+      if (r.setupFailed) problems.push(`${slug}: ${name} setup failed (npm install ${r.outcome === "timeout" ? "timed out" : "exited non-zero"}), last 20 lines:\n${tail(r.output)}`);
+    }
+    if (starter.setupFailed) {
+      // reported above
+    } else if (starter.outcome === "timeout") problems.push(`${slug}: starter timed out after ${opts.timeoutMs}ms (\`${verify}\`)`);
     else if (starter.outcome === "pass") problems.push(`${slug}: starter exited 0 but must fail (\`${verify}\`)`);
-    if (solution.outcome === "timeout") problems.push(`${slug}: solution timed out after ${opts.timeoutMs}ms (\`${verify}\`)`);
+    if (solution.setupFailed) {
+      // reported above
+    } else if (solution.outcome === "timeout") problems.push(`${slug}: solution timed out after ${opts.timeoutMs}ms (\`${verify}\`)`);
     else if (solution.outcome === "fail") problems.push(`${slug}: solution failed but must pass (\`${verify}\`), last 20 lines:\n${tail(solution.output)}`);
 
     if (problems.length === 0) {

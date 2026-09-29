@@ -27,6 +27,7 @@ const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-
 
 let sb: Sandbox;
 test.beforeAll(() => {
+  console.warn("\n!!! FM_B_INTEGRATION: this suite WIPES the local Supabase and reloads the fx-base fixtures when it finishes. Any imported news or seeded content is lost. !!!\n");
   const r = npmRun("db:reset:test", ["--variant=fx-no-content"]);
   expect(r.code, r.stderr).toBe(0);
   sb = contentSandbox();
@@ -186,6 +187,71 @@ test.describe("seed", () => {
   });
 });
 
+test.describe("seed: unique-key ordering (B1)", () => {
+  let box: Sandbox;
+  test.beforeAll(() => {
+    expect(npmRun("db:reset:test", ["--variant=fx-no-content"]).code).toBe(0);
+    box = contentSandbox();
+    expect(npmRun("seed", [], box.env).code).toBe(0);
+  });
+  test.afterAll(() => box?.cleanup());
+
+  test("exercise slug rename plus a lesson edit in one run", async () => {
+    const before = await serviceClient().from("exercises").select("id").eq("slug", "ex-fx-auto").single();
+    const fs = await import("node:fs");
+    fs.renameSync(path.join(box.root, "exercises/ex-fx-auto"), path.join(box.root, "exercises/ex-fx-auto-v2"));
+    box.edit("exercises/ex-fx-auto-v2/exercise.json", (t) => t.replace('"slug": "ex-fx-auto"', '"slug": "ex-fx-auto-v2"'));
+    box.edit("content/lessons/l1/01-first-session.md", (t) => t.replace("exercise: ex-fx-auto", "exercise: ex-fx-auto-v2").replace("title: Your first agent session", "title: Renamed lesson"));
+    const r = npmRun("seed", [], box.env);
+    expect(r.code, r.stderr).toBe(0);
+    const { data } = await serviceClient().from("exercises").select("id, slug, archived_at").eq("slug", "ex-fx-auto-v2").single();
+    expect(data?.id).toBe(before.data?.id);
+    expect(data?.archived_at).toBeNull();
+    expect((await lesson("l1-first-session")).title).toBe("Renamed lesson");
+    expect(npmRun("seed", [], box.env).stdout).toContain("0 inserted, 0 updated, 0 archived, 0 restored");
+  });
+
+  test("swapping a lesson's exercise for a new one", async () => {
+    const fs = await import("node:fs");
+    fs.cpSync(path.join(box.root, "exercises/ex-fx-auto-v2"), path.join(box.root, "exercises/ex-fx-swap"), { recursive: true });
+    box.edit("exercises/ex-fx-swap/exercise.json", (t) => t.replace('"slug": "ex-fx-auto-v2"', '"slug": "ex-fx-swap"'));
+    box.remove("exercises/ex-fx-auto-v2");
+    box.edit("content/lessons/l1/01-first-session.md", (t) => t.replace("exercise: ex-fx-auto-v2", "exercise: ex-fx-swap"));
+    const r = npmRun("seed", [], box.env);
+    expect(r.code, r.stderr).toBe(0);
+    const { data } = await serviceClient().from("exercises").select("slug, archived_at").eq("slug", "ex-fx-swap").single();
+    expect(data?.archived_at).toBeNull();
+  });
+
+  test("level slug rename and renumber", async () => {
+    box.edit("content/levels.yaml", (t) => t.replace("slug: l2", "slug: l2-context"));
+    let r = npmRun("seed", [], box.env);
+    expect(r.code, r.stderr).toBe(0);
+    const db = serviceClient();
+    expect((await db.from("levels").select("slug").eq("number", 2).single()).data?.slug).toBe("l2-context");
+    box.edit("content/levels.yaml", (t) => t.replace("number: 2", "number: 3"));
+    box.edit("content/lessons/l2/01-context-files.md", (t) => t.replace("level: 2", "level: 3"));
+    box.edit("content/lessons/l2/02-memory.md", (t) => t.replace("level: 2", "level: 3"));
+    const fs = await import("node:fs");
+    fs.renameSync(path.join(box.root, "content/lessons/l2"), path.join(box.root, "content/lessons/l3"));
+    r = npmRun("seed", [], box.env);
+    expect(r.code, r.stderr).toBe(0);
+    expect((await db.from("levels").select("number").eq("slug", "l2-context").single()).data?.number).toBe(3);
+  });
+
+  test("refuses to archive everything unless --allow-archive-all", async () => {
+    box.remove("content/lessons/l1");
+    box.remove("content/lessons/l3");
+    const before = await dumpTables();
+    let r = npmRun("seed", [], box.env);
+    expect(r.code).not.toBe(0);
+    expect(r.stderr).toContain("--allow-archive-all");
+    expect(await dumpTables()).toBe(before);
+    r = npmRun("seed", ["--allow-archive-all"], box.env);
+    expect(r.code, r.stderr).toBe(0);
+  });
+});
+
 test.describe("db:reset:test", () => {
   test("TC-B-35: refuses a non-local database", async () => {
     const r = npmRun("db:reset:test", [], { SUPABASE_URL: "https://example.supabase.co" });
@@ -223,6 +289,7 @@ test.describe("db:reset:test", () => {
   });
 
   test("TC-B-34: variants load their documented contents", async () => {
+    test.setTimeout(180_000);
     const expected: Record<string, Partial<Record<(typeof TABLES)[number], number>>> = {
       "fx-no-content": { levels: 0, lessons: 0, exercises: 0, news_sources: 0, news_items: 0, ingest_runs: 0 },
       "fx-no-news": { levels: 2, lessons: 5, exercises: 2, news_items: 0, ingest_runs: 0 },

@@ -53,6 +53,20 @@ describe("verifyExercises", () => {
     expect(r.lines.join("\n")).toMatch(/timed out/);
   }, 30_000);
 
+  it("treats a starter install failure as an error, not the expected failure (B2)", async () => {
+    const sb = contentSandbox();
+    sb.write(
+      "exercises/ex-fx-auto/starter/package.json",
+      JSON.stringify({ name: "x", private: true, dependencies: { "fm-nonexistent-pkg-zzz": "9.9.9" }, scripts: { test: "true" } }),
+    );
+    sb.edit("exercises/ex-fx-auto/exercise.json", (t) => t.replace('"verify": "npm test"', '"verify": "true"'));
+    const r = await verifyExercises({ exercisesDir: sb.exercisesDir, timeoutMs: 60_000, only: ["ex-fx-auto"] });
+    expect(r.ok).toBe(false);
+    expect(r.results[0]).toMatchObject({ status: "error" });
+    expect(r.lines.join("\n")).toMatch(/starter setup failed/);
+    expect(r.lines.join("\n")).not.toMatch(/starter FAIL \(expected\)/);
+  }, 90_000);
+
   it("runs verify without *_API_KEY variables (TC-B-43)", async () => {
     const sb = contentSandbox();
     sb.write("exercises/ex-fx-auto/solution/test.js", 'if (Object.keys(process.env).some((k) => k.endsWith("_API_KEY"))) throw new Error("key leaked");\n');
