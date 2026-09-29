@@ -1,18 +1,18 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { readProgress, seedProgress, blockStorage, collectConsole, doc } from "../d/helpers";
+import { blockStorage, collectConsole, expectNoSeriousA11y, progressDoc, readProgress, seedProgress, setServerNow } from "../../support";
 import { NEWS_ITEMS } from "../../fixtures/news";
-import { cardTitles, fixture, go, itemId, NOW_DEFAULT, patchItems, setCookie, setNow } from "./helpers";
+import { cardTitles, fixture, go, itemId, NOW_DEFAULT, patchItems, setCookie } from "./helpers";
 
 // Runs against fx-base (`npm run db:reset:test`). Tests that patch fixture rows restore them afterwards, so
 // the file is serial. Variant/destructive cases live in news-integration.spec.ts (FM_F_INTEGRATION=1).
 test.describe.configure({ mode: "serial" });
 
+type ProgressDoc = { bookmarks: { news: Record<string, string> } };
 const DIGEST_ORDER = ["n01", "n02", "n19", "n03", "n04", "n05", "n06", "n07", "n08", "n09"];
 const digestTitles = () => DIGEST_ORDER.map((a) => fixture(a).title);
 
 test.beforeEach(async ({ context, baseURL }) => {
-  await setNow(context, baseURL ?? "http://localhost:3000");
+  await setServerNow(context, baseURL ?? "", NOW_DEFAULT);
 });
 
 const digestList = (page: Page) => page.getByRole("list", { name: "Today's digest" });
@@ -29,7 +29,7 @@ test.describe("digest (N-1)", () => {
   });
 
   test("TC-F-03 partial run counts as the digest, keyed on its own digest date", async ({ page, context, baseURL }) => {
-    await setNow(context, baseURL ?? "", "2026-09-29T13:00:00+08:00");
+    await setServerNow(context, baseURL ?? "", "2026-09-29T13:00:00+08:00");
     await go(page, "/news");
     await expect(page.locator("body")).toContainText("Tue 29 Sep · updated 08:04");
     expect(await cardTitles(digestList(page))).toEqual(["n20", "n24", "n21"].map((a) => fixture(a).title));
@@ -173,7 +173,7 @@ test.describe("unscored section (N-2.1)", () => {
 test.describe("stale digest and Manila time (N-3.1)", () => {
   test("TC-F-21/22 no run today: stale notice, latest digest, copyable command", async ({ page, context, baseURL }) => {
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
-    await setNow(context, baseURL ?? "", "2026-10-01T09:00:00+08:00");
+    await setServerNow(context, baseURL ?? "", "2026-10-01T09:00:00+08:00");
     await go(page, "/news");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Latest digest");
     await expect(page.locator("body")).toContainText("No digest yet today. Showing Wed 30 Sep");
@@ -186,20 +186,20 @@ test.describe("stale digest and Manila time (N-3.1)", () => {
 
   test("TC-F-23 the Manila midnight boundary decides staleness", async ({ page, context, baseURL }) => {
     const stale = "No digest yet today. Showing Wed 30 Sep";
-    await setNow(context, baseURL ?? "", "2026-10-01T07:59:00+08:00");
+    await setServerNow(context, baseURL ?? "", "2026-10-01T07:59:00+08:00");
     await go(page, "/news");
     await expect(page.locator("body")).toContainText(stale);
-    await setNow(context, baseURL ?? "", "2026-09-30T23:59:00+08:00");
+    await setServerNow(context, baseURL ?? "", "2026-09-30T23:59:00+08:00");
     await go(page, "/news");
     await expect(page.locator("body")).not.toContainText("No digest yet today");
     await expect(page.locator("body")).toContainText("Wed 30 Sep · updated 08:03");
-    await setNow(context, baseURL ?? "", "2026-10-01T00:00:00+08:00");
+    await setServerNow(context, baseURL ?? "", "2026-10-01T00:00:00+08:00");
     await go(page, "/news");
     await expect(page.locator("body")).toContainText(stale);
   });
 
   test("TC-F-24 early Manila morning: yesterday's run is stale", async ({ page, context, baseURL }) => {
-    await setNow(context, baseURL ?? "", "2026-09-30T00:30:00+08:00");
+    await setServerNow(context, baseURL ?? "", "2026-09-30T00:30:00+08:00");
     await go(page, "/news");
     await expect(page.locator("body")).toContainText("No digest yet today. Showing Tue 29 Sep");
     expect(await cardTitles(page.getByRole("list", { name: "Latest digest" }))).toEqual(
@@ -210,7 +210,7 @@ test.describe("stale digest and Manila time (N-3.1)", () => {
   for (const timezoneId of ["America/Los_Angeles", "UTC"]) {
     test(`TC-F-25 browser zone ${timezoneId} does not change dates or times`, async ({ browser, baseURL }) => {
       const context = await browser.newContext({ timezoneId });
-      await setNow(context, baseURL ?? "");
+      await setServerNow(context, baseURL ?? "", NOW_DEFAULT);
       const page = await context.newPage();
       const restore = await patchItems({ n01: { published_at: "2026-09-29T16:30:00Z" } });
       try {
@@ -220,7 +220,7 @@ test.describe("stale digest and Manila time (N-3.1)", () => {
         await expect(page.locator("body")).toContainText("Wed 30 Sep · updated 08:03");
         await expect(page.locator("body")).not.toContainText("No digest yet today");
         await expect(digestList(page).getByRole("article").first().locator("time")).toHaveText("Wed 30 Sep, 00:30");
-        expect(logs.hydration).toEqual([]);
+        expect(logs()).toEqual([]);
       } finally {
         await restore();
         await context.close();
@@ -345,7 +345,7 @@ test.describe("archive (N-4.1)", () => {
     expect((await go(page, "/news/archive?from=2026-13-45"))?.status()).toBe(200);
     await expect(page.getByLabel("Minimum score", { exact: true })).toHaveValue("0");
     await expect(page.getByRole("checkbox", { name: "not-a-tag" })).toHaveCount(0);
-    expect(logs.errors).toEqual([]);
+    expect(logs()).toEqual([]);
   });
 
   test("TC-F-34 out-of-range page and inverted range", async ({ page }) => {
@@ -421,14 +421,14 @@ test.describe("bookmarks (N-5.1)", () => {
     await expect(button).toHaveAttribute("aria-pressed", "false");
     await button.click();
     await expect(button).toHaveAttribute("aria-pressed", "true");
-    const stored = await readProgress(page);
+    const stored = (await readProgress(page)) as ProgressDoc | null;
     expect(Object.keys(stored?.bookmarks.news ?? {})).toEqual([id]);
     expect(Date.parse(stored?.bookmarks.news[id] ?? "")).not.toBeNaN();
     await page.reload();
     await expect(page.getByRole("button", { name: `Bookmark: ${n01.title}` })).toHaveAttribute("aria-pressed", "true");
     await page.getByRole("button", { name: `Bookmark: ${n01.title}` }).click();
     await expect(page.getByRole("button", { name: `Bookmark: ${n01.title}` })).toHaveAttribute("aria-pressed", "false");
-    expect(Object.keys((await readProgress(page))?.bookmarks.news ?? {})).toEqual([]);
+    expect(Object.keys(((await readProgress(page)) as ProgressDoc | null)?.bookmarks.news ?? {})).toEqual([]);
   });
 
   test("TC-F-46 bookmarks work from the archive and from Unscored", async ({ page }) => {
@@ -437,19 +437,19 @@ test.describe("bookmarks (N-5.1)", () => {
     await go(page, "/news");
     await page.getByRole("button", { name: /^Unscored \(3\)$/ }).click();
     await page.getByRole("button", { name: `Bookmark: ${fixture("n15").title}` }).click();
-    const ids = Object.keys((await readProgress(page))?.bookmarks.news ?? {}).sort();
+    const ids = Object.keys(((await readProgress(page)) as ProgressDoc | null)?.bookmarks.news ?? {}).sort();
     expect(ids).toEqual([await itemId("n27"), await itemId("n15")].sort());
   });
 
   test("TC-F-47 server HTML never claims a pressed bookmark; blocked storage still works", async ({ page, request, baseURL }) => {
     const id = await itemId("n01");
-    await seedProgress(page, doc({ bookmarks: { lessons: {}, news: { [id]: "2026-09-29T01:00:00.000Z" } } }));
+    await seedProgress(page, progressDoc({ bookmarks: { lessons: {}, news: { [id]: "2026-09-29T01:00:00.000Z" } } }));
     const logs = collectConsole(page);
     const raw = await request.get("/news", { headers: { cookie: `fm_test_now=${NOW_DEFAULT}` } });
     expect(await raw.text()).not.toContain('aria-pressed="true"');
     await go(page, "/news");
     await expect(page.getByRole("button", { name: `Bookmark: ${fixture("n01").title}` })).toHaveAttribute("aria-pressed", "true");
-    expect(logs.hydration).toEqual([]);
+    expect(logs()).toEqual([]);
 
     const blocked = await page.context().newPage();
     await blockStorage(blocked);
@@ -463,23 +463,18 @@ test.describe("bookmarks (N-5.1)", () => {
 });
 
 test.describe("accessibility and responsive (D-*)", () => {
-  const axe = async (page: Page) => {
-    const res = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
-    return res.violations.filter((v) => v.impact === "serious" || v.impact === "critical").map((v) => `${v.id}: ${v.nodes[0]?.target.join(" ")}`);
-  };
-
   test("TC-F-48 axe: digest, unscored expanded, stale, archive states", async ({ page, context, baseURL }) => {
     await go(page, "/news");
-    expect(await axe(page)).toEqual([]);
+    await expectNoSeriousA11y(page);
     await page.getByRole("button", { name: /^Unscored/ }).click();
-    expect(await axe(page)).toEqual([]);
-    await setNow(context, baseURL ?? "", "2026-10-01T09:00:00+08:00");
+    await expectNoSeriousA11y(page);
+    await setServerNow(context, baseURL ?? "", "2026-10-01T09:00:00+08:00");
     await go(page, "/news");
-    expect(await axe(page)).toEqual([]);
-    await setNow(context, baseURL ?? "");
+    await expectNoSeriousA11y(page);
+    await setServerNow(context, baseURL ?? "", NOW_DEFAULT);
     for (const url of ["/news/archive", "/news/archive?tag=security&min=60", "/news/archive?source=no-such-source"]) {
       await go(page, url);
-      expect(await axe(page), url).toEqual([]);
+      await expectNoSeriousA11y(page);
     }
   });
 

@@ -1,9 +1,9 @@
-import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { cardTitles, go, resetDb, setCookie, setNow } from "./helpers";
+import { expectNoSeriousA11y, setServerNow } from "../../support";
+import { cardTitles, go, resetDb, setCookie } from "./helpers";
 
 // Wipes and reloads the shared DB with fixture variants, so it only runs when FM_F_INTEGRATION=1, alone,
 // under the db lock (same convention as tests/e2e/b). It restores fx-base afterwards.
@@ -12,7 +12,7 @@ test.skip(process.env.FM_F_INTEGRATION !== "1", "set FM_F_INTEGRATION=1 (destruc
 test.describe.configure({ mode: "serial" });
 
 test.beforeEach(async ({ context, baseURL }) => {
-  await setNow(context, baseURL ?? "");
+  await setServerNow(context, baseURL ?? "", "2026-09-30T13:00:00+08:00");
 });
 test.afterAll(() => {
   if (process.env.FM_F_INTEGRATION === "1") resetDb("fx-base");
@@ -98,8 +98,7 @@ test.describe("fx-news-lowbar", () => {
 
   test("axe on the empty and low-bar states", async ({ page }) => {
     await go(page, "/news");
-    const res = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
-    expect(res.violations.filter((v) => v.impact === "serious" || v.impact === "critical")).toEqual([]);
+    await expectNoSeriousA11y(page);
   });
 });
 

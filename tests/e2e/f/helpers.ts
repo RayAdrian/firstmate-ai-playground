@@ -7,11 +7,6 @@ import { NEWS_ITEMS, newsAliasToCanonicalUrl } from "../../fixtures/news";
 
 export const NOW_DEFAULT = "2026-09-30T13:00:00+08:00";
 
-/** Server clock override. Honoured under `next dev`, or by a production server started with FM_TEST_MODE=1. */
-export async function setNow(context: BrowserContext, baseURL: string, iso: string = NOW_DEFAULT): Promise<void> {
-  await context.addCookies([{ name: "fm_test_now", value: iso, url: baseURL }]);
-}
-
 export async function setCookie(context: BrowserContext, baseURL: string, name: string, value: string): Promise<void> {
   await context.addCookies([{ name, value, url: baseURL }]);
 }
