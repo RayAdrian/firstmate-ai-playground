@@ -47,7 +47,12 @@ export default defineConfig({
       : `npm run dev -- --port ${PORT}`,
     url: `http://localhost:${PORT}`,
     // FM_TEST_MODE enables the server-side test clock (src/lib/time/now.ts). Only ever set here.
-    env: { FM_TEST_MODE: "1" },
+    // The prod build leaves it unset (so @prod tests see production behaviour) unless
+    // E2E_FM_TEST_MODE=1 is given explicitly.
+    env: {
+      FM_TEST_ROUTES: "1",
+      ...(!PROD || on("E2E_FM_TEST_MODE") ? { FM_TEST_MODE: "1" } : {}),
+    },
     reuseExistingServer: false,
     timeout: PROD ? 300_000 : 120_000,
   },

@@ -1,5 +1,6 @@
 import "server-only";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { formatInTimeZone } from "date-fns-tz";
 
 export const TEST_NOW_COOKIE = "fm_test_now";
@@ -11,6 +12,8 @@ const MANILA = "Asia/Manila";
  * absent or invalid cookie falls back to the real time. Without the flag the cookie is ignored.
  */
 export async function getNow(): Promise<Date> {
+  // Opt every caller into dynamic rendering, so "today" is never frozen at build time.
+  await connection();
   if (process.env.FM_TEST_MODE !== "1") return new Date();
   const raw = (await cookies()).get(TEST_NOW_COOKIE)?.value;
   const parsed = raw ? new Date(raw) : null;

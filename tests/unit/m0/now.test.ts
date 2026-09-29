@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 const cookieStore = { get: vi.fn() };
+const connection = vi.hoisted(() => vi.fn(async () => {}));
+vi.mock("next/server", () => ({ connection }));
 vi.mock("next/headers", () => ({ cookies: async () => cookieStore }));
 
 import { getNow, manilaDate } from "@/lib/time/now";
@@ -9,6 +11,7 @@ import { getNow, manilaDate } from "@/lib/time/now";
 afterEach(() => {
   vi.unstubAllEnvs();
   cookieStore.get.mockReset();
+  connection.mockClear();
 });
 
 describe("getNow", () => {
@@ -18,6 +21,14 @@ describe("getNow", () => {
     const now = await getNow();
     expect(now.getTime()).toBeGreaterThanOrEqual(before);
     expect(cookieStore.get).not.toHaveBeenCalled();
+  });
+
+  it("always opts into dynamic rendering (connection), with or without the flag", async () => {
+    await getNow();
+    vi.stubEnv("FM_TEST_MODE", "1");
+    cookieStore.get.mockReturnValue(undefined);
+    await getNow();
+    expect(connection).toHaveBeenCalledTimes(2);
   });
 
   it("uses the fm_test_now cookie under FM_TEST_MODE=1", async () => {
