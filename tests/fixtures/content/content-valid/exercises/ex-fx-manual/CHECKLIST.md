@@ -1,0 +1,2 @@
+- [ ] {#m1} CLAUDE.md written
+- [ ] {#m2} AGENTS.md mirrors it

@@ -1,0 +1,18 @@
+{
+  "slug": "ex-fx-auto",
+  "verify": "npm test",
+  "required_tool_features": [
+    "plan-mode"
+  ],
+  "title": "Fix the failing test",
+  "goal": "Make the test pass.",
+  "starter_prompts": {
+    "claude": "Claude prompt fx",
+    "codex": "Codex prompt fx"
+  },
+  "solution_notes": [
+    "Fixes the root cause.",
+    "Leaves tests untouched.",
+    "Small diff."
+  ]
+}
