@@ -1,0 +1,12 @@
+{
+  "pr": 51,
+  "head_sha": "4e7d1a90b2c34f56a78901b2c3d4e5f60718293a",
+  "behind_by": 0,
+  "labels": ["gate:browser-green", "gate:uiux-green"],
+  "statuses": [
+    { "context": "gate/browser", "state": "success", "sha": "4e7d1a90b2c34f56a78901b2c3d4e5f60718293a" },
+    { "context": "gate/review", "state": "success", "sha": "4e7d1a90b2c34f56a78901b2c3d4e5f60718293a" },
+    { "context": "gate/uiux", "state": "success", "sha": "4e7d1a90b2c34f56a78901b2c3d4e5f60718293a" }
+  ],
+  "check_runs": [{ "name": "unit", "status": "completed", "conclusion": "success" }]
+}

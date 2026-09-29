@@ -1,0 +1,8 @@
+{
+  "orchestrator": { "owns": ["src/index.mjs"] },
+  "workers": [
+    { "name": "parser", "branch": "feat/parse", "owns": ["src/parse.mjs"] },
+    { "name": "grouper", "branch": "feat/group", "owns": ["src/group.mjs"] },
+    { "name": "renderer", "branch": "feat/render", "owns": ["src/render.mjs"] }
+  ]
+}

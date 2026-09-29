@@ -1,0 +1,18 @@
+{
+  "slug": "ex-5-4-capstone",
+  "verify": "manual",
+  "required_tool_features": ["model-routing", "git-worktrees", "subagents-or-parallel-sessions", "code-review", "github-cli"],
+  "title": "Capstone: ship like First Mate",
+  "goal": "Ship a small feature to a real repo through the full loop: spec, plan, parallel worktrees, tests first, three gates on the head commit, and a gated merge.",
+  "setup_cmd": "cp -r exercises/ex-5-4-capstone/starter ~/fm-ex/ex-5-4-capstone && cd ~/fm-ex/ex-5-4-capstone && npm i && git init -b main && git add -A && git commit -m starter && gh repo create fm-capstone --private --source . --push",
+  "starter_prompts": {
+    "claude": "Read AGENTS.md, SPEC_TEMPLATE.md and PLAN_TEMPLATE.md. We are adding due dates to the todo library (README.md, section The feature). Stay in plan mode and do not edit code. First draft SPEC.md: numbered P0 acceptance criteria, exact function signatures, non-goals, and two workstreams with explicit file ownership so they cannot touch the same file. Show it to me before you write PLAN.md.",
+    "codex": "Read AGENTS.md, SPEC_TEMPLATE.md and PLAN_TEMPLATE.md. We are adding due dates to the todo library (README.md, section The feature). Do not edit code yet. First draft SPEC.md: numbered P0 acceptance criteria, exact function signatures, non-goals, and two workstreams with explicit file ownership so they cannot touch the same file. Show it to me before you write PLAN.md."
+  },
+  "solution_notes": [
+    "The spec fixes interfaces and per-workstream file ownership before anyone codes, so the two worktrees can never edit the same file and the merges are clean.",
+    "Tests come first and live on main. Workers turn them green and never weaken them, which is the same test-first rule this app was built under.",
+    "Every gate is a commit status on the exact reviewed SHA. Pushing anything after approval makes gate:merge refuse, so approval can never cover code nobody reviewed.",
+    "The UI/UX gate records 'N/A: no UI changes' rather than being skipped, so gate:merge still has all three statuses to check."
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "slug": "ex-5-3-gates",
+  "verify": "npm test",
+  "required_tool_features": ["headless-mode", "code-review", "github-actions", "commit-statuses"],
+  "title": "A merge gate that fails closed",
+  "goal": "Fix a naive gate script so it blocks a merge unless three gate statuses are green on the head commit, CI is green, the labels are present and the branch is current. Prove it against a seeded bad PR.",
+  "setup_cmd": "cp -r exercises/ex-5-3-gates/starter ~/fm-ex/ex-5-3-gates && cd ~/fm-ex/ex-5-3-gates && npm i",
+  "starter_prompts": {
+    "claude": "Read README.md, AGENTS.md and tests/gate.test.mjs. gate.mjs is naive on purpose. Run npm test, then fix gate.mjs so every rule in README.md holds. Never edit tests/ or fixtures/. Before you code, tell me in one sentence why a gate approval must be tied to the head SHA, and which fixture proves it.",
+    "codex": "Read README.md, AGENTS.md and tests/gate.test.mjs. gate.mjs is naive on purpose. Run npm test, then fix gate.mjs so every rule in README.md holds. Never edit tests/ or fixtures/. Before you code, tell me in one sentence why a gate approval must be tied to the head SHA, and which fixture proves it."
+  },
+  "solution_notes": [
+    "Statuses only count when they were posted on the head SHA, and the latest one per gate wins. This is the rule our own review caught in scripts/gate-status.sh: without it, an approval can silently cover a commit nobody reviewed.",
+    "An empty list of CI check runs blocks the merge. 'Nothing ran' looks identical to 'nothing failed' unless you check for it.",
+    "The gate collects every reason instead of stopping at the first, so the author fixes everything in one round trip.",
+    "Bad or missing input fails closed. evaluate({}) is blocked, and a missing behind_by is treated as unknown rather than zero."
+  ]
+}

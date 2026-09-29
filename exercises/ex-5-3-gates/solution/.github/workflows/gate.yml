@@ -1,0 +1,41 @@
+# Optional. A reference workflow: it tests the gate itself, and runs an agent review on every PR.
+# The review job only comments. It does not set gate/review: a person or gate agent still posts
+# that status on the exact commit that was reviewed (see scripts/gate-status.sh in the lesson).
+name: gate
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+
+jobs:
+  gate-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+
+  agent-review:
+    # Fork PRs do not get secrets, so the review only runs for branches in this repository.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Review PR #${{ github.event.pull_request.number }} at commit ${{ github.event.pull_request.head.sha }}.
+            Report correctness bugs and edits outside the files this change should touch.
+            State the commit SHA you reviewed on the first line of your review.
+          claude_args: "--max-turns 8"

@@ -1,0 +1,9 @@
+- [ ] c1: `.claude/settings.json` sets `"model": "opusplan"`
+- [ ] c2: The Claude `reviewer` subagent uses Opus and has no Edit or Write tool
+- [ ] c3: The Claude `implementer` subagent uses Sonnet (or Haiku) and keeps Edit
+- [ ] c4: `fm-plan` and `fm-impl` Codex profiles differ in model or effort, and the plan profile is read-only
+- [ ] c5: The Codex `reviewer` agent is read-only with high reasoning effort
+- [ ] c6: `codex --profile fm-plan` starts (you copied the profiles into `~/.codex/`)
+- [ ] c7: `timings.md` has a measured row for every phase and tool, not the reference numbers
+- [ ] c8: The Decision paragraph says where the strong model paid off and where it did not
+- [ ] c9: `npm test` passes
