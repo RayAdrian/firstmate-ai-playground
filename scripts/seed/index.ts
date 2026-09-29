@@ -1,7 +1,6 @@
 // `npm run seed`: validate content/ and exercises/, then upsert into local Supabase (PRD S-1..S-4).
 // `npm run seed -- --dry-run` validates only (no database, no key needed).
 import { existsSync } from "node:fs";
-import path from "node:path";
 import { getServiceClient } from "../../src/lib/db/service";
 import { applyContent, sumCounts } from "./lib/apply";
 import { readSeedEnv, requireServiceEnv } from "./lib/env";
@@ -44,11 +43,11 @@ async function main(): Promise<number> {
     return 1;
   }
 
-  if (content.lessons.length === 0 && existsSync(path.join(env.contentDir, "lessons")) && !process.argv.includes("--allow-archive-all")) {
+  if (content.lessons.length === 0 && !process.argv.includes("--allow-archive-all")) {
     const { count, error } = await db.from("lessons").select("id", { count: "exact", head: true }).is("archived_at", null);
     if (error) throw new Error(`cannot count lessons: ${error.message}`);
     if ((count ?? 0) > 0) {
-      console.error(`seed: ${env.contentDir}/lessons has no lessons but the database has ${count} active; refusing to archive them all.`);
+      console.error(`seed: the content tree has no lessons but the database has ${count} active; refusing to archive them all.`);
       console.error("Check CONTENT_DIR, or pass --allow-archive-all if that is intended.");
       return 1;
     }

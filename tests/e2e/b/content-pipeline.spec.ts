@@ -239,6 +239,24 @@ test.describe("seed: unique-key ordering (B1)", () => {
     expect((await db.from("levels").select("number").eq("slug", "l2-context").single()).data?.number).toBe(3);
   });
 
+  test("refuses to archive everything when levels.yaml exists but there is no lessons dir", async () => {
+    const full = contentSandbox();
+    const other = contentSandbox();
+    try {
+      expect(npmRun("seed", ["--allow-archive-all"], full.env).code).toBe(0);
+      other.remove("content/lessons");
+      other.remove("exercises");
+      const before = await dumpTables();
+      const r = npmRun("seed", [], other.env);
+      expect(r.code).not.toBe(0);
+      expect(r.stderr).toContain("--allow-archive-all");
+      expect(await dumpTables()).toBe(before);
+    } finally {
+      full.cleanup();
+      other.cleanup();
+    }
+  });
+
   test("refuses to archive everything unless --allow-archive-all", async () => {
     box.remove("content/lessons/l1");
     box.remove("content/lessons/l3");
