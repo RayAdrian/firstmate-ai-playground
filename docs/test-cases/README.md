@@ -2,7 +2,18 @@
 
 Test-first case designs for every acceptance criterion in [PRD §5](../PRD.md#5-user-stories-and-acceptance-criteria), the §9 empty/loading/error states, the §12 merge gates and the §14 resolved decisions (news snapshot export/import is P0). Implementers write these tests **before** the code (PRD §12, "Test-first").
 
-No application code exists yet (PRD status: "Engineering has not started"). Every expected result here comes from the PRD. Verbatim strings are quoted from the PRD. Where the PRD is silent, the case says so and points to an ambiguity (`AMB-nn`, listed at the end of this file). Do not invent behavior to make a case pass; raise the ambiguity with the orchestrator.
+**Sources of truth, in this order:**
+1. [`docs/design/DESIGN.md`](../design/DESIGN.md) §11 for every role, accessible name and test id, and DESIGN §4–§7 for component behavior and microcopy.
+2. The frozen M0 contracts in [`src/lib/contracts/`](../../src/lib/contracts/): `exercise.json` (`verify`, `required_tool_features`), lesson frontmatter, `content/levels.yaml`, the progress document (`fm-playground:v1`; bookmarks are `{ [id]: isoTimestamp }` records, `lastViewed` is `{ slug, at } | null`), scorer output, snapshot files, and DB rows. The DB also has `claude_workaround_md` / `codex_workaround_md` and news source type `html`.
+3. The PRD, for acceptance criteria and for any verbatim string where DESIGN and the PRD disagree (DESIGN §8 row 9).
+
+**Implementer decisions** (coordinator, 2026-09-30) that the cases follow:
+- `CHECKLIST.md` items are written `- [ ] c1: text` or `- [ ] {#c1} text`.
+- The lesson file name is free: the slug comes from frontmatter.
+- `content/levels.yaml` defines the levels.
+- An import error on `/progress` is `role=alert`.
+
+Where all of these are silent, the case says so and points to an ambiguity (`AMB-nn`, listed at the end of this file). Do not invent behavior to make a case pass; raise the ambiguity with the orchestrator.
 
 | File | Workstream | Owns (PRD §11) |
 |---|---|---|
@@ -35,38 +46,46 @@ Every case uses this block. Keep the field labels exactly as shown; the traceabi
 
 - **IDs:** `TC-<WS>-<nn>`, where WS is `A`, `B`, `C`, `D`, `E`, `F` or `M2`. IDs are never reused or renumbered once committed. Add new cases at the end of a file.
 - **Priority** is the priority of the test, not only of the AC. A P1 story can have a P0 test when its failure breaks a P0 contract (for example, import corrupting `fm-playground:v1`).
-- **Level:** `unit` = Vitest, no DB, no browser. `integration` = Vitest or a Node script against local Supabase, the file system, git or a child process. `e2e` = Playwright against `next start` on the `fx-base` fixture (or a named variant). Cases marked **manual** in Notes are e2e checks a human (or the M3 burn-in) performs; they still need a written result in the PR.
+- **Level:** `unit` = Vitest, no DB, no browser. `integration` = Vitest or a Node script against local Supabase, the file system, git or a child process. `e2e` = Playwright on the `fx-base` fixture (or a named variant). Cases marked **manual** in Notes are e2e checks a human (or the M3 burn-in) performs; they still need a written result in the PR.
+- **Where tests live** (M0 layout): `tests/unit/<ws>/*.test.ts(x)` and `tests/e2e/<ws>/*.spec.ts`, where `<ws>` is `a`–`f`, `m2` or `content`. Shared helpers go in `tests/support/`. That directory is M0-owned and frozen, so a helper change needs a dedicated M0 PR (AMB-26). Fixtures go in `tests/fixtures/` (WS-B).
+- **Server mode.** M0's `playwright.config.ts` starts `npm run dev`. Cases that need a production server (S-3.1 "no rebuild", D-4 performance, "no stack trace" checks) say `next start` explicitly and need a second Playwright project or a nightly job (AMB-27).
+- **Tags.** `@live` (needs a logged-in real `claude`), `@network` (real internet), `@nightly` (timing or perf, not merge-gating) and `@manual` go in the test title. The default `npm run e2e` / `npm test` must exclude them with `grepInvert` (an M0 config change, AMB-27).
 
 ## 2. Selector conventions
 
-Playwright tests locate elements **by role, label and text**, never by CSS class or DOM structure. `data-testid` is allowed only when no accessible name exists (skeletons, the page-level scroll container), and the case must name the test id.
+**[DESIGN.md §11](../design/DESIGN.md#11-selector-contract) is the authoritative selector contract.** Tests use exactly the roles and names listed there. If a case in this suite disagrees with DESIGN §11, the case is wrong: fix the case, not the component. §11.5 lists the known deltas with this suite's first draft; they are already applied here.
 
-| Element | Locator |
+Rules that trip tests most often:
+
+| Topic | Rule (DESIGN §11) |
 |---|---|
-| Tool tabs | `getByRole('tablist', { name: 'Tool' })`, `getByRole('tab', { name: 'Claude Code' })`, `getByRole('tab', { name: 'Codex CLI' })`, `getByRole('tabpanel')` |
-| Differences callout | `getByRole('region', { name: 'Key differences' })` |
-| Exercise panel | `getByRole('region', { name: /^Exercise/ })` |
-| Copy buttons | `getByRole('button', { name: /^Copy/ })` scoped to the code block's `figure` / `group` |
-| Copy announcement | `getByRole('status')` (the `aria-live=polite` region) |
-| Mark complete | `getByRole('button', { name: 'Mark complete' })`; after: `getByRole('button', { name: /Completed ✓/ })` and `getByRole('button', { name: 'Undo' })` |
-| Level progress | `getByRole('progressbar', { name: /Level 3/ })` (attribute `aria-valuenow`) |
-| Level sections | `getByRole('region', { name: /^Level \d/ })` or `getByRole('heading', { level: 2 })` |
-| Checklist items | `getByRole('checkbox', { name: '<item text>' })` |
-| Reference solution disclosure | `getByRole('button', { name: 'Compare with reference solution' })` with `aria-expanded` |
-| Nav menu (<768px) | `getByRole('button', { name: 'Menu' })` with `aria-expanded`; `getByRole('navigation', { name: 'Main' })` |
-| Skip link | `getByRole('link', { name: 'Skip to content' })`; target `getByRole('main')` |
-| Notices / banners | `getByRole('alert')` for errors, `getByRole('status')` for the non-blocking storage banner; dismiss with `getByRole('button', { name: 'Dismiss' })` |
-| News digest list | `getByRole('list', { name: "Today's digest" })` → `getByRole('listitem')`; unscored: `getByRole('button', { name: /^Unscored \(\d+\)/ })` |
-| Archive filters | `getByRole('group', { name: 'Tags' })` checkboxes, `getByLabel('Minimum score')`, `getByLabel('Source')`, `getByLabel('From')`, `getByLabel('To')` |
-| Pagination | `getByRole('navigation', { name: 'Pagination' })`, `getByRole('link', { name: 'Next page' })` |
+| Two tablists per lesson | Scope first: `getByRole('tablist', { name: 'Tool' })` and `getByRole('tablist', { name: 'Starting prompt' })`, then `getByRole('tab', { name: 'Claude Code' })` inside it. Panels: scope the `tabpanel` to the region (`getByRole('region', { name: /^Exercise/ })` for the starter prompts) or use the tab's `aria-controls`. An unscoped `getByRole('tab', { name: 'Claude Code' })` matches 2 elements, which fails strict mode. |
+| Tab activation | Automatic: Left/Right/Home/End move focus **and** select (DESIGN §4.4). |
+| Announcements | `page.locator('#fm-live')` or `getByRole('status').filter({ hasText: '…' })`. **Never a bare `getByRole('status')`**, because the storage banner, the corrupted-progress notice and the import preview are `status` elements too. `#fm-live` texts: "Copied", "Copy blocked. Code selected. Press ⌘C to copy." (Ctrl+C off Mac), "Lesson marked complete", "Marked not complete", "Exercise complete", "Removed from bookmarks", "Progress exported and copied". |
+| Notice roles | Event-driven `danger` → `alert`; event-driven other tones → `status`; server-rendered notices (for example the stale digest, the route error text) → **no role**, except the route error notice, which §11.3 lists as `alert` "This page couldn't load.". Import failure on `/progress` is `alert` "This file isn't a valid progress export.". Warnings are never `alert`. |
+| Disclosures | Always `button[aria-expanded][aria-controls]`; `<details>/<summary>` is never used. "Compare with reference solution", `/^Unscored \(\d+\)$/`, `/^Filters/` (archive, <lg), "Menu" (<768). Collapsed panels use `hidden`, so they are out of the a11y tree. |
+| Copy buttons | "Copy code: <label>", where label = filename, else language, else "text" (CommandLine labels: "Setup", "Verify", "Prompt", "Terminal"). It becomes "Copied" for 2s; re-query with `/^Cop(y|ied)/`. Code wrapper is `figure` named by its `figcaption`. |
+| Mark complete | Before: `button` "Mark complete". After: visible text `getByText('Completed ✓ · Undo')` plus `button` "Undo" (the only button). |
+| Level progress | `progressbar` named exactly "Level <n>"; exercise panel bar is "Checklist". Not rendered before hydration (skeleton `data-testid="progress-placeholder"`). |
+| Lesson page | Key differences = `region` "Key differences"; exercise = `region` `/^Exercise/`; checklist = `group` "Checklist"; bookmark = `button` "Bookmark" with `aria-pressed`; prev/next = `navigation` "Lesson" with links `/^Previous: /`, `/^Next: /` or "Back to curriculum"; unknown or archived slug = h1 "Lesson not found" + link "Go to curriculum". |
+| Curriculum | h1 "Curriculum"; level section = `region` `/^Level \d/` (for example "Level 1 Foundations"); lesson row = `link` with the lesson title; empty = `region` "No lessons seeded yet. Run npm run seed.". |
+| News | Ranked list = `list` "Today's digest" (fresh) or "Latest digest" (stale), an `ol`; card = `article` named by title; title link `/^<title> \(opens in new tab\)$/`; bookmark `button` "Bookmark: <title>" with `aria-pressed`; tags = `list` "Tags" with labels "New model", "Tooling", "Framework", "Security", "Business"; archive link "Browse archive"; empty states are `region`s named by their title. |
+| Archive | `form` "Filters" (GET form, **Apply filters** button, no auto-submit); `group` "Tags" checkboxes; `combobox` "Minimum score" with options "Any", "40+", "60+", "80+"; `combobox` "Source" (first option "All sources"); date textboxes "From" / "To"; chips `/^Remove filter: /`; "Clear filters" link (exactly one); pagination `navigation` "Pagination" with links "Previous page", "Next page", "Page <n>"; the current page is text with `aria-current="page"`. |
+| Bookmarks | Sections are `region`s `/^Lessons \(\d+\)$/` and `/^News \(\d+\)$/`; missing item text "Item no longer available" + `button` "Remove bookmark"; "Undo" after removal; empty `region` "Nothing bookmarked yet". |
+| Progress | `button` "Export progress"; file input labelled "Import progress file"; preview `status` containing "Importing replaces everything saved in this browser."; buttons "Replace my progress" / "Cancel"; reset `textbox` "Type reset to confirm" + `button` "Reset all progress" (`aria-disabled="true"` until exactly `reset`); done `status` "All progress has been reset.". No dialogs. |
+| Shell | Skip link "Skip to content" (first focusable, `href="#main"`); `navigation` "Main" (one exposed at a time); `button` "Menu" <768 with `aria-expanded`; on open, focus moves to the first link, and Esc closes and returns focus to the button (DESIGN §5.1; this supersedes the PR review's "focus stays on the button"); `main#main[tabindex=-1]`. |
+| Errors | 404 h1 "Page not found" (lesson: "Lesson not found"), link "Go to curriculum"; route error h1 "Something went wrong", `alert` "This page couldn't load.", `button` "Try again", link "Back to curriculum"; DB down h1 "Database unavailable", text exactly `DB_UNAVAILABLE_MESSAGE`, `button` "Copy code: Terminal" (copies `DB_UNAVAILABLE_COMMAND` = `supabase start && npm run seed`). |
+| Dismiss | Notice dismiss button is named exactly "Dismiss". |
 
-Accessible names in this table are proposals from QA. If the implementation needs a different name, change it here and in the affected cases in the same PR; the role must not change.
+`data-testid` is allowed only for the skeletons DESIGN §11.2 lists: `curriculum-skeleton`, `lesson-skeleton`, `news-skeleton`, `archive-skeleton`, `home-skeleton`, `bookmarks-skeleton`, `progress-placeholder`.
+
+**Verbatim copy.** Where DESIGN and the PRD disagree on a string, the PRD wording ships (DESIGN §8 row 9 and §7 "Canonical strings"). Cases assert DESIGN §7's canonical strings.
 
 ## 3. Fixtures
 
 ### 3.1 `fx-base` (loaded by `npm run db:reset:test`, PRD S-5)
 
-S-5 fixes the shape: 2 levels, 4 lessons, 2 exercises, 30 news items covering every scoring status. WS-B builds it in `tests/fixtures/`; every other workstream relies on exactly these rows. Dates assume the test clock `FM_TEST_NOW = 2026-09-30T13:00:00+08:00` (§4.1).
+S-5 fixes the shape: 2 levels, 4 lessons, 2 exercises, 30 news items covering every scoring status. WS-B builds it in `tests/fixtures/` and replaces the M0 stub `scripts/seed/reset-test.ts`; every other workstream relies on exactly these rows. The rows below are **DB rows** (`src/lib/contracts/rows.ts`). Two of the four lessons have no exercise, although lesson frontmatter requires `exercise`, so `db:reset:test` must insert rows directly rather than go through the frontmatter validator (AMB-25). Dates assume the test clock `FM_TEST_NOW = 2026-09-30T13:00:00+08:00` (§4.1).
 
 **Levels**
 | number | slug | title | summary |
@@ -78,20 +97,24 @@ S-5 fixes the shape: 2 levels, 4 lessons, 2 exercises, 30 news items covering ev
 | slug | level | sort | notable properties |
 |---|---|---|---|
 | `l1-first-session` | 1 | 1 | Both tool bodies. 3 `differences`. `last_verified_on` = 2026-09-20. `tool_versions` `{claude_code: "2.1.0", codex_cli: "0.40.0"}`. `est_minutes` 20. Concept body has 3 fenced blocks (`blk-bash`, `blk-json`, `blk-plain`), whose exact bodies are pinned at the top of [ws-c-curriculum-lesson.md](ws-c-curriculum-lesson.md) and must be seeded byte for byte. Contains an external link `https://docs.anthropic.com/` and an internal link `/lessons/l1-permissions`. Exercise `ex-fx-auto`. |
-| `l1-permissions` | 1 | 2 | `codex_no_equivalent = true`, `codex_md` null, workaround text "Workaround: use a sandbox profile". `last_verified_on` = 2026-07-31 (61 days before 2026-09-30, so outdated). 1 difference. No exercise. |
+| `l1-permissions` | 1 | 2 | `codex_no_equivalent = true`, `codex_md` null, `codex_workaround_md` = "Use a sandbox profile." (rendered under h4 "Closest workaround" after the Notice "No native equivalent in Codex CLI (as of v0.40.0)", DESIGN §4.4). `last_verified_on` = 2026-07-31 (61 days before 2026-09-30, so outdated). 1 difference. No exercise. |
 | `l2-context-files` | 2 | 1 | Both tool bodies. 5 `differences`. `last_verified_on` = 2026-08-01 (exactly 60 days, not outdated). Exercise `ex-fx-manual`. |
 | `l2-memory` | 2 | 2 | Both tool bodies. Concept body contains the literal text `<script>window.__xss=1</script>` and `<img src=x onerror="window.__xss=2">`. `claude_no_equivalent = false`, `codex_no_equivalent = false`. Last lesson of the last fixture level. |
 | `l2-retired` | 2 | 3 | `archived_at` set. Must never render. |
 
 **Exercises**
-| slug | lesson | verify_cmd | checklist | solution_notes |
+DB column `verify_cmd` (null = manual) is derived from `exercise.json` `verify` (`"manual"` → null). `CHECKLIST.md` for `ex-fx-auto` reads `- [ ] c1: Test is green` and so on.
+
+| slug | lesson | verify_cmd (row) | checklist | solution_notes |
 |---|---|---|---|---|
 | `ex-fx-auto` | `l1-first-session` | `npm test` | `[{id:"c1",text:"Test is green"},{id:"c2",text:"No test files edited"},{id:"c3",text:"Diff reviewed"}]` | 3 notes |
 | `ex-fx-manual` | `l2-context-files` | null ("Manual verification") | `[{id:"m1",text:"CLAUDE.md written"},{id:"m2",text:"AGENTS.md mirrors it"}]` | 2 notes |
 
 Both exercises have `starter_prompts.claude` = "Claude prompt fx" and `starter_prompts.codex` = "Codex prompt fx".
 
-**News sources:** `fx-openai` (rss), `fx-simon` (atom), `fx-hn` (rss), `fx-anthropic` (html scraper; see AMB-12).
+**News sources:** `fx-openai` (rss), `fx-simon` (atom), `fx-hn` (rss), `fx-anthropic` (`html`).
+
+At the default clock the `/news` header reads "Wed 30 Sep · updated 08:03" (DESIGN §6.5). Card meta times use "EEE d MMM, HH:mm" on `/news` (for example "Wed 30 Sep, 06:10") and "EEE d MMM yyyy, HH:mm" in the archive, in Asia/Manila (DESIGN §4.12, §6.6, §7).
 
 **Ingest runs**
 | id alias | started_at (Manila) | finished_at (Manila) | trigger | status |
@@ -136,14 +159,15 @@ Tags: every item has 0–3 tags from `[new-model, tooling, framework, security, 
 
 ### 3.3 Browser-state fixtures (localStorage)
 
-All under key `fm-playground:v1`. Helpers live in `tests/helpers/progress.ts` (WS-D owns the schema; WS-M2 owns the helper file if D has not created it).
+All under key `fm-playground:v1` (`PROGRESS_STORAGE_KEY`), validated by `progressStateSchema`. Build docs from `createEmptyProgress()` so they track the contract. Helpers go in `tests/support/progress.ts` (M0-owned; AMB-26).
 
 | Name | Value |
 |---|---|
 | `ls-empty` | key absent |
-| `ls-one-complete` | `{version:1, lessons:{"l1-first-session":{completedAt:"2026-09-29T01:00:00.000Z"}}, checklists:{}, bookmarks:{lessons:[],news:[]}, prefs:{tool:"claude"}, lastViewed:null}` |
-| `ls-codex-pref` | as `ls-empty` shape with `prefs.tool = "codex"` |
-| `ls-orphans` | lessons include `"deleted-lesson-slug"`; checklists include `ex-fx-auto: {c1:true, zzz:true}`; `bookmarks.news` includes an id not in DB |
+| `ls-one-complete` | `{version:1, lessons:{"l1-first-session":{completedAt:"2026-09-29T01:00:00.000Z"}}, checklists:{}, bookmarks:{lessons:{}, news:{}}, prefs:{tool:"claude"}, lastViewed:{slug:"l1-first-session", at:"2026-09-29T01:00:00.000Z"}}` |
+| `ls-codex-pref` | `createEmptyProgress()` with `prefs.tool = "codex"` |
+| `ls-bookmarks` | `bookmarks: { lessons: {"l1-first-session":"2026-09-29T01:00:00.000Z","l2-memory":"2026-09-29T03:00:00.000Z"}, news: {"<n01.id>":"2026-09-30T02:00:00.000Z","<n27.id>":"2026-09-30T01:00:00.000Z"} }` (newest first: `l2-memory`, then `l1-first-session`; `n01`, then `n27`) |
+| `ls-orphans` | `lessons` includes `"deleted-lesson-slug"`; `checklists` includes `"ex-fx-auto": {c1:true, zzz:true}`; `bookmarks.news` includes `"00000000-0000-4000-8000-000000000000": "2026-09-29T00:00:00.000Z"` (id not in DB); `lastViewed: {slug:"deleted-lesson-slug", at:…}` |
 | `ls-corrupt-json` | raw string `{"version":1,` |
 | `ls-corrupt-schema` | `{"version":1,"lessons":"nope"}` |
 | `ls-v0` / `ls-v2` | version 0 and version 2 docs for migration tests (AMB-05) |
@@ -154,7 +178,7 @@ Helpers (proposed names): `seedProgress(page, doc)` (via `page.addInitScript`, b
 
 | Name | What |
 |---|---|
-| `feedServer` | Local HTTP server (`tests/helpers/feed-server.ts`) serving `tests/fixtures/feeds/*` with per-path status, delay and content-type control |
+| `feedServer` | Local HTTP server (`tests/support/feed-server.ts`) serving `tests/fixtures/feeds/*` with per-path status, delay and content-type control |
 | `fake-claude` | `tests/fixtures/bin/claude`, an executable stub. Mode via `FAKE_CLAUDE_MODE` = `ok`, `missing` (binary removed from PATH), `not-logged-in`, `nonzero`, `timeout` (sleeps past the limit), `invalid-json`, `partial-json`, `extra-ids`, `score-injected-100`. Appends argv and stdin to `$FAKE_CLAUDE_LOG`. |
 | `supabase-down` | `SUPABASE_URL=http://127.0.0.1:54399` (closed port) |
 | `tmp-remote` | Temporary bare git repo used as `origin` for snapshot push tests |
@@ -162,7 +186,7 @@ Helpers (proposed names): `seedProgress(page, doc)` (via `page.addInitScript`, b
 
 ## 4. Test hooks the implementation must provide
 
-These are testability requirements, not features. Each needs an owner decision in M0 (AMB-03).
+These are testability requirements, not features. None of them exists in M0. Each needs an owner decision (AMB-03). Env and cookie hooks live in the owning workstream's code; shared helpers need an M0 PR to `tests/support/`.
 
 1. **Server clock.** `/news` computes "today" in Asia/Manila on the server, so Playwright's `page.clock` is not enough. Proposal: when the server starts with `FM_TEST_MODE=1`, a cookie `fm_test_now=<ISO>` overrides "now" for that request. Production builds without the flag ignore it. Pipeline scripts read `FM_NOW`.
 2. **Claude binary path.** `scripts/news` resolves `claude` from `PATH`, so tests can prepend `tests/fixtures/bin`.
@@ -207,8 +231,8 @@ These are testability requirements, not features. Each needs an owner decision i
 | G-2 | Code-review agent gate: no unresolved blocking findings (correctness, security, contract violations, edits outside owned paths) |
 | G-3 | UI/UX review agent gate: hierarchy, §9 states, a11y, brand; "N/A: no UI changes" passes for non-UI PRs |
 | G-4 | Test-first: every P0 AC's test is committed before or with its implementation, in the same PR |
-| G-5 | Gate results (3 statuses plus screenshot links) recorded in the PR description template |
-| G-6 | `main` protected (no direct push, ≥ 1 approval); branches named `ws-<letter>/<short-desc>`, rebased on `main` before gates |
+| G-5 | Gate results recorded: commit statuses `gate/browser`, `gate/review`, `gate/uiux` on the head SHA (`scripts/gate-status.sh`), labels `gate:*-green`, screenshots in the PR template; merge only through `npm run gate:merge` |
+| G-6 | `main` protected (no direct push, ≥ 1 approval); branch names per AGENTS.md (`ws-<letter>/`, `content/l<n>-`, `m2/`, `qa/`, `design/`, `fix/`), rebased on `main` before gates |
 
 ### §14 resolved decisions
 | ID | Decision |
@@ -331,27 +355,31 @@ File-local ambiguities are listed at the bottom of each workstream file as `AMB-
 | AMB-01 | S-5 fixes the fixture at 2 levels and 4 lessons, but C-1.1 asserts 5 level sections and C-2.1 uses "2 of 4 lessons in L3". E2E "runs only against this fixture set", so neither can be E2E'd literally. C-1.3 needs an archived lesson, which is a 5th row. | E2E asserts the fixture's 2 levels; the exact 5-level and L3 cases run as component tests on `fx-curriculum-5`. `fx-base` adds archived `l2-retired` (it does not count toward the 4). |
 | AMB-02 | S-5 defines one fixture set, but §9 empty states (no runs, no content, nothing ≥ 60) need different DB contents. | `db:reset:test -- --variant=<name>` (§3.2). |
 | AMB-03 | No test hook for server "now", the claude path, timeouts or spool/lock/log dirs. | §4 hooks. |
-| AMB-04 | "Today" for N-3 and the header date and time: Manila or browser time zone? "Run time": `started_at` or `finished_at`? | Manila for both, computed on the server; run time = `finished_at` of the run shown, `HH:mm` in Asia/Manila. |
+| AMB-04 | "Today" for N-3 and the header date and time: Manila or browser time zone? "Run time": `started_at` or `finished_at`? | Partly resolved: Manila, server-side (DESIGN §7, §8 row 6); header "Wed 30 Sep · updated 08:03" (DESIGN §6.5). Still open: `started_at` or `finished_at` for "updated". Cases assume `finished_at`. |
 | AMB-05 | P-4.2 requires a v1→v2 migration fixture, but not what the app does with a doc whose `version` is newer than the app knows, missing, or 0. | Unknown or newer version → P-2 reset + notice; a newer doc is never silently truncated and re-saved without the notice. Needs decision. |
 | AMB-06 | launchd `StartCalendarInterval` fires at 08:00 in the **Mac's** time zone, not Asia/Manila. If the Mac is set to another zone the job fires at the wrong Manila hour. | The install script must either assert the system zone is Asia/Manila (fail loudly otherwise) or compute the local hour equal to 08:00 Manila. Cases cover both; the decision picks one. |
-| AMB-07 | §14 Q1 snapshot contents are unspecified. If it carries only `news_items`, an importer has no `ingest_runs`, and N-1 ("latest digest_date that has a successful or partial run") shows nothing. Also unspecified: the effect of a push failure on run status, and how the commit happens without touching the user's checked-out branch or index. | The snapshot includes the day's `ingest_runs` row(s) and all items of that `digest_date` (all statuses). A push failure is logged and sets run status `partial`, never `failed`. The commit uses a separate worktree or plumbing; the user's HEAD, index and working tree are unchanged. |
+| AMB-07 | §14 Q1 snapshot contents are unspecified. If it carries only `news_items`, an importer has no `ingest_runs`, and N-1 ("latest digest_date that has a successful or partial run") shows nothing. Also unspecified: the effect of a push failure on run status, and how the commit happens without touching the user's checked-out branch or index. | **Resolved** by `newsSnapshotSchema`: a snapshot carries `runs` (all `ingest_runs` whose Manila date of `started_at` = `digest_date`) and `items`; upsert keys are run `id` and item `canonical_url`. Still open: the effect of a push failure on run status (cases assume `partial`) and committing without touching the user's checkout (cases assume a separate worktree or plumbing). |
 | AMB-08 | `news:import` conflict rules: same `canonical_url` with a different `id`, or a local item already scored differently. | Match by `canonical_url`; the snapshot wins for scoring fields only when the local row is not `scored`; ids are never rewritten (bookmarks key on `id`, N-5). |
-| AMB-09 | Archive "newest first": by `published_at`, `first_seen_at` or `digest_date`? The date range filters which field? Does the archive include pending/failed/skipped items, and does `min=0` include null scores? | Sort by `published_at` desc; date range on `digest_date`, inclusive; `min=0` includes unscored items and any `min > 0` excludes them; skipped items appear only at `min=0`. |
-| AMB-10 | `/bookmarks` "newest first" needs a bookmark timestamp, but the P-1 shape `bookmarks: { lessons, news }` does not define one. | Entries carry `bookmarkedAt` (ISO); sort by it desc. |
+| AMB-09 | Archive "newest first": by `published_at`, `first_seen_at` or `digest_date`? The date range filters which field? Does the archive include pending/failed/skipped items, and does `min=0` include null scores? | Partly resolved by DESIGN §6.6: invalid `min` → 0; unscored items appear only at `min=0`; `from > to` → field error "End date is before start date." and no date filtering; submit resets `page`. Still open: the sort key and the date field. Cases assume `published_at` desc and `digest_date` inclusive. |
+| AMB-10 | `/bookmarks` "newest first" needs a bookmark timestamp, but the P-1 shape `bookmarks: { lessons, news }` does not define one. | **Resolved** by `progressStateSchema`: `bookmarks.lessons` and `bookmarks.news` are `{ [id]: isoTimestamp }`; `/bookmarks` shows two sections, each newest first (DESIGN §8 row 3). |
 | AMB-11 | D-2.5 "touch layouts" is undefined (`pointer: coarse`, or width < 768?). | `(pointer: coarse)`, emulated with Playwright `hasTouch: true` at 360 and 768 widths. |
-| AMB-12 | `sources.yaml` `type` is `rss|atom`, but §14 Q3 adds an HTML scraper for anthropic.com/news. | The schema gains `type: html` (scraper keyed by slug). |
-| AMB-13 | `lastViewed` semantics: what counts as a view, and what Continue does when `lastViewed` points to an archived or deleted lesson. | A view = lesson page mount. A missing or archived target falls back to C-4.2 (first L1 lesson). |
-| AMB-14 | `?tool=` with an invalid value (`?tool=cursor`, `?tool=`), history mode (push or replace), and whether a URL-selected tab writes `prefs.tool`. | Invalid → L-2.3 behavior, no error; `history.replaceState`; an explicit user tab choice writes `prefs.tool`, a URL param alone does not. |
-| AMB-15 | E-1.2: the starter-prompt tabs "share the `prefs.tool` state". With two tablists on one page, does switching one switch the other live? | Yes, both tablists show the same selection immediately. |
+| AMB-12 | `sources.yaml` `type` is `rss|atom`, but §14 Q3 adds an HTML scraper for anthropic.com/news. | **Resolved**: `news_sources.type` includes `html` (`rows.ts`, migration). |
+| AMB-13 | `lastViewed` semantics: what counts as a view, and what Continue does when `lastViewed` points to an archived or deleted lesson. | Partly resolved: `lastViewed` is `{ slug, at }` (contract), and Continue resumes the last viewed lesson even when it is complete (DESIGN §8 row 5). Still open: a missing or archived target. Cases assume fallback to C-4.2. |
+| AMB-14 | `?tool=` with an invalid value (`?tool=cursor`, `?tool=`), history mode (push or replace), and whether a URL-selected tab writes `prefs.tool`. | **Resolved** by DESIGN §4.4: an invalid or missing `?tool` renders Claude Code on the server; `history.replaceState`; a URL param never writes `prefs.tool`; on mount with no param, `prefs.tool = codex` switches to Codex and writes `?tool=codex` with `replaceState`. |
+| AMB-15 | E-1.2: the starter-prompt tabs "share the `prefs.tool` state". With two tablists on one page, does switching one switch the other live? | **Resolved** by DESIGN §4.4 step 4: both tablists share one client context and switch together. |
 | AMB-16 | I-4.1 when claude fails mid-run: continue other batches or stop? Do items beyond the 80 cap get `attempts+1`? | Missing binary / not logged in → stop scoring; items already assigned to a batch get `pending` + `attempts+1`. Non-zero exit or timeout → that batch only; continue. Overflow beyond 80 keeps `attempts` unchanged. |
 | AMB-17 | I-6.1 "3 consecutive partial": notify on the 3rd only, or on every partial after it? | Notify when the streak reaches exactly 3, and again only after a non-partial run breaks it. |
 | AMB-18 | E-4.4 "`npm i` < 60s on a warm cache" has no reference machine or network condition. | Measured in CI after a cache-priming install, with `--prefer-offline`; manual check on the stakeholder Mac. |
 | AMB-19 | D-1.1 "re-verified against the live site at the start of WS-A" is a one-off human task. | Manual case with screenshot and computed-style evidence; automated tests pin the token values. |
 | AMB-20 | I-1.2 "every URL must be verified at build time": which build, and how to handle CI network flakiness? | A separate `npm run news:sources:check`, network-allowed, retrying transient 5xx; blocking on 404 or parse error. |
-| AMB-21 | N-1.1 header format ("Tue 30 Sep · updated 08:03"), C-5.1 "Verified <date>" and N-1.3 published-date formats are examples, not specs. | `EEE d MMM` for the digest header, `d MMM yyyy` for verified and published dates, en-GB, Asia/Manila. Note that 2026-09-30 is a **Wednesday**, so the fixture header is "Wed 30 Sep · updated 08:03", not the PRD's "Tue". |
-| AMB-22 | P-3.1: is the storage banner dismissible, and is it per session? | Not dismissible (ongoing condition); `role=status`. |
+| AMB-21 | N-1.1 header format ("Tue 30 Sep · updated 08:03"), C-5.1 "Verified <date>" and N-1.3 published-date formats are examples, not specs. | **Resolved** by DESIGN §7: "Wed 30 Sep" (day), "Wed 30 Sep, 08:03" (with time), "Tue 29 Sep 2026, 06:10" (archive), always in `<time datetime>`, Asia/Manila. 2026-09-30 is a Wednesday. |
+| AMB-22 | P-3.1: is the storage banner dismissible, and is it per session? | **Resolved** by DESIGN §11.1: the storage banner is `role=status`, has no Dismiss button, and contains "Progress can't be saved in this browser". |
 | AMB-23 | R-5.1 (`needs-human-tool-check`) is a process rule. Only label presence is checkable. | One gate case in M2; the human verification is untestable. |
 | AMB-24 | D-4.1 LCP < 2.0s depends on hardware; CI runners vary. | Lighthouse desktop preset, median of 3 runs on CI, one retry. Stakeholder Mac run recorded in M2. |
+| AMB-25 | Lesson frontmatter requires `exercise` (`lessonFrontmatterSchema`), but S-5 has 4 lessons and only 2 exercises. | `db:reset:test` inserts fixture rows directly (bypassing frontmatter validation). Real content always has one exercise per lesson (§7 of the PRD). |
+| AMB-26 | `tests/support/` is M0-owned and frozen, but every workstream needs the helpers listed in §3.3 and §3.4 (`seedProgress`, `blockStorage`, `collectConsole`, `feedServer`, `setServerNow`, DB mutation helpers). | One M0 PR adds them before M1 tests land; until then each workstream keeps private copies under `tests/e2e/<ws>/_support/`. |
+| AMB-27 | M0's Playwright `webServer` runs `npm run dev`, but S-3.1, D-4.1/D-4.2 and the "no stack trace" checks need `next start`. There is also no `grepInvert` for the `@live`/`@network`/`@nightly` tags. | M0 adds a `prod` project (build + `next start`) and a default `grepInvert: /@live|@network|@nightly|@manual/`. |
+| AMB-28 | `package.json` is frozen and has no `news:rescore`, `news:schedule:install`, `news:schedule:uninstall` or `news:sources:check`, all of which the PRD (I-5) or these cases name. | M0 adds them; the E cases cite them as specified in the PRD. |
 
 ## 8. Traceability matrix
 
@@ -359,14 +387,14 @@ Generated from the `### TC-` headings and `- **ACs:**` lines of the seven workst
 
 | File | Cases |
 |---|---|
-| [ws-a-design-system.md](ws-a-design-system.md) | 38 |
-| [ws-b-content-pipeline.md](ws-b-content-pipeline.md) | 50 |
-| [ws-c-curriculum-lesson.md](ws-c-curriculum-lesson.md) | 74 |
-| [ws-d-progress.md](ws-d-progress.md) | 50 |
-| [ws-e-news-pipeline.md](ws-e-news-pipeline.md) | 79 |
-| [ws-f-news-ui.md](ws-f-news-ui.md) | 53 |
-| [ws-m2-integration.md](ws-m2-integration.md) | 49 |
-| **Total** | **393** |
+| [ws-a-design-system.md](ws-a-design-system.md) | 46 |
+| [ws-b-content-pipeline.md](ws-b-content-pipeline.md) | 53 |
+| [ws-c-curriculum-lesson.md](ws-c-curriculum-lesson.md) | 79 |
+| [ws-d-progress.md](ws-d-progress.md) | 53 |
+| [ws-e-news-pipeline.md](ws-e-news-pipeline.md) | 86 |
+| [ws-f-news-ui.md](ws-f-news-ui.md) | 60 |
+| [ws-m2-integration.md](ws-m2-integration.md) | 58 |
+| **Total** | **435** |
 
 ### 8.1 PRD §5 acceptance criteria
 
@@ -375,65 +403,65 @@ Generated from the `### TC-` headings and `- **ACs:**` lines of the seven workst
 | C-1.1 | P0 | TC-C-01 (e), TC-C-02 (u), TC-C-03 (e) | Covered |
 | C-1.2 | P0 | TC-C-04 (e), TC-C-05 (e), TC-C-70 (e), TC-M2-13 (e) | Covered |
 | C-1.3 | P0 | TC-B-28 (i), TC-B-29 (i), TC-B-32 (i), TC-C-06 (e), TC-C-07 (e), TC-C-48 (e), TC-C-67 (e), TC-D-26 (e), TC-M2-11 (e) | Covered |
-| C-2.1 | P0 | TC-A-20 (u), TC-C-07 (e), TC-C-09 (u), TC-C-10 (e), TC-C-11 (u), TC-C-12 (u), TC-C-13 (u), TC-C-14 (e), TC-M2-13 (e) | Covered |
-| C-3.1 | P0 | TC-C-08 (e), TC-M2-19 (e), TC-M2-20 (e), TC-M2-36 (e) | Covered |
-| C-4.1 | P1 | TC-M2-01 (e), TC-M2-03 (e), TC-M2-04 (e), TC-M2-05 (e) | Covered |
+| C-2.1 | P0 | TC-A-20 (u), TC-A-46 (e), TC-C-07 (e), TC-C-09 (u), TC-C-10 (e), TC-C-11 (u), TC-C-12 (u), TC-C-13 (u), TC-C-14 (e), TC-M2-51 (e), TC-M2-13 (e) | Covered |
+| C-3.1 | P0 | TC-C-08 (e), TC-C-79 (e), TC-M2-51 (e), TC-M2-19 (e), TC-M2-20 (e), TC-M2-36 (e) | Covered |
+| C-4.1 | P1 | TC-M2-01 (e), TC-M2-03 (e), TC-M2-04 (e), TC-M2-05 (e), TC-M2-50 (e) | Covered |
 | C-4.2 | P1 | TC-M2-02 (e), TC-M2-04 (e) | Covered |
 | C-5.1 | P1 | TC-C-15 (e), TC-M2-47 (i) | Covered |
 | C-5.2 | P1 | TC-B-45 (i), TC-C-16 (e), TC-C-17 (e), TC-C-18 (e) | Covered |
-| L-1.1 | P0 | TC-C-19 (e), TC-C-20 (e) | Covered |
+| L-1.1 | P0 | TC-C-19 (e), TC-C-20 (e), TC-C-77 (e) | Covered |
 | L-2.1 | P0 | TC-A-09 (u), TC-A-10 (u), TC-A-11 (u), TC-C-21 (e), TC-C-22 (e), TC-C-23 (e), TC-C-24 (e), TC-C-73 (e), TC-M2-19 (e) | Covered |
-| L-2.2 | P0 | TC-C-25 (e), TC-C-26 (e), TC-C-30 (e), TC-C-31 (e), TC-M2-18 (e) | Covered |
-| L-2.3 | P0 | TC-C-28 (e), TC-C-29 (e), TC-C-30 (e), TC-C-31 (e), TC-C-56 (e), TC-D-07 (u), TC-M2-18 (e) | Covered |
-| L-2.4 | P0 | TC-C-26 (e), TC-C-27 (e) | Covered |
+| L-2.2 | P0 | TC-C-22 (e), TC-C-25 (e), TC-C-26 (e), TC-C-30 (e), TC-C-31 (e), TC-C-75 (e), TC-M2-18 (e) | Covered |
+| L-2.3 | P0 | TC-C-28 (e), TC-C-29 (e), TC-C-30 (e), TC-C-31 (e), TC-C-56 (e), TC-C-75 (e), TC-D-07 (u), TC-M2-18 (e), TC-M2-29 (e) | Covered |
+| L-2.4 | P0 | TC-C-26 (e), TC-C-27 (e), TC-C-76 (e), TC-M2-37 (e) | Covered |
 | L-3.1 | P0 | TC-C-32 (e), TC-C-33 (e), TC-C-34 (u), TC-M2-47 (i) | Covered |
 | L-3.2 | P0 | TC-B-23 (i), TC-B-24 (i), TC-C-35 (e), TC-C-36 (u), TC-M2-22 (e) | Covered |
 | L-4.1 | P0 | TC-A-13 (e), TC-A-14 (e), TC-A-15 (e), TC-A-16 (e), TC-C-37 (e), TC-C-38 (e), TC-C-39 (e), TC-C-41 (e), TC-F-22 (e), TC-M2-19 (e) | Covered |
-| L-4.2 | P0 | TC-A-17 (u), TC-A-18 (e), TC-C-39 (e), TC-C-40 (e) | Covered |
+| L-4.2 | P0 | TC-A-17 (u), TC-A-18 (e), TC-C-37 (e), TC-C-39 (e), TC-C-40 (e) | Covered |
 | L-5.1 | P0 | TC-C-42 (e), TC-C-43 (e), TC-C-45 (e), TC-C-60 (e), TC-D-02 (u), TC-D-03 (u), TC-M2-13 (e), TC-M2-14 (e), TC-M2-19 (e) | Covered |
 | L-5.2 | P0 | TC-C-44 (e), TC-C-45 (e), TC-D-04 (u) | Covered |
-| L-6.1 | P0 | TC-C-46 (e), TC-C-47 (e), TC-C-48 (e), TC-C-49 (u), TC-M2-20 (e) | Covered |
-| L-7.1 | P0 | TC-B-05 (i), TC-C-34 (u), TC-C-50 (e), TC-C-51 (u) | Covered |
-| L-7.2 | P0 | TC-C-51 (u), TC-C-52 (e) | Covered |
-| L-8.1 | P1 | TC-C-53 (e), TC-D-06 (u), TC-D-47 (e), TC-D-48 (e), TC-D-50 (e), TC-M2-15 (e) | Covered |
+| L-6.1 | P0 | TC-C-46 (e), TC-C-47 (e), TC-C-48 (e), TC-C-49 (u), TC-M2-11 (e), TC-M2-19 (e), TC-M2-20 (e) | Covered |
+| L-7.1 | P0 | TC-B-05 (i), TC-C-34 (u), TC-C-50 (e), TC-C-51 (u), TC-M2-06 (e) | Covered |
+| L-7.2 | P0 | TC-C-51 (u), TC-C-52 (e), TC-M2-20 (e) | Covered |
+| L-8.1 | P1 | TC-C-53 (e), TC-D-06 (u), TC-D-26 (e), TC-D-47 (e), TC-D-48 (e), TC-D-50 (e), TC-D-52 (e), TC-D-53 (e), TC-M2-15 (e) | Covered |
 | E-1.1 | P0 | TC-C-54 (e), TC-C-55 (e) | Covered |
 | E-1.2 | P0 | TC-C-56 (e) | Covered |
-| E-2.1 | P0 | TC-A-21 (u), TC-C-57 (e), TC-D-05 (u) | Covered |
+| E-2.1 | P0 | TC-A-21 (u), TC-C-57 (e), TC-C-78 (e), TC-D-05 (u) | Covered |
 | E-2.2 | P0 | TC-B-17 (u), TC-B-18 (i), TC-C-58 (e), TC-C-59 (e), TC-D-27 (e) | Covered |
 | E-2.3 | P0 | TC-C-60 (e), TC-M2-14 (e) | Covered |
 | E-3.1 | P0 | TC-C-61 (e), TC-M2-23 (e) | Covered |
 | E-3.2 | P0 | TC-C-62 (e) | Covered |
-| E-4.1 | P0 | TC-B-04 (i), TC-B-16 (u), TC-B-36 (u) | Covered |
+| E-4.1 | P0 | TC-B-04 (i), TC-B-16 (u), TC-B-36 (u), TC-B-53 (i) | Covered |
 | E-4.2 | P0 | TC-B-37 (i), TC-B-38 (i), TC-B-39 (i), TC-B-40 (i), TC-B-41 (u), TC-M2-48 (i) | Covered |
 | E-4.3 | P0 | TC-B-42 (u), TC-M2-48 (i) | Covered |
 | E-4.4 | P0 | TC-B-43 (u), TC-B-44 (i) | Covered |
 | E-5.1 | P1 | TC-C-63 (e) | Covered |
-| P-1.1 | P0 | TC-D-01 (u), TC-D-02 (u), TC-D-05 (u), TC-D-07 (u), TC-D-08 (u), TC-D-09 (e), TC-D-10 (e), TC-D-11 (e), TC-D-12 (e), TC-D-13 (e), TC-D-34 (e), TC-D-35 (e), TC-D-42 (u), TC-M2-17 (e) | Covered |
-| P-2.1 | P0 | TC-A-22 (u), TC-D-14 (e), TC-D-15 (e), TC-D-16 (e), TC-D-17 (e), TC-D-18 (e), TC-D-19 (e), TC-D-29 (e), TC-D-35 (e) | Covered |
-| P-3.1 | P0 | TC-D-20 (e), TC-D-21 (e), TC-D-22 (e), TC-D-23 (u), TC-D-24 (u), TC-D-38 (e), TC-F-47 (e), TC-M2-37 (e) | Covered |
+| P-1.1 | P0 | TC-D-01 (u), TC-D-02 (u), TC-D-05 (u), TC-D-06 (u), TC-D-07 (u), TC-D-08 (u), TC-D-09 (e), TC-D-10 (e), TC-D-11 (e), TC-D-12 (e), TC-D-13 (e), TC-D-34 (e), TC-D-35 (e), TC-D-42 (u), TC-M2-17 (e) | Covered |
+| P-2.1 | P0 | TC-A-22 (u), TC-D-14 (e), TC-D-15 (e), TC-D-16 (e), TC-D-17 (e), TC-D-18 (e), TC-D-19 (e), TC-D-51 (u), TC-D-29 (e), TC-D-35 (e), TC-M2-23 (e) | Covered |
+| P-3.1 | P0 | TC-D-20 (e), TC-D-21 (e), TC-D-22 (e), TC-D-23 (u), TC-D-24 (u), TC-D-51 (u), TC-D-38 (e), TC-F-47 (e), TC-M2-23 (e), TC-M2-37 (e) | Covered |
 | P-4.1 | P0 | TC-D-25 (e), TC-D-26 (e), TC-D-27 (e), TC-D-43 (e), TC-M2-04 (e), TC-M2-12 (e) | Covered |
 | P-4.2 | P0 | TC-D-28 (u), TC-D-29 (e) | Covered |
-| P-5.1 | P0 | TC-C-70 (e), TC-D-13 (e), TC-D-24 (u), TC-D-30 (e), TC-D-31 (e), TC-D-32 (e), TC-D-33 (u), TC-F-25 (e), TC-F-47 (e), TC-M2-05 (e), TC-M2-29 (e), TC-M2-30 (e) | Covered |
+| P-5.1 | P0 | TC-C-28 (e), TC-C-70 (e), TC-D-13 (e), TC-D-24 (u), TC-D-30 (e), TC-D-31 (e), TC-D-32 (e), TC-D-33 (u), TC-F-25 (e), TC-F-47 (e), TC-M2-05 (e), TC-M2-29 (e), TC-M2-30 (e) | Covered |
 | P-6.1 | P1 | TC-D-36 (e), TC-D-37 (e), TC-D-38 (e), TC-M2-17 (e) | Covered |
-| P-6.2 | P1 | TC-D-39 (e), TC-D-40 (e), TC-D-41 (e), TC-D-42 (u), TC-D-43 (e), TC-M2-17 (e) | Covered |
-| P-7.1 | P1 | TC-D-44 (e), TC-D-45 (e), TC-D-46 (e) | Covered |
-| N-1.1 | P0 | TC-B-48 (i), TC-F-01 (e), TC-F-02 (i), TC-F-03 (e), TC-F-04 (e), TC-F-23 (e), TC-F-25 (e) | Covered |
+| P-6.2 | P1 | TC-D-39 (e), TC-D-40 (e), TC-D-41 (e), TC-D-42 (u), TC-D-43 (e), TC-M2-17 (e), TC-M2-23 (e) | Covered |
+| P-7.1 | P1 | TC-D-44 (e), TC-D-45 (e), TC-D-46 (e), TC-M2-17 (e) | Covered |
+| N-1.1 | P0 | TC-B-48 (i), TC-E-80 (e), TC-F-01 (e), TC-F-02 (i), TC-F-03 (e), TC-F-04 (e), TC-F-23 (e), TC-F-25 (e) | Covered |
 | N-1.2 | P0 | TC-F-05 (e), TC-F-06 (u), TC-F-07 (e), TC-F-08 (i), TC-F-09 (i) | Covered |
-| N-1.3 | P0 | TC-F-10 (e), TC-F-11 (e), TC-F-12 (e), TC-F-13 (e), TC-F-14 (e), TC-F-15 (e), TC-F-25 (e) | Covered |
-| N-2.1 | P0 | TC-F-09 (i), TC-F-16 (e), TC-F-17 (e), TC-F-18 (e), TC-F-19 (e), TC-F-20 (e), TC-M2-23 (e) | Covered |
-| N-3.1 | P0 | TC-F-21 (e), TC-F-22 (e), TC-F-23 (e), TC-F-24 (e), TC-F-25 (e), TC-M2-08 (e) | Covered |
-| N-4.1 | P0 | TC-F-26 (e), TC-F-27 (e), TC-F-28 (e), TC-F-29 (e), TC-F-30 (e), TC-F-31 (e), TC-F-32 (e), TC-F-33 (e), TC-F-34 (e), TC-F-35 (e), TC-F-36 (e), TC-F-37 (e), TC-F-38 (e), TC-F-39 (e), TC-F-50 (e) | Covered |
-| N-5.1 | P1 | TC-D-06 (u), TC-D-48 (e), TC-D-49 (e), TC-F-45 (e), TC-F-46 (e), TC-F-47 (e), TC-M2-15 (e), TC-M2-16 (e) | Covered |
+| N-1.3 | P0 | TC-F-10 (e), TC-F-11 (e), TC-F-12 (e), TC-F-13 (e), TC-F-14 (e), TC-F-15 (e), TC-F-25 (e), TC-F-55 (u) | Covered |
+| N-2.1 | P0 | TC-F-09 (i), TC-F-16 (e), TC-F-17 (e), TC-F-18 (e), TC-F-19 (e), TC-F-20 (e), TC-F-58 (e), TC-F-60 (i), TC-M2-23 (e) | Covered |
+| N-3.1 | P0 | TC-F-21 (e), TC-F-22 (e), TC-F-23 (e), TC-F-24 (e), TC-F-25 (e), TC-F-54 (e), TC-M2-08 (e) | Covered |
+| N-4.1 | P0 | TC-F-26 (e), TC-F-27 (e), TC-F-28 (e), TC-F-29 (e), TC-F-30 (e), TC-F-31 (e), TC-F-32 (e), TC-F-33 (e), TC-F-34 (e), TC-F-35 (e), TC-F-36 (e), TC-F-37 (e), TC-F-38 (e), TC-F-39 (e), TC-F-50 (e), TC-F-56 (e), TC-F-57 (e), TC-F-59 (e), TC-F-60 (i) | Covered |
+| N-5.1 | P1 | TC-D-06 (u), TC-D-48 (e), TC-D-49 (e), TC-D-52 (e), TC-F-45 (e), TC-F-46 (e), TC-F-47 (e), TC-M2-15 (e), TC-M2-16 (e) | Covered |
 | N-6.1 | P1 | TC-M2-06 (e), TC-M2-07 (e), TC-M2-08 (e), TC-M2-09 (e) | Covered |
-| I-1.1 | P0 | TC-E-01 (u), TC-E-02 (u), TC-E-03 (i), TC-E-04 (i), TC-E-05 (u), TC-E-12 (u) | Covered |
+| I-1.1 | P0 | TC-E-01 (u), TC-E-02 (u), TC-E-03 (i), TC-E-04 (i), TC-E-05 (u), TC-E-12 (u), TC-E-84 (i) | Covered |
 | I-1.2 | P0 | TC-E-01 (u), TC-E-14 (i) | Covered |
 | I-1.3 | P0 | TC-E-06 (i), TC-E-07 (i), TC-E-08 (u), TC-E-09 (u), TC-E-11 (u), TC-E-13 (i) | Covered |
 | I-2.1 | P0 | TC-E-09 (u), TC-E-10 (i), TC-E-15 (u), TC-E-16 (i) | Covered |
 | I-2.2 | P0 | TC-E-10 (i), TC-E-17 (i), TC-E-18 (i), TC-E-40 (i), TC-E-70 (i) | Covered |
 | I-2.3 | P0 | TC-E-19 (i), TC-E-20 (i) | Covered |
 | I-3.1 | P0 | TC-E-21 (i), TC-E-22 (u) | Covered |
-| I-3.2 | P0 | TC-E-25 (u), TC-E-26 (i), TC-E-28 (i), TC-E-31 (i), TC-E-33 (i) | Covered |
-| I-3.3 | P0 | TC-E-29 (u), TC-E-30 (i), TC-E-31 (i), TC-E-32 (i), TC-E-33 (i), TC-E-79 (e) | Covered |
+| I-3.2 | P0 | TC-E-25 (u), TC-E-26 (i), TC-E-28 (i), TC-E-31 (i), TC-E-33 (i), TC-E-86 (u) | Covered |
+| I-3.3 | P0 | TC-E-29 (u), TC-E-30 (i), TC-E-31 (i), TC-E-32 (i), TC-E-33 (i), TC-E-79 (e), TC-E-82 (u) | Covered |
 | I-3.4 | P0 | TC-E-20 (i), TC-E-23 (i), TC-E-24 (i) | Covered |
 | I-4.1 | P0 | TC-E-34 (i), TC-E-35 (i), TC-E-36 (i), TC-E-37 (i), TC-E-60 (e) | Covered |
 | I-4.2 | P0 | TC-E-26 (i), TC-E-27 (i) | Covered |
@@ -448,29 +476,29 @@ Generated from the `### TC-` headings and `- **ACs:**` lines of the seven workst
 | I-5.5 | P0 | TC-E-61 (i), TC-E-62 (i), TC-E-63 (i), TC-E-64 (i), TC-E-65 (u) | Covered |
 | I-6.1 | P1 | TC-E-66 (i), TC-E-67 (i) | Covered |
 | I-7.1 | P2 | — | Out of scope (P2) |
-| S-1.1 | P0 | TC-B-01 (i), TC-B-02 (i), TC-B-03 (u), TC-B-05 (i), TC-B-06 (i) | Covered |
-| S-1.2 | P0 | TC-B-01 (i), TC-B-04 (i), TC-B-15 (i), TC-B-17 (u) | Covered |
-| S-2.1 | P0 | TC-B-02 (i), TC-B-07 (i), TC-B-08 (i), TC-B-09 (u), TC-B-10 (u), TC-B-11 (u), TC-B-12 (u), TC-B-13 (i), TC-B-14 (i), TC-B-15 (i), TC-B-16 (u), TC-B-17 (u), TC-B-19 (u), TC-B-20 (u), TC-B-22 (i), TC-B-25 (i), TC-B-49 (i), TC-B-50 (i) | Covered |
+| S-1.1 | P0 | TC-B-01 (i), TC-B-02 (i), TC-B-03 (u), TC-B-05 (i), TC-B-06 (i), TC-B-52 (i) | Covered |
+| S-1.2 | P0 | TC-B-01 (i), TC-B-04 (i), TC-B-15 (i), TC-B-17 (u), TC-B-53 (i) | Covered |
+| S-2.1 | P0 | TC-B-02 (i), TC-B-07 (i), TC-B-08 (i), TC-B-09 (u), TC-B-10 (u), TC-B-11 (u), TC-B-12 (u), TC-B-13 (i), TC-B-14 (i), TC-B-15 (i), TC-B-16 (u), TC-B-17 (u), TC-B-19 (u), TC-B-20 (u), TC-B-22 (i), TC-B-25 (i), TC-B-49 (i), TC-B-50 (i), TC-B-52 (i) | Covered |
 | S-2.2 | P0 | TC-B-06 (i), TC-B-13 (i), TC-B-18 (i), TC-B-26 (i), TC-B-27 (i), TC-B-31 (i), TC-M2-10 (e) | Covered |
 | S-2.3 | P0 | TC-B-28 (i), TC-B-29 (i), TC-B-30 (i), TC-B-31 (i), TC-M2-11 (e) | Covered |
 | S-3.1 | P0 | TC-B-27 (i), TC-M2-10 (e), TC-M2-11 (e), TC-M2-12 (e) | Covered |
 | S-4.1 | P0 | TC-B-21 (i), TC-B-22 (i), TC-B-23 (i), TC-B-24 (i), TC-B-25 (i), TC-M2-47 (i) | Covered |
-| S-5.1 | P0 | TC-B-32 (i), TC-B-33 (i), TC-B-34 (i), TC-B-35 (i), TC-B-48 (i), TC-B-49 (i), TC-M2-38 (i) | Covered |
+| S-5.1 | P0 | TC-B-32 (i), TC-B-33 (i), TC-B-34 (i), TC-B-35 (i), TC-B-48 (i), TC-B-49 (i), TC-B-51 (i), TC-M2-38 (i) | Covered |
 | S-6.1 | P1 | TC-B-45 (i), TC-B-46 (u), TC-B-47 (i) | Covered |
-| D-1.1 | P0 | TC-A-01 (u), TC-A-02 (u), TC-A-03 (e), TC-A-04 (e), TC-A-05 (e), TC-F-51 (e) | Covered |
+| D-1.1 | P0 | TC-A-01 (u), TC-A-02 (u), TC-A-03 (e), TC-A-04 (e), TC-A-05 (e), TC-A-45 (i), TC-F-51 (e) | Covered |
 | D-1.2 | P0 | TC-A-07 (u), TC-A-08 (e), TC-A-31 (e), TC-C-21 (e), TC-C-36 (u) | Covered |
-| D-2.1 | P0 | TC-A-02 (u), TC-A-18 (e), TC-A-33 (e), TC-A-37 (e), TC-C-71 (e), TC-F-48 (e), TC-F-49 (e), TC-F-51 (e), TC-M2-21 (e), TC-M2-22 (e), TC-M2-23 (e), TC-M2-24 (e), TC-M2-25 (e) | Covered |
-| D-2.2 | P0 | TC-A-11 (u), TC-A-21 (u), TC-A-26 (e), TC-A-28 (e), TC-A-31 (e), TC-C-24 (e), TC-F-20 (e), TC-F-50 (e), TC-M2-19 (e) | Covered |
+| D-2.1 | P0 | TC-A-02 (u), TC-A-18 (e), TC-A-33 (e), TC-A-37 (e), TC-C-71 (e), TC-C-77 (e), TC-F-48 (e), TC-F-49 (e), TC-F-51 (e), TC-F-54 (e), TC-M2-21 (e), TC-M2-22 (e), TC-M2-23 (e), TC-M2-24 (e), TC-M2-25 (e) | Covered |
+| D-2.2 | P0 | TC-A-11 (u), TC-A-21 (u), TC-A-26 (e), TC-A-28 (e), TC-A-31 (e), TC-A-45 (i), TC-C-24 (e), TC-F-20 (e), TC-F-50 (e), TC-F-59 (e), TC-M2-19 (e) | Covered |
 | D-2.3 | P0 | TC-A-25 (e), TC-A-37 (e), TC-M2-19 (e) | Covered |
 | D-2.4 | P0 | TC-A-27 (e) | Covered |
 | D-2.5 | P0 | TC-A-30 (e), TC-F-53 (e) | Covered |
-| D-3.1 | P0 | TC-A-19 (e), TC-A-38 (e), TC-C-72 (e), TC-C-74 (e), TC-F-15 (e), TC-F-52 (e), TC-M2-26 (e), TC-M2-27 (e), TC-M2-28 (e) | Covered |
+| D-3.1 | P0 | TC-A-19 (e), TC-A-38 (e), TC-C-72 (e), TC-C-74 (e), TC-F-15 (e), TC-F-52 (e), TC-F-59 (e), TC-M2-26 (e), TC-M2-27 (e), TC-M2-28 (e) | Covered |
 | D-3.2 | P0 | TC-A-12 (e), TC-A-28 (e), TC-A-29 (e), TC-C-73 (e), TC-C-74 (e), TC-M2-23 (e), TC-M2-28 (e) | Covered |
 | D-4.1 | P0 | TC-M2-31 (e), TC-M2-33 (e) | Covered |
-| D-4.2 | P0 | TC-A-05 (e), TC-A-06 (e), TC-C-65 (e), TC-M2-32 (e), TC-M2-33 (e) | Covered |
-| D-5.1 | P1 | TC-A-32 (e), TC-M2-24 (e) | Covered |
-| R-1.1 | - | TC-E-68 (i), TC-E-69 (i), TC-E-70 (i), TC-E-71 (i), TC-E-72 (i), TC-E-73 (u) | Covered |
-| R-1.2 | - | TC-E-74 (i), TC-E-75 (i), TC-E-76 (i), TC-E-77 (i), TC-E-78 (i), TC-E-79 (e) | Covered |
+| D-4.2 | P0 | TC-A-05 (e), TC-A-06 (e), TC-C-65 (e), TC-M2-05 (e), TC-M2-32 (e), TC-M2-33 (e) | Covered |
+| D-5.1 | P1 | TC-A-02 (u), TC-A-32 (e), TC-M2-24 (e) | Covered |
+| R-1.1 | - | TC-E-68 (i), TC-E-69 (i), TC-E-70 (i), TC-E-71 (i), TC-E-72 (i), TC-E-73 (u), TC-E-81 (i), TC-E-82 (u), TC-E-85 (i) | Covered |
+| R-1.2 | - | TC-E-74 (i), TC-E-75 (i), TC-E-76 (i), TC-E-77 (i), TC-E-78 (i), TC-E-79 (e), TC-E-80 (e), TC-E-82 (u), TC-E-83 (i), TC-E-84 (i), TC-E-85 (i) | Covered |
 | R-3.1 | - | TC-E-12 (u), TC-E-13 (i) | Covered |
 | R-5.1 | - | TC-M2-45 (i) | Covered |
 
@@ -478,76 +506,81 @@ Generated from the `### TC-` headings and `- **ACs:**` lines of the seven workst
 
 | AC | Pri | Test cases | Status |
 |---|---|---|---|
-| S9-01 | - | TC-A-34 (e), TC-D-50 (e), TC-F-44 (e), TC-M2-34 (e), TC-M2-35 (e) | Covered |
-| S9-02 | - | TC-A-24 (u), TC-B-34 (i), TC-C-64 (e), TC-M2-25 (e) | Covered |
-| S9-03 | - | TC-A-23 (u), TC-C-65 (e), TC-M2-32 (e) | Covered |
+| S9-01 | - | TC-A-34 (e), TC-A-41 (u), TC-D-50 (e), TC-F-44 (e), TC-M2-34 (e), TC-M2-35 (e) | Covered |
+| S9-02 | - | TC-A-24 (u), TC-A-43 (u), TC-B-34 (i), TC-C-64 (e), TC-M2-52 (e), TC-M2-25 (e) | Covered |
+| S9-03 | - | TC-A-23 (u), TC-C-65 (e), TC-M2-52 (e), TC-M2-32 (e) | Covered |
 | S9-04 | - | TC-A-36 (e), TC-C-66 (e), TC-M2-35 (e) | Covered |
-| S9-05 | - | TC-A-35 (e), TC-C-67 (e), TC-M2-11 (e) | Covered |
+| S9-05 | - | TC-A-35 (e), TC-A-42 (u), TC-C-67 (e), TC-M2-11 (e) | Covered |
 | S9-06 | - | TC-A-23 (u), TC-C-68 (e) | Covered |
 | S9-07 | - | TC-A-36 (e), TC-C-69 (e) | Covered |
 | S9-08 | - | TC-C-35 (e) | Covered |
-| S9-09 | - | TC-C-70 (e), TC-D-30 (e), TC-D-32 (e), TC-F-47 (e), TC-M2-05 (e), TC-M2-29 (e), TC-M2-30 (e) | Covered |
-| S9-10 | - | TC-A-22 (u), TC-D-14 (e), TC-D-17 (e), TC-D-20 (e), TC-M2-37 (e) | Covered |
+| S9-09 | - | TC-A-46 (e), TC-C-70 (e), TC-C-78 (e), TC-D-30 (e), TC-D-32 (e), TC-F-47 (e), TC-M2-05 (e), TC-M2-29 (e), TC-M2-30 (e) | Covered |
+| S9-10 | - | TC-A-22 (u), TC-A-39 (u), TC-A-40 (u), TC-D-14 (e), TC-D-17 (e), TC-D-20 (e), TC-D-51 (u), TC-M2-37 (e) | Covered |
 | S9-11 | - | TC-C-59 (e), TC-D-27 (e) | Covered |
-| S9-12 | - | TC-A-24 (u), TC-B-34 (i), TC-F-04 (e), TC-F-40 (e), TC-M2-07 (e), TC-M2-25 (e) | Covered |
-| S9-13 | - | TC-B-34 (i), TC-F-41 (e), TC-M2-09 (e), TC-M2-25 (e) | Covered |
+| S9-12 | - | TC-A-24 (u), TC-A-43 (u), TC-B-34 (i), TC-F-04 (e), TC-F-40 (e), TC-M2-07 (e), TC-M2-25 (e) | Covered |
+| S9-13 | - | TC-B-34 (i), TC-F-41 (e), TC-F-58 (e), TC-M2-09 (e), TC-M2-25 (e) | Covered |
 | S9-14 | - | TC-A-23 (u), TC-F-42 (e), TC-M2-32 (e) | Covered |
-| S9-15 | - | TC-F-44 (e) | Covered |
+| S9-15 | - | TC-F-21 (e), TC-F-44 (e), TC-F-54 (e) | Covered |
 | S9-16 | - | TC-A-24 (u), TC-F-34 (e), TC-F-36 (e), TC-F-39 (e), TC-M2-25 (e) | Covered |
 | S9-17 | - | TC-F-42 (e) | Covered |
 | S9-18 | - | TC-A-36 (e), TC-F-43 (e) | Covered |
-| S9-19 | - | TC-A-24 (u), TC-D-47 (e), TC-M2-25 (e) | Covered |
+| S9-19 | - | TC-A-24 (u), TC-D-47 (e), TC-D-53 (e), TC-M2-25 (e) | Covered |
 | S9-20 | - | TC-D-49 (e), TC-M2-16 (e) | Covered |
-| S9-21 | - | TC-A-16 (e), TC-C-41 (e), TC-D-38 (e) | Covered |
-| S9-22 | - | TC-A-35 (e), TC-A-36 (e), TC-M2-36 (e) | Covered |
+| S9-21 | - | TC-A-16 (e), TC-C-41 (e) | Covered |
+| S9-22 | - | TC-A-35 (e), TC-A-36 (e), TC-A-39 (u), TC-A-42 (u), TC-M2-36 (e) | Covered |
 
 ### 8.3 §12 gates and §14 decisions
 
 | AC | Pri | Test cases | Status |
 |---|---|---|---|
-| G-1 | - | TC-B-41 (u), TC-C-74 (e), TC-M2-28 (e), TC-M2-38 (i), TC-M2-39 (i) | Covered |
-| G-2 | - | TC-M2-39 (i), TC-M2-42 (i) | Covered |
-| G-3 | - | TC-M2-39 (i), TC-M2-44 (i) | Covered |
-| G-4 | - | TC-M2-43 (i), TC-M2-46 (i) | Covered |
-| G-5 | - | TC-M2-39 (i) | Covered |
-| G-6 | - | TC-M2-40 (i), TC-M2-41 (i) | Covered |
-| R-1.1 | - | TC-E-68 (i), TC-E-69 (i), TC-E-70 (i), TC-E-71 (i), TC-E-72 (i), TC-E-73 (u) | Covered |
-| R-1.2 | - | TC-E-74 (i), TC-E-75 (i), TC-E-76 (i), TC-E-77 (i), TC-E-78 (i), TC-E-79 (e) | Covered |
+| G-1 | - | TC-B-41 (u), TC-C-74 (e), TC-M2-28 (e), TC-M2-38 (i), TC-M2-39 (i), TC-M2-54 (i), TC-M2-55 (i), TC-M2-57 (i) | Covered |
+| G-2 | - | TC-A-44 (i), TC-M2-39 (i), TC-M2-42 (i), TC-M2-55 (i), TC-M2-57 (i) | Covered |
+| G-3 | - | TC-M2-39 (i), TC-M2-44 (i), TC-M2-55 (i), TC-M2-57 (i) | Covered |
+| G-4 | - | TC-A-44 (i), TC-M2-43 (i), TC-M2-46 (i) | Covered |
+| G-5 | - | TC-M2-39 (i), TC-M2-53 (i), TC-M2-54 (i), TC-M2-55 (i), TC-M2-56 (i), TC-M2-57 (i), TC-M2-58 (i) | Covered |
+| G-6 | - | TC-M2-40 (i), TC-M2-41 (i), TC-M2-58 (i) | Covered |
+| R-1.1 | - | TC-E-68 (i), TC-E-69 (i), TC-E-70 (i), TC-E-71 (i), TC-E-72 (i), TC-E-73 (u), TC-E-81 (i), TC-E-82 (u), TC-E-85 (i) | Covered |
+| R-1.2 | - | TC-E-74 (i), TC-E-75 (i), TC-E-76 (i), TC-E-77 (i), TC-E-78 (i), TC-E-79 (e), TC-E-80 (e), TC-E-82 (u), TC-E-83 (i), TC-E-84 (i), TC-E-85 (i) | Covered |
 | R-3.1 | - | TC-E-12 (u), TC-E-13 (i) | Covered |
 | R-5.1 | - | TC-M2-45 (i) | Covered |
 
 ### 8.4 Coverage call-outs
 
 - **Uncovered:** none. Every P0 and P1 AC in §6, every §9 state, every §12 gate and every §14 decision has at least one case. I-7.1 (P2 relevance thumbs) is deliberately out of scope.
-- **Covered by a single case** (add depth if the implementation turns out non-trivial): D-2.4, E-1.2, E-3.2, E-5.1, G-5, I-4.3, R-5.1, S9-08, S9-15, S9-17.
-- **Covered, but not fully automatable.** Each has an automated proxy plus a manual or live check:
-  - I-1.2: source URLs are checked over the real network (AMB-20).
-  - I-5.4: sleep and wake on the stakeholder Mac is manual. The date logic is automated with `FM_NOW`.
-  - I-3.3: the live injection check needs a real `claude` login (tag `@live`). The deterministic proxy runs in CI.
-  - D-1.1: token re-verification against firstmate.tech is manual (AMB-19).
-  - D-4.1: LCP depends on hardware (AMB-24).
-  - E-4.4: the `npm i` timing has no reference machine (AMB-18).
+- **Covered, but not fully automatable.** Each has an automated proxy plus a manual, live or nightly check:
+  - I-1.2: source URLs are checked over the real network (`@network`, AMB-20).
+  - I-5.4: sleep and wake on the stakeholder Mac is `@manual`. The date logic is automated with `FM_NOW`.
+  - I-3.3: the live injection check is `@live`. The deterministic proxy runs in CI.
+  - D-1.1: brand re-verification is manual (AMB-19).
+  - D-4.1: LCP is `@nightly` and non-gating (AMB-24, AMB-27).
+  - E-4.4: the `npm i` timing is `@nightly` (AMB-18).
   - G-1: the manual screenshot pass at 360/768/1440.
   - R-5.1: the human tool check itself (AMB-23).
-  - PRD §2 DoD: the "5 consecutive scheduled mornings" burn-in (M3).
+  - PRD §2 DoD: the 5-morning burn-in (M3).
 - **Literally untestable against the S-5 fixture:** C-1.1 ("5 level sections") and C-2.1 ("L3, 2 of 4"). They are tested on `fx-curriculum-5` at component level (AMB-01).
+- **Known RED on M0 today** (the case is right; M0 needs a change):
+  - TC-B-41: CI has no `exercises:verify` step.
+  - AMB-27: Playwright runs `npm run dev` and has no `grepInvert`.
+  - AMB-28: `package.json` lacks `news:rescore`, `news:schedule:*` and `news:sources:check`.
 
-### 8.5 Ownership gaps found while writing cases
+### 8.5 Ownership and contract gaps
 
-- `tests/helpers/` (`progress.ts`, `db.ts`, `feed-server.ts`) is in no workstream's owned paths (AMB-F1). Proposal: M0 creates the files as stubs, and WS-B owns them afterwards together with `tests/fixtures/`.
-- Seeding `news_sources` from `content/news/sources.yaml` is claimed by neither WS-B (seed) nor WS-E (sources) (AMB-B20, AMB-E2).
-- §6 has no column for the "no native equivalent" workaround text that L-3.2 must render (AMB-B12). The migration needs `claude_workaround_md` / `codex_workaround_md`, or the workaround stays in `*_md` with the flag set.
-- The branch pattern `ws-<letter>/<short-desc>` (G-6) does not fit M2, the G1–G5 content worktrees or this QA branch (AMB-M9).
+- `tests/support/` is M0-owned and frozen, but every workstream needs the helpers in §3.3–§3.4 (AMB-26).
+- Seeding `news_sources` from `content/news/sources.yaml` is claimed by neither WS-B nor WS-E (AMB-B20, AMB-E2). The migration already seeds baseline sources.
+- The fixture's lessons without exercises can't pass `lessonFrontmatterSchema` (AMB-25).
+- Snapshots carry no item `id`, so news bookmarks don't carry across machines after `news:import` (AMB-E35).
 
 ### 8.6 File-local ambiguity index
 
+Items resolved by DESIGN.md or the contracts are kept in each file, marked "Resolved: <source>", so the history of the decision stays visible.
+
 | File | IDs |
 |---|---|
-| ws-a-design-system.md | AMB-A1 – AMB-A8 |
-| ws-b-content-pipeline.md | AMB-B1 – AMB-B20 |
-| ws-c-curriculum-lesson.md | AMB-C1 – AMB-C13 |
-| ws-d-progress.md | AMB-D1 – AMB-D8 |
-| ws-e-news-pipeline.md | AMB-E1 – AMB-E32 |
-| ws-f-news-ui.md | AMB-F1 – AMB-F17 |
-| ws-m2-integration.md | AMB-M1 – AMB-M9 |
+| ws-a-design-system.md | AMB-A1 – AMB-A10 |
+| ws-b-content-pipeline.md | AMB-B1 – AMB-B27 |
+| ws-c-curriculum-lesson.md | AMB-C1 – AMB-C16 |
+| ws-d-progress.md | AMB-D1 – AMB-D10 |
+| ws-e-news-pipeline.md | AMB-E1 – AMB-E35 |
+| ws-f-news-ui.md | AMB-F1 – AMB-F20 |
+| ws-m2-integration.md | AMB-M1 – AMB-M12 |
 
