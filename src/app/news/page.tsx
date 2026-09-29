@@ -1,13 +1,12 @@
-import { AlertTriangle } from "lucide-react";
+import { Newspaper } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { applyTestHooks, getNow } from "@/components/news/clock";
-import { CopyCommand } from "@/components/news/copy-command";
 import { formatDigestDay, formatTime } from "@/components/news/dates";
 import { NewsCard } from "@/components/news/news-card";
-import { NewsEmpty } from "@/components/news/news-empty";
 import { getDigest, RELEVANCE_BAR } from "@/components/news/queries";
 import { UnscoredSection } from "@/components/news/unscored-section";
+import { CommandLine, EmptyState, Notice } from "@/components/ui";
 
 // Content must show without a rebuild (AGENTS.md): always render on request.
 export const dynamic = "force-dynamic";
@@ -24,15 +23,15 @@ export default async function NewsPage() {
       <>
         <h1 className="text-3xl font-bold text-fg-strong">Today&apos;s digest</h1>
         <div className="mt-6">
-          <NewsEmpty
+          <EmptyState
+            icon={<Newspaper />}
             title={
               <>
                 No news yet. Run <code className="font-mono text-base">npm run news:run</code>.
               </>
             }
-          >
-            <CopyCommand command={RUN_COMMAND} />
-          </NewsEmpty>
+            command={RUN_COMMAND}
+          />
         </div>
       </>
     );
@@ -53,14 +52,10 @@ export default async function NewsPage() {
     <div className="lg:grid lg:grid-cols-12 lg:gap-8">
       <section aria-labelledby="digest-title" className="min-w-0 lg:col-span-8">
         {digest.stale ? (
-          <div className="mb-4 flex gap-3 rounded-lg bg-warning-soft p-4">
-            <AlertTriangle aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-warning" />
-            <div className="min-w-0">
-              <p className="font-bold text-warning">No digest yet today. Showing {day}</p>
-              <p className="text-base text-fg">Run the pipeline to fetch today&apos;s news.</p>
-              <CopyCommand command={RUN_COMMAND} />
-            </div>
-          </div>
+          <Notice tone="warning" live={false} title={`No digest yet today. Showing ${day}`} className="mb-4">
+            <p>Run the pipeline to fetch today&apos;s news.</p>
+            <CommandLine command={RUN_COMMAND} className="mt-3" />
+          </Notice>
         ) : null}
 
         <h1 id="digest-title" className="text-3xl font-bold text-fg-strong">
@@ -78,19 +73,18 @@ export default async function NewsPage() {
         <h2 className="sr-only">Ranked items</h2>
         {digest.ranked.length === 0 ? (
           <div className="mt-4">
-            <NewsEmpty title="Nothing above the relevance bar today">
-              <p className="mt-1 text-base text-fg-muted">
-                {digest.scoredCount === 0
-                  ? "Today's run found no scored items."
-                  : `Today's run found ${digest.scoredCount} ${digest.scoredCount === 1 ? "item" : "items"}, all scored below ${RELEVANCE_BAR}.`}
-              </p>
-              <Link
-                href={`/news/archive?from=${digest.digestDate}&to=${digest.digestDate}&min=0`}
-                className="mt-3 inline-flex min-h-11 items-center font-medium text-link underline underline-offset-2"
-              >
-                See today&apos;s items in the archive
-              </Link>
-            </NewsEmpty>
+            <EmptyState
+              icon={<Newspaper />}
+              title="Nothing above the relevance bar today"
+              action={{
+                label: "See today's items in the archive",
+                href: `/news/archive?from=${digest.digestDate}&to=${digest.digestDate}&min=0`,
+              }}
+            >
+              {digest.scoredCount === 0
+                ? "Today's run found no scored items."
+                : `Today's run found ${digest.scoredCount} ${digest.scoredCount === 1 ? "item" : "items"}, all scored below ${RELEVANCE_BAR}.`}
+            </EmptyState>
           </div>
         ) : (
           <ol aria-label={title} className="mt-4 space-y-3 md:space-y-4">

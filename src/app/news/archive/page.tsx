@@ -1,3 +1,4 @@
+import { Newspaper, SearchX } from "lucide-react";
 import type { Metadata } from "next";
 import { ResultsHeading } from "@/components/news/archive-client";
 import { ArchiveFilters, ClearFiltersLink } from "@/components/news/archive-filters";
@@ -5,9 +6,8 @@ import { activeFilterCount, archiveHref, parseArchiveParams, type RawSearchParam
 import { FilterChips, Pagination } from "@/components/news/archive-results";
 import { applyTestHooks } from "@/components/news/clock";
 import { NewsCard } from "@/components/news/news-card";
-import { NewsEmpty } from "@/components/news/news-empty";
 import { getArchive } from "@/components/news/queries";
-import { CopyCommand } from "@/components/news/copy-command";
+import { EmptyState } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "News archive · First Mate AI Playground" };
@@ -45,20 +45,20 @@ export default async function NewsArchivePage({ searchParams }: { searchParams: 
           {result.items.length === 0 ? (
             <div className="mt-3">
               {filtered ? (
-                <NewsEmpty title="No items match these filters">
-                  <p className="mt-1 text-base text-fg-muted">Try removing a filter or widening the date range.</p>
+                <EmptyState icon={<SearchX />} title="No items match these filters">
+                  <p>Try removing a filter or widening the date range.</p>
                   <ClearFiltersLink />
-                </NewsEmpty>
+                </EmptyState>
               ) : (
-                <NewsEmpty
+                <EmptyState
+                  icon={<Newspaper />}
                   title={
                     <>
                       No news yet. Run <code className="font-mono text-base">npm run news:run</code>.
                     </>
                   }
-                >
-                  <CopyCommand command="npm run news:run" />
-                </NewsEmpty>
+                  command="npm run news:run"
+                />
               )}
             </div>
           ) : (

@@ -100,10 +100,7 @@ export function ArchiveFilters({
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <Button
-              type="submit"
-              className="h-11 rounded-xl bg-primary px-5 text-base font-bold text-primary-fg hover:bg-primary-hover"
-            >
+            <Button type="submit" variant="primary">
               Apply filters
             </Button>
           </div>

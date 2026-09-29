@@ -81,7 +81,7 @@ export function NewsCard({
           </>
         ) : null}
         {variant === "unscored" ? (
-          <Badge className="ml-2 inline-flex h-6 items-center rounded-full bg-border-subtle px-2.5 text-xs font-medium text-fg-muted">
+          <Badge variant="neutral" className="ml-2">
             {item.status === "failed" ? "Scoring failed" : "Unscored"}
           </Badge>
         ) : null}
@@ -94,16 +94,13 @@ export function NewsCard({
           {tags.map((tag) =>
             tag === "security" ? (
               <li key={tag}>
-                <Badge className="inline-flex h-6 items-center gap-1 rounded-full bg-danger-soft px-2.5 text-xs font-medium text-danger">
-                  <ShieldAlert aria-hidden="true" className="size-3" />
+                <Badge variant="danger" icon={<ShieldAlert />}>
                   {TAG_LABEL[tag]}
                 </Badge>
               </li>
             ) : (
               <li key={tag}>
-                <Badge className="inline-flex h-6 items-center rounded-full border border-border bg-canvas px-2.5 text-xs font-medium text-fg">
-                  {TAG_LABEL[tag]}
-                </Badge>
+                <Badge variant="tag">{TAG_LABEL[tag]}</Badge>
               </li>
             ),
           )}

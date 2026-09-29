@@ -1,13 +1,11 @@
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { FilterChip } from "@/components/ui";
 import { ClearFiltersLink } from "./archive-filters";
 import { FocusResultsLinks } from "./archive-client";
 import { activeFilterCount, archiveHref, type ArchiveParams } from "./archive-params";
 import type { ArchivePage } from "./queries";
 import { TAG_LABEL } from "./tag-labels";
-
-const chipClass =
-  "inline-flex min-h-6 items-center gap-1 rounded-full bg-accent-soft px-2.5 py-0.5 text-xs font-medium text-link pointer-coarse:min-h-11 pointer-coarse:px-4";
 
 /** Active filters as removable chips. Each is a link to the current URL minus that param, so it works without JS. */
 export function FilterChips({
@@ -39,11 +37,7 @@ export function FilterChips({
   return (
     <FocusResultsLinks className="flex flex-wrap items-center gap-2">
       {chips.map((c) => (
-        <Link key={c.key} href={c.href} prefetch={false} className={chipClass}>
-          <span className="sr-only">Remove filter: </span>
-          {c.text}
-          <X aria-hidden="true" className="size-3" />
-        </Link>
+        <FilterChip key={c.key} label={c.text} href={c.href} />
       ))}
       {hideClear ? null : <ClearFiltersLink />}
     </FocusResultsLinks>
@@ -63,7 +57,7 @@ function pageWindow(page: number, count: number): (number | "gap")[] {
 }
 
 const pageLink =
-  "inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg px-2 text-base font-medium text-link hover:bg-accent-soft pointer-coarse:min-h-11 pointer-coarse:min-w-11";
+  "inline-flex min-h-9 min-w-9 items-center justify-center rounded-lg px-2 text-base font-medium text-link hover:bg-accent-soft touch:min-h-11 touch:min-w-11";
 
 export function Pagination({ params, result }: { params: ArchiveParams; result: ArchivePage }) {
   if (result.pageCount <= 1) return null;

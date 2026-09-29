@@ -2,7 +2,8 @@
 
 // Client boundary: the only part of a news card that needs browser state (localStorage bookmarks).
 import { Bookmark, BookmarkCheck } from "lucide-react";
-import { announce, useBookmark } from "@/lib/progress";
+import { announce } from "@/components/ui/live-region";
+import { useBookmark } from "@/lib/progress";
 
 export function BookmarkButton({ id, title }: { id: string; title: string }) {
   const { hydrated, bookmarked, toggle } = useBookmark("news", id);
@@ -20,7 +21,7 @@ export function BookmarkButton({ id, title }: { id: string; title: string }) {
         if (bookmarked) announce("Removed from bookmarks");
         toggle();
       }}
-      className={`relative z-10 inline-flex size-9 items-center justify-center rounded-full self-start justify-self-end [grid-area:bookmark] pointer-coarse:size-11 hover:bg-border-subtle ${
+      className={`relative z-10 inline-flex size-9 items-center justify-center rounded-full self-start justify-self-end [grid-area:bookmark] touch:size-11 hover:bg-border-subtle ${
         pressed ? "text-link" : "text-fg-muted"
       } ${hydrated ? "" : "cursor-not-allowed opacity-50"}`}
     >
