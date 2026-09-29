@@ -40,7 +40,7 @@ describe("DB unavailable seam", () => {
     render(<ErrorPage error={new DbUnavailableError()} reset={() => {}} />);
     expect(screen.getByText(DB_UNAVAILABLE_MESSAGE)).toBeVisible();
     expect(screen.getByText("supabase start && npm run seed")).toBeVisible();
-    expect(screen.getByRole("button", { name: "Copy command" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Copy code: Terminal" })).toBeVisible();
   });
 
   it("error boundary stays generic for other errors", () => {
