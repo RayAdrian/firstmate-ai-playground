@@ -1,6 +1,7 @@
 /**
  * Announce a message through the single polite live region (`#fm-live`, DESIGN §4/§11).
- * The app shell (WS-A) renders that element; if it is missing (for example on an isolated
+ * TEMPORARY SHIM: the app shell (WS-A) owns `announce()`; swap this for theirs once it lands.
+ * The app shell renders that element; if it is missing (for example on an isolated
  * page) a visually hidden one is created so the announcement is still spoken.
  */
 export function announce(message: string): void {
@@ -11,6 +12,7 @@ export function announce(message: string): void {
     region.id = "fm-live";
     region.setAttribute("role", "status");
     region.setAttribute("aria-live", "polite");
+    region.setAttribute("aria-atomic", "true");
     region.className = "sr-only";
     document.body.appendChild(region);
   }

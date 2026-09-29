@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { Button, Card, Notice, Skeleton } from "@/components/ui";
+import { formatDay } from "@/lib/progress/dates";
 import {
   announce,
   exportFilename,
@@ -83,7 +84,7 @@ function Summary({
       : `${counts.lessons} of ${lessonSlugs.length} lessons complete`;
   return (
     <Card>
-      <h2 className="text-lg font-bold">Saved in this browser</h2>
+      <h2 className="text-lg font-bold">Summary</h2>
       <p>{lessons}</p>
       <p className="text-fg-muted">
         {pluralize(counts.checklistItems, "checklist item")} · {pluralize(counts.bookmarks, "bookmark")}
@@ -117,11 +118,11 @@ function ExportSection({ hydrated }: { hydrated: boolean }) {
 
   return (
     <section aria-labelledby="export-heading" id="export" className="space-y-3">
-      <h2 id="export-heading" className="text-xl font-bold">
+      <h2 id="export-heading" className="text-2xl font-bold">
         Export
       </h2>
       <p className="text-fg-muted">Download a JSON backup, or share it for the team report.</p>
-      <Button onClick={onExport} disabled={!hydrated}>
+      <Button onClick={onExport} disabled={!hydrated} className="min-h-11 rounded-lg border px-4">
         Export progress
       </Button>
       {result && (
@@ -155,7 +156,14 @@ function ExportSection({ hydrated }: { hydrated: boolean }) {
 type ImportState =
   | { kind: "idle" }
   | { kind: "error"; reason: string }
-  | { kind: "preview"; next: ProgressState; lessons: number; bookmarks: number }
+  | {
+      kind: "preview";
+      next: ProgressState;
+      lessons: number;
+      bookmarks: number;
+      fileName: string;
+      fileDate: string;
+    }
   | { kind: "done"; lessons: number; bookmarks: number };
 
 function ImportSection() {
@@ -168,13 +176,21 @@ function ImportSection() {
     const file = input.files?.[0];
     if (!file) return;
     const result = await readImportFile(file);
-    // Allow choosing the same file again after an error or cancel.
-    input.value = "";
     if (!result.ok) {
+      // Clear so the same file can be chosen again after fixing it.
+      input.value = "";
       setStatus({ kind: "error", reason: result.reason });
       return;
     }
-    setStatus({ kind: "preview", next: result.state, lessons: result.lessons, bookmarks: result.bookmarks });
+    // The chosen file stays in the input while the preview is open.
+    setStatus({
+      kind: "preview",
+      next: result.state,
+      lessons: result.lessons,
+      bookmarks: result.bookmarks,
+      fileName: file.name,
+      fileDate: formatDay(file.lastModified),
+    });
   }
 
   function cancel() {
@@ -186,13 +202,13 @@ function ImportSection() {
   function confirm() {
     if (status.kind !== "preview") return;
     replaceProgress(status.next);
+    if (inputRef.current) inputRef.current.value = "";
     setStatus({ kind: "done", lessons: status.lessons, bookmarks: status.bookmarks });
-    announce("Progress imported");
   }
 
   return (
     <section aria-labelledby="import-heading" className="space-y-3">
-      <h2 id="import-heading" className="text-xl font-bold">
+      <h2 id="import-heading" className="text-2xl font-bold">
         Import
       </h2>
       <div className="space-y-1">
@@ -205,25 +221,31 @@ function ImportSection() {
           type="file"
           accept="application/json,.json"
           onChange={onFile}
+          className="block min-h-11 w-full max-w-full rounded-lg border p-2 text-sm file:mr-3 file:min-h-8"
         />
       </div>
       {status.kind === "error" && (
         <Notice tone="error">
           <p>
-            <strong>This file isn&apos;t a valid progress export.</strong> Reason: {status.reason}.
-            Nothing was changed.
+            <strong>This file isn&apos;t a valid progress export.</strong> Reason: <code>{status.reason}</code>. Nothing was changed.
           </p>
         </Notice>
       )}
       {status.kind === "preview" && (
         <Notice tone="info">
           <p>
-            This file has {pluralize(status.lessons, "lesson")}, {pluralize(status.bookmarks, "bookmark")}.
-            Importing replaces everything saved in this browser.
+            <strong className="[overflow-wrap:anywhere]">{status.fileName}</strong> (file dated{" "}
+            {status.fileDate}) has {pluralize(status.lessons, "lesson")},{" "}
+            {pluralize(status.bookmarks, "bookmark")}. Importing replaces everything saved in this
+            browser.
           </p>
           <div className="mt-2 flex gap-2">
-            <Button onClick={confirm}>Replace my progress</Button>
-            <Button onClick={cancel}>Cancel</Button>
+            <Button onClick={confirm} className="min-h-11 rounded-lg border px-4">
+              Replace my progress
+            </Button>
+            <Button onClick={cancel} className="min-h-11 rounded-lg border px-4">
+              Cancel
+            </Button>
           </div>
         </Notice>
       )}
@@ -253,21 +275,23 @@ function ResetSection() {
     event.preventDefault();
     if (!matches) {
       setAttempted(true);
+      // Focus the field so its description (the error) is read, and announce it.
+      document.getElementById(inputId)?.focus();
+      announce("Type reset exactly to confirm.");
       return;
     }
     resetProgress();
     setValue("");
     setAttempted(false);
     setDone(true);
-    announce("All progress has been reset");
   }
 
   return (
     <section
       aria-labelledby="reset-heading"
-      className="space-y-3 rounded border border-danger p-4"
+      className="space-y-3 rounded-lg border border-danger p-5 md:p-6"
     >
-      <h2 id="reset-heading" className="text-xl font-bold">
+      <h2 id="reset-heading" className="text-2xl font-bold">
         Reset all progress
       </h2>
       <p>
@@ -292,7 +316,7 @@ function ResetSection() {
           }}
           aria-describedby={attempted ? errorId : undefined}
           aria-invalid={attempted ? true : undefined}
-          className="rounded border px-2 py-1"
+          className="min-h-11 w-full max-w-full rounded-lg border px-3 py-2 sm:w-64"
         />
         {attempted && (
           <p id={errorId} className="text-sm text-danger">
@@ -300,7 +324,7 @@ function ResetSection() {
           </p>
         )}
         <div>
-          <Button type="submit" aria-disabled={!matches} className="border-danger text-danger">
+          <Button type="submit" aria-disabled={!matches} className="min-h-11 rounded-lg border px-4 border-danger text-danger">
             Reset all progress
           </Button>
         </div>

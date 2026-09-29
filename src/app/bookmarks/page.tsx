@@ -4,7 +4,7 @@ import { getReadClient } from "@/lib/db/server";
 import { ProgressNotices } from "@/lib/progress";
 import { BookmarksView, type BookmarkLesson } from "./bookmarks-view";
 
-export const metadata: Metadata = { title: "Bookmarks" };
+export const metadata: Metadata = { title: "Bookmarks · First Mate AI Playground" };
 
 // Lesson titles come from the DB, so content edits must show without a rebuild.
 export const dynamic = "force-dynamic";
@@ -32,10 +32,10 @@ async function loadLessons(): Promise<BookmarkLesson[]> {
 export default async function BookmarksPage() {
   const lessons = await loadLessons();
   return (
-    <div className="mx-auto max-w-5xl space-y-8 px-4 py-8">
+    <div className="space-y-8">
       <ProgressNotices fallback />
       <header className="space-y-2">
-        <h1 className="text-3xl font-bold">Bookmarks</h1>
+        <h1 className="text-3xl font-bold md:text-4xl">Bookmarks</h1>
         <p className="text-fg-muted">Saved in this browser only.</p>
       </header>
       <BookmarksView lessons={lessons} />

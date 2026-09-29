@@ -36,7 +36,7 @@ instance is absent, so both can coexist without duplicates.
 
 ## Behaviour guarantees
 
-- Storage is read on first mount, never on the server. Read-only page loads never write.
+- Storage is read on first mount, never on the server. Read-only page loads never write the progress key (a transient probe key checks that writes work). `useTrackLastViewed` is the exception: it writes `lastViewed` once per lesson-page mount or slug change and never reacts to other tabs.
 - Every mutation re-reads storage first (read-modify-write), so two tabs do not erase each other.
   Other tabs are followed through the `storage` event.
 - Invalid JSON, schema failures and unknown/missing versions are replaced by an empty document and

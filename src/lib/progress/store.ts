@@ -98,10 +98,27 @@ function applyLoaded(loaded: Loaded): void {
   };
 }
 
+const PROBE_KEY = "fm-playground:probe";
+
+/** True when a write is accepted (catches quota-full and write-blocked storage on load). */
+function probeWrite(): boolean {
+  const storage = getStorage();
+  if (!storage) return false;
+  try {
+    storage.setItem(PROBE_KEY, "1");
+    storage.removeItem(PROBE_KEY);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function ensureInitialized(): void {
   if (initialized || typeof window === "undefined") return;
   initialized = true;
-  applyLoaded(loadFromStorage());
+  const loaded = loadFromStorage();
+  if (loaded.readable && writeOk) writeOk = probeWrite();
+  applyLoaded(loaded);
 }
 
 function onStorageEvent(event: StorageEvent): void {

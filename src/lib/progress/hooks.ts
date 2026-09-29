@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import type { ProgressState, Tool } from "@/lib/contracts";
 import {
   addBookmark,
@@ -182,14 +182,17 @@ export function useToolPref(): {
 
 /**
  * Record `slug` as the last viewed lesson once hydrated (call from the lesson page).
- * Writes only when the slug differs, so revisiting the same lesson does not rewrite storage.
+ * Writes once per mount or slug change, driven only by this tab's own navigation: it never
+ * reacts to what other tabs store, so two open lesson tabs cannot overwrite each other.
  */
 export function useTrackLastViewed(slug: string): void {
-  const { hydrated, state } = useProgressSnapshot();
-  const current = state.lastViewed?.slug ?? null;
+  const { hydrated } = useProgressSnapshot();
+  const written = useRef<string | null>(null);
   useEffect(() => {
-    if (hydrated && current !== slug) updateProgress((s) => setLastViewed(s, slug));
-  }, [hydrated, current, slug]);
+    if (!hydrated || written.current === slug) return;
+    written.current = slug;
+    updateProgress((s) => (s.lastViewed?.slug === slug ? s : setLastViewed(s, slug)));
+  }, [hydrated, slug]);
 }
 
 /** The last viewed lesson, for the Continue CTA (C-4). */

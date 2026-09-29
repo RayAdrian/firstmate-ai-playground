@@ -9,6 +9,7 @@ import {
   useChecklist,
   useLessonCompletion,
   useProgressStatus,
+  useTrackLastViewed,
   useToolPref,
 } from "@/lib/progress";
 import * as store from "@/lib/progress/store";
@@ -50,7 +51,8 @@ describe("persistence and no-write-on-read (TC-D-10, TC-D-13)", () => {
     const spy = vi.spyOn(Storage.prototype, "setItem");
     render(<Probe />);
     expect(screen.getByTestId("state")).toHaveTextContent("done");
-    expect(spy).not.toHaveBeenCalled();
+    // Only the transient write probe may write; the progress key itself is untouched.
+    expect(spy.mock.calls.filter(([key]) => key === KEY)).toEqual([]);
   });
 
   it("writes the contract shape on mutation and undo removes the entry", () => {
@@ -194,7 +196,8 @@ describe("storage unavailable (TC-D-20..23)", () => {
         <Probe slug="l2-context-files" />
       </>,
     );
-    expect(screen.getByTestId("avail")).toHaveTextContent("true");
+    // A write probe on load detects the full storage up front.
+    expect(screen.getByTestId("avail")).toHaveTextContent("false");
     act(() => screen.getByText("complete").click());
     expect(screen.getByTestId("state")).toHaveTextContent("done");
     expect(screen.getByRole("status")).toHaveTextContent("Progress can't be saved in this browser");
@@ -266,5 +269,36 @@ describe("focused hooks", () => {
     expect(stored().checklists.ex).toEqual({ zzz: true, a: true });
     expect(stored().prefs.tool).toBe("codex");
     expect(Object.keys(stored().bookmarks.news)).toEqual(["n1"]);
+  });
+});
+
+describe("useTrackLastViewed two-tab (review B1)", () => {
+  function Track({ slug }: { slug: string }) {
+    useTrackLastViewed(slug);
+    return null;
+  }
+
+  it("writes once for its own slug and ignores other tabs' lastViewed changes", () => {
+    render(<Track slug="a" />);
+    expect(stored().lastViewed.slug).toBe("a");
+    // Another tab views lesson b.
+    const other = JSON.stringify({
+      ...emptyState(),
+      lastViewed: { slug: "b", at: "2026-09-30T00:00:00.000Z" },
+    });
+    window.localStorage.setItem(KEY, other);
+    const spy = vi.spyOn(Storage.prototype, "setItem");
+    act(() => {
+      window.dispatchEvent(new StorageEvent("storage", { key: KEY, newValue: other }));
+    });
+    // Nothing further is written in response; the other tab's value stands.
+    expect(spy).not.toHaveBeenCalled();
+    expect(stored().lastViewed.slug).toBe("b");
+  });
+
+  it("writes again when this tab navigates to another slug", () => {
+    const { rerender } = render(<Track slug="a" />);
+    rerender(<Track slug="c" />);
+    expect(stored().lastViewed.slug).toBe("c");
   });
 });

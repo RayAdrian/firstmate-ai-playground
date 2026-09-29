@@ -158,6 +158,24 @@ test("cross-tab: removing in one tab updates the other (TC-D-34)", async ({ cont
   await expect(b.getByRole("heading", { name: "Lessons (1)" })).toBeVisible({ timeout: 2000 });
 });
 
+test("360px: no horizontal scroll and 44px touch targets", async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 360, height: 800 }, hasTouch: true });
+  const page = await context.newPage();
+  await seedProgress(page, bookmarked);
+  await page.goto("/bookmarks");
+  await expect(page.getByRole("heading", { name: "Lessons (2)" })).toBeVisible();
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(0);
+  const toggle = page.getByRole("button", { name: `Bookmark: ${D.titleA}` });
+  const link = page.getByRole("link", { name: D.titleA });
+  expect((await toggle.boundingBox())?.height).toBeGreaterThanOrEqual(44);
+  expect((await toggle.boundingBox())?.width).toBeGreaterThanOrEqual(44);
+  expect((await link.boundingBox())?.height).toBeGreaterThanOrEqual(40);
+  await context.close();
+});
+
 test("no serious axe violations", async ({ page }) => {
   await seedProgress(page, bookmarked);
   await page.goto("/bookmarks");

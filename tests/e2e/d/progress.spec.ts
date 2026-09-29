@@ -318,7 +318,9 @@ test.describe("/progress: reset (P-7)", () => {
       await input.fill(near);
       await expect(button).toBeDisabled();
       await input.press("Enter");
-      await expect(page.getByText("Type reset exactly to confirm.")).toBeVisible();
+      await expect(page.locator("#main").getByText("Type reset exactly to confirm.")).toBeVisible();
+      await expect(input).toBeFocused();
+      await expect(page.locator("#fm-live")).toHaveText("Type reset exactly to confirm.");
       expect(await readProgress(page)).toEqual(oneComplete);
     }
     await input.fill("reset");
@@ -360,6 +362,26 @@ test.describe("/progress: cross-tab (P-1)", () => {
       const raw = await readRaw(a);
       expect(() => JSON.parse(raw ?? "")).not.toThrow();
       await expect(a.getByText("Saved progress was unreadable")).toHaveCount(0);
+    }
+  });
+});
+
+test.describe("/progress: 360px layout", () => {
+  test.use({ viewport: { width: 360, height: 800 }, hasTouch: true });
+
+  test("no horizontal scroll and 44px touch targets", async ({ page }) => {
+    await seedProgress(page, oneComplete);
+    await page.goto("/progress");
+    await expect(page.getByText(/lessons? complete/)).toBeVisible();
+    await upload(page, "import.json", JSON.stringify(importDoc));
+    await expect(page.getByRole("button", { name: "Replace my progress" })).toBeVisible();
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(0);
+    for (const target of [page.getByLabel(IMPORT_LABEL), page.getByLabel("Type reset to confirm")]) {
+      const box = await target.boundingBox();
+      expect(box?.height).toBeGreaterThanOrEqual(44);
     }
   });
 });

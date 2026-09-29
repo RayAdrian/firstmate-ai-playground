@@ -19,8 +19,9 @@ export type ResolveNewsResult =
   | { status: "db-unavailable" }
   | { status: "error" };
 
-const MAX_IDS = 500;
-const idsSchema = z.array(z.string().max(100)).max(MAX_IDS);
+const MAX_IDS = 1000;
+const CHUNK = 100; // keeps each PostgREST request well under the URL length limit
+const idsSchema = z.array(z.string());
 const uuidSchema = z.guid();
 
 function safeHttpUrl(value: string): string | null {
@@ -41,13 +42,22 @@ function safeHttpUrl(value: string): string | null {
 export async function resolveNewsBookmarks(ids: string[]): Promise<ResolveNewsResult> {
   const parsed = idsSchema.safeParse(ids);
   if (!parsed.success) return { status: "error" };
-  const valid = [...new Set(parsed.data.filter((id) => uuidSchema.safeParse(id).success))];
+  // Ids that are not UUIDs (or are excessive) are dropped: they show as "no longer available".
+  const valid = [
+    ...new Set(parsed.data.slice(0, MAX_IDS).filter((id) => uuidSchema.safeParse(id).success)),
+  ];
   if (valid.length === 0) return { status: "ok", items: [] };
   try {
     const db = getReadClient();
-    const rows = await dbRead(
-      db.from("news_items").select("id,title,url,published_at,source_id").in("id", valid),
-    );
+    const chunks: string[][] = [];
+    for (let i = 0; i < valid.length; i += CHUNK) chunks.push(valid.slice(i, i + CHUNK));
+    const rows = (
+      await Promise.all(
+        chunks.map((chunk) =>
+          dbRead(db.from("news_items").select("id,title,url,published_at,source_id").in("id", chunk)),
+        ),
+      )
+    ).flat();
     const sourceIds = [...new Set(rows.map((row) => row.source_id))];
     const sources =
       sourceIds.length === 0
