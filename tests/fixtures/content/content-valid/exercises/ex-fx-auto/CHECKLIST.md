@@ -1,0 +1,3 @@
+- [ ] {#c1} Test is green
+- [ ] {#c2} No test files edited
+- [ ] {#c3} Diff reviewed

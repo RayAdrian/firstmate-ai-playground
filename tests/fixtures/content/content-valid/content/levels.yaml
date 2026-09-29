@@ -1,0 +1,9 @@
+levels:
+  - number: 1
+    slug: l1
+    title: Foundations
+    summary: One-line summary A
+  - number: 2
+    slug: l2
+    title: Context engineering
+    summary: One-line summary B

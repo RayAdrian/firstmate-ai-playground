@@ -1,0 +1,17 @@
+{
+  "slug": "ex-fx-manual",
+  "verify": "manual",
+  "required_tool_features": [
+    "memory"
+  ],
+  "title": "Write context files",
+  "goal": "Write CLAUDE.md and AGENTS.md.",
+  "starter_prompts": {
+    "claude": "Claude prompt fx",
+    "codex": "Codex prompt fx"
+  },
+  "solution_notes": [
+    "Keeps both files in sync.",
+    "Stays under 100 lines."
+  ]
+}
