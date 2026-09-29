@@ -9,3 +9,6 @@ test-results/
 .worktrees/
 *.log
 .DS_Store
+*.tsbuildinfo
+.news-spool/
+/coverage
