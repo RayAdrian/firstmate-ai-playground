@@ -1,0 +1,21 @@
+levels:
+  - number: 1
+    slug: l1
+    title: Foundations
+    summary: Prompting and tool basics, from your first agent session to safe permissions and undo.
+  - number: 2
+    slug: l2
+    title: Context engineering
+    summary: Give the agent the right context, memory and feedback loop so it can verify its own work.
+  - number: 3
+    slug: l3
+    title: Agentic workflows
+    summary: Plan first, drive work with tests, review with agents and script them headlessly.
+  - number: 4
+    slug: l4
+    title: Parallelism and extensibility
+    summary: Run subagents and parallel worktrees, and extend the tools with MCP, hooks and skills.
+  - number: 5
+    slug: l5
+    title: Orchestration
+    summary: Route models, coordinate multi-agent teams and gate merges the way First Mate ships.
