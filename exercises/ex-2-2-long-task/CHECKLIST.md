@@ -1,0 +1,7 @@
+- [ ] c1: Session 1 did part 1 only, then wrote HANDOFF.md with Done, Next and Constraints, and committed.
+- [ ] c2: I ended session 1 for real: `/clear` or a new process in Claude Code, `/new` or a new process in Codex.
+- [ ] c3: Session 2's first prompt only pointed at HANDOFF.md. I did not re-explain the task or the constraints in chat.
+- [ ] c4: Session 2 completed parts 2 and 3 and honoured every constraint, checked by `test/constraints.test.js`.
+- [ ] c5: I tried the alternative once: on a scratch copy, I ran Claude Code `/compact` with instructions (or let Codex compact) and compared what survived with what HANDOFF.md carried.
+- [ ] c6: I checked context usage mid-task (Claude Code `/context`, Codex `/status`) and can say when I would reset rather than continue.
+- [ ] c7: `npm test` passes, and `git log` shows one commit per part.

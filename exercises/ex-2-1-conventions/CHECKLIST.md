@@ -1,0 +1,7 @@
+- [ ] c1: Before writing anything, I ran the agent on the starter with "add applyDiscount" and noted which conventions it broke.
+- [ ] c2: AGENTS.md states all four conventions in concrete, checkable wording (no "write clean code").
+- [ ] c3: AGENTS.md includes the test command and a definition of done.
+- [ ] c4: CLAUDE.md contains `@AGENTS.md`, so there is one source of truth for both tools.
+- [ ] c5: In Claude Code, `/context` lists my context file under Memory files. In Codex, I confirmed it loaded by asking it to summarise its current instructions.
+- [ ] c6: I asked for the feature in one line, without restating any convention, and the agent still followed all four.
+- [ ] c7: `npm test` passes (`test/conventions.test.js`, `test/context.test.js` and `test/apply-discount.test.js`).

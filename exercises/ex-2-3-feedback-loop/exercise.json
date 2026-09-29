@@ -1,0 +1,18 @@
+{
+  "slug": "ex-2-3-feedback-loop",
+  "title": "Make the agent run typecheck and lint without being asked",
+  "goal": "The tests are green but typecheck and lint fail. Write a context file with the verification commands and a definition of done, then give the agent a task that never mentions them. It should run them and fix what they find.",
+  "setup_cmd": "cp -r exercises/ex-2-3-feedback-loop/starter ~/fm-ex/ex-2-3-feedback-loop && cd ~/fm-ex/ex-2-3-feedback-loop && npm i",
+  "verify": "npm install --no-audit --no-fund --no-package-lock --silent && npm run verify",
+  "required_tool_features": ["AGENTS.md", "CLAUDE.md", "@path imports", "definition of done"],
+  "starter_prompts": {
+    "claude": "Add a truncate(text, max) function to src/text.js that cuts to max characters and ends with an ellipsis when it cut, plus a test in test/app.test.js.",
+    "codex": "Add a truncate(text, max) function to src/text.js that cuts to max characters and ends with an ellipsis when it cut, plus a test in test/app.test.js."
+  },
+  "solution_notes": [
+    "AGENTS.md names the exact commands in order (npm run typecheck, npm run lint, npm test) and says why: type and lint errors do not fail the tests in this repo.",
+    "The definition of done is a set of exit codes, including 'for files you did not touch', which is what makes the agent fix the errors that were already there.",
+    "The rules say what not to do (no @ts-ignore, no any, no editing checks), because an agent told to get green will otherwise weaken the check.",
+    "CLAUDE.md is a single @AGENTS.md line. The task prompt above never mentions typecheck or lint. That is the point: the context file carries the loop."
+  ]
+}

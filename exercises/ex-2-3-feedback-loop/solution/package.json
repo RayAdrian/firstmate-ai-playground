@@ -1,0 +1,17 @@
+{
+  "name": "ex-2-3-feedback-loop",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "typecheck": "tsc --noEmit",
+    "lint": "node scripts/lint.mjs",
+    "verify": "npm run typecheck && npm run lint && npm test && node scripts/check-context.mjs"
+  },
+  "engines": { "node": ">=20" },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^7.0.2"
+  }
+}

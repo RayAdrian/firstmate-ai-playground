@@ -1,0 +1,18 @@
+{
+  "slug": "ex-2-1-conventions",
+  "title": "Teach the agent four conventions it cannot guess",
+  "goal": "The repo follows four non-obvious conventions and has no context file. Write AGENTS.md (and a thin CLAUDE.md that imports it), then have the agent add an apply-discount handler that follows all four without you repeating them in the prompt.",
+  "setup_cmd": "cp -r exercises/ex-2-1-conventions/starter ~/fm-ex/ex-2-1-conventions && cd ~/fm-ex/ex-2-1-conventions && npm i",
+  "verify": "npm test",
+  "required_tool_features": ["AGENTS.md", "CLAUDE.md", "@path imports", "/init"],
+  "starter_prompts": {
+    "claude": "Read src/ and test/. Write an AGENTS.md at the repo root with only what a new engineer could not guess from the code: the conventions, the test command and what done means. Keep it under 40 lines. Then create CLAUDE.md that contains just the line @AGENTS.md. Do not implement any feature yet. Afterwards run /context and tell me which memory files loaded.",
+    "codex": "Read src/ and test/. Write an AGENTS.md at the repo root with only what a new engineer could not guess from the code: the conventions, the test command and what done means. Keep it under 40 lines. Do not implement any feature yet. Then, in a new session, ask me for the feature."
+  },
+  "solution_notes": [
+    "AGENTS.md is the single source of truth. CLAUDE.md is two lines: an @AGENTS.md import plus one Claude-only note, so the tools cannot drift apart.",
+    "It lists only rules the code does not make obvious (integer cents and the Cents suffix, AppError codes, log.js instead of console, one kebab-case file per handler). It skips anything the agent can read from the code, such as the directory tree.",
+    "Every rule is concrete enough to check, and the test command and a definition of done are stated, so the agent can verify its own work.",
+    "The feature prompt in the solution is one line (add applyDiscount) and does not repeat any convention. The context file carries them."
+  ]
+}
