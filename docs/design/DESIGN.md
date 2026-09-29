@@ -10,7 +10,7 @@
 
 Read this doc in order the first time. After that, §4 (components), §6 (pages) and §9 (rubric) are the reference sections.
 
-**Precedence.** If this doc conflicts with the PRD's acceptance criteria, the PRD wins and this doc gets fixed. If it conflicts with an implementer's taste, this doc wins.
+**Precedence.** If this doc conflicts with the PRD's acceptance criteria, the PRD wins and this doc gets fixed. **PRD strings are rendered verbatim**; where this doc would prefer different copy, it says so as a *Suggestion* and the PRD string ships. If this doc conflicts with an implementer's taste, this doc wins. Accessible roles and names are fixed by the selector contract (§11), which the Playwright tests in PR #2 align to.
 
 ---
 
@@ -87,7 +87,7 @@ Fetched on 2026-09-30 from `https://www.firstmate.tech/` (HTML) and its compiled
 
 ### 1.5 Logo
 
-- File: `https://www.firstmate.tech/images/firstmate-logo.svg` (825×169 viewBox). Header use: `<img alt="First Mate Technologies" class="h-9 w-auto">`, 36px tall.
+- File: `https://www.firstmate.tech/images/firstmate-logo.svg` (825×169 viewBox). The site's header uses `<img alt="First Mate Technologies" class="h-9 w-auto">`, 36px tall. **Our alt text is "First Mate"**, because the adjacent "AI Playground" label completes the link name (§5.1).
 - Fills: wordmark `#002151` (navy), secondary shapes `#1A74E0`, mark gradient `#00D9F2 → #2255DA`.
 - **Dark mode problem:** the navy wordmark is about 1.1:1 on our dark canvas. WS-A ships two files, `public/brand/firstmate-logo.svg` (original) and `public/brand/firstmate-logo-dark.svg` (every `#002151` replaced with `#FFFFFF`; the blues and gradient are kept, and `#1A74E0` is 4.06:1 on dark, which is fine for graphics). Swap them with `<picture><source srcset="…-dark.svg" media="(prefers-color-scheme: dark)"><img …></picture>`.
 - Usage rules: height 32px below `md` and 36px at `md` and up. Never recolour, stretch or add effects. Keep clear space of at least half the logo height on all sides. The logo is always followed by the product label "AI Playground" (see §5.1). It is never used inside content.
@@ -177,13 +177,14 @@ Ratios were computed with the WCAG relative-luminance formula. The requirement i
 | warning `#8a5410` | warning-soft `#fff4e5` | 5.76 | 4.5 | Warning badge and notice |
 | danger `#a93d17` | danger-soft `#fdece7` | 5.44 | 4.5 | Danger notice |
 | danger `#a93d17` | canvas `#ffffff` | 6.24 | 4.5 | Field error text |
+| fg `#282943` | success-soft / warning-soft / danger-soft | 12.57 / 12.98 / 12.31 | 4.5 | Notice body text |
 | accent-2 `#ec612a` | canvas `#ffffff` | 3.33 | 3.0 | Decorative / ≥24px only |
 | code-fg `#e6edf3` | code-bg `#0f1729` | 15.13 | 4.5 | Code |
 | code-muted `#9aa4b2` | code-bg `#0f1729` | 7.09 | 4.5 | Code comments |
 | code-muted / code-fg | code-header `#16203a` | 6.40 / 13.65 | 4.5 | Code label / Copy button, clipboard hint |
 | control-border `#8e8e8f` | canvas / surface | 3.27 / 3.11 | 3.0 | Input and checkbox boundaries |
 | focus `#424bd1` | canvas / surface | 6.65 / 6.31 | 3.0 | Focus ring |
-| code-focus `#9fa5ff` | code-bg / code-header | 8.46 / 7.14 | 3.0 | Focus inside code chrome |
+| code-focus `#9fa5ff` | code-bg / code-header | 7.92 / 7.14 | 3.0 | Focus inside code chrome |
 | progress-fill `#424bd1` | progress-track `#e4e4e4` | 5.23 | 3.0 | Progress fill |
 
 **Dark**
@@ -206,6 +207,7 @@ Ratios were computed with the WCAG relative-luminance formula. The requirement i
 | warning `#f2b766` | warning-soft `#2a2216` | 8.77 | 4.5 | Warning |
 | danger `#ff9a7a` | danger-soft `#2c1c19` | 7.89 | 4.5 | Danger |
 | danger `#ff9a7a` | canvas `#12131f` | 8.92 | 4.5 | Field error |
+| fg `#ededf3` | success-soft / warning-soft / danger-soft | 13.27 / 13.45 / 13.99 | 4.5 | Notice body text |
 | accent-2 `#f58a5c` | canvas `#12131f` | 7.62 | 3.0 | Decorative |
 | code-fg `#e6edf3` | code-bg `#0b0f1c` | 16.17 | 4.5 | Code |
 | code-muted `#9aa4b2` | code-bg `#0b0f1c` | 7.57 | 4.5 | Code comments |
@@ -234,7 +236,7 @@ Ratios were computed with the WCAG relative-luminance formula. The requirement i
 ```css
 /* src/app/globals.css */
 @import "tailwindcss";
-@import "./tokens.css"; /* copy of docs/design/tokens.css; keep them identical (CI can diff them) */
+@import "../../docs/design/tokens.css"; /* single source of truth; do not copy it into src/ */
 ```
 
 ```ts
@@ -254,7 +256,7 @@ const satoshi = localFont({
 // <html lang="en" className={satoshi.variable}>
 ```
 
-The tokens were compile-tested against Tailwind v4.3: semantic utilities generate and `bg-blue-500` does not. If M0 lands Tailwind v3 instead, keep the `:root` blocks and move the `@theme` mapping into `tailwind.config.ts` `theme.extend` with the palette replaced.
+The tokens were compile-tested against Tailwind v4.3: semantic utilities generate and `bg-blue-500` does not. M0 (`ws-0/foundation`) ships Tailwind v4 (`@import "tailwindcss"` in `globals.css`), so this works as written. WS-A replaces M0's placeholder `--background`/`--foreground` tokens with this import.
 
 ---
 
@@ -336,14 +338,14 @@ Everything lives in `src/components/ui/` (WS-A). WS-C, WS-D and WS-F compose the
 - **Hit targets**: at least 24×24px everywhere, and at least 44×44px when `(pointer: coarse)`. Implement with `min-h-11 min-w-11` inside `@media (pointer: coarse)`, via a `touch:` custom variant (`@custom-variant touch (@media (pointer: coarse));`), or by padding.
 - **Icons**: lucide-react, 16px in UI and 20px in empty states, `aria-hidden="true"`. They are always paired with text, or the control has an `aria-label`.
 - **Disabled**: use `aria-disabled="true"` plus explicit styling (`opacity-50 cursor-not-allowed`) on buttons that must stay focusable to explain why. Use native `disabled` only when there is nothing to explain.
-- **One live region per page**: the shell renders `<div id="fm-live" aria-live="polite" class="sr-only">` once. Components announce with a small `announce(text)` helper that clears the region and sets the text on the next frame. Don't create per-component live regions. The exception is `Notice` with `role="status"` (§4.10).
+- **One live region per page**: the shell renders `<div id="fm-live" role="status" aria-live="polite" aria-atomic="true" class="sr-only">` once. Components announce with a small `announce(text)` helper that clears the region and sets the text on the next frame. Don't create per-component live regions. The exception is `Notice` with `role="status"` (§4.10).
 
 ### 4.1 Button
 
 | Variant | Classes (light and dark via tokens) | Use |
 |---|---|---|
 | `primary` | `bg-primary text-primary-fg hover:bg-primary-hover font-bold` | The single main action on a surface: "Continue", "Mark complete", "Replace my progress" |
-| `secondary` | `bg-accent-subtle text-link hover:bg-accent-soft font-medium` | Secondary actions: "Export", "Retry", "See all" as a button |
+| `secondary` | `bg-accent-subtle text-link hover:bg-accent-soft font-medium` | Secondary actions: "Export progress", "Try again" |
 | `ghost` | `bg-transparent text-fg hover:bg-surface font-medium` | Toolbars, icon buttons, "Undo" |
 | `danger` | `bg-danger text-canvas hover:opacity-90 font-bold`, light only. Dark: `bg-danger-soft text-danger border border-danger` | "Reset all progress" only |
 | `link` | `text-link underline underline-offset-2 p-0 h-auto` | Inline actions inside text |
@@ -375,7 +377,7 @@ Sizes: `md` = `h-11 px-5 text-base rounded-xl` (default; 44px meets the touch ta
 | `danger` | `bg-danger-soft text-danger` | `ShieldAlert` "Security" tag only (§4.12) |
 | `tag` | `bg-canvas border border-border text-fg` | News tags (except security) |
 
-Badges are not interactive. Filter chips with a remove button are a separate `FilterChip`: a badge plus a `button` with `aria-label="Remove filter: tooling"`, 24px min, and 44px on coarse pointers.
+Badges are not interactive. Filter chips are a separate `FilterChip`: a `link` styled as a badge with an `X` icon, named "Remove filter: \<value\>" (for example "Remove filter: Tooling"), pointing at the current URL minus that param so it works without JS. At least 24px tall, and 44px on coarse pointers.
 
 ### 4.4 Tabs: Claude Code | Codex CLI (L-2, E-1)
 
@@ -396,7 +398,7 @@ Badges are not interactive. Filter chips with a remove button are a separate `Fi
 
 **ARIA (APG tabs, automatic activation)**
 
-- `div[role=tablist][aria-label="Tool instructions"]`. The exercise panel's instance uses `aria-label="Starting prompt"` so screen-reader users can tell the two tablists apart.
+- `div[role=tablist][aria-label="Tool"]`. The exercise panel's instance uses `aria-label="Starting prompt"` so screen-reader users can tell the two tablists apart.
 - Each tab: `button[role=tab][id=tab-{scope}-{tool}][aria-controls=panel-{scope}-{tool}][aria-selected]`, with `tabindex=0` on the active tab and `-1` on the other (roving tabindex).
 - Each panel: `div[role=tabpanel][id=panel-{scope}-{tool}][aria-labelledby=tab-{scope}-{tool}][tabindex=0]`. The inactive panel has the `hidden` attribute. **Both panels are server-rendered**, so switching needs no fetch.
 
@@ -425,7 +427,7 @@ Automatic activation is right here because both panels are already in the DOM.
 **States**
 
 - Pre-hydration: the server-selected tab shows. The pref-driven switch in step 2 happens once, immediately after mount. It is acceptable because it happens at page top before the user interacts. Don't hide the tabs while waiting.
-- No native equivalent: the panel shows a `Notice` (variant `neutral`, icon `Info`, title "No native equivalent in Codex CLI (as of v0.x.y)"), followed by `h4` "Closest workaround" and prose. The panel is never empty (L-3).
+- No native equivalent: the panel shows a `Notice` (variant `neutral`, icon `Info`, title "No native equivalent in Codex CLI (as of v0.x.y)"), followed by `h4` "Closest workaround" and prose rendered from `codex_workaround_md` / `claude_workaround_md` (the lesson row's per-tool workaround field). The panel is never empty (L-3).
 
 ### 4.5 CodeBlock with copy (L-4)
 
@@ -443,12 +445,12 @@ Automatic activation is right here because both panels are already in the DOM.
 - Header: `flex items-center justify-between h-10 px-3 bg-code-header`. Label: `<figcaption class="text-xs font-medium text-code-muted font-mono">`, showing the fence's filename if given (` ```ts title="src/app/page.tsx" `), otherwise the language (`bash`, `ts`, `json`, `toml`). A fence with no language gets the label "text".
 - Body: `<pre tabindex="0" aria-label="Code: {label}" class="overflow-x-auto p-4 text-[0.875rem] leading-6 text-code-fg">`. **No wrapping.** Long lines scroll inside the block (D-3). The `pre` is focusable so keyboard users can scroll it (axe `scrollable-region-focusable`).
 - Highlighting: Shiki, run on the server, theme `github-dark` with the background overridden to `var(--fm-code-bg)` and the comment colour to `#9aa4b2` (§2.4). No client-side highlighter.
-- Copy button: `ghost`-style, sized `sm` (`h-8 px-2.5`, and 44px on coarse pointers), `text-code-fg hover:bg-white/10`, with icon `Copy` and the visible label "Copy". Accessible name: "Copy code" plus the label, for example "Copy code: bash". The focus ring uses `code-focus` automatically (tokens.css `[data-code-chrome]`).
+- Copy button: `ghost`-style, sized `sm` (`h-8 px-2.5`, and 44px on coarse pointers), `text-code-fg hover:bg-white/10`, with icon `Copy` and the visible label "Copy". Accessible name: "Copy code: \<label\>", for example "Copy code: bash", built from visible text "Copy" plus an sr-only suffix (no `aria-label`, so the name always contains the visible text). The focus ring uses `code-focus` automatically (tokens.css `[data-code-chrome]`).
 
 **Behaviour**
 
 1. Click → `navigator.clipboard.writeText(raw)`, where `raw` is the fence's **source text** (not `innerText` of the highlighted DOM), with only the final trailing newline trimmed.
-2. Success → the icon becomes `Check`, the label becomes "Copied", and the button's accessible name becomes "Copied". Call `announce("Copied")` into the page's polite live region. After 2000ms, revert. Repeated clicks restart the timer. Focus stays on the button.
+2. Success → the icon becomes `Check`, the visible label becomes "Copied" and the sr-only suffix is dropped, so the accessible name is "Copied" for the next 2s. Call `announce("Copied")` into the page's polite live region. After 2000ms, revert. Repeated clicks restart the timer. Focus stays on the button.
 3. **Clipboard denied or unavailable** (the promise rejects, or `navigator.clipboard` is undefined on a non-secure origin):
    - Select the code: `Range.selectNodeContents(codeEl)` → `getSelection().addRange`.
    - Move focus to the `<pre>` so the selection is live for the keyboard shortcut.
@@ -464,12 +466,12 @@ Automatic activation is right here because both panels are already in the DOM.
 - **Native `<input type="checkbox">`**, `size-5`, `accent-color: var(--fm-primary)`, `rounded` via the UA. Use the native control; don't restyle it with a custom box. It stays accessible and matches D-2 without custom ARIA.
 - Row: `<label class="flex items-start gap-3 py-2.5 min-h-11 cursor-pointer">`, containing the checkbox (`mt-0.5`) and `<span class="text-base text-fg">`. The whole row is the hit target (44px).
 - Checked: the text is **not** struck through (legibility). The native check is the signal, and the list's count updates.
-- The checklist header: "Checklist" (h4) plus a meta line reading "3 of 5 done", with a `ProgressBar` size `sm`. When everything is checked, the header's meta is replaced by a success Badge `Check` "Exercise complete", and `announce("Exercise complete")` fires once on the transition, not on page load.
+- The checklist is a `fieldset` whose `legend` is exactly "Checklist" (styled at h4 size; the "4." step number in §6.3.1 is an `aria-hidden` span outside the legend, so the group name stays "Checklist"). Next to the legend: a meta line reading "3 of 5 done" and a `ProgressBar` size `sm` named "Checklist". When everything is checked, the header's meta is replaced by a success Badge `Check` "Exercise complete", and `announce("Exercise complete")` fires once on the transition, not on page load.
 - Pre-hydration: checkboxes render **unchecked and disabled** with `aria-busy` on the list, then enable after mount. Don't render a checked state from the server (P-5). Keeping them disabled for the few ms before hydration prevents a lost click.
 
 ### 4.7 ProgressBar (C-2)
 
-- `div[role=progressbar][aria-valuemin=0][aria-valuemax=100][aria-valuenow={pct}][aria-label="Level 3 progress"]`, with `aria-valuetext="2 of 4 lessons complete"`.
+- `div[role=progressbar][aria-valuemin=0][aria-valuemax=100][aria-valuenow={pct}][aria-label="Level 3"]`, with `aria-valuetext="2 of 4 lessons complete"`.
 - Track: `h-1.5 rounded-full bg-progress-track`. Fill: `bg-progress-fill rounded-full` with its width as a percentage and `transition-[width] duration-[var(--fm-duration-base)]`.
 - Always paired with a visible text count ("2 / 4") next to or above the bar, in `text-sm text-fg-muted tabular-nums`. The bar is supplementary; the text carries the meaning.
 - Sizes: `sm` (h-1.5) for rows and checklists, `md` (h-2) for level headers and home level cards.
@@ -502,8 +504,12 @@ The inline message primitive for banners and callouts.
 | `danger` | `bg-danger-soft`, title `text-danger` | `XCircle` | DB unreachable, import failed, route errors |
 
 - Layout: `flex gap-3 rounded-lg p-4`, containing the icon (20px, `mt-0.5`), then a content column: title `font-bold`, body `text-base`, an optional `CommandLine` and optional actions. Body text is `text-fg` in every variant; only the title and icon take the status colour.
-- Dismissible: an icon button (`X`, `aria-label="Dismiss notice"`) at top-right. After dismissal, focus moves to the `<main>` heading (h1), which is `tabindex=-1`.
-- **Live-region rule**: a Notice **rendered after mount because of an event** (corrupted-state reset, storage-blocked detection, import result) gets `role="status"`. A Notice present in the server HTML (stale digest, DB-down page) gets **no** live role, because it's just content. **Never use `role="alert"`**. Nothing in this app is urgent enough to interrupt.
+- Dismissible: an icon button (`X`, `aria-label="Dismiss"`) at top-right. After dismissal, focus moves to the `<main>` heading (h1), which is `tabindex=-1`.
+- **Live-region rule**:
+  - A **danger** Notice rendered after mount because of an event (the route error boundary, import failed) gets `role="alert"`.
+  - A **warning, info or success** Notice rendered after mount because of an event (corrupted-state reset, storage-blocked detection, import preview or success) gets `role="status"`.
+  - A Notice present in the server HTML (stale digest) gets **no** live role, because it's just content.
+  - `role="alert"` is used nowhere else.
 
 ### 4.11 Global banners (P-2, P-3)
 
@@ -520,7 +526,7 @@ These live in a `GlobalNotices` slot directly under the header, inside the conta
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │ ┌────┐  Anthropic ships Claude Opus 5.5 with 1M context   ↗ [🔖]│  ← h3 link (external) + bookmark toggle
-│ │ 87 │  Anthropic news · Tue 30 Sep, 06:10                    │  ← meta: source · <time>
+│ │ 87 │  Anthropic news · Wed 30 Sep, 06:10                    │  ← meta: source · <time>
 │ │/100│  [New model] [Tooling]                                 │  ← tag badges
 │ └────┘  WHY IT MATTERS                                        │  ← eyebrow (fg-muted, not link colour)
 │         Client MVPs on Opus can drop the chunking layer in…  │  ← plain text, 1–2 sentences
@@ -530,8 +536,8 @@ These live in a `GlobalNotices` slot directly under the header, inside the conta
 - Container: `<article class="rounded-card bg-surface p-5 md:p-6 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">`, with `aria-labelledby` pointing at the title id.
 - **Score tile**: `size-14 rounded-xl bg-canvas border border-border flex flex-col items-center justify-center`. The number is `text-xl font-bold text-link tabular-nums`, with a `text-xs text-fg-muted` "/100" under it. Accessible text: `<span class="sr-only">Relevance score</span> 87 <span class="sr-only">out of 100</span>`. **No traffic-light colouring by score.** The score is a ranking signal, not a status. At 360px the tile shrinks to `size-12`.
 - **Title**: `h3 > a`, `text-lg font-bold text-fg-strong hover:text-link hover:underline`, `href` = source URL, `target="_blank" rel="noopener noreferrer"`, followed by a 14px `ArrowUpRight` icon and `<span class="sr-only">(opens in new tab)</span>`. The titles come from feeds; render them as text and never as HTML.
-- **Meta line**: `text-sm text-fg-muted`: source name, then ` · `, then `<time datetime="{published_at ISO}">Tue 30 Sep, 06:10</time>`. Times are shown in Asia/Manila with the `en-PH` format "EEE d MMM, HH:mm". The digest header carries the date, so on `/news` the meta shows only the time when the item is from the digest date.
-- **Tags**: `Badge` variant `tag`, with labels mapped from the enum: `new-model` → "New model", `tooling` → "Tooling", `framework` → "Framework", `business` → "Business", and `security` → **variant `danger`** with a `ShieldAlert` icon, "Security". Order is fixed as listed so the security chip is always last.
+- **Meta line**: `text-sm text-fg-muted`: source name, then ` · `, then `<time datetime="{published_at ISO}">Wed 30 Sep, 06:10</time>`. Times are shown in Asia/Manila with the `en-PH` format "EEE d MMM, HH:mm". The published date is always shown, including on `/news` for same-day items (N-1).
+- **Tags**: `<ul aria-label="Tags">` of `Badge`s (variant `tag`), with labels mapped from the enum: `new-model` → "New model", `tooling` → "Tooling", `framework` → "Framework", `business` → "Business", and `security` → **variant `danger`** with a `ShieldAlert` icon, "Security". Order is fixed as listed so the security chip is always last.
 - **Why it matters**: eyebrow "Why it matters" (`text-xs font-bold uppercase tracking-eyebrow text-fg-muted`, not the link colour, to keep link colour for things you can act on), then `<p class="text-prose">`. **Plain text only** (PRD §13 injection). The field is capped at 280 characters by the pipeline, so there's no truncation in the UI.
 - **Bookmark**: icon button `Bookmark` / `BookmarkCheck`, `aria-pressed`, `aria-label="Bookmark: {title}"`, in the grid's top-right corner. Pre-hydration it renders unpressed and `aria-disabled`, then enables after mount.
 - **Card is not a stretched link.** It has two interactive elements.
@@ -592,9 +598,9 @@ These live in a `GlobalNotices` slot directly under the header, inside the conta
 └──────────────────────────────────────┘
 ```
 
-- Menu button: `button[aria-expanded][aria-controls="mobile-nav"]` at `size-11`, with icon `Menu` or `X` and `aria-label` "Open menu" / "Close menu".
+- Menu button: `button[aria-expanded][aria-controls="mobile-nav"]` at `size-11`, with icon `Menu` or `X` and a **fixed** `aria-label="Menu"`; the open or closed state is conveyed by `aria-expanded` only.
 - The panel is a **disclosure, not a modal**: `nav#mobile-nav[aria-label="Main"]` directly under the header, `bg-surface-raised shadow-sm`, full-width links `h-12 px-4 text-base`. It pushes content down; it is not an overlay. There's no focus trap.
-- Behaviour: on open, focus stays on the button; the next Tab reaches the first link. **Esc** closes and returns focus to the button. Choosing a link navigates and closes (close on `pathname` change). The panel closes if the viewport grows to md or wider.
+- Behaviour: on open, focus moves to the first link (PR #2 expects this; there is still no focus trap). **Esc** closes and returns focus to the button. Choosing a link navigates and closes (close on `pathname` change). The panel closes if the viewport grows to md or wider.
 - Render the desktop `<nav>` and the mobile `<nav>` so that only one is exposed at a time (`hidden md:flex` / `md:hidden`). Two visible "Main" landmarks fail axe.
 
 **Skip link**: `<a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 bg-canvas text-link px-4 py-2 rounded-lg">Skip to content</a>`. Activating it focuses `<main tabindex=-1>`.
@@ -637,14 +643,14 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 │ basics to orchestration      (h1 30) │    │ 18 hands-on lessons. Pick up where you left off.                  (fg-muted)   │
 │ 18 hands-on lessons…      (fg-muted) │    │                                                                                │
 │                                      │    │ ┌─ col-span-7 ─────────────────────────────┐ ┌─ col-span-5 ─────────────────┐ │
-│ ┌─ Continue card (accent-soft) ────┐ │    │ │ CONTINUE                        eyebrow  │ │ TODAY · Tue 30 Sep     eyebrow│ │
+│ ┌─ Continue card (accent-soft) ────┐ │    │ │ CONTINUE                        eyebrow  │ │ TODAY · Wed 30 Sep     eyebrow│ │
 │ │ CONTINUE                         │ │    │ │ Project instructions: CLAUDE.md vs       │ │ ┌87┐ Anthropic ships Opus…  ↗ │ │
 │ │ Project instructions: CLAUDE.md  │ │    │ │ AGENTS.md                         (h2)   │ │ └──┘ Anthropic news · 06:10   │ │
 │ │ vs AGENTS.md               (h2)  │ │    │ │ L2 · Context engineering · 15 min        │ │ ┌74┐ Next.js 16.2 changes…  ↗ │ │
-│ │ L2 · 15 min            (meta)    │ │    │ │ [ Continue lesson → ]  (primary)         │ │ └──┘ Vercel blog · 05:02      │ │
-│ │ [ Continue lesson → ]  primary   │ │    │ └──────────────────────────────────────────┘ │ ┌66┐ Supabase advisory…     ↗ │ │
+│ │ L2 · 15 min            (meta)    │ │    │ │ [ Continue: Project instructions… → ]    │ │ └──┘ Vercel blog · 05:02      │ │
+│ │ [ Continue: Project instr… → ]   │ │    │ └──────────────────────────────────────────┘ │ ┌66┐ Supabase advisory…     ↗ │ │
 │ └──────────────────────────────────┘ │    │                                              │ └──┘ Supabase blog · 01:40    │ │
-│                                      │    │                                              │ See today's digest →   (link) │ │
+│                                      │    │                                              │ See all →              (link) │ │
 │ Your levels                    (h2)  │    │                                              └───────────────────────────────┘ │
 │ ┌──────────────────────────────────┐ │    │ Your levels                                                        (h2)        │
 │ │ L1 Foundations         3 / 3  ✓  │ │    │ ┌ L1 ────────┐┌ L2 ────────┐┌ L3 ────────┐┌ L4 ────────┐┌ L5 ────────┐          │
@@ -656,22 +662,23 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 │ └──────────────────────────────────┘ │    │ View full curriculum →                                                          │
 │ View full curriculum →               │    └────────────────────────────────────────────────────────────────────────────────┘
 │                                      │
-│ Today · Tue 30 Sep             (h2)  │
+│ Today · Wed 30 Sep             (h2)  │
 │ [87] Anthropic ships Opus… ↗         │
 │ [74] Next.js 16.2 changes… ↗         │
 │ [66] Supabase advisory…    ↗         │
-│ See today's digest →                 │
+│ See all →                            │
 └──────────────────────────────────────┘
 ```
 
 - At 360, Continue comes first, then levels as a compact list (not 5 cards), then news. At md, levels become `grid-cols-2`; at lg, `grid-cols-5`.
 - The Continue card is `bg-accent-soft rounded-card`. It is the only accent-filled surface on the page.
 - **States**
-  - Pre-hydration: the Continue card renders with a `Skeleton.Title` in place of the lesson title and the button **disabled with the label "Continue"** (no lesson name). Level progress uses skeletons (§4.7). No "0 / 3" flash.
-  - No history (C-4): the eyebrow reads "START HERE", the title is the first L1 lesson, and the button reads "Start lesson 1.1".
-  - Last-viewed lesson no longer exists (P-4): fall back to the "Start here" state silently.
+  - **Continue link (C-4, verbatim)**: the primary control is a link whose visible text and accessible name are exactly `Continue: <lesson title>`, styled as a `primary` button (`max-w-full`, the title truncates with `truncate` inside the button but the full title stays in the accessible name). The card also shows the title as an `h2` and the meta line above it. With no history, the same link reads `Continue: <first L1 lesson title>` and points at it (C-4.2).
+    - *Suggestion (not shipped):* "Start here" / "Start lesson 1.1" copy for the no-history case would be clearer. It needs a PRD change first.
+  - Pre-hydration: the server renders the C-4.2 default (`Continue: <first L1 lesson title>`). After mount, if `lastViewed` points elsewhere, the link text and `href` swap in place (same box, no CLS). Level progress uses skeletons (§4.7). No "0 / 3" flash.
+  - Last-viewed lesson no longer exists (P-4): fall back to the C-4.2 default silently.
   - No curriculum seeded: the whole levels area and the Continue card are replaced by one EmptyState: "No lessons seeded yet. Run `npm run seed`." (§7).
-  - News: no digest → the news column shows a compact EmptyState "No news yet" plus `npm run news:run` and does **not** block the page. Stale → the header reads "Latest · Mon 29 Sep" with a warning Badge "Not today". Nothing ≥60 → "Nothing above the relevance bar today" plus a link to the archive.
+  - News: no digest → the news column shows a compact EmptyState whose title is the PRD string verbatim, "No news yet. Run `npm run news:run`.", and it does **not** block the page. Stale → the header reads "Latest · Tue 29 Sep" with a warning Badge "Stale" (never the word "today"). Nothing ≥60 → "Nothing above the relevance bar today" plus a link to the archive. The "See all" link (N-6) goes to `/news` in every state.
   - DB down → the app-wide error page (§6.10).
   - Loading: `loading.tsx` shows skeletons matching the Continue card, the 5 level cards and 3 compact news rows.
 
@@ -705,7 +712,7 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 └──────────────────────────────────────┘
 ```
 
-- Level section: `section[aria-labelledby=level-n-title][id=level-n]`, with the eyebrow "Level n", the `h2` title, the summary in `text-fg-muted`, and a progress row showing "2 / 4" text, a `ProgressBar md` and, when complete, a success Badge "Completed".
+- Level section: `section[aria-labelledby="level-n-eyebrow level-n-title"][id=level-n]`, so its accessible name is "Level n Foundations: …" (§11), with the eyebrow "Level n", the `h2` title, the summary in `text-fg-muted`, and a progress row showing "2 / 4" text, a `ProgressBar md` and, when complete, a success Badge "Completed".
 - Lesson list: `<ol>` inside a `Card` (`bg-surface`, rows separated by `border-subtle`). Each row is a stretched link: `h3 > a` (`text-lg font-bold`), then the objective (`text-base text-fg`, clamped to 2 lines at 360 with `line-clamp-2`, and full at lg), then a meta row (`text-sm text-fg-muted`: "15 min · Verified 12 Sep 2026 · Claude Code v2.3 / Codex v0.9", wrapping allowed). The state badge sits top-right at lg and in the meta row at 360.
 - Completion state per row: `success` Badge "Completed" or **nothing** for not started. Don't show a "Not started" badge; its absence is the state, and it avoids visual noise across 18 rows. The number prefix ("1.1") is in `text-fg-muted tabular-nums`.
 - "May be outdated" (C-5): `warning` Badge, shown when `last_verified_on` is more than 60 days before today. It has a `title` attribute plus visible text, and the meta line keeps the actual date so the badge is explained.
@@ -713,7 +720,7 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 - **States**
   - Empty: EmptyState "No lessons seeded yet. Run `npm run seed`." with `CommandLine npm run seed`.
   - Loading: 2 level sections of skeletons (eyebrow, title, bar, 3 rows each) at the real heights.
-  - Error: route `error.tsx` (§6.10), with "Retry".
+  - Error: route `error.tsx` (§6.10), with "Try again".
   - Pre-hydration: badges and counts are skeletons; row links work immediately.
 
 ### 6.3 `/lessons/[slug]` (`?tool=claude|codex`)
@@ -756,12 +763,13 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 └──────────────────────────────────────┘
 ```
 
-- **Header**: breadcrumb `nav[aria-label=Breadcrumb]`; eyebrow "Lesson 2.1"; `h1`; objective `text-lg text-fg`; meta line; then the status and actions row, with the completion Badge (after mount) and the bookmark toggle button (`ghost sm`, `aria-pressed`, label "Bookmark" / "Bookmarked", L-8). "May be outdated" appears here too (C-5).
+- **Header**: breadcrumb `nav[aria-label=Breadcrumb]`; eyebrow "Lesson 2.1"; `h1`; objective `text-lg text-fg`; meta line; then the status and actions row, with the completion Badge (after mount) and the bookmark toggle button (`ghost sm`, `aria-pressed`, fixed label "Bookmark" with an outline or filled icon, L-8). "May be outdated" appears here too (C-5).
 - **Section headings**: "Concept" (`h2 id=concept`), "In your tool" (`h2 id=tools`, which gives the tabs a heading), "Key differences" (`h2 id=differences`, rendered inside the callout), "Exercise" (`h2 id=exercise`).
-- **Key differences callout** (L-3): `aside[aria-labelledby=differences]`, `rounded-card bg-accent-soft border-l-4 border-link p-5`, with an `h2` at `text-xl` and a `<ul>` of 1–5 items (`text-prose`). It sits **outside and after** the tabs and is always visible.
+- **Key differences callout** (L-3): `section[aria-labelledby=differences]` (a `region` named "Key differences"; not `aside`, which would be `complementary`), `rounded-card bg-accent-soft border-l-4 border-link p-5`, with an `h2` at `text-xl` and a `<ul>` of 1–5 items (`text-prose`). It sits **outside and after** the tabs and is always visible.
 - **Right rail** (lg+): "On this lesson" anchor list, sticky at `top-[76px]`. It links to the four `h2` ids and highlights nothing (no scroll-spy in v1). Hidden below lg.
-- **Mark complete block** (L-5): `Card` with the text "Done with this lesson?" and a `primary` button "Mark complete". After clicking, the block becomes a success Badge "Completed ✓" plus the text "Completed 30 Sep", a `ghost` button "Undo", and `announce("Lesson marked complete")`. Undo reverts and announces "Marked not complete". Focus stays on whichever button replaces the clicked one (manage it explicitly, because the clicked node unmounts). Pre-hydration, the button is disabled and labelled "Mark complete", with no state claimed.
-- **Prev/next** (L-6): `nav[aria-label="Lesson navigation"]`, two `Link`s showing the direction label plus the lesson number and title. At 360 they stack full-width (44px+). At the last L5 lesson, "Next" becomes "Back to curriculum →".
+- **Mark complete block** (L-5): `Card` with the text "Done with this lesson?" and a `primary` button "Mark complete". After clicking, the control area renders the PRD string **verbatim as one visible line: `Completed ✓ · Undo`**. Structure: `<span class="text-success font-bold">Completed ✓</span><span aria-hidden="true"> · </span><button type="button">Undo</button>`, so the visible text is exactly "Completed ✓ · Undo" and the only button is named "Undo". Also `announce("Lesson marked complete")`. Focus moves to the "Undo" button (the clicked node unmounts, so set it explicitly). Undo removes the entry, restores the "Mark complete" button, moves focus to it, and announces "Marked not complete". Pre-hydration, the button is disabled and labelled "Mark complete", with no state claimed.
+  - Test note: PR #2 line "after: `getByRole('button', { name: /Completed ✓/ })`" must change to `getByText('Completed ✓ · Undo')` plus `getByRole('button', { name: 'Undo' })`. There is no button named "Completed ✓".
+- **Prev/next** (L-6): `nav[aria-label="Lesson"]`, two `Link`s showing the direction label plus the lesson number and title. At 360 they stack full-width (44px+). At the last L5 lesson, "Next" becomes "Back to curriculum →".
 - **Markdown** (L-7): raw HTML escaped; external links open in a new tab with `rel="noopener noreferrer"` and the ↗ icon plus "(opens in new tab)" sr text. Headings inside lesson markdown are shifted to start at `h3`.
 - **States**
   - Unknown or archived slug → `notFound()` → the lesson variant of 404 (§6.10).
@@ -796,7 +804,7 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 │ [✓] Context file names all 4 conventions                                  │
 │ [ ] Agent-added feature passes tests without edits to test files          │
 │ …                                                                         │
-│ ▸ Compare with reference solution           ← <details>, collapsed        │
+│ ▸ Compare with reference solution   ← disclosure button, collapsed        │
 │     Solution: exercises/ex-2-1-conventions/solution                       │
 │     ┌ Terminal ──── [⧉ Copy] ┐ git diff --no-index …starter …solution      │
 │     What the reference solution does differently: • … • …                 │
@@ -805,7 +813,8 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 
 - Numbered sub-steps (`h4`) turn the panel into a scannable procedure. The Copy buttons are the most prominent controls.
 - The starting prompt is shown in a CodeBlock with the label "Prompt", which is copyable and wraps. **Exception to no-wrap:** prompt blocks use `whitespace-pre-wrap` because they are prose.
-- Compare disclosure (E-3): native `<details><summary>`, with the summary styled `h-11 inline-flex items-center gap-2 font-medium text-link` and a chevron that rotates 90° (`transition-transform`, disabled under reduced motion). Collapsed by default.
+- Compare disclosure (E-3): **a `button[aria-expanded][aria-controls]` disclosure, not `<details>`** (Playwright does not expose `<summary>` as a button). Button name "Compare with reference solution", styled `h-11 inline-flex items-center gap-2 font-medium text-link`, with a chevron that rotates 90° (`transition-transform`, disabled under reduced motion). The controlled panel has the `hidden` attribute while collapsed. Collapsed by default.
+- The whole panel is `section[aria-labelledby="exercise exercise-title"]`, so its region name starts with "Exercise" (§11).
 - "Exercise complete" (E-2) appears in the checklist header only. It never marks the lesson complete, and the Mark complete block stays separate below the panel.
 - Checklist item IDs that aren't in the content are ignored (§9 of the PRD).
 
@@ -830,7 +839,7 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 ```
 
 - At lg and up: a real `<table>` with a `<caption class="sr-only">`, `th[scope=col]`, and rows linking via the exercise title to `/lessons/<slug>#exercise`. Below lg: cards grouped by level (a table at 360 would scroll horizontally).
-- Verify column: `neutral` Badge "Auto" or "Manual". Progress: "3 / 4" plus `ProgressBar sm`, or "—" with sr text "Not started" when there is no checklist state. An em dash means "no data", not zero.
+- Verify column: `neutral` Badge "Auto" or "Manual". Progress: "3 / 4" plus `ProgressBar sm`, or "—" with sr text "No progress yet" when there is no checklist state (the literal "not started" is banned from the DOM, per PR #2 TC for P-5). An em dash means "no data", not zero.
 - **States**: empty uses the curriculum empty state. Loading shows skeleton rows (8). Error uses the route boundary.
 
 ### 6.5 `/news` Today's digest
@@ -841,8 +850,8 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 360                                         1440
 ┌──────────────────────────────────────┐    ┌────────────────────────────────────────────────────────────────────────────────┐
 │ Today's digest                 (h1)  │    │ ┌─ lg:col-span-8 ─────────────────────────────────────────┐ ┌─ col-span-4 ────┐ │
-│ Tue 30 Sep · updated 08:03 (muted)   │    │ │ Today's digest                                  (h1)    │ │ ABOUT THE DIGEST │ │
-│ [Browse archive →]                   │    │ │ Tue 30 Sep · updated 08:03 · 10 items ≥ 60              │ │ Scored daily at  │ │
+│ Wed 30 Sep · updated 08:03 (muted)   │    │ │ Today's digest                                  (h1)    │ │ ABOUT THE DIGEST │ │
+│ [Browse archive →]                   │    │ │ Wed 30 Sep · updated 08:03 · 10 items ≥ 60              │ │ Scored daily at  │ │
 │                                      │    │ │                                                         │ │ ~08:00 Manila for│ │
 │ ┌ NewsCard ────────────────────────┐ │    │ │ ┌ NewsCard 87 ────────────────────────────────────────┐ │ │ relevance to     │ │
 │ │ ┌──┐ Anthropic ships Opus…  ↗ 🔖 │ │    │ │ └─────────────────────────────────────────────────────┘ │ │ First Mate work. │ │
@@ -850,19 +859,21 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 │ │ └──┘ [New model] [Tooling]       │ │    │ │ └─────────────────────────────────────────────────────┘ │ │ appear here.     │ │
 │ │ WHY IT MATTERS                   │ │    │ │ … up to 10, gap-4                                       │ │ [Browse archive] │ │
 │ │ Client MVPs on Opus can…         │ │    │ │                                                         │ │                  │ │
-│ └──────────────────────────────────┘ │    │ │ ▸ Unscored (4)   ← <details>, collapsed                 │ │                  │ │
+│ └──────────────────────────────────┘ │    │ │ ▸ Unscored (4)   ← disclosure button, collapsed         │ │                  │ │
 │ … ×10, gap-3                         │    │ │   compact unscored cards, no score/why                  │ │                  │ │
 │                                      │    │ └─────────────────────────────────────────────────────────┘ └──────────────────┘ │
 │ ▸ Unscored (4)                       │    └────────────────────────────────────────────────────────────────────────────────┘
 └──────────────────────────────────────┘
 ```
 
-- Header meta: `<time datetime="2026-09-30">Tue 30 Sep</time> · updated 08:03`, in the Asia/Manila zone. The item count sits at lg only.
-- Ranked list: `<ol aria-label="Ranked by relevance">` of `NewsCard`s, sorted by score descending, then `published_at` descending (N-1). The ordered list tells screen readers the rank.
-- Unscored (N-2): `<details>` with `<summary>` reading "Unscored (4)" and helper text in the body: "These items haven't been scored yet, or scoring failed. They are not ranked." Then an `<ul>` of `unscored` cards. It is never merged into the ranked list.
+- Header meta: `<time datetime="2026-09-30">Wed 30 Sep</time> · updated 08:03`, in the Asia/Manila zone. The item count sits at lg only.
+- The digest content is `section[aria-labelledby=<h1 id>]` (region named "Today's digest", or "Latest digest" when stale). Inside it, an sr-only `h2` "Ranked items" sits between the h1 and the card `h3`s so heading levels don't skip.
+- Ranked list: `<ol aria-label="Today's digest">` ("Latest digest" when stale) of `NewsCard`s, sorted by score descending, then `published_at` descending (N-1). The ordered list tells screen readers the rank.
+- Unscored (N-2): a disclosure `button[aria-expanded=false][aria-controls]` whose name is "Unscored (4)", preceded by an `h2` wrapper (`<h2><button>…</button></h2>`, the APG accordion-header pattern), controlling a `hidden` panel with helper text: "These items haven't been scored yet, or scoring failed. They are not ranked." Then an `<ul>` of `unscored` cards. It is never merged into the ranked list.
 - **States**
-  - No runs ever: EmptyState, title "No news yet", body "The digest appears after the first pipeline run.", `CommandLine npm run news:run`. (Other engineers: "or import the shared snapshots with `npm run news:import`", per PRD §14 Q1. Show both commands, with import second.)
-  - Stale (N-3): a `warning` Notice (server-rendered, no live role) **above** the header meta: title "No digest yet today. Showing Mon 29 Sep.", body "Run the pipeline to fetch today's news.", `CommandLine npm run news:run`. The h1 changes to "Latest digest" so the heading is not a lie.
+  - No runs ever: EmptyState whose title is the PRD string **verbatim**: "No news yet. Run `npm run news:run`." (inline code for the command), followed by `CommandLine npm run news:run` for copying.
+    - *Suggestion (not shipped until the PRD agrees):* add a second line for engineers who don't run the pipeline: "Or import the shared snapshots: `npm run news:import`" (PRD §14 Q1).
+  - Stale (N-3): a `warning` Notice (server-rendered, no live role) **above** the header meta: title rendered verbatim as "No digest yet today. Showing Tue 29 Sep" (PRD N-3 wording, no trailing period), body "Run the pipeline to fetch today's news.", `CommandLine npm run news:run`. The h1 changes to "Latest digest" so the heading is not a lie.
   - Nothing ≥ 60 today: EmptyState "Nothing above the relevance bar today", body "Today's run found N items, all scored below 60.", with the link "See today's items in the archive" → `/news/archive?from=YYYY-MM-DD&to=YYYY-MM-DD&min=0`. The Unscored section still renders below it if it has items.
   - Loading: 4 `Skeleton.NewsCard`s plus the header skeleton.
   - DB down: app-wide error page (§6.10).
@@ -878,11 +889,11 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 │ [ Filters (3) ▾ ]  ← disclosure      │    │ ┌─ lg:col-span-3 <form method=get> ─┐ ┌─ lg:col-span-9 ──────────────────────────┐ │
 │ ┌ (open) ──────────────────────────┐ │    │ │ Filters                    (h2)   │ │ 124 items · page 2 of 5       (status)   │ │
 │ │ Tags   [✓]New model [✓]Tooling   │ │    │ │ Tags        (fieldset)            │ │ [Tooling ✕] [Min 60 ✕] [Vercel ✕]        │ │
-│ │        [ ]Framework [ ]Security  │ │    │ │ [✓] New model  [✓] Tooling        │ │ Clear all filters                        │ │
+│ │        [ ]Framework [ ]Security  │ │    │ │ [✓] New model  [✓] Tooling        │ │ Clear filters                            │ │
 │ │        [ ]Business               │ │    │ │ [ ] Framework  [ ] Security       │ │                                          │ │
-│ │ Min score (0)(40)(●60)(80)       │ │    │ │ [ ] Business                      │ │ Results                         (h2)     │ │
-│ │ Source [ All sources     ▾ ]     │ │    │ │ Minimum score (radio group)       │ │ ┌ NewsCard (with full date) ───────────┐ │ │
-│ │ From [ 2026-09-01 ] To [ … ]     │ │    │ │ (0) (40) (●60) (80)               │ │ └──────────────────────────────────────┘ │ │
+│ │ Minimum score [ 60        ▾ ]    │ │    │ │ [ ] Business                      │ │ Results                         (h2)     │ │
+│ │ Source [ All sources     ▾ ]     │ │    │ │ Minimum score [ 60 ▾ ]            │ │ ┌ NewsCard (with full date) ───────────┐ │ │
+│ │ From [ 2026-09-01 ] To [ … ]     │ │    │ │                                   │ │ └──────────────────────────────────────┘ │ │
 │ │ [ Apply filters ] Clear          │ │    │ │ Source [ All sources ▾ ]          │ │ … 25 per page                            │ │
 │ └──────────────────────────────────┘ │    │ │ From [date]  To [date]            │ │                                          │ │
 │ [Tooling ✕] [Min 60 ✕]               │    │ │ [ Apply filters ]  Clear          │ │ ‹ Prev  1 [2] 3 4 5  Next ›              │ │
@@ -892,14 +903,14 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 └──────────────────────────────────────┘
 ```
 
-- **The filters are a real `<form method="get" action="/news/archive">`**, so URL params are the state (N-4) and it works before hydration. Inputs are named `tag` (repeated checkbox), `min` (radio: 0/40/60/80, default 0), `source` (select, "All sources" = empty) and `from`/`to` (native `type=date`). Submitting resets `page`.
+- **The filters are a real `<form method="get" action="/news/archive">`**, so URL params are the state (N-4) and it works before hydration. Inputs are named `tag` (repeated checkbox), `min` (native `<select>` labelled "Minimum score": options "Any" = 0, "40+", "60+", "80+"; default 0), `source` (select, "All sources" = empty) and `from`/`to` (native `type=date`). Submitting resets `page`.
 - Explicit **Apply filters** button (`primary`) at every width. There is no auto-submit on change: each checkbox click would otherwise navigate, which is disorienting and noisy for screen readers.
-- Grouping: tags in a `fieldset` with `legend` "Tags" and native checkboxes. Minimum score in a `fieldset` with `legend` "Minimum score" and native radios styled as a segmented row (each `h-11`, `peer-checked:bg-accent-soft peer-checked:text-link peer-checked:font-bold` plus a visible check glyph on the selected one, so it isn't colour alone). Inputs use a `control-border` 1px border, `rounded-lg`, `h-11`.
+- Grouping: tags in a `fieldset` with `legend` "Tags" and native checkboxes. Minimum score, Source, From and To are native controls with `<label>`s reading exactly "Minimum score", "Source", "From" and "To". Inputs use a `control-border` 1px border, `rounded-lg`, `h-11`.
 - Validation: `from > to` → the server swaps nothing; it renders a `danger` field error under To, "End date is before start date.", with `aria-describedby`, and results are not filtered by date. Invalid `min` values are treated as 0.
-- Active filters row: `FilterChip`s, each a link to the same URL minus that param (they work without JS), plus a "Clear all filters" link → `/news/archive`.
+- Active filters row: `FilterChip`s, each a link to the same URL minus that param (they work without JS), plus a "Clear filters" link → `/news/archive`. When the result set is empty, this row's link is not rendered, so the EmptyState's "Clear filters" is the only one on the page.
 - Result count: `<p>124 items · page 2 of 5</p>` (plain text; the page navigates, so a live region would not fire reliably). After a filter submit, move focus to the Results `h2` (`tabindex=-1`): the form's submit handler sets a `sessionStorage` flag, and the results component reads it on mount, focuses the heading and clears the flag. Don't add a URL param for this; the URL must hold only the filter state.
-- Pagination: `nav[aria-label=Pagination]`. Links for Prev / pages / Next; the current page is `aria-current="page"` and not a link. At 360 it shows only "‹ Prev · Page 2 of 5 · Next ›".
-- Cards show the full date ("Mon 29 Sep 2026, 06:10") because items span days. Unscored items appear in the archive only when `min=0`, with the `unscored` variant.
+- Pagination: `nav[aria-label=Pagination]`. Links for Prev / pages / Next, where Prev and Next have visible text "Prev" / "Next" and accessible names "Previous page" / "Next page" (visible text is contained in the name, 2.5.3); the current page is `aria-current="page"` and not a link. At 360 it shows only "‹ Prev · Page 2 of 5 · Next ›".
+- Cards show the full date ("Tue 29 Sep 2026, 06:10") because items span days. Unscored items appear in the archive only when `min=0`, with the `unscored` variant.
 - Filter disclosure at 360: `button[aria-expanded][aria-controls]` "Filters (3)", where the count is the number of active filters. Closed by default; open by default if the URL has a date-validation error.
 - **States**: no results → EmptyState "No items match these filters", action "Clear filters" (link). Loading → the filter column renders immediately (it's static) plus 6 card skeletons. Error → route boundary.
 
@@ -951,8 +962,8 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 │ Export                         (h2)  │    │ Download a JSON backup, or share it for the team report.     │
 │ Download a backup…                   │    │ [ Export progress ] (secondary)                              │
 │ [ Export progress ]                  │    │ Import                                                (h2)   │
-│ Import                         (h2)  │    │ [ Choose file… ]  fm-playground-progress-2026-09-30.json     │
-│ [ Choose file… ]                     │    │ ┌ Preview (accent-soft) ───────────────────────────────────┐ │
+│ Import                         (h2)  │    │ Import progress file [ Choose file… ]  fm-…-2026-09-30.json  │
+│ Import progress file [Choose file…]  │    │ ┌ Preview (accent-soft) ───────────────────────────────────┐ │
 │ ┌ Preview ─────────────────────────┐ │    │ │ This file has 7 lessons, 3 bookmarks, exported 28 Sep.   │ │
 │ │ 7 lessons · 3 bookmarks          │ │    │ │ Importing replaces everything saved in this browser.     │ │
 │ │ Replaces current progress.       │ │    │ │ [ Replace my progress ] (primary)  [ Cancel ] (ghost)    │ │
@@ -960,7 +971,7 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 │ └──────────────────────────────────┘ │    │ ┌ Danger zone (border danger) ─────────────────────────────┐ │
 │ ┌ Danger zone ─────────────────────┐ │    │ │ Reset all progress                               (h2)    │ │
 │ │ Reset all progress         (h2)  │ │    │ │ Deletes lessons, checklists and bookmarks here.          │ │
-│ │ Type reset to confirm            │ │    │ │ Type reset to confirm  [ ________ ]  [ Reset ] (danger)  │ │
+│ │ Type reset to confirm            │ │    │ │ Type reset to confirm [ ______ ] [ Reset all progress ]  │ │
 │ │ [ ________ ]                     │ │    │ └──────────────────────────────────────────────────────────┘ │
 │ │ [ Reset all progress ] (danger)  │ │    └──────────────────────────────────────────────────────────────┘
 │ └──────────────────────────────────┘ │
@@ -968,7 +979,7 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 ```
 
 - Export (P-6): one button does both things, as the PRD specifies. It copies the JSON and downloads `fm-playground-progress-YYYY-MM-DD.json`. Success: `announce("Progress exported and copied")` plus inline text "Downloaded and copied to clipboard." If the clipboard is denied, the download still happens and the text reads "Downloaded. Copy to clipboard was blocked." It's not an error.
-- Import: a visually styled `<input type=file accept="application/json,.json">` with a real `<label>`. On selection, validate the file. Invalid → `danger` Notice (`role=status`): "This file isn't a valid progress export." plus the reason ("missing `version`", "invalid JSON"). Valid → the preview panel (`role=status`), with **nothing written yet**. "Replace my progress" writes the state, shows a `success` Notice "Progress imported: 7 lessons, 3 bookmarks.", and moves focus to it. Cancel clears the file input and returns focus to it.
+- Import: a visually styled `<input type=file accept="application/json,.json">` with a real `<label>` reading "Import progress file". The preview is inline (not a dialog) with buttons "Replace my progress" and "Cancel"; the reset button is always named "Reset all progress". On selection, validate the file. Invalid → `danger` Notice (`role=status`): "This file isn't a valid progress export." plus the reason ("missing `version`", "invalid JSON"). Valid → the preview panel (`role=status`), with **nothing written yet**. "Replace my progress" writes the state, shows a `success` Notice "Progress imported: 7 lessons, 3 bookmarks.", and moves focus to it. Cancel clears the file input and returns focus to it.
 - Reset (P-7): a text input labelled "Type reset to confirm". The button is `aria-disabled` until the value, trimmed and case-sensitive, equals `reset`. Clicking while it doesn't match shows the field error "Type reset exactly to confirm." (`aria-describedby`); don't fail silently. On success: the state clears, `success` Notice "All progress has been reset.", focus to the Notice. No undo (it's destructive and confirmed), so the copy says "This can't be undone" near the button. Suggest exporting first with an inline link in the danger-zone body: "Export a backup first."
 - **States**: pre-hydration summary uses skeletons. Storage blocked: the banner, and all three actions stay usable for the session (P-3). Export still works; import and reset act on the in-memory state.
 
@@ -991,37 +1002,54 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 
 ### 6.10 `error` (route error boundary) and app-wide DB down
 
-**Route error** (`error.tsx`, a client component):
+The mechanism is the one M0 implemented and verified in a production build (`ws-0/foundation`, PR #1). This doc describes it; it doesn't redesign it.
+
+**How DB-down is detected (M0, `src/lib/db/errors.ts`)**
+
+1. Every server read goes through `dbRead(query)`. On a network-level failure (`isConnectionFailure`: `ECONNREFUSED`, `fetch failed` and similar, on the error or its `cause`), it throws `DbUnavailableError`. Other query errors throw a plain `Error`.
+2. `DbUnavailableError` carries a **stable `digest = "DB_UNAVAILABLE"`** (`DB_UNAVAILABLE_DIGEST`). In production, Next replaces server error messages with a generic one and drops the class, but keeps a string `digest` set on the error, so the value reaches the client boundary.
+3. The root `src/app/error.tsx` (client) calls `isDbUnavailable(error)`, which matches by `instanceof`, by `name === "DbUnavailableError"` or **by `digest === "DB_UNAVAILABLE"`** (the path that works under `next start`). True → the DB-down view. False → the generic route error view.
+4. Copy comes from constants, never retyped: `DB_UNAVAILABLE_MESSAGE` (the PRD string, verbatim) and `DB_UNAVAILABLE_COMMAND` (`supabase start && npm run seed`).
+5. `app/error.tsx` renders inside the root layout, so the header, nav and `#fm-live` stay. It does not catch errors thrown by the root layout itself. The layout must not read the DB (the shell is static), so no `global-error.tsx` is needed for this state.
+
+WS-A restyles `error.tsx`. It keeps the detection logic and the constants and doesn't change the mechanism.
+
+**Generic route error view**
 
 ```
-┌ Notice danger (in page flow, where the content would be) ───────────┐
-│ ✕ This page couldn't load.                                          │
-│   Something went wrong while loading the curriculum.  (per route)  │
-│   [ Retry ] (secondary → reset())    Go home                        │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-- The page's `h1` still renders (for example "Curriculum") so the page is identifiable. No stack trace or error message text is shown in the UI; log the error to the console. `digest` may be shown in `text-xs text-fg-muted` as "Reference: abc123" for debugging.
-- Retry calls `reset()`. While retrying, the button shows its loading state. If the retry fails again, the Notice re-renders unchanged; don't loop.
-
-**App-wide DB unreachable** (§9 row 1): detected in the data layer and rendered by the route boundary as a special case, keyed on a typed `DatabaseUnavailableError` from `src/lib/db/`. It replaces the page content, **not** the shell:
-
-```
-360                                         1440 (max-w-[700px])
+360                                         1440 (max-w-[700px], pt-12)
 ┌──────────────────────────────────────┐    ┌──────────────────────────────────────────────────────┐
-│ Can't reach the local database (h1)  │    │ Can't reach the local database               (h1)    │
-│ The app reads lessons and news from  │    │ The app reads lessons and news from local Supabase.  │
-│ local Supabase.                      │    │ Start it, then seed the content:                     │
-│ Start it, then seed the content:     │    │ ┌ Terminal ──────────────────────────── [⧉ Copy] ┐   │
-│ ┌ Terminal ─────────────── [Copy] ┐  │    │ │ supabase start && npm run seed                 │   │
-│ │ supabase start && npm run seed  │  │    │ └────────────────────────────────────────────────┘   │
-│ └─────────────────────────────────┘  │    │ Docker must be running. [ Retry ] (secondary)        │
-│ Docker must be running.              │    │                                                      │
-│ [ Retry ]                            │    └──────────────────────────────────────────────────────┘
-└──────────────────────────────────────┘
+│ Something went wrong           (h1)  │    │ Something went wrong                         (h1)    │
+│ ┌ Notice danger role=alert ────────┐ │    │ ┌ Notice danger role=alert ────────────────────────┐ │
+│ │ ✕ This page couldn't load. Your  │ │    │ │ ✕ This page couldn't load. Your saved progress   │ │
+│ │   saved progress is not affected.│ │    │ │   is not affected.                               │ │
+│ │ [ Try again ]  Back to curriculum│ │    │ │ [ Try again ] (secondary)   Back to curriculum   │ │
+│ └──────────────────────────────────┘ │    │ └──────────────────────────────────────────────────┘ │
+│ Reference: 3fa9c1 (text-xs muted)    │    │ Reference: 3fa9c1                                    │
+└──────────────────────────────────────┘    └──────────────────────────────────────────────────────┘
 ```
 
-- No stack trace, no connection string, no error codes. Retry does a full `router.refresh()`.
+- `h1` "Something went wrong", a button "Try again" and a link "Back to curriculum" (M0 names, PR #2 AMB-A7). No stack trace or server message is shown; production doesn't have them anyway. `error.digest` may be shown as "Reference: \<digest\>" in `text-xs text-fg-muted`.
+- "Try again": `startTransition(() => { router.refresh(); reset(); })`. `reset()` alone re-renders the client boundary without refetching Server Component data, so a server-side failure would not recover. While pending, the button shows its loading state. If it fails again, the view re-renders unchanged; don't loop.
+
+**DB-down view** (same boundary, `isDbUnavailable(error) === true`)
+
+```
+360                                         1440 (max-w-[700px], pt-12)
+┌──────────────────────────────────────┐    ┌──────────────────────────────────────────────────────┐
+│ Database unavailable           (h1)  │    │ Database unavailable                         (h1)    │
+│ Can't reach the local database. Run  │    │ Can't reach the local database. Run `supabase start` │
+│ `supabase start` then `npm run seed`.│    │ then `npm run seed`.        ← DB_UNAVAILABLE_MESSAGE │
+│ ┌ Terminal ─────────────── [Copy] ┐  │    │ ┌ Terminal ──────────────────────────── [⧉ Copy] ┐   │
+│ │ supabase start && npm run seed  │  │    │ │ supabase start && npm run seed                 │   │
+│ └─────────────────────────────────┘  │    │ └────────────────────────────────────────────────┘   │
+│ [ Try again ]                        │    │ [ Try again ] (secondary)                            │
+└──────────────────────────────────────┘    └──────────────────────────────────────────────────────┘
+```
+
+- `h1` "Database unavailable" (M0), then `DB_UNAVAILABLE_MESSAGE` **verbatim** in one `<p>` (backticked commands render as inline code; the text content is identical), then a `CommandLine` labelled "Terminal" holding `DB_UNAVAILABLE_COMMAND` (copy button name "Copy code: Terminal"), then "Try again" (same refresh-plus-reset behaviour).
+  - *Suggestion (not shipped):* a line "Docker must be running." under the command would pre-empt the most common follow-up failure. It is not PRD copy, so it is left out.
+- No stack trace, connection string or error code. The page is server-safe: no DB read happens during its render.
 - This is where the "Copy" fallback matters most (clipboard can be blocked on `http://localhost` in some browser configs), and the §4.5 fallback covers it.
 - `/progress` doesn't need the DB for its core functions. If the DB is down it still renders (it reads localStorage), and only lesson-title lookups degrade to showing slugs.
 
@@ -1031,9 +1059,9 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 
 - **Voice**: plain, direct, second person. Commands in backticks. No exclamation marks and no "Oops". Sentence case for all headings and buttons.
 - **Empty and error copy formula**: what's missing or wrong, then what fixes it, then the command or link.
-- **Dates**: absolute, Asia/Manila. Day-level: "Tue 30 Sep". With time: "Tue 30 Sep, 08:03". Archive: "Mon 29 Sep 2026, 06:10". Always wrap in `<time datetime>`. No relative times ("3h ago") in v1, because they go stale on a page left open.
+- **Dates**: absolute, Asia/Manila. Day-level: "Wed 30 Sep". With time: "Wed 30 Sep, 08:03". Archive: "Tue 29 Sep 2026, 06:10". Always wrap in `<time datetime>`. No relative times ("3h ago") in v1, because they go stale on a page left open.
 - **Tool names**: "Claude Code" and "Codex CLI" in full in tabs and headings. "CC" and "Codex" are allowed only in the meta line at 360.
-- **Canonical strings** (tests assert some of these; keep them identical): "Copied"; "Press ⌘C to copy" / "Press Ctrl+C to copy"; "Mark complete"; "Completed ✓ · Undo" (L-5, rendered as the badge "Completed ✓" plus the "Undo" button); "Exercise complete"; "Saved progress was unreadable and has been reset"; "Progress can't be saved in this browser"; "No digest yet today. Showing \<date\>"; "Unscored (N)"; "Item no longer available"; "No news yet. Run `npm run news:run`."; "Nothing above the relevance bar today"; "No items match these filters"; "Clear filters"; "Nothing bookmarked yet"; "No lessons seeded yet. Run `npm run seed`."; "Can't reach the local database. Run `supabase start` then `npm run seed`."; "May be outdated"; "No native equivalent in \<tool\> (as of vX)"; "Back to curriculum".
+- **Canonical strings** (tests assert some of these; keep them identical): "Copied"; "Press ⌘C to copy" / "Press Ctrl+C to copy"; "Mark complete"; "Completed ✓ · Undo" (L-5, visible text verbatim; "Undo" is the only button, §6.3); "Exercise complete"; "Saved progress was unreadable and has been reset"; "Progress can't be saved in this browser"; "No digest yet today. Showing \<date\>"; "Unscored (N)"; "Item no longer available"; "No news yet. Run `npm run news:run`."; "Continue: \<lesson title\>"; "See all"; "Something went wrong"; "Try again"; "Database unavailable"; "Nothing above the relevance bar today"; "No items match these filters"; "Clear filters"; "Nothing bookmarked yet"; "No lessons seeded yet. Run `npm run seed`."; "Can't reach the local database. Run `supabase start` then `npm run seed`."; "May be outdated"; "No native equivalent in \<tool\> (as of vX)"; "Back to curriculum".
 
 ---
 
@@ -1049,6 +1077,7 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 | 6 | News time zone for users outside Manila? | Always Manila (the digest date is Manila-based). Label the footer "Manila time". |
 | 7 | Dark-mode logo asset: ask brand owner for an official reverse logo? | Ship the derived white-wordmark SVG (§1.5) and flag it for brand sign-off. |
 | 8 | The `danger` button in dark mode is a soft fill, not solid. | Intentional. A solid `#ff9a7a` fill with dark text would be the loudest thing in the app. |
+| 9 | PRD copy I'd change (Suggestions only; the PRD strings ship): a "Start here" label for the no-history Continue link; a `npm run news:import` line in the /news empty state; "Docker must be running." on the DB-down view. | Ship the PRD strings verbatim. Raise these as a PRD amendment if the stakeholder wants them. |
 
 ---
 
@@ -1107,7 +1136,8 @@ Each item says how to check it. **B** = Blocking, **M** = Major, **m** = Minor.
 | C-4 | B | Tabs follow §4.4 exactly: roles, `aria-selected`, roving tabindex, Left/Right/Home/End, `?tool=` via `history.replaceState`, both tablists in sync, pref precedence | E2E plus a manual keyboard pass |
 | C-5 | B | Status is never colour alone: every badge or notice has an icon and a word; the active tab and active nav have a weight change and a bar | Screenshots in greyscale |
 | C-6 | B | Hit targets are ≥ 24px, and ≥ 44px at 360 on touch emulation | Playwright `hasTouch` plus bounding boxes |
-| C-7 | B | Async results are announced through the single `#fm-live` region (copy, mark complete, bookmark removal, exercise complete). No `role=alert` | Read the diff; screen-reader spot check |
+| C-7 | B | Async results are announced through the single `#fm-live` region (copy, mark complete, bookmark removal, exercise complete). `role=alert` only on event-driven danger Notices (§4.10) | Read the diff; screen-reader spot check |
+| C-12 | B | Every role and accessible name in §11 is implemented exactly. A new interactive or landmark element adds a §11 row in the same PR | Accessibility-tree snapshot against §11 |
 | C-8 | M | Focus is managed when the focused node unmounts (Mark complete ↔ Undo, dismissing a notice, bookmark removal, import confirm) | Manual keyboard pass |
 | C-9 | M | Heading order has no skipped levels and exactly one `h1`. Landmarks: one `main`, one visible `nav[aria-label=Main]` | Axe plus an accessibility-tree snapshot |
 | C-10 | M | External links: `target=_blank`, `rel="noopener noreferrer"`, an icon and "(opens in new tab)" sr text | Read the diff |
@@ -1164,7 +1194,7 @@ Minor:    <ID> …
 
 | Section | Workstream | Files |
 |---|---|---|
-| §2, §3, `tokens.css`, fonts, logo | WS-A | `src/app/globals.css`, `src/app/tokens.css`, `src/app/layout.tsx`, `public/fonts/`, `public/brand/` (**`public/brand/` is not in WS-A's owned paths in PRD §11. The orchestrator must add it to WS-A before M1 starts.**) |
+| §2, §3, `tokens.css`, fonts, logo | WS-A | `src/app/globals.css` (imports `docs/design/tokens.css`; token edits go through a PR to this doc), `src/app/layout.tsx`, `public/fonts/`, `public/brand/` (**`public/brand/` is not in WS-A's owned paths in PRD §11. The orchestrator must add it to WS-A before M1 starts.**) |
 | §4 primitives, §4.11 banners slot, §5 shell, §6.9 and §6.10 | WS-A | `src/components/ui/`, `src/app/not-found.tsx`, `src/app/error.tsx` |
 | `announce()` helper and `#fm-live` region | WS-A | `src/components/ui/live-region.tsx` |
 | Tool preference context (shared tab state) | WS-C consumes it; WS-D owns `prefs.tool` storage | `src/lib/progress/` (D) plus `src/components/lesson/` (C) |
@@ -1172,4 +1202,198 @@ Minor:    <ID> …
 | §6.2, §6.3, §6.4 | WS-C | `src/app/curriculum/`, `src/app/lessons/`, `src/app/exercises/`, `src/components/lesson/`, `src/components/exercise/` |
 | §6.5, §6.6, §4.12 | WS-F | `src/app/news/`, `src/components/news/` |
 | §6.7, §6.8, §4.11 banner logic | WS-D | `src/app/bookmarks/`, `src/app/progress/`, `src/lib/progress/` |
-| `DatabaseUnavailableError` type | M0 | `src/lib/db/` |
+| `DbUnavailableError`, `isDbUnavailable`, `DB_UNAVAILABLE_MESSAGE` (done in M0) | M0 | `src/lib/db/errors.ts` |
+
+---
+
+## 11. Selector contract
+
+This is the authoritative list of **accessible roles and names** for every landmark and interactive element. Playwright tests locate elements with `getByRole(role, { name })` or `getByLabel(label)` using exactly these values. Implementations must produce them exactly (rubric C-12). Names in quotes are exact strings. `/…/` is a regex for names that contain data. `<title>` is the lesson or news item title.
+
+**Conventions**
+
+- `data-testid` is used only where no accessible name exists (skeleton containers), and every one is listed here.
+- A name comes from visible text wherever possible. `aria-label` is used only for icon-only controls and the listed landmarks, and it always contains the visible text (WCAG 2.5.3).
+- Hidden tab panels, collapsed disclosure panels and the closed mobile menu use the `hidden` attribute, so they are out of the accessibility tree.
+- **Announcements**: `#fm-live` has `role="status"`. Because Notices can also be `status`, tests locate announcements with `page.locator('#fm-live')` or `getByRole('status').filter({ hasText: '<text>' })`, never with a bare `getByRole('status')`.
+- **Disclosures** are always `button[aria-expanded][aria-controls]`. `<details>`/`<summary>` is not used anywhere.
+
+### 11.1 Shell (every page)
+
+| Element | Role | Name | Notes |
+|---|---|---|---|
+| Skip link | `link` | "Skip to content" | First focusable element; `href="#main"` |
+| Header | `banner` | (none) | One per page |
+| Home link (logo) | `link` | "First Mate AI Playground" | `img alt="First Mate"` + visible "AI Playground" text |
+| Desktop nav (≥768) | `navigation` | "Main" | Links "Curriculum", "Exercises", "News", "Bookmarks", "Progress"; current one has `aria-current="page"` |
+| Menu button (<768) | `button` | "Menu" | `aria-expanded` `false`/`true`, `aria-controls="mobile-nav"`; absent at ≥768 |
+| Mobile nav (<768, open) | `navigation` | "Main" | Same 5 links. Only one "Main" nav is exposed at a time |
+| Main | `main` | (none) | `id="main"`, `tabindex="-1"` |
+| Footer | `contentinfo` | (none) | |
+| Live region | `status` | (none) | `id="fm-live"`; texts: "Copied", "Copy blocked. Code selected. Press ⌘C to copy." (or Ctrl+C), "Lesson marked complete", "Marked not complete", "Exercise complete", "Removed from bookmarks", "Progress exported and copied" |
+| Storage banner (P-3) | `status` | (none) | Text contains "Progress can't be saved in this browser" |
+| Corrupted notice (P-2) | `status` | (none) | Text contains "Saved progress was unreadable and has been reset"; contains `button` "Dismiss" |
+
+### 11.2 Components
+
+| Component | Element | Role | Name |
+|---|---|---|---|
+| Tabs (lesson) | tablist | `tablist` | "Tool" |
+| | tabs | `tab` | "Claude Code", "Codex CLI" (icon is `aria-hidden`) |
+| | panel | `tabpanel` | Same as its tab ("Claude Code" / "Codex CLI"), via `aria-labelledby` |
+| Tabs (exercise prompt) | tablist | `tablist` | "Starting prompt"; tabs and panels named as above |
+| CodeBlock | wrapper | `figure` | Its `figcaption`: the filename, else the language, else "text" |
+| | scroll area | (generic, focusable `pre`) | `aria-label="Code: <label>"` |
+| | copy button | `button` | "Copy code: \<label\>", which becomes "Copied" for 2s after a successful copy (use `/^Cop(y\|ied)/` if re-querying within 2s) |
+| | denied hint | (text) | "Press ⌘C to copy" or "Press Ctrl+C to copy" |
+| CommandLine | same as CodeBlock | `figure` | Label is "Setup", "Verify", "Prompt" or "Terminal"; copy button "Copy code: Setup" and so on |
+| Checkbox item | input | `checkbox` | The item text, exactly as in `CHECKLIST.md` |
+| ProgressBar | bar | `progressbar` | "Level \<n\>" on curriculum and home; "Checklist" in the exercise panel. `aria-valuenow` is 0–100. Not rendered before hydration (skeleton instead) |
+| Badge | | (none; text) | "Completed", "May be outdated", "Unscored", "Scoring failed", "Stale", "Exercise complete", tag labels |
+| Notice | container | `alert` (event-driven danger), `status` (event-driven other tones), none (server-rendered) | Dismiss `button` "Dismiss" |
+| EmptyState | section | `region` | Its title text (`aria-labelledby`) |
+| NewsCard | card | `article` | `<title>` (via `aria-labelledby`) |
+| | title link | `link` | `/^<title> \(opens in new tab\)$/` |
+| | bookmark | `button` | "Bookmark: \<title\>", `aria-pressed` |
+| | tags | `list` | "Tags"; `listitem` per tag |
+| | remove (unavailable variant) | `button` | "Remove bookmark" |
+| Skeletons | container | (none) | `data-testid`: `curriculum-skeleton`, `lesson-skeleton`, `news-skeleton`, `archive-skeleton`, `home-skeleton`, `bookmarks-skeleton`, `progress-placeholder` (pre-hydration progress). Each has `aria-busy="true"` |
+
+### 11.3 Pages
+
+**`/` Home**
+
+| Element | Role | Name |
+|---|---|---|
+| Page heading | `heading` level 1 | "Learn Claude Code and Codex CLI, basics to orchestration" |
+| Continue | `link` | `/^Continue: .+/` (exactly "Continue: \<lesson title\>") |
+| Level cards | `link` (stretched title) | `/^Level \d/`, for example "Level 2 Context engineering" |
+| Level progress | `progressbar` | "Level \<n\>" |
+| Curriculum link | `link` | "View full curriculum" |
+| Today's news list | `list` | "Today's digest" ("Latest digest" when stale) |
+| See all | `link` | "See all" → `/news` |
+
+**`/curriculum`**
+
+| Element | Role | Name |
+|---|---|---|
+| Heading | `heading` 1 | "Curriculum" |
+| Jump links (<lg) / rail (lg+) | `navigation` | "Levels" |
+| Level section | `region` | `/^Level \d/`, for example "Level 1 Foundations: prompting and tool basics" |
+| Level progress | `progressbar` | "Level \<n\>" |
+| Lesson row | `link` | `<title>` |
+| Empty | `region` | "No lessons seeded yet. Run npm run seed." (EmptyState title; the command is inline code) |
+
+**`/lessons/[slug]`**
+
+| Element | Role | Name |
+|---|---|---|
+| Breadcrumb | `navigation` | "Breadcrumb" |
+| Heading | `heading` 1 | `<title>` |
+| Bookmark | `button` | "Bookmark" (fixed name; state is `aria-pressed` only, shown by a filled icon) |
+| Section headings | `heading` 2 | "Concept", "In your tool", "Key differences", "Exercise" |
+| On-this-lesson rail (lg+) | `navigation` | "On this lesson" |
+| Tool tabs | see 11.2 | tablist "Tool" |
+| Key differences | `region` | "Key differences" |
+| Exercise panel | `region` | `/^Exercise/` (for example "Exercise Conventions the agent must follow") |
+| Starter prompt tabs | `tablist` | "Starting prompt" |
+| Checklist | `group` | "Checklist" (a `fieldset` with legend "Checklist") containing `checkbox`es |
+| Compare disclosure | `button` | "Compare with reference solution" (`aria-expanded`) |
+| Mark complete | `button` | "Mark complete" |
+| Completed state | text + `button` | Visible text "Completed ✓ · Undo"; `button` "Undo" |
+| Prev/next | `navigation` | "Lesson"; links `/^Previous: /` and `/^Next: /`, or "Back to curriculum" on the last lesson |
+| Unknown slug | `heading` 1 | "Lesson not found"; `link` "Go to curriculum" |
+
+**`/exercises`**
+
+| Element | Role | Name |
+|---|---|---|
+| Heading | `heading` 1 | "Exercises" |
+| Table (lg+) | `table` | "Exercises" (sr-only `caption`); `columnheader`s "Level", "Exercise", "Lesson", "Verify", "Progress" |
+| Exercise link | `link` | Exercise title |
+| Cards (<lg) | `article` | Exercise title |
+
+**`/news`**
+
+| Element | Role | Name |
+|---|---|---|
+| Heading | `heading` 1 | "Today's digest" (fresh) / "Latest digest" (stale) |
+| Digest region | `region` | Same as the h1 |
+| Ranked heading | `heading` 2 | "Ranked items" (sr-only) |
+| Ranked list | `list` | "Today's digest" / "Latest digest"; `listitem` → NewsCard `article` |
+| Unscored | `button` | `/^Unscored \(\d+\)$/` (`aria-expanded`) |
+| Archive link | `link` | "Browse archive" |
+| Stale notice | (no role) | Text "No digest yet today. Showing \<date\>" |
+| Empty (no runs) | `region` | "No news yet. Run npm run news:run." |
+| Empty (none ≥60) | `region` | "Nothing above the relevance bar today"; `link` "See today's items in the archive" |
+
+**`/news/archive`**
+
+| Element | Role | Name |
+|---|---|---|
+| Heading | `heading` 1 | "News archive" |
+| Filters toggle (<lg) | `button` | `/^Filters/` (for example "Filters (3)"), `aria-expanded` |
+| Filter form | `form` | "Filters" |
+| Tags | `group` | "Tags"; `checkbox`es "New model", "Tooling", "Framework", "Security", "Business" |
+| Minimum score | `combobox` (select) | "Minimum score"; options "Any", "40+", "60+", "80+" |
+| Source | `combobox` (select) | "Source"; first option "All sources" |
+| From / To | date `textbox` | "From", "To" |
+| Apply | `button` | "Apply filters" |
+| Filter chips | `link` | `/^Remove filter: /` (for example "Remove filter: Tooling"); each links to the current URL minus that param |
+| Clear | `link` | "Clear filters" (exactly one on the page) |
+| Results heading | `heading` 2 | "Results" |
+| Pagination | `navigation` | "Pagination"; `link`s "Previous page", "Next page", page numbers "Page \<n\>"; the current page is `aria-current="page"` text, not a link |
+| Empty | `region` | "No items match these filters" |
+
+
+**`/bookmarks`**
+
+| Element | Role | Name |
+|---|---|---|
+| Heading | `heading` 1 | "Bookmarks" |
+| Sections | `region` | `/^Lessons \(\d+\)$/`, `/^News \(\d+\)$/` |
+| Lesson bookmark | `link` | `<title>`; toggle `button` "Bookmark: \<title\>" (`aria-pressed=true`) |
+| Missing news item | (text) | "Item no longer available"; `button` "Remove bookmark" |
+| Undo after removal | `button` | "Undo" |
+| Empty | `region` | "Nothing bookmarked yet"; links "Browse curriculum", "Today's digest" |
+
+**`/progress`**
+
+| Element | Role | Name |
+|---|---|---|
+| Heading | `heading` 1 | "Progress" |
+| Export | `button` | "Export progress" |
+| Import input | file input | label "Import progress file" |
+| Import preview | `status` | Contains "Importing replaces everything saved in this browser." |
+| Confirm / cancel | `button` | "Replace my progress", "Cancel" |
+| Import failed | `alert` | Contains "This file isn't a valid progress export." |
+| Reset input | `textbox` | "Type reset to confirm" |
+| Reset | `button` | "Reset all progress" (`aria-disabled="true"` until the input is exactly `reset`) |
+| Reset done | `status` | "All progress has been reset." |
+
+**`not-found` and `error`**
+
+| Element | Role | Name |
+|---|---|---|
+| 404 heading | `heading` 1 | "Page not found" (lesson variant: "Lesson not found") |
+| 404 action | `link` | "Go to curriculum" |
+| Route error heading | `heading` 1 | "Something went wrong" |
+| Route error notice | `alert` | Contains "This page couldn't load." |
+| Retry | `button` | "Try again" |
+| Back link | `link` | "Back to curriculum" |
+| DB-down heading | `heading` 1 | "Database unavailable" |
+| DB-down message | (text) | Exactly `DB_UNAVAILABLE_MESSAGE` |
+| DB-down copy | `button` | "Copy code: Terminal" |
+
+### 11.4 Known deltas with PR #2 (tests must follow this section)
+
+| PR #2 expectation | Contract | Why |
+|---|---|---|
+| `getByRole('button', { name: /Completed ✓/ })` after Mark complete | `getByText('Completed ✓ · Undo')` and `getByRole('button', { name: 'Undo' })` | One control undoes; the PRD string is visible text |
+| `getByRole('progressbar', { name: 'Level 3' })` vs `/Level 3/` | Name is exactly "Level 3"; both locators work | |
+| Notices: `getByRole('alert')` for warning tone | Warning and info tones are `status`; only danger is `alert` | Warnings are not urgent |
+| Unscored as `<details>` in some cases | `button` "Unscored (N)" | `<summary>` is not a button in Playwright's role map |
+| Bare `getByRole('status')` for "Copied" | `page.locator('#fm-live')` or a `status` filtered by text | Several `status` elements can coexist |
+| `getByRole('button', { name: 'Retry' })` (P-3 case) | "Try again" | Matches M0 `error.tsx` and AMB-A7 |
+| Reset inside `getByRole('dialog')` | Inline form, no dialog; button "Reset all progress" | |
+

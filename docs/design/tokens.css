@@ -4,7 +4,7 @@
  *
  * Usage (Tailwind CSS v4), in src/app/globals.css:
  *   @import "tailwindcss";
- *   @import "../../docs/design/tokens.css";   (or copy this file to src/app/tokens.css and import that)
+ *   @import "../../docs/design/tokens.css";   (single source of truth; do not copy into src/)
  *
  * Rules:
  * - Components use the semantic utilities generated below (bg-canvas, text-fg-muted, border-border, ...).
