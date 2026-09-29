@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "lessons": {
+    "l1-first-session": { "completedAt": "2026-09-29T01:00:00.000Z" },
+    "l2-context-files": { "completedAt": "2026-09-29T02:30:00.000Z" }
+  },
+  "checklists": {
+    "ex-fx-auto": { "c1": true, "c2": false },
+    "ex-fx-manual": { "m1": true }
+  },
+  "bookmarks": {
+    "lessons": { "l1-first-session": "2026-09-29T03:00:00.000Z" },
+    "news": { "7c9e6679-7425-40de-944b-e07fc1f90ae7": "2026-09-30T01:00:00.000Z" }
+  },
+  "prefs": { "tool": "codex" },
+  "lastViewed": { "slug": "l2-context-files", "at": "2026-09-29T02:30:00.000Z" }
+}
