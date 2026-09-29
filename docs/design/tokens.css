@@ -1,0 +1,281 @@
+/*
+ * First Mate AI Playground: design tokens
+ * Spec: docs/design/DESIGN.md (sections 2 and 3). Brand values extracted from https://www.firstmate.tech/ on 2026-09-30.
+ *
+ * Usage (Tailwind CSS v4), in src/app/globals.css:
+ *   @import "tailwindcss";
+ *   @import "../../docs/design/tokens.css";   (single source of truth; do not copy into src/)
+ *
+ * Rules:
+ * - Components use the semantic utilities generated below (bg-canvas, text-fg-muted, border-border, ...).
+ *   Raw hex values, Tailwind palette colours (bg-blue-500) and arbitrary colours (text-[#...]) are not allowed in src/.
+ *   The default Tailwind colour palette is removed on purpose (--color-*: initial) so they fail to compile.
+ * - Dark mode follows prefers-color-scheme only (PRD D-5). There is no toggle.
+ * - Every text/background pair used by the spec is listed with its contrast ratio in DESIGN.md section 2.4.
+ */
+
+/* ------------------------------------------------------------------ */
+/* 1. Raw semantic tokens: light (default)                            */
+/* ------------------------------------------------------------------ */
+:root {
+  color-scheme: light;
+
+  /* Surfaces */
+  --fm-canvas: #ffffff;          /* site: body background #fff */
+  --fm-surface: #f9f9f9;         /* site: --color-muted (cards, sections) */
+  --fm-surface-raised: #ffffff;  /* cards placed on --fm-surface */
+
+  /* Text */
+  --fm-fg: #282943;              /* site: --color-ink (body text) 14.11:1 on canvas */
+  --fm-fg-strong: #131313;       /* site: --color-black-ink (headings) 18.58:1 */
+  --fm-fg-muted: #5f606c;        /* site: text-[#5f606c]. NEW ROLE: metadata text, replaces --color-date. 6.22:1 */
+
+  /* Lines */
+  --fm-border: #e4e4e4;          /* site: --color-line. Decorative separators only (1.27:1) */
+  --fm-border-subtle: #f0f0f0;   /* site: --color-stroke (header bottom border) */
+  --fm-divider: #e8e8e8;         /* PRD D-1 divider */
+  --fm-control-border: #8e8e8f;  /* site: --color-date. ADJUSTED ROLE: never text; used as 3:1 boundary of inputs/checkboxes (3.27:1) */
+
+  /* Brand accent */
+  --fm-link: #424bd1;            /* site: --color-accent. 6.65:1 on canvas */
+  --fm-primary: #424bd1;         /* site: bg-accent primary button */
+  --fm-primary-hover: #353cb0;   /* derived: site uses hover:opacity-90; we darken instead (white text 8.66:1) */
+  --fm-primary-fg: #ffffff;      /* 6.65:1 on primary */
+  --fm-accent-soft: #ecedfa;     /* site: bg-accent/10 flattened on white */
+  --fm-accent-subtle: #f5f6fd;   /* site: bg-accent/5 flattened on white (secondary button) */
+  --fm-accent-2: #ec612a;        /* site: --color-accent-2. DECORATIVE / >=24px text only (3.33:1) */
+  --fm-accent-2-strong: #a93d17; /* ADJUSTED: darkened accent-2 for any small text use (6.24:1) */
+
+  /* Status (site ships these soft backgrounds; text colours darkened for AA) */
+  --fm-success: #16703a;         /* site #1a7f3c was 4.51:1 on its bg; darkened -> 5.48:1 */
+  --fm-success-soft: #e8f5ec;    /* site */
+  --fm-warning: #8a5410;         /* site #b8731b was 3.51:1 on its bg (FAIL); darkened -> 5.76:1 */
+  --fm-warning-soft: #fff4e5;    /* site */
+  --fm-danger: #a93d17;          /* site used #ec612a for error text (2.90:1 on #fdece7, FAIL) -> 5.44:1 */
+  --fm-danger-soft: #fdece7;     /* site */
+
+  /* Focus */
+  --fm-focus: #424bd1;           /* PRD D-2: 2px accent ring, 2px offset */
+  --fm-code-focus: #9fa5ff;      /* ring for controls INSIDE dark code chrome (accent is 2.69:1 there, FAIL) */
+
+  /* Code blocks (site: .resource-body pre { color:#e6edf3; background:#0f1729; border-radius:12px }) */
+  --fm-code-bg: #0f1729;
+  --fm-code-header-bg: #16203a;
+  --fm-code-fg: #e6edf3;         /* 15.13:1 */
+  --fm-code-muted: #9aa4b2;      /* labels + syntax comments, 7.09:1 */
+  --fm-code-border: #0f1729;
+
+  /* Data display */
+  --fm-progress-track: #e4e4e4;
+  --fm-progress-fill: #424bd1;   /* 5.23:1 vs track */
+  --fm-skeleton: #f0f0f0;
+
+  /* Elevation (site: shadow-[0_1px_20px_#8787871a] and Tailwind shadow-sm) */
+  --fm-shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --fm-shadow-md: 0 1px 20px rgb(135 135 135 / 0.1);
+
+  /* Motion (site: default 150ms cubic-bezier(.4,0,.2,1); ease-out cubic-bezier(0,0,.2,1)) */
+  --fm-duration-fast: 150ms;
+  --fm-duration-base: 200ms;
+  --fm-duration-slow: 300ms;
+  --fm-ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --fm-ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+  /* Layout */
+  --fm-header-h: 60px;           /* site header h-[60px] */
+  --fm-container: 1180px;        /* site max-w-[1180px] */
+  --fm-measure: 700px;           /* site max-w-[700px] prose column */
+}
+
+/* ------------------------------------------------------------------ */
+/* 2. Dark theme (PRD D-5): derived, not on the live site             */
+/* ------------------------------------------------------------------ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --fm-canvas: #12131f;          /* ink-tinted near-black, derived from --color-ink hue */
+    --fm-surface: #1b1c2b;
+    --fm-surface-raised: #242538;
+
+    --fm-fg: #ededf3;              /* 15.82:1 */
+    --fm-fg-strong: #ffffff;
+    --fm-fg-muted: #a4a6ba;        /* 7.68:1 canvas, 6.26:1 raised */
+
+    --fm-border: #2d2f45;
+    --fm-border-subtle: #23243a;
+    --fm-divider: #2d2f45;
+    --fm-control-border: #7c7f96;  /* 3.82:1 on raised (worst case) */
+
+    --fm-link: #9fa5ff;            /* ADJUSTED: #424bd1 is 2.77:1 on dark canvas; lightened accent 8.17:1 */
+    --fm-primary: #424bd1;         /* button keeps the brand fill; white label 6.65:1 */
+    --fm-primary-hover: #5a62e0;   /* white label 4.93:1 */
+    --fm-primary-fg: #ffffff;
+    --fm-accent-soft: #1d1f3d;
+    --fm-accent-subtle: #181a33;
+    --fm-accent-2: #f58a5c;
+    --fm-accent-2-strong: #ff9a7a;
+
+    --fm-success: #6fd39a;
+    --fm-success-soft: #16281f;
+    --fm-warning: #f2b766;
+    --fm-warning-soft: #2a2216;
+    --fm-danger: #ff9a7a;
+    --fm-danger-soft: #2c1c19;
+
+    --fm-focus: #9fa5ff;
+    --fm-code-focus: #9fa5ff;
+
+    --fm-code-bg: #0b0f1c;
+    --fm-code-header-bg: #131a2e;
+    --fm-code-fg: #e6edf3;
+    --fm-code-muted: #9aa4b2;
+    --fm-code-border: #2d3548;     /* code block must separate from the dark canvas */
+
+    --fm-progress-track: #2d2f45;
+    --fm-progress-fill: #9fa5ff;   /* ADJUSTED: #424bd1 is 1.97:1 vs dark track; 5.80:1 */
+    --fm-skeleton: #242538;
+
+    --fm-shadow-sm: 0 0 0 1px var(--fm-border);
+    --fm-shadow-md: 0 0 0 1px var(--fm-border);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* 3. Tailwind v4 theme mapping                                       */
+/* ------------------------------------------------------------------ */
+/* Remove Tailwind's default palette so raw palette classes (bg-blue-500) do not compile. */
+@theme {
+  --color-*: initial;
+}
+
+@theme inline {
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  --color-canvas: var(--fm-canvas);
+  --color-surface: var(--fm-surface);
+  --color-surface-raised: var(--fm-surface-raised);
+  --color-fg: var(--fm-fg);
+  --color-fg-strong: var(--fm-fg-strong);
+  --color-fg-muted: var(--fm-fg-muted);
+  --color-border: var(--fm-border);
+  --color-border-subtle: var(--fm-border-subtle);
+  --color-divider: var(--fm-divider);
+  --color-control-border: var(--fm-control-border);
+  --color-link: var(--fm-link);
+  --color-primary: var(--fm-primary);
+  --color-primary-hover: var(--fm-primary-hover);
+  --color-primary-fg: var(--fm-primary-fg);
+  --color-accent-soft: var(--fm-accent-soft);
+  --color-accent-subtle: var(--fm-accent-subtle);
+  --color-accent-2: var(--fm-accent-2);
+  --color-accent-2-strong: var(--fm-accent-2-strong);
+  --color-success: var(--fm-success);
+  --color-success-soft: var(--fm-success-soft);
+  --color-warning: var(--fm-warning);
+  --color-warning-soft: var(--fm-warning-soft);
+  --color-danger: var(--fm-danger);
+  --color-danger-soft: var(--fm-danger-soft);
+  --color-focus: var(--fm-focus);
+  --color-code-focus: var(--fm-code-focus);
+  --color-code-bg: var(--fm-code-bg);
+  --color-code-header: var(--fm-code-header-bg);
+  --color-code-fg: var(--fm-code-fg);
+  --color-code-muted: var(--fm-code-muted);
+  --color-code-border: var(--fm-code-border);
+  --color-progress-track: var(--fm-progress-track);
+  --color-progress-fill: var(--fm-progress-fill);
+  --color-skeleton: var(--fm-skeleton);
+
+  /* Satoshi via next/font/local (variable: --font-satoshi). Fallback metrics come from next/font adjustFontFallback. */
+  --font-sans: var(--font-satoshi), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Type scale (DESIGN.md 3.1). Only weights 400/500/700 exist: never use font-semibold. */
+  --text-xs: 0.75rem;     --text-xs--line-height: 1rem;
+  --text-sm: 0.875rem;    --text-sm--line-height: 1.25rem;
+  --text-base: 1rem;      --text-base--line-height: 1.5rem;
+  --text-prose: 1.0625rem; --text-prose--line-height: 1.75rem;
+  --text-lg: 1.125rem;    --text-lg--line-height: 1.75rem;
+  --text-xl: 1.25rem;     --text-xl--line-height: 1.5rem;
+  --text-2xl: 1.5rem;     --text-2xl--line-height: 2rem;
+  --text-3xl: 1.875rem;   --text-3xl--line-height: 2.375rem;
+  --text-4xl: 2.25rem;    --text-4xl--line-height: 2.75rem;
+
+  --tracking-eyebrow: 0.12em;  /* site: uppercase eyebrow tracking-[0.12em] */
+
+  /* Radii: Tailwind defaults match the site (md 6px, lg 8px, xl 12px). Cards use 18px. */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-card: 18px;
+
+  --shadow-sm: var(--fm-shadow-sm);
+  --shadow-md: var(--fm-shadow-md);
+
+  --ease-standard: var(--fm-ease-standard);
+  --ease-out: var(--fm-ease-out);
+}
+
+/* ------------------------------------------------------------------ */
+/* 4. Base layer                                                      */
+/* ------------------------------------------------------------------ */
+@layer base {
+  html {
+    background-color: var(--fm-canvas);
+    color: var(--fm-fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--fm-canvas);
+    color: var(--fm-fg);
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  /* Anchored sections must not hide under the sticky header. */
+  [id] {
+    scroll-margin-top: calc(var(--fm-header-h) + 16px);
+  }
+
+  /* PRD D-2: visible 2px accent ring, 2px offset, on every focusable element.
+     outline-style is set explicitly: see DESIGN.md 4.0 on the Tailwind v4 outline-none trap. */
+  :focus-visible {
+    outline: 2px solid var(--fm-focus);
+    outline-offset: 2px;
+  }
+
+  [data-code-chrome] :focus-visible {
+    outline-color: var(--fm-code-focus);
+  }
+
+  ::selection {
+    background-color: var(--fm-accent-soft);
+    color: var(--fm-fg-strong);
+  }
+}
+
+/* PRD D-2: prefers-reduced-motion disables non-essential motion. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --fm-duration-fast: 0ms;
+    --fm-duration-base: 0ms;
+    --fm-duration-slow: 0ms;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
