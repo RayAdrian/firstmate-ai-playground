@@ -26,8 +26,10 @@ const httpUrl = z.url({ protocol: /^https?$/ });
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const isoTimestamp = z.string().datetime({ offset: true });
 
-/** Item in a snapshot file, content/news/snapshots/<digest_date>.json (PRD section 14, Q1). Upsert key: canonical_url. */
+/** Item in a snapshot file, content/news/snapshots/<digest_date>.json (PRD section 14, Q1). Upsert key: id (news_items.id), so bookmark keys match across machines. */
 export const snapshotItemSchema = z.object({
+  /** news_items.id; the upsert key. */
+  id: z.guid(),
   source_slug: z.string().min(1),
   guid: z.string().nullable(),
   canonical_url: httpUrl,

@@ -21,6 +21,11 @@ Next.js App Router, TypeScript strict, Tailwind, npm, local Supabase (ports 544x
 ## Commands
 - `supabase start` then `npm run seed`, `npm run dev`
 - `npm run typecheck | lint | test | e2e | build`. If :3000 is taken, use `PLAYWRIGHT_PORT=3457 npm run e2e`.
+- E2E modes (`playwright.config.ts`). Default: `next dev`, all tests except tagged ones. Tags go in the test title:
+  - `@live` (real logged-in `claude`) and `@network` (real internet) are excluded unless `E2E_LIVE=1`.
+  - `@nightly` (timing/perf) is excluded unless `E2E_NIGHTLY=1`. `@manual` is never run.
+  - `@prod` tests need a production build. `E2E_PROD=1 npm run e2e` runs `next build && next start` on `PLAYWRIGHT_PORT` and runs only `@prod` tests (error digests, no stack traces, seed-without-rebuild). Without it `@prod` tests are skipped.
+- Shared E2E helpers: `import { seedProgress, readProgress, blockStorage, progressDoc, collectConsole, freezeClock, setServerNow, expectNoSeriousA11y, startFeedServer } from "../../support"` (`tests/support/`, M0-owned, frozen). `freezeClock` is client-only; `setServerNow` needs the `FM_TEST_MODE=1` server hook (test-cases README section 4.1), which the owning workstream provides.
 - `npm run db:reset:test` (E2E fixtures), `npm run news:run`, `npm run news:import`, `npm run exercises:verify`, `npm run content:stale`
 - `scripts/gate-status.sh <pr#> <browser|review|uiux> <success|failure> <sha> "<desc>"`: a gate agent posts its verdict as commit status `gate/<gate>` on `<sha>`, the commit it reviewed. `success` is refused if the PR head has moved past `<sha>`.
 - `npm run gate:merge -- <pr#>`: merges (squash, pinned to the head SHA with `--match-head-commit`) only if `gate/browser`, `gate/review` and `gate/uiux` are all `success` on that SHA, every CI check run succeeded, the branch is not behind `main` (rebase first), and the three `gate:*-green` labels are present. Run it from the primary checkout.

@@ -82,13 +82,17 @@ describe("contracts", () => {
     const base = { version: 1, digest_date: "2026-09-30", exported_at: "2026-09-30T00:05:00.000Z", items: [] };
     expect(newsSnapshotSchema.safeParse(base).success).toBe(false); // runs is required
     const item = {
-      source_slug: "s", guid: null, canonical_url: "https://a.test/x", url: "https://a.test/x",
+      id: "00000000-0000-0000-0000-0000000000b1", source_slug: "s", guid: null, canonical_url: "https://a.test/x", url: "https://a.test/x",
       title: "t", author: null, published_at: null, first_seen_at: "2026-09-30T00:00:00.000Z",
       digest_date: "2026-09-30", excerpt: null, score: null, tags: [], why_it_matters: null,
       scoring_status: "pending", attempts: 0, scored_at: null, scorer_model: null,
     };
     expect(snapshotItemSchema.safeParse(item).success).toBe(true);
     expect(snapshotItemSchema.safeParse({ ...item, url: "javascript:alert(1)" }).success).toBe(false);
+    const noId: Partial<typeof item> = { ...item };
+    delete noId.id;
+    expect(snapshotItemSchema.safeParse(noId).success).toBe(false); // id is the upsert key
+    expect(snapshotItemSchema.safeParse({ ...item, id: "not-a-uuid" }).success).toBe(false);
   });
 
   it("snapshot runs need a stable id", () => {
