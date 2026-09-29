@@ -9,3 +9,9 @@ test-results/
 .worktrees/
 *.log
 .DS_Store
+*.tsbuildinfo
+.news-spool/
+/coverage
+.claude/worktrees/
+.claude/qa-shots/
+next-env.d.ts

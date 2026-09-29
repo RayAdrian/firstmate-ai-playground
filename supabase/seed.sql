@@ -1,0 +1,2 @@
+-- Intentionally empty. Content is loaded by `npm run seed` (scripts/seed/, owned by WS-B).
+-- news_sources baseline rows live in the initial migration.
