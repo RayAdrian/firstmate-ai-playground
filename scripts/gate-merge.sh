@@ -18,6 +18,10 @@ REPO="$(gh repo view --json nameWithOwner --jq .nameWithOwner)"
 SHA="$(gh pr view "$PR" --json headRefOid --jq .headRefOid)"
 FAIL=()
 
+# 0. Must be rebased on current origin/main (not behind)
+BEHIND="$(gh api "repos/$REPO/compare/main...$SHA" --jq .behind_by)"
+((BEHIND == 0)) || FAIL+=("branch is $BEHIND commit(s) behind main; rebase on main and re-run the gates")
+
 # 1. Labels
 LABELS="$(gh pr view "$PR" --json labels --jq '.labels[].name')"
 for label in gate:browser-green gate:review-green gate:uiux-green; do

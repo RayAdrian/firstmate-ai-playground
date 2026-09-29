@@ -49,6 +49,8 @@ export const snapshotItemSchema = z.object({
 export type SnapshotItem = z.infer<typeof snapshotItemSchema>;
 
 export const snapshotRunSchema = z.object({
+  /** ingest_runs.id; the upsert key, so re-importing a snapshot never duplicates runs. */
+  id: z.guid(),
   started_at: isoTimestamp,
   finished_at: isoTimestamp.nullable(),
   trigger: z.enum(["schedule", "manual"]),

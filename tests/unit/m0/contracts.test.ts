@@ -91,6 +91,19 @@ describe("contracts", () => {
     expect(snapshotItemSchema.safeParse({ ...item, url: "javascript:alert(1)" }).success).toBe(false);
   });
 
+  it("snapshot runs need a stable id", () => {
+    const run = {
+      id: "00000000-0000-0000-0000-0000000000a1", started_at: "2026-09-30T00:00:00.000Z", finished_at: null,
+      trigger: "manual", status: "success", fetched: 0, new: 0, scored: 0, pending: 0, failed: 0,
+      skipped: 0, error_summary: null,
+    };
+    const snap = { version: 1, digest_date: "2026-09-30", exported_at: "2026-09-30T00:05:00.000Z", items: [] };
+    expect(newsSnapshotSchema.safeParse({ ...snap, runs: [run] }).success).toBe(true);
+    const noId: Partial<typeof run> = { ...run };
+    delete noId.id;
+    expect(newsSnapshotSchema.safeParse({ ...snap, runs: [noId] }).success).toBe(false);
+  });
+
   it("requires a workaround when a tool has no native equivalent", () => {
     const lesson = {
       id: "00000000-0000-0000-0000-000000000001", level_id: "00000000-0000-0000-0000-000000000002",

@@ -22,8 +22,8 @@ Next.js App Router, TypeScript strict, Tailwind, npm, local Supabase (ports 544x
 - `supabase start` then `npm run seed`, `npm run dev`
 - `npm run typecheck | lint | test | e2e | build`. If :3000 is taken, use `PLAYWRIGHT_PORT=3457 npm run e2e`.
 - `npm run db:reset:test` (E2E fixtures), `npm run news:run`, `npm run news:import`, `npm run exercises:verify`, `npm run content:stale`
-- `scripts/gate-status.sh <pr#> <browser|review|uiux> <success|failure> "<desc>"`: a gate agent posts its verdict as commit status `gate/<gate>` on the PR's current head SHA.
-- `npm run gate:merge -- <pr#>`: merges (squash, pinned to the head SHA with `--match-head-commit`) only if `gate/browser`, `gate/review` and `gate/uiux` are all `success` on that SHA, every CI check run succeeded, and the three `gate:*-green` labels are present. Run it from the primary checkout.
+- `scripts/gate-status.sh <pr#> <browser|review|uiux> <success|failure> <sha> "<desc>"`: a gate agent posts its verdict as commit status `gate/<gate>` on `<sha>`, the commit it reviewed. `success` is refused if the PR head has moved past `<sha>`.
+- `npm run gate:merge -- <pr#>`: merges (squash, pinned to the head SHA with `--match-head-commit`) only if `gate/browser`, `gate/review` and `gate/uiux` are all `success` on that SHA, every CI check run succeeded, the branch is not behind `main` (rebase first), and the three `gate:*-green` labels are present. Run it from the primary checkout.
 
 ## Rules
 - **Path ownership (PRD §11):** edit only the paths your workstream owns. `package.json`, contracts (`src/lib/contracts/`), migrations, `src/lib/db/` and `tests/support/` are frozen after M0; change them only in a dedicated M0-owned PR.
