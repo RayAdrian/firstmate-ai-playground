@@ -2,7 +2,7 @@
 // Keep the export names and prop names stable: other workstreams import from "@/components/ui".
 "use client";
 
-import { useId, useState, type ReactNode } from "react";
+import { useId, useRef, useState, type ReactNode } from "react";
 import { clsx } from "clsx";
 
 export function Button({
@@ -27,6 +27,7 @@ export function Badge({ children, className }: { children: ReactNode; className?
 
 export type TabItem = { id: string; label: string; content: ReactNode };
 
+/** WAI-ARIA tabs: roving tabindex, Left/Right (wrapping), Home/End, automatic activation. */
 export function Tabs({
   items,
   value,
@@ -40,19 +41,56 @@ export function Tabs({
 }) {
   const base = useId();
   const [internal, setInternal] = useState(items[0]?.id);
-  const active = value ?? internal;
+  const requested = value ?? internal;
+  // Fall back to the first item if the requested id doesn't exist.
+  const active = items.some((t) => t.id === requested) ? requested : items[0]?.id;
+  const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+
+  const select = (id: string, focus: boolean) => {
+    if (onValueChange) onValueChange(id);
+    else setInternal(id);
+    if (focus) tabRefs.current[id]?.focus();
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    const index = items.findIndex((t) => t.id === active);
+    let next: number;
+    switch (e.key) {
+      case "ArrowRight":
+        next = (index + 1) % items.length;
+        break;
+      case "ArrowLeft":
+        next = (index - 1 + items.length) % items.length;
+        break;
+      case "Home":
+        next = 0;
+        break;
+      case "End":
+        next = items.length - 1;
+        break;
+      default:
+        return;
+    }
+    e.preventDefault();
+    select(items[next].id, true);
+  };
+
   return (
     <div>
-      <div role="tablist" aria-label={label}>
+      <div role="tablist" aria-label={label} onKeyDown={onKeyDown}>
         {items.map((t) => (
           <button
             key={t.id}
+            ref={(el) => {
+              tabRefs.current[t.id] = el;
+            }}
+            type="button"
             role="tab"
             id={`${base}-${t.id}-tab`}
             aria-selected={t.id === active}
             aria-controls={`${base}-${t.id}-panel`}
             tabIndex={t.id === active ? 0 : -1}
-            onClick={() => (onValueChange ? onValueChange(t.id) : setInternal(t.id))}
+            onClick={() => select(t.id, false)}
           >
             {t.label}
           </button>
@@ -111,10 +149,12 @@ export function ProgressBar({
   value,
   max = 100,
   label,
+  valueText,
 }: {
   value: number;
   max?: number;
   label: string;
+  valueText?: string;
 }) {
   const pct = max === 0 ? 0 : Math.round((value / max) * 100);
   return (
@@ -124,6 +164,7 @@ export function ProgressBar({
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={pct}
+      aria-valuetext={valueText}
       className="h-2 w-full rounded border"
     >
       <div className="h-full bg-current" style={{ width: `${pct}%` }} />
@@ -144,7 +185,7 @@ export function EmptyState({
 }) {
   return (
     <div className="rounded border p-6 text-center">
-      <p className="font-medium">{title}</p>
+      <h2 className="font-medium">{title}</h2>
       {children}
     </div>
   );

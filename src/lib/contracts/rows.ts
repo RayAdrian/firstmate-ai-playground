@@ -2,7 +2,8 @@ import { z } from "zod";
 import { newsTagSchema, scoringStatusSchema } from "./news";
 import { toolVersionsSchema } from "./lesson";
 
-const uuid = z.string().uuid();
+// guid (not uuid): zod v4 uuid() enforces RFC variant bits and rejects hand-written fixture ids.
+const uuid = z.guid();
 const ts = z.string();
 const date = z.string();
 
@@ -17,7 +18,8 @@ export const levelRowSchema = z.object({
 });
 export type LevelRow = z.infer<typeof levelRowSchema>;
 
-export const lessonRowSchema = z.object({
+export const lessonRowSchema = z
+  .object({
   id: uuid,
   level_id: uuid,
   slug: z.string(),
@@ -30,13 +32,23 @@ export const lessonRowSchema = z.object({
   codex_md: z.string().nullable(),
   claude_no_equivalent: z.boolean(),
   codex_no_equivalent: z.boolean(),
+  claude_workaround_md: z.string().min(1).nullable(),
+  codex_workaround_md: z.string().min(1).nullable(),
   differences: z.array(z.string()),
   tool_versions: toolVersionsSchema.partial(),
   last_verified_on: date.nullable(),
   content_hash: z.string(),
   archived_at: ts.nullable(),
   updated_at: ts,
-});
+})
+  .refine((l) => !l.claude_no_equivalent || l.claude_workaround_md !== null, {
+    path: ["claude_workaround_md"],
+    message: "claude_workaround_md is required when claude_no_equivalent is true",
+  })
+  .refine((l) => !l.codex_no_equivalent || l.codex_workaround_md !== null, {
+    path: ["codex_workaround_md"],
+    message: "codex_workaround_md is required when codex_no_equivalent is true",
+  });
 export type LessonRow = z.infer<typeof lessonRowSchema>;
 
 export const exerciseRowSchema = z.object({

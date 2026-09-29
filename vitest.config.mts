@@ -1,6 +1,6 @@
 import path from "node:path";
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [react()],
@@ -8,7 +8,9 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     setupFiles: ["./vitest.setup.ts"],
-    include: ["src/**/*.test.{ts,tsx}", "tests/unit/**/*.test.{ts,tsx}", "scripts/**/*.test.ts"],
+    // Unit tests live in tests/unit/<ws>/ (ws = m0, a-f, m2, content). Shared helpers: tests/support/.
+    include: ["tests/unit/**/*.test.{ts,tsx}"],
+    exclude: [...configDefaults.exclude, ".claude/**"],
     css: false,
   },
 });

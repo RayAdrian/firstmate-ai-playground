@@ -10,7 +10,7 @@ Paths this PR touches (must all be owned by the workstream, PRD §11):
 - [ ] I edited no files outside my owned paths
 
 ## Merge gates (PRD §12)
-Gate results are recorded by adding the matching label. Merge only with `npm run gate:merge -- <pr#>`.
+Each gate is recorded as a commit status (`scripts/gate-status.sh`, contexts `gate/browser|review|uiux`) on the head SHA plus the matching label. Any new push invalidates earlier approvals. Merge only with `npm run gate:merge -- <pr#>`.
 
 - [ ] **Browser E2E** (`gate:browser-green`): Playwright + axe pass against fixtures; manual check at 360 / 768 / 1440px, screenshots attached below
 - [ ] **Code review agent** (`gate:review-green`): no unresolved blocking findings

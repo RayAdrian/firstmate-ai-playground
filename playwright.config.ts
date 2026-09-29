@@ -6,7 +6,9 @@ import { defineConfig, devices } from "@playwright/test";
 const PORT = Number(process.env.PLAYWRIGHT_PORT ?? 3000);
 
 export default defineConfig({
+  // E2E specs live in tests/e2e/<ws>/ (ws = m0, a-f, m2, content). Shared helpers: tests/support/.
   testDir: "./tests/e2e",
+  testMatch: "**/*.spec.ts",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,

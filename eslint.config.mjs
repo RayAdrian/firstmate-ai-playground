@@ -7,7 +7,8 @@ const eslintConfig = defineConfig([
   ...nextTs,
   {
     // The service-role client is for scripts only; the app must never import it.
-    files: ["src/app/**/*", "src/components/**/*"],
+    files: ["src/**/*"],
+    ignores: ["src/lib/db/service.ts"],
     rules: {
       "no-restricted-imports": [
         "error",
@@ -29,6 +30,7 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    ".claude/**",
     "playwright-report/**",
     "test-results/**",
   ]),

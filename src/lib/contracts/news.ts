@@ -21,6 +21,8 @@ export type ScoredItem = z.infer<typeof scoredItemSchema>;
 export const scoringOutputSchema = z.array(scoredItemSchema);
 export type ScoringOutput = z.infer<typeof scoringOutputSchema>;
 
+// Feed content is untrusted: only http(s) URLs are accepted.
+const httpUrl = z.url({ protocol: /^https?$/ });
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 const isoTimestamp = z.string().datetime({ offset: true });
 
@@ -28,8 +30,8 @@ const isoTimestamp = z.string().datetime({ offset: true });
 export const snapshotItemSchema = z.object({
   source_slug: z.string().min(1),
   guid: z.string().nullable(),
-  canonical_url: z.string().url(),
-  url: z.string().url(),
+  canonical_url: httpUrl,
+  url: httpUrl,
   title: z.string().min(1),
   author: z.string().nullable(),
   published_at: isoTimestamp.nullable(),
@@ -67,7 +69,8 @@ export const newsSnapshotSchema = z.object({
   version: z.literal(SNAPSHOT_VERSION),
   digest_date: isoDate,
   exported_at: isoTimestamp,
-  run: snapshotRunSchema.nullable(),
+  /** All ingest_runs whose digest date (Asia/Manila date of started_at) equals digest_date. */
+  runs: z.array(snapshotRunSchema),
   items: z.array(snapshotItemSchema),
 });
 export type NewsSnapshot = z.infer<typeof newsSnapshotSchema>;

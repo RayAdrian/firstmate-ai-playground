@@ -26,7 +26,9 @@ create table public.lessons (
   codex_md text,
   claude_no_equivalent boolean not null default false,
   codex_no_equivalent boolean not null default false,
-  differences text[] not null default '{}' check (cardinality(differences) between 1 and 5),
+  claude_workaround_md text,
+  codex_workaround_md text,
+  differences text[] not null check (cardinality(differences) between 1 and 5),
   tool_versions jsonb not null default '{}'::jsonb,
   last_verified_on date,
   content_hash text not null default '',
@@ -34,7 +36,10 @@ create table public.lessons (
   updated_at timestamptz not null default now(),
   -- a tool body may be null only when that tool is flagged no-equivalent
   constraint lessons_claude_body check (claude_md is not null or claude_no_equivalent),
-  constraint lessons_codex_body check (codex_md is not null or codex_no_equivalent)
+  constraint lessons_codex_body check (codex_md is not null or codex_no_equivalent),
+  -- a no-equivalent tab must carry a workaround (PRD L-3)
+  constraint lessons_claude_workaround check (not claude_no_equivalent or claude_workaround_md is not null),
+  constraint lessons_codex_workaround check (not codex_no_equivalent or codex_workaround_md is not null)
 );
 
 create table public.exercises (
@@ -73,7 +78,7 @@ create table public.news_items (
   author text,
   published_at timestamptz,
   first_seen_at timestamptz not null default now(),
-  digest_date date not null default ((now() at time zone 'Asia/Manila')::date),
+  digest_date date not null, -- derived from first_seen_at by trigger when omitted
   excerpt text,
   score int check (score is null or score between 0 and 100),
   tags text[] not null default '{}',
@@ -84,6 +89,18 @@ create table public.news_items (
   scored_at timestamptz,
   scorer_model text
 );
+
+create function public.news_items_set_digest_date() returns trigger
+language plpgsql as $$
+begin
+  if new.digest_date is null then
+    new.digest_date := (new.first_seen_at at time zone 'Asia/Manila')::date;
+  end if;
+  return new;
+end $$;
+
+create trigger news_items_digest_date before insert on public.news_items
+  for each row execute function public.news_items_set_digest_date();
 
 create table public.ingest_runs (
   id uuid primary key default gen_random_uuid(),

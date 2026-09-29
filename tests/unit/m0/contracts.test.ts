@@ -4,6 +4,8 @@ import {
   createEmptyProgress,
   exerciseJsonSchema,
   lessonFrontmatterSchema,
+  lessonRowSchema,
+  snapshotItemSchema,
   newsSnapshotSchema,
   progressStateSchema,
   scoredItemSchema,
@@ -69,10 +71,36 @@ describe("contracts", () => {
       version: 1,
       digest_date: "2026-09-30",
       exported_at: "2026-09-30T00:05:00.000Z",
-      run: null,
+      runs: [],
       items: [],
     };
     expect(newsSnapshotSchema.safeParse(snapshot).success).toBe(true);
     expect(newsSnapshotSchema.safeParse({ ...snapshot, version: 2 }).success).toBe(false);
+  });
+
+  it("snapshots carry runs and reject non-http(s) item URLs", () => {
+    const base = { version: 1, digest_date: "2026-09-30", exported_at: "2026-09-30T00:05:00.000Z", items: [] };
+    expect(newsSnapshotSchema.safeParse(base).success).toBe(false); // runs is required
+    const item = {
+      source_slug: "s", guid: null, canonical_url: "https://a.test/x", url: "https://a.test/x",
+      title: "t", author: null, published_at: null, first_seen_at: "2026-09-30T00:00:00.000Z",
+      digest_date: "2026-09-30", excerpt: null, score: null, tags: [], why_it_matters: null,
+      scoring_status: "pending", attempts: 0, scored_at: null, scorer_model: null,
+    };
+    expect(snapshotItemSchema.safeParse(item).success).toBe(true);
+    expect(snapshotItemSchema.safeParse({ ...item, url: "javascript:alert(1)" }).success).toBe(false);
+  });
+
+  it("requires a workaround when a tool has no native equivalent", () => {
+    const lesson = {
+      id: "00000000-0000-0000-0000-000000000001", level_id: "00000000-0000-0000-0000-000000000002",
+      slug: "l3-plan", sort: 1, title: "t", objective: "o", est_minutes: 10, concept_md: "c",
+      claude_md: "x", codex_md: null, claude_no_equivalent: false, codex_no_equivalent: true,
+      claude_workaround_md: null, codex_workaround_md: null, differences: ["d"],
+      tool_versions: {}, last_verified_on: null, content_hash: "h", archived_at: null,
+      updated_at: "2026-09-30T00:00:00Z",
+    };
+    expect(lessonRowSchema.safeParse(lesson).success).toBe(false);
+    expect(lessonRowSchema.safeParse({ ...lesson, codex_workaround_md: "Use a manual plan file." }).success).toBe(true);
   });
 });

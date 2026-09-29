@@ -12,3 +12,6 @@ test-results/
 *.tsbuildinfo
 .news-spool/
 /coverage
+.claude/worktrees/
+.claude/qa-shots/
+next-env.d.ts
