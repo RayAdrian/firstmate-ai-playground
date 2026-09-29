@@ -1,0 +1,13 @@
+{
+  "name": "ex-1-1-failing-test",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "First Mate AI Playground, exercise 1.1: get one failing test green.",
+  "scripts": {
+    "test": "node --test \"test/*.test.ts\""
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}

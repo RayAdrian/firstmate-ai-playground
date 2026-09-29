@@ -1,0 +1,17 @@
+{
+  "slug": "ex-1-1-failing-test",
+  "title": "Fix the failing slugify test",
+  "goal": "A tiny TypeScript library has one failing unit test. Get it green with Claude Code, then reset and get it green with Codex CLI. Read every diff, and do not edit the test file.",
+  "verify": "npm test",
+  "required_tool_features": ["interactive session", "approval prompts", "session resume", "diff review"],
+  "starter_prompts": {
+    "claude": "Run `npm test` and tell me which test fails and why. Then fix the bug in src/slugify.ts without editing anything under test/, and run `npm test` again to confirm it is green.",
+    "codex": "Run `npm test` and tell me which test fails and why. Then fix the bug in src/slugify.ts without editing anything under test/, and run `npm test` again to confirm it is green."
+  },
+  "solution_notes": [
+    "The bug is in the regex: `/[^a-z0-9]/g` replaces each bad character on its own, so a run of punctuation becomes a run of hyphens. Changing it to `/[^a-z0-9]+/g` collapses each run into one hyphen.",
+    "A second replace, `/^-+|-+$/g`, trims the hyphens left at the start and end. The fix is two lines and touches only src/slugify.ts.",
+    "The test file is unchanged. If an agent \"fixed\" the failure by editing the assertion, that is the wrong fix even though `npm test` goes green. This is why you read the diff.",
+    "The verify command is the agent's feedback loop. Because the prompt names it, the agent can run it, read the failure and iterate without you."
+  ]
+}

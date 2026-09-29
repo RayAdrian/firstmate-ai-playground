@@ -1,0 +1,8 @@
+- [ ] c1: Made two separate copies of the starter (vague and precise) and removed SPEC.md from the vague one
+- [ ] c2: Vague attempt: used only a one-line prompt, and `npm test` passes there (the 3 visible tests)
+- [ ] c3: Ran the verify command on the vague attempt and wrote down how many hidden tests failed
+- [ ] c4: Precise attempt: the prompt named the goal, the context (@SPEC.md), the constraints and a done-when the agent could run
+- [ ] c5: Precise attempt passes the full verify command (visible and hidden tests)
+- [ ] c6: Compared the two diffs (`git diff --no-index`) and named at least two behaviors the vague version guessed wrong or missed
+- [ ] c7: Checked that neither agent edited test/basic.test.ts
+- [ ] c8: Repeated the precise attempt in the second tool, or wrote one sentence on how its result differed from the first tool's

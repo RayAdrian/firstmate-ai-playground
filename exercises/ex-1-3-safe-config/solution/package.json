@@ -1,0 +1,15 @@
+{
+  "name": "ex-1-3-safe-config",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "First Mate AI Playground, exercise 1.3: guardrail config for Claude Code and Codex CLI.",
+  "scripts": {
+    "test": "node --test \"test/*.test.js\"",
+    "lint": "node scripts/lint.mjs",
+    "check-config": "node scripts/check-config.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
