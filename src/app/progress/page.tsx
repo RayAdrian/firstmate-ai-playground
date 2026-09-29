@@ -25,7 +25,7 @@ async function loadLessonSlugs(): Promise<string[] | null> {
 export default async function ProgressPage() {
   const lessonSlugs = await loadLessonSlugs();
   return (
-    <div className="space-y-8">
+    <div className="max-w-[700px] space-y-8">
       <ProgressNotices fallback />
       <header className="space-y-2">
         <h1 className="text-3xl font-bold md:text-4xl">Progress</h1>
