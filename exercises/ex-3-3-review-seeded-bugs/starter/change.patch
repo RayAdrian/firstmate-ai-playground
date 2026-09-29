@@ -1,0 +1,100 @@
+diff --git a/src/orders.js b/src/orders.js
+new file mode 100644
+index 0000000..9579bc4
+--- /dev/null
++++ b/src/orders.js
+@@ -0,0 +1,47 @@
++import { sendReceipt } from "./receipts.js";
++
++/** All orders placed by one customer, oldest first. */
++export function findOrdersByEmail(db, email) {
++  return db.prepare(`SELECT * FROM orders WHERE user_email = '${email}' ORDER BY id`).all();
++}
++
++/** One page of orders. Pages are 1-based: page 1 is the first `pageSize` orders. */
++export function listOrders(db, { page = 1, pageSize = 10 } = {}) {
++  const offset = page * pageSize;
++  return db.prepare("SELECT * FROM orders ORDER BY id LIMIT ? OFFSET ?").all(pageSize, offset);
++}
++
++/** Total after a percentage discount. Amounts are integer cents. */
++export function discountedTotal(totalCents, percent) {
++  return totalCents * (1 - percent / 100);
++}
++
++/** Marks an order completed and emails the receipt. A failed email must not undo the order. */
++export async function completeOrder(db, id) {
++  const order = db.prepare("SELECT * FROM orders WHERE id = ?").get(id);
++  if (!order) throw new Error(`order ${id} not found`);
++
++  db.prepare("UPDATE orders SET status = 'completed' WHERE id = ?").run(id);
++
++  try {
++    sendReceipt(order);
++  } catch (err) {
++    console.error(`receipt failed for order ${id}`, err);
++  }
++  return { ...order, status: "completed" };
++}
++
++/** Refunds part or all of an order. The sum of all refunds may never exceed the order total. */
++export function refundOrder(db, id, amountCents) {
++  const order = db.prepare("SELECT * FROM orders WHERE id = ?").get(id);
++  if (!order) throw new Error(`order ${id} not found`);
++  if (!Number.isInteger(amountCents) || amountCents <= 0) {
++    throw new RangeError("amountCents must be a positive integer");
++  }
++  if (amountCents > order.total_cents) {
++    throw new RangeError("refund exceeds order total");
++  }
++
++  db.prepare("UPDATE orders SET refunded_cents = refunded_cents + ? WHERE id = ?").run(amountCents, id);
++  return db.prepare("SELECT * FROM orders WHERE id = ?").get(id);
++}
+diff --git a/tests/orders.test.js b/tests/orders.test.js
+new file mode 100644
+index 0000000..1a69cbf
+--- /dev/null
++++ b/tests/orders.test.js
+@@ -0,0 +1,41 @@
++import { test } from "node:test";
++import assert from "node:assert/strict";
++import { openDb } from "../src/db.js";
++import { findOrdersByEmail, listOrders, discountedTotal, completeOrder, refundOrder } from "../src/orders.js";
++
++test("findOrdersByEmail returns that customer's orders", () => {
++  const db = openDb();
++  const rows = findOrdersByEmail(db, "alice@example.com");
++  assert.equal(rows.length, 2);
++  assert.ok(rows.every((r) => r.user_email === "alice@example.com"));
++});
++
++test("listOrders returns a page of the requested size", () => {
++  const db = openDb();
++  assert.equal(listOrders(db, { pageSize: 2 }).length, 2);
++});
++
++test("discountedTotal takes a percentage off", () => {
++  assert.equal(discountedTotal(10000, 50), 5000);
++  assert.equal(discountedTotal(2500, 20), 2000);
++});
++
++test("completeOrder marks the order completed", async () => {
++  const db = openDb();
++  const result = await completeOrder(db, 1);
++  assert.equal(result.status, "completed");
++  assert.equal(db.prepare("SELECT status FROM orders WHERE id = 1").get().status, "completed");
++});
++
++test("completeOrder rejects an unknown order", async () => {
++  await assert.rejects(completeOrder(openDb(), 999), /not found/);
++});
++
++test("refundOrder records a partial refund", () => {
++  const db = openDb();
++  assert.equal(refundOrder(db, 1, 4000).refunded_cents, 4000);
++});
++
++test("refundOrder rejects a refund larger than the order", () => {
++  assert.throws(() => refundOrder(openDb(), 2, 99999), /exceeds/);
++});

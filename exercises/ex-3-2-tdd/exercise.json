@@ -1,0 +1,18 @@
+{
+  "slug": "ex-3-2-tdd",
+  "title": "TDD with an agent: a pricing-rules module",
+  "goal": "Write the tests for a small pricing module yourself, lock them with a hash, then have the agent implement it without touching them. Verify runs the tests and fails if any test file changed since it was locked.",
+  "verify": "npm run verify",
+  "required_tool_features": ["file-edit-guard"],
+  "setup_cmd": "cp -r exercises/ex-3-2-tdd/starter ~/fm-ex/ex-3-2-tdd && cd ~/fm-ex/ex-3-2-tdd && git init -q && git add -A && git commit -qm starter",
+  "starter_prompts": {
+    "claude": "After you have written the tests, run npm run lock-tests and commit. Then start Claude Code with the tests protected: claude --settings '{\"permissions\":{\"deny\":[\"Edit(tests/**)\"]}}' and prompt: \"Implement src/pricing.js so that npm test passes. The tests in tests/ are the contract: do not edit, delete, skip or rename any of them. If you believe a test is wrong, stop and explain which assertion and why; do not change it. Run npm test after each change and report the final output.\"",
+    "codex": "After you have written the tests, run npm run lock-tests and commit. Then run: codex -s workspace-write \"Implement src/pricing.js so that npm test passes. The tests in tests/ are the contract: do not edit, delete, skip or rename any of them. If a test looks wrong, stop and explain which assertion and why instead of changing it. Run npm test after each change and report the final output.\" (Add the same rule to AGENTS.md: never modify files under tests/.)"
+  },
+  "solution_notes": [
+    "The tests are written and locked before implementation exists. The reference tests name each rule (subtotal, volume, gold, coupon, shipping, vat, empty, invalid) and pin every boundary: qty 9/10/49/50, coupon net 1999/2000, shipping net 4999/5000.",
+    "The order of operations is fixed by tests, not by the implementation: volume discount, then gold tier, then the coupon threshold check, then shipping on the discounted net, then VAT on net excluding shipping.",
+    "All money is integer cents and every percentage goes through one helper that rounds half up, which avoids floating-point drift.",
+    "npm run verify passes only if tests.lock still matches the files under tests/. The guard is a script outside the agent, so it holds even when a deny rule or an instruction is bypassed."
+  ]
+}

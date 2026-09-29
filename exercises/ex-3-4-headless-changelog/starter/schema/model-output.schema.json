@@ -1,0 +1,20 @@
+{
+  "type": "object",
+  "properties": {
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sha": { "type": "string" },
+          "category": { "type": "string", "enum": ["breaking", "feature", "fix", "docs", "chore"] },
+          "summary": { "type": "string" }
+        },
+        "required": ["sha", "category", "summary"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["entries"],
+  "additionalProperties": false
+}

@@ -1,0 +1,12 @@
+{
+  "name": "ex-3-3-review-seeded-bugs",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test": "node --disable-warning=ExperimentalWarning --test \"tests/*.test.js\""
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "slug": "ex-3-3-review-seeded-bugs",
+  "title": "Review a diff with 5 seeded bugs",
+  "goal": "Run an AI review over a change whose tests all pass but which hides five bugs, one of them a security issue. Triage the findings against evidence, and write down what the review caught, what it missed and what was noise.",
+  "verify": "manual",
+  "required_tool_features": ["code-review"],
+  "setup_cmd": "cp -r exercises/ex-3-3-review-seeded-bugs/starter ~/fm-ex/ex-3-3-review-seeded-bugs && cd ~/fm-ex/ex-3-3-review-seeded-bugs && git init -q && echo change.patch >> .git/info/exclude && git add -A && git commit -qm base && git apply --index change.patch && npm test",
+  "starter_prompts": {
+    "claude": "In the project (the change is uncommitted), run /code-review high, then /security-review. Or ask: \"Review my uncommitted changes in src/orders.js. Report only bugs that would break behaviour, each with file:line and an input that triggers it. Money is integer cents. Every SQL query must be parameterised. Ignore formatting. Then run /security-review.\" Save your triage in REVIEW.md: for each finding, the verdict (real, false positive, unproven) and your evidence.",
+    "codex": "In the project (the change is uncommitted), run /review and pick \"Review uncommitted changes\", then run it again with custom instructions, or from the shell: codex review --uncommitted \"Report only bugs that would break behaviour, each with file:line and an input that triggers it. Money is integer cents. Every SQL query must be parameterised. Ignore formatting.\" Then run a security pass: codex review --uncommitted \"Security review only: injection, authn/authz gaps, data exposure. Give file:line and how to exploit each finding.\" Save your triage in REVIEW.md: for each finding, the verdict (real, false positive, unproven) and your evidence."
+  },
+  "solution_notes": [
+    "The reference REVIEW.md ranks the SQL injection first and gives a concrete trigger for every finding, for example page 1 returning ids 3 and 4.",
+    "Each finding is tied to something the change itself says: the 1-based doc comment, the 'a failed email must not undo the order' comment, and the 'sum of all refunds' comment. Reading comments as the spec is how the off-by-one, missing await and refund cap are found.",
+    "The existing tests pass because they check lengths and use round numbers. The fixed solution adds one test per finding, and each of those tests fails against the buggy code.",
+    "It separates blocking findings from follow-ups: unbounded result size and a missing transaction are noted, not treated as defects in this change."
+  ]
+}
