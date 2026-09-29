@@ -1,0 +1,7 @@
+- [ ] c1: `.claude/agents/test-runner.md` and `.claude/agents/reviewer.md` exist (or `.codex/agents/test-runner.toml` and `reviewer.toml`), each with a description that says when to delegate
+- [ ] c2: The test-runner can run commands but has no way to edit files and returns only a short failure summary
+- [ ] c3: The reviewer is read-only (no Edit or Write tool in Claude Code, `sandbox_mode = "read-only"` in Codex)
+- [ ] c4: You saw the main session hand the test run to the test-runner and get a short report back, not the full test output
+- [ ] c5: `npm test` passes and you did not edit anything under `tests/`
+- [ ] c6: The reviewer reviewed the final diff and you triaged its findings (fixed or consciously rejected each one)
+- [ ] c7: You can say in one sentence why the fix was done in the main session and not delegated

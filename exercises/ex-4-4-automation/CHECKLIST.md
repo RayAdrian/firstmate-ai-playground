@@ -1,0 +1,9 @@
+- [ ] c1: `scripts/hook-format.mjs` formats the file named in a Claude Code Edit/Write event and the files in a Codex apply_patch event
+- [ ] c2: The hook is wired in `.claude/settings.json` (matcher `Edit|Write`) or `.codex/hooks.json` (matcher `^apply_patch$`), and it always exits 0
+- [ ] c3: You proved the hook fires: you asked the agent to add badly formatted code and the file on disk came out formatted
+- [ ] c4: In Codex you opened `/hooks` and reviewed and trusted the new hook (an untrusted hook is skipped silently)
+- [ ] c5: The skill lives at `.claude/skills/new-api-route/SKILL.md` or `.agents/skills/new-api-route/SKILL.md` with a single-line description that says when to use it
+- [ ] c6: The skill points at `CONVENTIONS.md` and the example routes instead of copying the rules into itself
+- [ ] c7: You invoked the skill explicitly (`/new-api-route orders` or `$new-api-route orders`) and the orders route, registration and test came out to convention
+- [ ] c8: `npm test` passes and you did not edit `tests/automation.test.js`
+- [ ] c9: You can say which of your rules belong in a hook (must happen every time) and which in a skill or instruction file (judgement)

@@ -1,0 +1,17 @@
+{
+  "slug": "ex-4-1-subagents",
+  "verify": "npm test",
+  "required_tool_features": ["subagents"],
+  "title": "Build a test-runner and a reviewer subagent, then fix a failing module",
+  "goal": "Define two scoped subagents, a test-runner that reports only failures and a read-only reviewer, then use them to fix the bugs in src/cart.js. The tests must pass and neither subagent may be able to edit files.",
+  "starter_prompts": {
+    "claude": "Create two project subagents in .claude/agents/: test-runner (tools: Bash, Read, Grep, Glob; runs `npm test` and reports only failing tests, never edits) and reviewer (read-only: Read, Grep, Glob, Bash; reviews `git diff` for bugs and missing edge cases). Then use the test-runner subagent to run the suite, fix src/cart.js yourself in the main session, and have the reviewer subagent review the diff before you finish. Do not edit anything under tests/.",
+    "codex": "Create two project custom agents as TOML files in .codex/agents/: test-runner (runs `npm test` and reports only failing tests, never edits files) and reviewer (sandbox_mode = \"read-only\"; reviews `git diff` for bugs and missing edge cases). Then spawn the test-runner agent to run the suite, fix src/cart.js yourself in the main thread, and spawn the reviewer agent to review the diff before you finish. Do not edit anything under tests/."
+  },
+  "solution_notes": [
+    "The subagents are narrow: the test-runner can run Bash but is told never to edit and to return a short PASS/FAIL summary, so verbose test output stays out of the main context.",
+    "The reviewer's read-only stance is enforced by configuration, not by asking nicely: no Edit or Write tool in Claude Code (it keeps Bash for git diff, so this guards against accidents rather than acting as a sandbox), and sandbox_mode = \"read-only\" in Codex, which the sandbox really enforces.",
+    "The fix stays in the main session. Subagents report, the main agent decides. Delegating the fix too would hide the diff from the conversation you are steering.",
+    "The four cart bugs are small (discount sign, free-shipping boundary, shipping decided on the discounted subtotal, thousands separators). The value of the exercise is the workflow, not the difficulty of the fix."
+  ]
+}

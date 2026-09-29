@@ -1,0 +1,8 @@
+- [ ] c1: You ran `git worktree list` and saw the main checkout plus two more worktrees on different branches
+- [ ] c2: Each agent session ran in its own worktree directory, at the same time
+- [ ] c3: Each session's prompt named the files it may touch and the files it must not (a scope fence)
+- [ ] c4: You know what a fresh worktree is missing (gitignored files such as `node_modules` and `.env`) and would install or copy them per worktree in a real project
+- [ ] c5: Each feature branch was green on its own before you merged it
+- [ ] c6: You merged both branches into main with `git merge --no-ff` and resolved the CHANGELOG.md conflict by keeping both entries
+- [ ] c7: `node scripts/verify.mjs` passes on main, and `git log --graph --oneline` shows both branches merged
+- [ ] c8: You removed both worktrees with `git worktree remove` and deleted the merged branches

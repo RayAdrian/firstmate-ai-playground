@@ -1,0 +1,18 @@
+{
+  "slug": "ex-4-3-mcp-browser",
+  "verify": "npm test",
+  "required_tool_features": ["mcp", "browser-automation-mcp"],
+  "title": "Reproduce a visual bug with a Playwright MCP, then fix it",
+  "goal": "Add the Playwright MCP server to your tool, load the pricing page at a phone-width viewport and observe three layout bugs. Write down what you saw in REPRO.md, fix app/pricing.module.css, and confirm the fix in the browser.",
+  "setup_cmd": "cp -r exercises/ex-4-3-mcp-browser/starter ~/fm-ex/ex-4-3-mcp-browser && cd ~/fm-ex/ex-4-3-mcp-browser && npm i",
+  "starter_prompts": {
+    "claude": "The Playwright MCP server is connected (check with /mcp). Start the dev server with `npm run dev` (it listens on port 3474), open http://localhost:3474 in the browser, resize the viewport to 375x812 and inspect the pricing page. Report every layout problem you can measure (horizontal overflow, clipped text, small tap targets) and write them to REPRO.md. Then fix app/pricing.module.css and re-check at 375, 768 and 1440 wide. Do not edit anything under tests/.",
+    "codex": "The Playwright MCP server is configured (check with /mcp). Start the dev server with `npm run dev` (it listens on port 3474), open http://localhost:3474 in the browser, resize the viewport to 375x812 and inspect the pricing page. Report every layout problem you can measure (horizontal overflow, clipped text, small tap targets) and write them to REPRO.md. Then fix app/pricing.module.css and re-check at 375, 768 and 1440 wide. Do not edit anything under tests/."
+  },
+  "solution_notes": [
+    "The horizontal overflow only appears below roughly 1050px, while the clipped price and the short button show at every width. The agent found all three by measuring a real page (scrollWidth, clientWidth, element heights), not by reading the CSS. That is the value of a browser MCP: it turns 'looks fine in the code' into evidence.",
+    "REPRO.md was written before the fix and records numbers (scrollWidth versus clientWidth, element heights), so the after-check compares like with like.",
+    "The grid fix is intrinsic, not a breakpoint: repeat(auto-fit, minmax(min(100%, 260px), 1fr)) works at every width and needs no media query.",
+    "The reference config scopes the server to this project (.mcp.json for Claude Code, .codex/config.toml for Codex) and passes --isolated so the browser profile lives in memory and is not saved to disk."
+  ]
+}
