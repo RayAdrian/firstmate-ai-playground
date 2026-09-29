@@ -270,7 +270,7 @@ The tokens were compile-tested against Tailwind v4.3: semantic utilities generat
 | Section title | `text-2xl font-bold` | 24/32 | 700 | fg-strong | `<h2>`: level sections, "Today's digest", lesson sections |
 | Card title | `text-lg md:text-xl font-bold` | 18/28 → 20/24 | 700 | fg-strong | `<h3>`: news titles, level cards, exercise title |
 | Eyebrow | `text-sm font-bold uppercase tracking-eyebrow text-link` | 14/20 | 700 | link | "Level 2", "Continue", "Today" |
-| Prose | `text-prose` | 17/28 | 400 | fg | Lesson concept, tab panels, why-it-matters |
+| Prose | `text-prose` | 17/28 | 400 | fg | Lesson concept, tab panels, callouts |
 | UI body | `text-base` | 16/24 | 400 | fg | Forms, rows, notices |
 | UI label | `text-sm font-medium` | 14/20 | 500 | fg | Buttons (sm), tabs, badges, filter labels |
 | Meta | `text-sm` | 14/20 | 400 | fg-muted | Dates, source, minutes, Verified line |
@@ -279,7 +279,7 @@ The tokens were compile-tested against Tailwind v4.3: semantic utilities generat
 
 - Inline code: `font-mono text-[0.9em] bg-surface border border-border rounded-md px-1.5 py-0.5` in `text-fg`. No colour shift.
 - Italic 400 is loaded so markdown `*emphasis*` is not synthesised. Bold-italic is synthesised; this is accepted because it is rare in lessons.
-- Prose measure is at most 700px (`max-w-[var(--fm-measure)]`, about 75 characters at 17px).
+- Prose measure is at most 700px (`max-w-[var(--fm-measure)]`, about 75 characters at 17px). **Code blocks, tab panels' code, the tablist and the Key differences callout use the full main column** (about 765px at lg), not the 700px measure, which cuts horizontal scrolling on long commands. Only paragraphs and lists are held to the measure.
 - Numerals in scores and progress counts use `tabular-nums`.
 
 ### 3.2 Spacing
@@ -463,7 +463,7 @@ Automatic activation is right here because both panels are already in the DOM.
 
 ### 4.6 Checkbox (E-2)
 
-- **Native `<input type="checkbox">`**, `size-5`, `accent-color: var(--fm-primary)`, `rounded` via the UA. Use the native control; don't restyle it with a custom box. It stays accessible and matches D-2 without custom ARIA.
+- **Native `<input type="checkbox">`**, `size-5`, `accent-color: var(--fm-primary)` in light and `var(--fm-link)` in dark (the brand primary would draw the checked box at 2.53:1 on dark `surface`; `#9fa5ff` is 7.45:1), `rounded` via the UA. Use the native control; don't restyle it with a custom box. It stays accessible and matches D-2 without custom ARIA.
 - Row: `<label class="flex items-start gap-3 py-2.5 min-h-11 cursor-pointer">`, containing the checkbox (`mt-0.5`) and `<span class="text-base text-fg">`. The whole row is the hit target (44px).
 - Checked: the text is **not** struck through (legibility). The native check is the signal, and the list's count updates.
 - The checklist is a `fieldset` whose `legend` is exactly "Checklist" (styled at h4 size; the "4." step number in §6.3.1 is an `aria-hidden` span outside the legend, so the group name stays "Checklist"). Next to the legend: a meta line reading "3 of 5 done" and a `ProgressBar` size `sm` named "Checklist". When everything is checked, the header's meta is replaced by a success Badge `Check` "Exercise complete", and `announce("Exercise complete")` fires once on the transition, not on page load.
@@ -521,31 +521,66 @@ These live in a `GlobalNotices` slot directly under the header, inside the conta
 
 ### 4.12 News card (N-1, N-2, N-5)
 
-**Anatomy (scored)**
+**Anatomy (scored), from `md` up** (three columns: tile, content, bookmark)
 
 ```
-┌──────────────────────────────────────────────────────────────┐
-│ ┌────┐  Anthropic ships Claude Opus 5.5 with 1M context   ↗ [🔖]│  ← h3 link (external) + bookmark toggle
-│ │ 87 │  Anthropic news · Wed 30 Sep, 06:10                    │  ← meta: source · <time>
-│ │/100│  [New model] [Tooling]                                 │  ← tag badges
-│ └────┘  WHY IT MATTERS                                        │  ← eyebrow (fg-muted, not link colour)
-│         Client MVPs on Opus can drop the chunking layer in…  │  ← plain text, 1–2 sentences
-└──────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│ ┌────┐  Anthropic ships Claude Opus 5.5 with 1M context  ↗   [🔖] │  ← areas: tile | title | bookmark
+│ │ 87 │  Anthropic news · Wed 30 Sep, 06:10                        │  ← tile | meta (spans 2)
+│ │/100│  [New model] [Tooling]                                     │  ← tile | tags (spans 2)
+│ └────┘  WHY IT MATTERS                                            │
+│         Client MVPs on Opus can drop the chunking layer in…      │  ← tile | why (spans 2)
+└──────────────────────────────────────────────────────────────────┘
 ```
 
-- Container: `<article class="rounded-card bg-surface p-5 md:p-6 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2">`, with `aria-labelledby` pointing at the title id.
-- **Score tile**: `size-14 rounded-xl bg-canvas border border-border flex flex-col items-center justify-center`. The number is `text-xl font-bold text-link tabular-nums`, with a `text-xs text-fg-muted` "/100" under it. Accessible text: `<span class="sr-only">Relevance score</span> 87 <span class="sr-only">out of 100</span>`. **No traffic-light colouring by score.** The score is a ranking signal, not a status. At 360px the tile shrinks to `size-12`.
+**Anatomy (scored), below `md`** (360px: the title, tags and why-it-matters span the full card width)
+
+```
+┌──────────────────────────────────┐   328px card, p-4 → 296px content
+│ ┌──┐ Anthropic news        [🔖]  │  ← tile | meta | bookmark (44×44)
+│ │87│ Wed 30 Sep, 06:10           │
+│ └──┘                             │
+│ Anthropic ships Claude Opus 5.5  │  ← title (full width, 296px)
+│ with 1M context ↗                │
+│ [New model] [Tooling]            │  ← tags (full width)
+│ WHY IT MATTERS                   │
+│ Client MVPs on Opus can drop the │  ← why (full width, text-base)
+│ chunking layer in retrieval…     │
+└──────────────────────────────────┘
+```
+
+- Container: `<article aria-labelledby={titleId} class="rounded-card bg-surface p-4 md:p-6 grid grid-cols-[auto_1fr_auto] gap-x-3 md:gap-x-4 gap-y-2">` with **named grid areas**:
+
+  ```css
+  /* < md */
+  grid-template-areas:
+    "tile meta bookmark"
+    "title title title"
+    "tags tags tags"
+    "why why why";
+  /* >= md */
+  grid-template-areas:
+    "tile title bookmark"
+    "tile meta meta"
+    "tile tags tags"
+    "tile why why";
+  ```
+
+  Implement the templates as a small CSS class next to NewsCard (for example `.news-card` with an `@media (width >= 48rem)` override), and give each child `[grid-area:tile]`, `[grid-area:title]` and so on. Tailwind arbitrary `[grid-template-areas:…]` values also work but are hard to read. The tile is `self-start`.
+- **DOM order**: tile, title (`h3`), meta, bookmark, tags, why. The focus order is title link, then bookmark, at every width. Below `md` the bookmark sits visually above the title; that small reversal is accepted, because naming the item before acting on it is the better reading order for screen readers.
+- Width check at 360: card 328px, `p-4` leaves 296px. Row 1 is tile 48 + gap 12 + meta ≈ 180 + gap 12 + bookmark 44. The title, tags and why-it-matters get the full 296px: a 280-character why-it-matters runs about 7 lines at 16px, where the two-column layout gave 11.
+- **Score tile**: `size-14 rounded-xl bg-canvas border border-border flex flex-col items-center justify-center`. The number is `text-xl font-bold text-link tabular-nums`, with a `text-xs text-fg-muted` "/100" under it. Accessible text: `<span class="sr-only">Relevance score</span> 87 <span class="sr-only">out of 100</span>`. **No traffic-light colouring by score.** The score is a ranking signal, not a status. Below `md` the tile is `size-12` (and the number `text-lg`).
 - **Title**: `h3 > a`, `text-lg font-bold text-fg-strong hover:text-link hover:underline`, `href` = source URL, `target="_blank" rel="noopener noreferrer"`, followed by a 14px `ArrowUpRight` icon and `<span class="sr-only">(opens in new tab)</span>`. The titles come from feeds; render them as text and never as HTML.
 - **Meta line**: `text-sm text-fg-muted`: source name, then ` · `, then `<time datetime="{published_at ISO}">Wed 30 Sep, 06:10</time>`. Times are shown in Asia/Manila with the `en-PH` format "EEE d MMM, HH:mm". The published date is always shown, including on `/news` for same-day items (N-1).
 - **Tags**: `<ul aria-label="Tags">` of `Badge`s (variant `tag`), with labels mapped from the enum: `new-model` → "New model", `tooling` → "Tooling", `framework` → "Framework", `business` → "Business", and `security` → **variant `danger`** with a `ShieldAlert` icon, "Security". Order is fixed as listed so the security chip is always last.
-- **Why it matters**: eyebrow "Why it matters" (`text-xs font-bold uppercase tracking-eyebrow text-fg-muted`, not the link colour, to keep link colour for things you can act on), then `<p class="text-prose">`. **Plain text only** (PRD §13 injection). The field is capped at 280 characters by the pipeline, so there's no truncation in the UI.
-- **Bookmark**: icon button `Bookmark` / `BookmarkCheck`, `aria-pressed`, `aria-label="Bookmark: {title}"`, in the grid's top-right corner. Pre-hydration it renders unpressed and `aria-disabled`, then enables after mount.
+- **Why it matters**: eyebrow "Why it matters" (`text-xs font-bold uppercase tracking-eyebrow text-fg-muted`, not the link colour, to keep link colour for things you can act on), then `<p class="text-base">` (16px; card text is not long-form reading, and 17px prose sat too close to the 18px title). **Plain text only** (PRD §13 injection). The field is capped at 280 characters by the pipeline, so there's no truncation in the UI.
+- **Bookmark**: icon button `Bookmark` / `BookmarkCheck`, `aria-pressed`, `aria-label="Bookmark: {title}"`, in the `bookmark` grid area (`size-9`, and `size-11` on coarse pointers, `self-start justify-self-end`). Pre-hydration it renders unpressed and `aria-disabled`, then enables after mount.
 - **Card is not a stretched link.** It has two interactive elements.
 
 **Variants**
 
-- `unscored` (N-2): no score tile, and the grid collapses to one column. The meta line gets a `neutral` badge "Unscored" (or "Scoring failed" when `scoring_status=failed`). No tags, no why-it-matters. The title link stays.
-- `compact` (home top 3): no why-it-matters text and no tags. The score tile is `size-12`. Title, source and time only.
+- `unscored` (N-2): no score tile. The `tile` area is dropped from the template at every width (`grid-cols-[1fr_auto]`, rows "title bookmark" / "meta meta"). The meta line gets a `neutral` badge "Unscored" (or "Scoring failed" when `scoring_status=failed`). No tags, no why-it-matters. The title link stays.
+- `compact` (home top 3): no why-it-matters text and no tags; the `tags` and `why` rows are dropped. The score tile is `size-12` at every width and uses the `md` template (tile beside the title) even at 360, because with no body text the title keeps about 190px.
 - `unavailable` (N-5, bookmarks): `bg-surface border border-dashed border-border`, text "Item no longer available" in `text-fg-muted`, with a "Remove bookmark" ghost button. No link.
 
 ---
@@ -574,7 +609,7 @@ These live in a `GlobalNotices` slot directly under the header, inside the conta
 └───────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-- Left: `<a href="/">` containing the logo `<img alt="First Mate">` (h-9) and `<span class="text-sm font-bold text-fg-strong">AI Playground</span>`, with `gap-3` and a 1px `border-l border-border h-5` divider between them. Accessible name: "First Mate AI Playground, home".
+- Left: `<a href="/">` containing the logo `<img alt="First Mate">` (h-9) and `<span class="text-sm font-bold text-fg-strong">AI Playground</span>`, with `gap-3` and a 1px `border-l border-border h-5` divider between them. Accessible name: "First Mate AI Playground" (the img alt plus the visible label; this is the §11 value).
 - Nav: `<nav aria-label="Main">` holding a `<ul>` of links `h-[60px] inline-flex items-center px-3 text-sm font-medium text-fg-muted hover:text-fg`. **Active: `text-fg-strong font-bold` plus a 2px `link` bar pinned to the header's bottom edge, plus `aria-current="page"`.**
 - Active matching: `/curriculum` is active for `/curriculum` and `/lessons/*`. `/exercises` is active for `/exercises`. `/news` is active for `/news` **and** `/news/archive`. `/bookmarks` and `/progress` match exactly. `/` activates nothing (the logo is home).
 - "Progress" sits alone on the right with a lucide `Settings2` icon plus text, because it is utility rather than content.
@@ -601,6 +636,7 @@ These live in a `GlobalNotices` slot directly under the header, inside the conta
 - Menu button: `button[aria-expanded][aria-controls="mobile-nav"]` at `size-11`, with icon `Menu` or `X` and a **fixed** `aria-label="Menu"`; the open or closed state is conveyed by `aria-expanded` only.
 - The panel is a **disclosure, not a modal**: `nav#mobile-nav[aria-label="Main"]` directly under the header, `bg-surface-raised shadow-sm`, full-width links `h-12 px-4 text-base`. It pushes content down; it is not an overlay. There's no focus trap.
 - Behaviour: on open, focus moves to the first link (PR #2 expects this; there is still no focus trap). **Esc** closes and returns focus to the button. Choosing a link navigates and closes (close on `pathname` change). The panel closes if the viewport grows to md or wider.
+- **Fit at 360**: brand (h-8 logo ≈ 156px + divider + "AI Playground" ≈ 95px + gaps) plus the 44px menu button leaves about 8px in 328px. Below 375px (`max-[374px]:`), the "AI Playground" label and divider are `sr-only`, so the link keeps its full accessible name while the logo stands alone. At 375px and up the label shows.
 - Render the desktop `<nav>` and the mobile `<nav>` so that only one is exposed at a time (`hidden md:flex` / `md:hidden`). Two visible "Main" landmarks fail axe.
 
 **Skip link**: `<a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 bg-canvas text-link px-4 py-2 rounded-lg">Skip to content</a>`. Activating it focuses `<main tabindex=-1>`.
@@ -658,7 +694,7 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 │ ├──────────────────────────────────┤ │    │ │3 / 3 ✓Done ││1 / 3       ││0 / 4       ││0 / 4       ││0 / 4       │          │
 │ │ L2 Context engineering  1 / 3    │ │    │ │━━━━━━━━━━━ ││━━━───────  ││─────────── ││─────────── ││─────────── │          │
 │ │ ━━━━━━━━━━───────────────────── │ │    │ └────────────┘└────────────┘└────────────┘└────────────┘└────────────┘          │
-│ ├ … L3, L4, L5 rows ───────────────┤ │    │   (grid-cols-5, stretched-link cards → /curriculum#level-2)                     │
+│ ├ … L3, L4, L5 rows ───────────────┤ │    │   (grid-cols-5, stretched-link cards → /curriculum#level-2; link name "Level 2 …") │
 │ └──────────────────────────────────┘ │    │ View full curriculum →                                                          │
 │ View full curriculum →               │    └────────────────────────────────────────────────────────────────────────────────┘
 │                                      │
@@ -671,6 +707,7 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 ```
 
 - At 360, Continue comes first, then levels as a compact list (not 5 cards), then news. At md, levels become `grid-cols-2`; at lg, `grid-cols-5`.
+- Level cards: the stretched link's text is `<span aria-hidden="true">L2</span><span class="sr-only">Level 2</span> Context engineering`, so the visible form is short and the accessible name is "Level 2 Context engineering" (§11). At 360 the compact rows use the same markup.
 - The Continue card is `bg-accent-soft rounded-card`. It is the only accent-filled surface on the page.
 - **States**
   - **Continue link (C-4, verbatim)**: the primary control is a link whose visible text and accessible name are exactly `Continue: <lesson title>`, styled as a `primary` button (`max-w-full`, the title truncates with `truncate` inside the button but the full title stays in the accessible name). The card also shows the title as an `h2` and the meta line above it. With no history, the same link reads `Continue: <first L1 lesson title>` and points at it (C-4.2).
@@ -678,7 +715,7 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
   - Pre-hydration: the server renders the C-4.2 default (`Continue: <first L1 lesson title>`). After mount, if `lastViewed` points elsewhere, the link text and `href` swap in place (same box, no CLS). Level progress uses skeletons (§4.7). No "0 / 3" flash.
   - Last-viewed lesson no longer exists (P-4): fall back to the C-4.2 default silently.
   - No curriculum seeded: the whole levels area and the Continue card are replaced by one EmptyState: "No lessons seeded yet. Run `npm run seed`." (§7).
-  - News: no digest → the news column shows a compact EmptyState whose title is the PRD string verbatim, "No news yet. Run `npm run news:run`.", and it does **not** block the page. Stale → the header reads "Latest · Tue 29 Sep" with a warning Badge "Stale" (never the word "today"). Nothing ≥60 → "Nothing above the relevance bar today" plus a link to the archive. The "See all" link (N-6) goes to `/news` in every state.
+  - News: no digest → the news column shows a compact EmptyState whose title is the PRD string verbatim, "No news yet. Run `npm run news:run`.", and it does **not** block the page. Stale → the header reads "Latest · Tue 29 Sep" with a warning Badge showing an `AlertTriangle` icon and the text "Stale" (never the word "today"; icon plus word per C-5). Nothing ≥60 → "Nothing above the relevance bar today" plus a link to the archive. The "See all" link (N-6) goes to `/news` in every state.
   - DB down → the app-wide error page (§6.10).
   - Loading: `loading.tsx` shows skeletons matching the Continue card, the 5 level cards and 3 compact news rows.
 
@@ -714,7 +751,7 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 
 - Level section: `section[aria-labelledby="level-n-eyebrow level-n-title"][id=level-n]`, so its accessible name is "Level n Foundations: …" (§11), with the eyebrow "Level n", the `h2` title, the summary in `text-fg-muted`, and a progress row showing "2 / 4" text, a `ProgressBar md` and, when complete, a success Badge "Completed".
 - Lesson list: `<ol>` inside a `Card` (`bg-surface`, rows separated by `border-subtle`). Each row is a stretched link: `h3 > a` (`text-lg font-bold`), then the objective (`text-base text-fg`, clamped to 2 lines at 360 with `line-clamp-2`, and full at lg), then a meta row (`text-sm text-fg-muted`: "15 min · Verified 12 Sep 2026 · Claude Code v2.3 / Codex v0.9", wrapping allowed). The state badge sits top-right at lg and in the meta row at 360.
-- Completion state per row: `success` Badge "Completed" or **nothing** for not started. Don't show a "Not started" badge; its absence is the state, and it avoids visual noise across 18 rows. The number prefix ("1.1") is in `text-fg-muted tabular-nums`.
+- Completion state per row: `success` Badge "Completed" or **nothing** for not started. Don't show a "Not started" badge; its absence is the state, and it avoids visual noise across 18 rows. The number prefix ("1.1") sits **outside** the `<a>` (in a preceding `<span>`), so the link name is exactly `<title>` (§11). The prefix is in `text-fg-muted tabular-nums`.
 - "May be outdated" (C-5): `warning` Badge, shown when `last_verified_on` is more than 60 days before today. It has a `title` attribute plus visible text, and the meta line keeps the actual date so the badge is explained.
 - Jump links at 360: a horizontal row of 5 `accent` badges-as-links (`h-11` touch). At lg this becomes the sticky left rail "On this page" with per-level counts.
 - **States**
@@ -854,9 +891,9 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 │ [Browse archive →]                   │    │ │ Wed 30 Sep · updated 08:03 · 10 items ≥ 60              │ │ Scored daily at  │ │
 │                                      │    │ │                                                         │ │ ~08:00 Manila for│ │
 │ ┌ NewsCard ────────────────────────┐ │    │ │ ┌ NewsCard 87 ────────────────────────────────────────┐ │ │ relevance to     │ │
-│ │ ┌──┐ Anthropic ships Opus…  ↗ 🔖 │ │    │ │ └─────────────────────────────────────────────────────┘ │ │ First Mate work. │ │
-│ │ │87│ Anthropic news · 06:10      │ │    │ │ ┌ NewsCard 74 ────────────────────────────────────────┐ │ │ Only items ≥ 60  │ │
-│ │ └──┘ [New model] [Tooling]       │ │    │ │ └─────────────────────────────────────────────────────┘ │ │ appear here.     │ │
+│ │ ┌──┐ Anthropic news        [🔖]  │ │    │ │ └─────────────────────────────────────────────────────┘ │ │ First Mate work. │ │
+│ │ │87│ Wed 30 Sep, 06:10           │ │    │ │ ┌ NewsCard 74 ────────────────────────────────────────┐ │ │ Only items ≥ 60  │ │
+│ │ Anthropic ships Claude Opus… ↗   │ │    │ │ └─────────────────────────────────────────────────────┘ │ │ appear here.     │ │
 │ │ WHY IT MATTERS                   │ │    │ │ … up to 10, gap-4                                       │ │ [Browse archive] │ │
 │ │ Client MVPs on Opus can…         │ │    │ │                                                         │ │                  │ │
 │ └──────────────────────────────────┘ │    │ │ ▸ Unscored (4)   ← disclosure button, collapsed         │ │                  │ │
@@ -979,7 +1016,7 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 ```
 
 - Export (P-6): one button does both things, as the PRD specifies. It copies the JSON and downloads `fm-playground-progress-YYYY-MM-DD.json`. Success: `announce("Progress exported and copied")` plus inline text "Downloaded and copied to clipboard." If the clipboard is denied, the download still happens and the text reads "Downloaded. Copy to clipboard was blocked." It's not an error.
-- Import: a visually styled `<input type=file accept="application/json,.json">` with a real `<label>` reading "Import progress file". The preview is inline (not a dialog) with buttons "Replace my progress" and "Cancel"; the reset button is always named "Reset all progress". On selection, validate the file. Invalid → `danger` Notice (`role=status`): "This file isn't a valid progress export." plus the reason ("missing `version`", "invalid JSON"). Valid → the preview panel (`role=status`), with **nothing written yet**. "Replace my progress" writes the state, shows a `success` Notice "Progress imported: 7 lessons, 3 bookmarks.", and moves focus to it. Cancel clears the file input and returns focus to it.
+- Import: a visually styled `<input type=file accept="application/json,.json">` with a real `<label>` reading "Import progress file". The preview is inline (not a dialog) with buttons "Replace my progress" and "Cancel"; the reset button is always named "Reset all progress". On selection, validate the file. Invalid → `danger` Notice (`role=alert`, per §4.10): "This file isn't a valid progress export." plus the reason ("missing `version`", "invalid JSON"). Valid → the preview panel (`role=status`), with **nothing written yet**. "Replace my progress" writes the state, shows a `success` Notice "Progress imported: 7 lessons, 3 bookmarks.", and moves focus to it. Cancel clears the file input and returns focus to it.
 - Reset (P-7): a text input labelled "Type reset to confirm". The button is `aria-disabled` until the value, trimmed and case-sensitive, equals `reset`. Clicking while it doesn't match shows the field error "Type reset exactly to confirm." (`aria-describedby`); don't fail silently. On success: the state clears, `success` Notice "All progress has been reset.", focus to the Notice. No undo (it's destructive and confirmed), so the copy says "This can't be undone" near the button. Suggest exporting first with an inline link in the danger-zone body: "Export a backup first."
 - **States**: pre-hydration summary uses skeletons. Storage blocked: the banner, and all three actions stay usable for the session (P-3). Export still works; import and reset act on the in-memory state.
 
@@ -1385,7 +1422,18 @@ This is the authoritative list of **accessible roles and names** for every landm
 | DB-down message | (text) | Exactly `DB_UNAVAILABLE_MESSAGE` |
 | DB-down copy | `button` | "Copy code: Terminal" |
 
-### 11.4 Known deltas with PR #2 (tests must follow this section)
+### 11.4 M0 stubs WS-A must update
+
+When WS-A replaces the M0 stubs in `src/components/ui/index.tsx`, `src/app/error.tsx` and `src/app/not-found.tsx`, it **must update the stubs and their M0 tests in the same PR** so the contract above holds.
+
+| M0 today | Contract | WS-A action |
+|---|---|---|
+| `Notice` `tone: "info" \| "warning" \| "error"`, always sets `role` (`error` → `alert`, otherwise `status`) | Variants `info`, `neutral`, `success`, `warning`, `danger`; server-rendered Notices have **no** role (§4.10) | Keep `tone` as the prop name (M0 asked for stable props) and widen it: `"error"` stays an accepted alias for `"danger"`. Add `live?: "polite" \| "assertive" \| false`, defaulting to `"polite"` (`status`), with `danger` defaulting to `"assertive"` (`alert`). `live={false}` renders no role; WS-F's stale Notice passes it. Update the M0 Notice unit test. |
+| DB-down copy button named "Copy command" (`tests/unit/m0/db-unavailable.test.tsx` asserts it) | "Copy code: Terminal" (CommandLine) | Update that M0 unit test to the new name in the same PR that restyles `error.tsx`. |
+| `not-found.tsx` link "Back to curriculum" | "Go to curriculum" (the error view keeps "Back to curriculum") | Change the link text. |
+| `EmptyState` `title: string` | The title can contain inline code (/news, /curriculum empty) | Widen to `title: ReactNode` (compatible). |
+
+### 11.5 Known deltas with PR #2 (tests must follow this section)
 
 | PR #2 expectation | Contract | Why |
 |---|---|---|
