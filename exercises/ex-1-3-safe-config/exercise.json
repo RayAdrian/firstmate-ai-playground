@@ -1,0 +1,24 @@
+{
+  "slug": "ex-1-3-safe-config",
+  "title": "Safe agent config for both tools",
+  "goal": "Replace an over-permissive starter config with guardrails: tests and lint run without prompts, network access is blocked, secrets are unreadable, and writes stay inside the repo. Do it for Claude Code (.claude/settings.json) and Codex CLI (.codex/config.toml), editing the files by hand BEFORE launching any agent in the folder. A script checks the files, and you confirm the behavior afterwards.",
+  "verify": "node scripts/check-config.mjs",
+  "required_tool_features": [
+    "permission rules",
+    "sandbox",
+    "settings files",
+    "approval policy"
+  ],
+  "starter_prompts": {
+    "claude": "Run `npm test` and `npm run lint`. Then try `curl https://example.com` and tell me exactly what happened. (Launch with `claude --permission-mode default`, only after node scripts/check-config.mjs passes.)",
+    "codex": "Run `npm test`. Then try to create ~/outside-repo.txt and tell me exactly what happened. (Launch with `codex --sandbox workspace-write --ask-for-approval on-request`, only after node scripts/check-config.mjs passes.)"
+  },
+  "solution_notes": [
+    "Claude Code allows exactly two commands, `npm test` and `npm run lint`, by name. The starter's `Bash(*)` allowed every command, which is the same as turning the guardrails off. Narrow allow rules plus the sandbox give you quiet prompts without giving up control.",
+    "curl and wget are denied by rule, but a Bash deny rule only matches the command as written (`/usr/bin/curl` and `sh -c 'curl ...'` are not matched). That is why the sandbox is also on: it blocks network and out-of-repo writes at the OS level, whatever the command looks like. `allowUnsandboxedCommands: false` closes the retry-outside-the-sandbox escape hatch.",
+    "Codex needs no allow list for `npm test` or `npm run lint`. In the workspace-write sandbox they run inside it, so they never prompt. What Codex adds is the boundary: workspace-write confines writes to the repo, network access is off by default, and on-request approval asks only when something wants to leave the sandbox.",
+    "The starter's `danger-full-access` with `never` is the Codex equivalent of `--dangerously-skip-permissions`: no sandbox and no questions. Web search is a separate tool from command network access, so the solution disables it explicitly.",
+    "Both files are committed to the repo. Every engineer who clones it gets the same guardrails, and a personal override goes in `.claude/settings.local.json` or `~/.codex/config.toml`."
+  ],
+  "setup_cmd": "mkdir -p ~/fm-ex && cp -R exercises/ex-1-3-safe-config/starter ~/fm-ex/ex-1-3-safe-config && cd ~/fm-ex/ex-1-3-safe-config && git init -q && git add -A && git -c user.name=learner -c user.email=learner@example.com commit -qm start && npm install"
+}

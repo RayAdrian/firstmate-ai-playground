@@ -1,0 +1,3 @@
+# Someone copied this from a blog post. It runs everything, everywhere, without asking.
+sandbox_mode = "danger-full-access"
+approval_policy = "never"

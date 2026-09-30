@@ -1,0 +1,7 @@
+- [ ] c1: Ran `npm test` in the starter and saw exactly one failing test before changing anything
+- [ ] c2: Claude Code got `npm test` green, and the only file changed was src/slugify.ts
+- [ ] c3: Codex CLI got `npm test` green from the reset starter (back on the starting commit), and the only file changed was src/slugify.ts
+- [ ] c4: Neither agent edited anything under test/ (confirmed with `git diff --stat`)
+- [ ] c5: Read the full diff in each tool (`/diff` or `git diff`) before committing
+- [ ] c6: Quit one session, then resumed it (`claude --continue` or `codex resume --last`) and asked a follow-up question
+- [ ] c7: Committed the working state, then used `git restore .` or `git switch` to reset before the second tool's run

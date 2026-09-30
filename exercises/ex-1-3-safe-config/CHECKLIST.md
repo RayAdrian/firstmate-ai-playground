@@ -1,0 +1,10 @@
+- [ ] c1: Read the starter config and ran the verify command on it, without launching any agent in the folder
+- [ ] c1b: Fixed both config files by hand before launching Claude Code or Codex, and did not trust the folder while the starter config was in place
+- [ ] c2: .claude/settings.json allows `npm test` and `npm run lint` by name, and has no bare `Bash` or `Bash(*)` allow rule
+- [ ] c3: .claude/settings.json denies curl, wget, WebFetch and reading secrets.env, and enables the sandbox with `allowUnsandboxedCommands` set to false
+- [ ] c4: .codex/config.toml is workspace-write with on-request approvals, network access off and web search disabled
+- [ ] c5: The verify command (`node scripts/check-config.mjs`) prints "OK"
+- [ ] c6: Claude Code, by hand: asked it to run `npm test` and `npm run lint`, and neither prompted; asked it to `curl https://example.com` and it was refused
+- [ ] c7: Codex, by hand: asked it to run `npm test` (no prompt) and to create a file outside the repo (blocked or an approval request that you declined)
+- [ ] c8: Made a deliberate bad edit with each tool, then recovered: `/rewind` in Claude Code, `git restore .` in Codex
+- [ ] c9: Can say in one sentence why a `Bash(curl *)` deny rule alone is not a network boundary

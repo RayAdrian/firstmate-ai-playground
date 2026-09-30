@@ -1,0 +1,10 @@
+# Auto preset: read, edit and run commands inside the workspace, ask before leaving it.
+sandbox_mode    = "workspace-write"
+approval_policy = "on-request"
+
+# The web search tool is separate from command network access. Turn it off too.
+web_search = "disabled"
+
+[sandbox_workspace_write]
+# Explicit, even though false is the default: a reviewer can see the intent.
+network_access = false
