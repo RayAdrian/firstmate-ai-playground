@@ -9,12 +9,15 @@ Needs Node 24 or newer (the project uses the built-in `node:sqlite`).
 ```bash
 cp -r exercises/ex-3-3-review-seeded-bugs/starter ~/fm-ex/ex-3-3-review-seeded-bugs
 cd ~/fm-ex/ex-3-3-review-seeded-bugs
-git init -q && echo change.patch >> .git/info/exclude && git add -A && git commit -qm base
-git apply --index change.patch
+git init -q -b main && echo change.patch >> .git/info/exclude && git add -A && git commit -qm base
+git init -q --bare ../ex-3-3-origin.git && git remote add origin ../ex-3-3-origin.git
+git push -q origin main && git remote set-head origin main
+git checkout -q -b feature/orders
+git apply --index change.patch && git commit -qm 'Add order handling'
 npm test   # 9 tests pass
 ```
 
-After `git apply --index`, the change is staged but not committed, which is what `/code-review` and `codex review --uncommitted` review. `change.patch` is the same change as a diff, if you want to read it that way.
+The seeded change is committed on `feature/orders`, and a local bare repo acts as `origin` with `main` as its default branch. That is what `/security-review` needs: it diffs committed changes against `origin/HEAD`. Review the branch with `/code-review high main...feature/orders` (Claude Code) or `/review` with "Review against a base branch" and `main` (Codex). `change.patch` is the same change as a diff, if you want to read it that way.
 
 ## Steps
 
@@ -27,7 +30,7 @@ After `git apply --index`, the change is staged but not committed, which is what
 
 ## Verify
 
-Manual. There is no script, because the point is your judgement about the findings. Work through `CHECKLIST.md`. The reference in `solution/REVIEW.md` shows what a good review of this diff catches. Look at it after you've triaged.
+Manual. There is no script, because the point is your judgement about the findings. Work through `CHECKLIST.md` after step 5: it names the five bugs, so reading it first spoils the exercise. The reference in `solution/REVIEW.md` shows what a good review of this diff catches. Look at it after you've triaged.
 
 ## Reference
 

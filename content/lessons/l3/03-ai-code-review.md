@@ -48,7 +48,7 @@ Commands, from the commands reference:
 
 - `/code-review [low|medium|high|xhigh|max|ultra] [--fix] [--comment] [pr#|branch|path]` reviews the current diff, or a PR, branch or path you pass, for correctness bugs. It reviews your branch's commits ahead of its upstream plus uncommitted changes.
 - `/review` is an alias with the same levels and flags. (Before v2.1.223 it was a separate read-only PR review, so older tutorials differ.)
-- `/security-review` analyzes the changes on your current branch for vulnerabilities such as injection, auth issues and data exposure. It diffs your branch against origin's default branch, so it needs an `origin` remote.
+- `/security-review` analyzes the changes on your current branch for vulnerabilities such as injection, auth issues and data exposure. It diffs committed changes against origin's default branch (`git diff origin/HEAD...`), so it needs an `origin` remote and the work committed on a branch. Staged or uncommitted changes are invisible to it, and without `origin` it fails with an `ambiguous argument` error.
 
 ```text
 /code-review high
@@ -99,15 +99,15 @@ The same review runs non-interactively, which suits scripts and CI:
 codex review --uncommitted
 codex review --base main
 codex review --commit <SHA>
-codex review --uncommitted "Only report bugs that would break behaviour. Money is integer cents; flag float math. Every SQL query must be parameterised. Ignore formatting."
+codex review "Review the changes on this branch against main. Only report bugs that would break behaviour. Money is integer cents; flag float math. Every SQL query must be parameterised. Ignore formatting."
 ```
 
-The prompt argument is custom review instructions (`-` reads them from stdin). `codex exec review` is the same review under `exec`.
+In 0.154.0 the scope flags (`--uncommitted`, `--base`, `--commit`) and the custom-instructions prompt are mutually exclusive: `codex review --base main "..."` fails with `the argument '--base <BRANCH>' cannot be used with '[PROMPT]'`. Use a scope flag alone, or a prompt alone with the scope described in it (`-` reads the prompt from stdin). `codex exec review` is the same review under `exec`.
 
 Codex's documented slash commands have no dedicated security review, so run a second pass with custom instructions:
 
 ```bash
-codex review --base main "Security review only: injection, authn/authz gaps, secrets in code, unsafe deserialisation, unvalidated input reaching queries, data exposure in logs or errors. For each finding give file:line and how to exploit it."
+codex review "Security review of this branch's diff against main only: injection, authn/authz gaps, secrets in code, unsafe deserialisation, unvalidated input reaching queries, data exposure in logs or errors. For each finding give file:line and how to exploit it."
 ```
 
 For reviews on GitHub pull requests (`@codex review`), Codex reads a `## Code Review Rules` section from the `AGENTS.md` closest to the changed code. The docs recommend two or three concise, repository-specific rules and leaving lint and formatting to CI.

@@ -49,6 +49,7 @@ Enter it three ways:
 
 ```text
 Shift+Tab           cycle default -> acceptEdits -> plan (status bar: "plan mode on")
+                    (from the auto starting mode the first press goes to Manual, so plan is three presses away)
 /plan add pagination to GET /items    enter plan mode and start on that task
 ```
 
@@ -73,7 +74,7 @@ When the plan is ready, Claude presents it and asks how to proceed:
 
 Press `Ctrl+G` to open the proposed plan in your default text editor and edit it directly before Claude proceeds.
 
-Plan mode blocks edits, so it can't write `PLAN.md` itself. Approve with manual edit approval and make the first instruction "Save the approved plan to PLAN.md and stop. Write no code yet." Then commit it.
+Plan mode blocks edits, so Claude can't write `PLAN.md` itself. It may save its plan file to a plans directory (by default `.claude-plans/` in the cwd, per the settings reference); if so, copy that to `PLAN.md` and keep `.claude-plans/` out of your commits. Otherwise approve with manual edit approval and make the first instruction "Save the approved plan to PLAN.md and stop. Write no code yet." Then commit it.
 
 To make plan mode the default for a project, set it in `.claude/settings.json`:
 
@@ -99,7 +100,7 @@ questions, and Verification commands. Do not write code.
 
 Codex enters plan mode and treats your inline text as the first planning request. `/plan` is unavailable while Codex is already working.
 
-Codex has no documented approval prompt or plan-editor shortcut. Review the plan in the chat and correct it in your next message, then approve it in words: "Save this plan to PLAN.md, commit nothing, write no code."
+Codex has no documented approval prompt or plan-editor shortcut. Review the plan in the chat and correct it in your next message, then approve it in words: "Save this plan to PLAN.md, commit nothing, write no code." A read-only session can't write the file: approve the write if Codex asks, or restart without `-s read-only` (for example `codex -s workspace-write`) for that step.
 
 To make planning physically read-only, start the session in a read-only sandbox:
 

@@ -110,7 +110,7 @@ extends = ":workspace"
 "tests" = "read"
 ```
 
-Profiles don't compose with `--sandbox`/`sandbox_mode`: if either is set, Codex uses the older settings instead. Because the feature is beta, always confirm with the outside check:
+Profiles don't compose with `--sandbox`/`sandbox_mode`: if either is set, Codex uses the older settings instead and the `tests` rule is ignored. When you use the profile, drop `-s workspace-write` and start plain `codex`. Because the feature is beta, always confirm with the outside check:
 
 ```bash
 git diff --exit-code -- tests/ && echo "tests untouched"
