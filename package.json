@@ -14,6 +14,10 @@
     "db:reset:test": "tsx --env-file-if-exists=.env.local scripts/seed/reset-test.ts",
     "news:run": "tsx --env-file-if-exists=.env.local scripts/news/run.ts",
     "news:import": "tsx --env-file-if-exists=.env.local scripts/news/import.ts",
+    "news:rescore": "tsx --env-file-if-exists=.env.local scripts/news/rescore.ts",
+    "news:schedule:install": "bash ops/launchd/install.sh",
+    "news:schedule:uninstall": "bash ops/launchd/uninstall.sh",
+    "news:sources:check": "tsx scripts/news/check-sources.ts",
     "exercises:verify": "tsx scripts/exercises/verify.ts",
     "content:stale": "tsx scripts/seed/stale.ts",
     "gate:merge": "bash scripts/gate-merge.sh"
