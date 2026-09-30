@@ -77,7 +77,7 @@ export function ResultsHeading({ children }: { children: ReactNode }) {
     }
   }, []);
   return (
-    <h2 ref={ref} tabIndex={-1} className="text-xl font-bold text-fg-strong focus:outline-none">
+    <h2 ref={ref} tabIndex={-1} className="text-2xl font-bold text-fg-strong">
       {children}
     </h2>
   );

@@ -22,7 +22,7 @@ export default async function NewsPage() {
   if (digest.kind === "none") {
     return (
       <>
-        <h1 className="text-3xl font-bold text-fg-strong">Today&apos;s digest</h1>
+        <h1 className="text-3xl font-bold text-fg-strong md:text-4xl">Today&apos;s digest</h1>
         <div className="mt-6">
           <EmptyState
             icon={<Newspaper />}
@@ -59,7 +59,7 @@ export default async function NewsPage() {
           </Notice>
         ) : null}
 
-        <h1 id="digest-title" className="text-3xl font-bold text-fg-strong">
+        <h1 id="digest-title" className="text-3xl font-bold text-fg-strong md:text-4xl">
           {title}
         </h1>
         <p className="mt-1 text-base text-fg-muted">

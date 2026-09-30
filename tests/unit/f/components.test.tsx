@@ -8,8 +8,6 @@ import NewsArchiveError from "@/app/news/archive/error";
 import { DbUnavailableError } from "@/lib/db/errors";
 import * as store from "@/lib/progress/store";
 
-const refresh = vi.fn();
-vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh }) }));
 
 const item = (over: Partial<NewsCardItem> = {}): NewsCardItem => ({
   id: "11111111-1111-4111-8111-111111111111",
@@ -138,22 +136,21 @@ describe("UnscoredSection (N-2.1)", () => {
   });
 });
 
-describe("archive error boundary (S9-18)", () => {
-  it("shows a safe alert and Retry calls reset once, with no internals", () => {
+describe("archive error boundary (S9-18, DESIGN 11)", () => {
+  it("uses the app-wide names, calls reset, and leaks no internals", () => {
     const reset = vi.fn();
     const err = Object.assign(new Error("boom at /src/secret/file.ts:12"), { digest: "abc123" });
     render(<NewsArchiveError error={err} reset={reset} />);
-    const alert = screen.getByRole("alert");
-    expect(alert).toHaveTextContent("This page couldn't load.");
+    expect(screen.getByRole("heading", { level: 1, name: "Something went wrong" })).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Back to curriculum" })).toHaveAttribute("href", "/curriculum");
     expect(document.body.textContent).not.toMatch(/boom|secret|file\.ts|abc123/);
-    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
     expect(reset).toHaveBeenCalledTimes(1);
-    expect(refresh).toHaveBeenCalledTimes(1);
   });
 
-  it("re-throws a database outage so the app-wide error takes over", () => {
-    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
-    expect(() => render(<NewsArchiveError error={new DbUnavailableError()} reset={() => {}} />)).toThrow();
-    spy.mockRestore();
+  it("shows the database-down view for an outage", () => {
+    render(<NewsArchiveError error={new DbUnavailableError()} reset={() => {}} />);
+    expect(screen.getByRole("heading", { level: 1, name: "Database unavailable" })).toBeInTheDocument();
   });
 });

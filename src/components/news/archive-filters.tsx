@@ -23,7 +23,7 @@ export function ArchiveFilters({
   const dateErrorId = "archive-date-error";
   return (
     <FiltersDisclosure activeCount={activeFilterCount(params)} defaultOpen={params.dateError}>
-      <h2 className="mb-3 hidden text-xl font-bold text-fg-strong lg:block">Filters</h2>
+      <h2 className="mb-3 hidden text-2xl font-bold text-fg-strong lg:block">Filters</h2>
       <ArchiveForm>
         <div className="space-y-4 rounded-card bg-surface p-4">
           <fieldset>

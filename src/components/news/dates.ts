@@ -34,5 +34,8 @@ export function formatFullStamp(instant: Date | string): string {
 export function isIsoDate(value: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const d = new Date(`${value}T00:00:00Z`);
-  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === value;
+  if (Number.isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== value) return false;
+  // Sane range only: 0000-01-01 or 9999-12-31 would be accepted by Postgres but mean nothing here.
+  const year = d.getUTCFullYear();
+  return year >= 2000 && year <= 2100;
 }

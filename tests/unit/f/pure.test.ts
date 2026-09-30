@@ -27,6 +27,10 @@ describe("Manila dates (N-1.1, N-3.1)", () => {
     expect(isIsoDate("2026-02-30")).toBe(false);
     expect(isIsoDate("yesterday")).toBe(false);
     expect(isIsoDate("2026-09-01'")).toBe(false);
+    expect(isIsoDate("0000-01-01")).toBe(false);
+    expect(isIsoDate("1999-12-31")).toBe(false);
+    expect(isIsoDate("2101-01-01")).toBe(false);
+    expect(isIsoDate("2000-01-01")).toBe(true);
   });
 });
 

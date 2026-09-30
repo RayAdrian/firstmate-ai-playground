@@ -339,6 +339,8 @@ test.describe("archive (N-4.1)", () => {
       "/news/archive?page=-1",
       "/news/archive?page=abc",
       "/news/archive?to=yesterday",
+      "/news/archive?to=0000-01-01",
+      "/news/archive?from=9999-12-31",
       "/news/archive?tag=not-a-tag",
     ];
     for (const url of urls) {
@@ -356,6 +358,8 @@ test.describe("archive (N-4.1)", () => {
     expect((await go(page, "/news/archive?page=999"))?.status()).toBe(200);
     await expect(page.getByRole("region", { name: "No items match these filters" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Clear filters" })).toHaveCount(1);
+    await expect(page.getByRole("link", { name: "Back to page 1" })).toHaveAttribute("href", "/news/archive");
+    await expect(page.locator("body")).not.toContainText("page 999");
     expect((await go(page, "/news/archive?from=2026-09-30&to=2026-09-28"))?.status()).toBe(200);
     await expect(page.getByText("End date is before start date.")).toBeVisible();
     expect(await countText(page)).toContain("30 items");
@@ -661,14 +665,15 @@ test.describe("integration: test hooks on fx-base", () => {
     }
   });
 
-  test("TC-F-43 archive error boundary shows a safe message and Retry recovers", async ({ page, context, baseURL }) => {
+  test("TC-F-43 archive error boundary shows a safe message and Try again recovers", async ({ page, context, baseURL }) => {
     await setCookie(context, baseURL ?? "", "fm_test_throw", `news-archive:${Date.now()}`);
     await page.goto("/news/archive");
-    const alert = page.getByRole("alert").filter({ hasText: "This page couldn't load." });
-    await expect(alert).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "Something went wrong" })).toBeVisible();
+    await expect(page.getByRole("alert")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Back to curriculum" })).toBeVisible();
     const text = await page.locator("body").innerText();
     expect(text).not.toMatch(/\bat \w|\.tsx?\b|Injected test failure|digest/i);
-    await page.getByRole("button", { name: "Retry" }).click();
+    await page.getByRole("button", { name: "Try again" }).click();
     await expect(page.getByRole("article")).toHaveCount(25);
   });
 });

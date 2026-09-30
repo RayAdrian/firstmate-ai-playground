@@ -10,13 +10,13 @@ export function UnscoredSection({ count, children }: { count: number; children: 
   const panelId = useId();
   return (
     <div className="mt-8">
-      <h2 className="text-lg font-bold text-fg-strong">
+      <h2 className="text-2xl font-bold text-fg-strong">
         <button
           type="button"
           aria-expanded={open}
           aria-controls={panelId}
           onClick={() => setOpen((v) => !v)}
-          className="inline-flex min-h-11 items-center gap-2 rounded-lg py-2 pr-3 text-lg font-bold text-fg-strong"
+          className="inline-flex min-h-11 items-center gap-2 rounded-lg py-2 pr-3 text-2xl font-bold text-fg-strong"
         >
           <ChevronRight
             aria-hidden="true"

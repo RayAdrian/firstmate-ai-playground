@@ -55,7 +55,7 @@ export function NewsCard({
         </div>
       ) : null}
 
-      <h3 className="min-w-0 text-lg font-bold text-fg-strong [grid-area:title] [overflow-wrap:anywhere]">
+      <h3 className="min-w-0 text-lg font-bold text-fg-strong md:text-xl [grid-area:title] [overflow-wrap:anywhere]">
         {item.url ? (
           <a
             href={item.url}
@@ -77,7 +77,7 @@ export function NewsCard({
         {stamp && item.publishedAt ? (
           <>
             {" · "}
-            <time dateTime={item.publishedAt}>{stamp}</time>
+            <time dateTime={item.publishedAt} className="whitespace-nowrap">{stamp}</time>
           </>
         ) : null}
         {variant === "unscored" ? (

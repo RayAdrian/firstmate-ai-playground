@@ -19,14 +19,16 @@ export default async function NewsArchivePage({ searchParams }: { searchParams: 
   const filtered = activeFilterCount(params) > 0 || params.page > 1;
   const resultKey = archiveHref(params);
 
+  const pastEnd = result.items.length === 0 && result.total > 0;
+  const noun = result.total === 1 ? "item" : "items";
   const count =
-    result.total === 0
-      ? "0 items"
-      : `${result.total} ${result.total === 1 ? "item" : "items"} · page ${Math.min(result.page, result.pageCount)} of ${result.pageCount}`;
+    result.total === 0 || pastEnd
+      ? `${result.total} ${noun}`
+      : `${result.total} ${noun} · page ${result.page} of ${result.pageCount}`;
 
   return (
     <>
-      <h1 className="text-3xl font-bold text-fg-strong">News archive</h1>
+      <h1 className="text-3xl font-bold text-fg-strong md:text-4xl">News archive</h1>
       <div className="mt-6 lg:grid lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-3">
           <ArchiveFilters params={params} sources={sources} />
@@ -45,8 +47,12 @@ export default async function NewsArchivePage({ searchParams }: { searchParams: 
           {result.items.length === 0 ? (
             <div className="mt-3">
               {filtered ? (
-                <EmptyState icon={<SearchX />} title="No items match these filters">
-                  <p>Try removing a filter or widening the date range.</p>
+                <EmptyState
+                  icon={<SearchX />}
+                  title="No items match these filters"
+                  action={pastEnd ? { label: "Back to page 1", href: archiveHref({ ...params, page: 1 }) } : undefined}
+                >
+                  <p>{pastEnd ? "That page is past the last result." : "Try removing a filter or widening the date range."}</p>
                   <ClearFiltersLink />
                 </EmptyState>
               ) : (
