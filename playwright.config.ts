@@ -50,7 +50,7 @@ export default defineConfig({
     // The prod build leaves it unset (so @prod tests see production behaviour) unless
     // E2E_FM_TEST_MODE=1 is given explicitly.
     env: {
-      FM_TEST_ROUTES: "1",
+      FM_E2E_PROBES: "1",
       ...(!PROD || on("E2E_FM_TEST_MODE") ? { FM_TEST_MODE: "1" } : {}),
     },
     reuseExistingServer: false,
