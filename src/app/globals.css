@@ -1,19 +1,23 @@
 @import "tailwindcss";
+@import "../../docs/design/tokens.css"; /* single source of truth (DESIGN.md §2.6); do not copy into src/ */
 
-/* M0 placeholder styles. WS-A owns this file (tokens, Satoshi, focus ring). */
-:root {
-  --background: #ffffff;
-  --foreground: #282943;
-}
+/* Hit targets: 24px minimum everywhere, 44px on coarse pointers (DESIGN.md §4.0). */
+@custom-variant touch (@media (pointer: coarse));
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-}
+@layer base {
+  /* Programmatic focus targets (main, h1 after a dismissal) are not interactive: no ring on the whole region. */
+  main[tabindex="-1"]:focus,
+  h1[tabindex="-1"]:focus {
+    outline: none;
+  }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, sans-serif;
-  padding: 1rem;
+  /* Forced colours (Windows High Contrast): keep tab state and focus visible without colour. */
+  @media (forced-colors: active) {
+    [role="tab"][aria-selected="true"] {
+      border-bottom-color: Highlight;
+    }
+    :focus-visible {
+      outline-color: Highlight;
+    }
+  }
 }
