@@ -7,9 +7,11 @@
     "test": "node --test",
     "typecheck": "tsc --noEmit",
     "lint": "node scripts/lint.mjs",
-    "verify": "npm run typecheck && npm run lint && npm test && node scripts/check-context.mjs"
+    "verify": "npm run typecheck && npm run lint && npm test && node --test \".verify/*.test.js\" && node scripts/check-context.mjs"
   },
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "devDependencies": {
     "@types/node": "^24.0.0",
     "typescript": "^7.0.2"

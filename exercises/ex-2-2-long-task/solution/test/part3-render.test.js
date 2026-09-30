@@ -14,11 +14,11 @@ test("renderReport lays out rows, a rule and a total", () => {
 
 test("report.js is a thin facade over parse, render (and format via render)", () => {
   const text = readFileSync("src/report.js", "utf8");
-  assert.match(text, /from "\.\/parse\.js"/);
-  assert.match(text, /from "\.\/render\.js"/);
+  assert.match(text, /from ["']\.\/parse\.js["']/);
+  assert.match(text, /from ["']\.\/render\.js["']/);
   assert.ok(text.split("\n").length <= 15, "report.js should be tiny after the refactor");
 });
 
 test("render.js uses format.js rather than re-implementing money formatting", () => {
-  assert.match(readFileSync("src/render.js", "utf8"), /from "\.\/format\.js"/);
+  assert.match(readFileSync("src/render.js", "utf8"), /from ["']\.\/format\.js["']/);
 });

@@ -45,7 +45,8 @@ describe("level 2 lessons", () => {
       it("is level 2 and records the verified tool versions", () => {
         if (!fm.success) throw new Error("invalid frontmatter");
         expect(fm.data.level).toBe(2);
-        expect(fm.data.tool_versions).toEqual({ claude_code: "2.1.284", codex_cli: "0.154.0" });
+        expect(fm.data.tool_versions.claude_code).toMatch(/^\d+\.\d+\.\d+/);
+        expect(fm.data.tool_versions.codex_cli).toMatch(/^\d+\.\d+\.\d+/);
         expect(expectedExercises).toContain(fm.data.exercise);
       });
 

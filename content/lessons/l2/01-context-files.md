@@ -10,10 +10,10 @@ tool_versions:
   codex_cli: "0.154.0"
 last_verified_on: "2026-09-30"
 differences:
-  - "Claude Code reads CLAUDE.md. Codex reads AGENTS.md. Since Claude Code 2.1.277 it also reads a repo's AGENTS.md, but only when there is no CLAUDE.md in or above the working directory. The moment you add one, AGENTS.md is ignored unless CLAUDE.md imports it."
+  - "Claude Code reads CLAUDE.md. Codex reads AGENTS.md. Since Claude Code 2.1.277 it also reads a repo's AGENTS.md, but only when there is no CLAUDE.md in or above the working directory. The moment you add a CLAUDE.md (or a CLAUDE.local.md), AGENTS.md is ignored unless CLAUDE.md imports it or you change the Project instructions setting in /config to load both."
   - "Claude Code CLAUDE.md files can import other files with @path (up to four hops deep). The Codex docs describe no import syntax: Codex concatenates one AGENTS.md per directory, root to working directory."
   - "Claude Code has extra layers: CLAUDE.local.md (personal, gitignored), .claude/rules/ with path-scoped rules, and a managed-policy file. Codex has a global ~/.codex/AGENTS.md, AGENTS.override.md, and project_doc_fallback_filenames."
-  - "Size limits differ. Claude Code: aim for under 200 lines per file (it loads files up to 4 MiB, but adherence drops). Codex: project_doc_max_bytes defaults to 32 KiB total, and anything past it is not loaded."
+  - "Size limits differ. Claude Code: aim for under 200 lines per file (it loads files up to 4 MiB, but adherence drops). Codex: project_doc_max_bytes defaults to 32 KiB for the project chain, and a file that crosses the limit is truncated."
   - "Check what loaded: /context (or /memory) in Claude Code. Codex has no listing command; start a session and ask it to summarise its instructions."
 exercise: ex-2-1-conventions
 claude_no_equivalent: false
@@ -121,11 +121,11 @@ Claude reads the import first, then your Claude-only notes. (A symlink, `ln -s A
 2. **Project**: walking from the project (git) root down to your working directory, in each directory `AGENTS.override.md`, else `AGENTS.md`, else any name in `project_doc_fallback_filenames`. At most one file per directory.
 3. Files are concatenated root to cwd, so files closer to where you launched come later and win on conflict.
 
-Empty files are skipped. Nested directories get their own `AGENTS.md`, exactly like Claude Code's subdirectory `CLAUDE.md`.
+In the global scope an empty file is skipped. In a project directory Codex picks the file by whether it exists, so an *empty* `AGENTS.override.md` hides that directory's `AGENTS.md`. Nested directories get their own `AGENTS.md`, exactly like Claude Code's subdirectory `CLAUDE.md`.
 
 **Generate a first draft.** `/init` inside a session creates an `AGENTS.md` in the current directory. Same rule as above: cut what the agent could read from the code.
 
-**Size limit.** `project_doc_max_bytes` defaults to 32 KiB across the whole chain. Raise it in `~/.codex/config.toml` if a monorepo needs more, but better to trim:
+**Size limit.** `project_doc_max_bytes` defaults to 32 KiB for the project chain (the global `~/.codex/AGENTS.md` is not counted). A file that crosses the limit is truncated partway, not skipped. Raise it in `~/.codex/config.toml` if a monorepo needs more, but better to trim:
 
 ```toml
 # ~/.codex/config.toml
@@ -140,6 +140,6 @@ project_doc_fallback_filenames = ["TEAM_GUIDE.md", ".agents.md"]
 
 **Personal overrides.** Put personal preferences in `~/.codex/AGENTS.md`. Use `AGENTS.override.md` for a temporary local change (for example a stricter rule while you debug); delete it afterwards, since a stray override higher in the tree silently hides the normal `AGENTS.md` in that directory.
 
-**Check that it loaded.** Codex has no command that lists loaded files. Start a fresh session and ask: `Summarize your current instructions for this repo.` Or from the shell: `codex "Summarize current instructions"`. Use `codex --cd <subdir>` to test how a nested `AGENTS.md` changes the answer. If nothing loads: the file may be empty, you may be outside the project root, or an `AGENTS.override.md` may be shadowing it. Restarting Codex rebuilds the chain.
+**Check that it loaded.** Codex has no command that lists loaded files. Start a fresh session and ask: `Summarize your current instructions for this repo.` Or from the shell: `codex --ask-for-approval never "Summarize the current instructions."` (the flag stops it from pausing at an approval prompt). Use `codex --cd <subdir>` to test how a nested `AGENTS.md` changes the answer. If nothing loads: the file may be empty, you may be outside the project root, an `AGENTS.override.md` (even an empty one) may be shadowing it, the project may be untrusted (untrusted projects load no project docs), or the root was not found (it is located through `project_root_markers`, default `.git`). Restarting Codex rebuilds the chain.
 
 **Same file, both tools.** A minimal `AGENTS.md` for the example above works unchanged in Codex, and in Claude Code through the two-line `CLAUDE.md`. Test both once: open the repo in each CLI and ask the same "summarise your instructions" question.

@@ -11,7 +11,8 @@ tool_versions:
 last_verified_on: "2026-09-30"
 differences:
   - "Both tools learn your verification commands from the instruction file (CLAUDE.md or AGENTS.md), and in both it is advice the model can skip."
-  - "Claude Code can turn the loop into a hard gate: a Stop hook runs your script after every turn and can block the agent from finishing, and /goal has a separate model check a condition after every turn. Codex has a /goal command and a hooks feature, but this lesson could not confirm a Stop-hook equivalent, so in Codex treat the gate as your prompt, your script and CI."
+  - "Both tools have a Stop hook: a command runs after every turn and, by exiting 2 or returning a block decision, sends the agent back to work. Claude Code configures it in .claude/settings.json; Codex in .codex/hooks.json or config.toml, and Codex asks you to review and trust a new hook with /hooks before it runs."
+  - "Claude Code also has /goal, where a small model judges a condition after every turn, plus prompt and agent hook types. Codex has a /goal command too, but its docs give little detail on evaluation, so use a Stop command hook for a hard gate."
   - "Claude Code's /goal evaluator reads only what appears in the conversation, so make the agent print command output. It does not run the commands itself."
   - "A verification command must exit non-zero on failure and print what failed. That is what both agents read."
 exercise: ex-2-3-feedback-loop
@@ -84,8 +85,9 @@ The evaluator only sees what Claude has surfaced in the conversation. It does no
 
 **Make it deterministic: a Stop hook.** A Stop hook lives in settings, applies to every session in its scope, and runs after every turn. Use a command hook when you want a script, not a model, to decide:
 
+`.claude/settings.json`:
+
 ```json
-// .claude/settings.json
 {
   "hooks": {
     "Stop": [
@@ -122,15 +124,53 @@ Exit code 2 blocks the action and feeds stderr to Claude on events where that ap
 **Ask for it in the prompt, one-off.** Codex responds to the same phrasing:
 
 ```text
-Add truncate(text, max) to src/text.ts plus a test. Before you finish, run npm run typecheck, npm run lint and npm test, fix everything they report without suppressing errors, and paste the final output.
+Add truncate(text, max) to src/text.js plus a test. Before you finish, run npm run typecheck, npm run lint and npm test, fix everything they report without suppressing errors, and paste the final output.
 ```
 
-**Long-running tasks: `/goal`.** Codex has a `/goal` slash command ("set or view the goal for a long-running task") and the `goals` feature is listed as stable in 0.154.0. The public docs give little detail on how a goal is evaluated, so treat it as a way to keep the objective in view, not as an enforced gate, until you have tried it. Try: `/goal typecheck, lint and tests all exit 0`.
+**Make it deterministic: a Stop hook.** Codex hooks are stable and on by default in 0.154.0. A `Stop` hook runs when a turn is about to end. If it exits 2 and writes to stderr, or prints `{"decision":"block","reason":"..."}`, Codex continues with a new prompt built from that reason. The input JSON includes `stop_hook_active` (true if Codex already continued once), so guard against loops. Hooks live in `~/.codex/hooks.json`, `~/.codex/config.toml`, `<repo>/.codex/hooks.json` or `<repo>/.codex/config.toml`.
+
+`.codex/hooks.json`:
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$(git rev-parse --show-toplevel)/scripts/stop-gate.sh\"",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+The same hook in `.codex/config.toml`:
+
+```toml
+[[hooks.Stop]]
+
+[[hooks.Stop.hooks]]
+type = "command"
+command = '"$(git rev-parse --show-toplevel)/scripts/stop-gate.sh"'
+timeout = 120
+```
+
+The script is the same as in the Claude Code tab (read stdin, exit 0 when `stop_hook_active` is true, run the three checks, print the tail of the output to stderr and `exit 2` on failure).
+
+Codex does not run a new or changed hook until you have reviewed it: open `/hooks` in the CLI, inspect the definition and trust it. Trust is recorded against the hook's hash, so changing the hook definition re-triggers review. To turn hooks off, set `[features] hooks = false`.
+
+**Long-running tasks: `/goal`.** Codex has a `/goal` slash command ("set or view the goal for a long-running task"). The public docs give little detail on how a goal is evaluated, so use the Stop hook above when you need a hard gate.
 
 **Keep the gate outside the agent.** Put the same three commands in a script and run it yourself, in a git hook, or in CI:
 
+`package.json`:
+
 ```json
-// package.json
 { "scripts": { "verify": "npm run typecheck && npm run lint && npm test" } }
 ```
 
@@ -142,4 +182,3 @@ Implement the ticket in TICKET.md. Done means `npm run verify` exits 0. Run it, 
 
 **Non-interactive runs.** `codex exec "<prompt>"` runs a task headless (lesson 3.4), so the same verify-command prompt works in a script. In CI, run `npm run verify` after the agent step: the agent's claim that it passed is not the gate, the exit code is.
 
-**Hooks.** Codex lists a `hooks` feature as stable in 0.154.0, but its supported events are not covered here. Check the current Codex docs before relying on it as a Stop-hook equivalent.

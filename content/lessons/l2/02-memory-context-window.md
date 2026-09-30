@@ -66,7 +66,7 @@ Client MVP work is interrupted constantly: a standup, a client call, a productio
 
 ## Claude Code
 
-**See what you're spending.** `/context` draws the window as a grid, with suggestions for context-heavy tools and memory bloat. `/context all` expands the per-item breakdown in fullscreen mode. A custom status line can show usage continuously. `/usage` (aliases `/cost`, `/stats`) shows session cost.
+**See what you're spending.** `/context` draws the window as a grid, with suggestions for context-heavy tools and memory bloat. `/context all` expands the per-item breakdown in fullscreen mode. A custom status line can show usage continuously. `/usage` (aliases `/cost`, `/stats`) shows session cost, plan usage limits and activity stats.
 
 **Compact.** `/compact [instructions]` summarises the conversation so far and keeps going in the same session. Give it a focus:
 

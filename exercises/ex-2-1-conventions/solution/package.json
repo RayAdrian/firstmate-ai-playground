@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test test/",
+    "verify": "node --test \".verify/*.test.js\" test/"
   },
-  "engines": { "node": ">=20" }
+  "engines": { "node": ">=21" }
 }

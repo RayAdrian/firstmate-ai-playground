@@ -1,5 +1,4 @@
-// Static checks for the four repo conventions. These pass on the starter and
-// must still pass after your agent adds the feature.
+// Static checks for the four repo conventions. Verify step only: try not to read this before you write AGENTS.md.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync } from "node:fs";

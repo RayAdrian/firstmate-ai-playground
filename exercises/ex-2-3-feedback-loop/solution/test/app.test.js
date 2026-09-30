@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { slugify } from "../src/text.js";
+import { slugify, truncate } from "../src/text.js";
 import { parsePort } from "../src/config.js";
 import { findItem, totalQty } from "../src/inventory.js";
 
@@ -19,6 +19,12 @@ test("findItem and totalQty", () => {
     { sku: "a", qty: 2 },
     { sku: "b", qty: 5 },
   ];
-  assert.equal(findItem(items, "b")?.qty, 5);
+  assert.equal(findItem(items, "b").qty, 5);
   assert.equal(totalQty(items), 7);
+});
+
+test("truncate", () => {
+  assert.equal(truncate("hello", 10), "hello");
+  assert.equal(truncate("hello world", 8), "hello w\u2026");
+  assert.equal(truncate("hello world", 8).length, 8);
 });

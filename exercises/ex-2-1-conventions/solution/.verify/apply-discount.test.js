@@ -1,4 +1,4 @@
-// The feature request: add an apply-discount handler.
+// Feature spec (verify step only): applyDiscountCents in src/handlers/apply-discount.js, error code E_INVALID_PERCENT.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";

@@ -18,6 +18,7 @@ Constraints (they must survive the session boundary):
 
 ## Setup
 ```bash
+mkdir -p ~/fm-ex
 cp -r exercises/ex-2-2-long-task/starter ~/fm-ex/ex-2-2-long-task
 cd ~/fm-ex/ex-2-2-long-task && git init -q && git add -A && git commit -qm base && npm i
 ```
