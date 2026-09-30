@@ -5,12 +5,12 @@ export type HomeLevel = { number: number; title: string; slugs: string[] };
 
 /**
  * Where I am (DESIGN 6.1). One markup for every width: a divided list at 360, `grid-cols-2` at md,
- * `grid-cols-5` at lg. The stretched link reads "Level 2 Context engineering" to assistive tech
+ * `grid-cols-3` at lg (the levels sit under Continue in the 7-column side). The stretched link reads "Level 2 Context engineering" to assistive tech
  * while the visible form is the short "L2".
  */
 export function LevelCards({ levels }: { levels: readonly HomeLevel[] }) {
   return (
-    <ul className="grid divide-y divide-border-subtle rounded-card bg-surface md:grid-cols-2 md:gap-4 md:divide-y-0 md:bg-transparent lg:grid-cols-5 dark:border dark:border-border dark:md:border-0">
+    <ul className="grid divide-y divide-border-subtle rounded-card bg-surface md:grid-cols-2 md:gap-4 md:divide-y-0 md:bg-transparent lg:grid-cols-3 dark:border dark:border-border dark:md:border-0">
       {levels.map((level) => (
         <li
           key={level.number}

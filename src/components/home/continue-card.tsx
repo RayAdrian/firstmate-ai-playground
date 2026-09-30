@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { useMemo } from "react";
 import { buttonClasses } from "@/components/ui";
 import { EYEBROW_CLASS } from "@/components/lesson/inline-text";
-import { useLastViewed } from "@/lib/progress";
+import { useLastViewed, useLessonsProgress } from "@/lib/progress";
 
 export type ContinueLesson = {
   slug: string;
@@ -28,10 +28,38 @@ export function ContinueCard({
   defaultSlug: string;
 }) {
   const { hydrated, lastViewed } = useLastViewed();
+  const { isComplete } = useLessonsProgress(lessons.map((l) => l.slug));
   const bySlug = useMemo(() => new Map(lessons.map((l) => [l.slug, l])), [lessons]);
   const fallback = bySlug.get(defaultSlug) ?? lessons[0];
-  const current = (hydrated && lastViewed ? bySlug.get(lastViewed.slug) : undefined) ?? fallback;
-  if (!current) return null;
+  if (!fallback) return null;
+  const start = (hydrated && lastViewed ? bySlug.get(lastViewed.slug) : undefined) ?? fallback;
+
+  // Resume the last viewed lesson. If it is already complete, move on to the next incomplete lesson in curriculum
+  // order (wrapping to the earliest one); if everything is complete, say so.
+  let current: ContinueLesson | null = start;
+  if (hydrated && isComplete(start.slug)) {
+    const from = lessons.indexOf(start);
+    const ordered = [...lessons.slice(from + 1), ...lessons.slice(0, from)];
+    current = ordered.find((l) => !isComplete(l.slug)) ?? null;
+  }
+
+  if (!current) {
+    return (
+      <section aria-labelledby="continue-title" className="rounded-card bg-accent-soft p-5 md:p-6">
+        <p className={EYEBROW_CLASS}>Continue</p>
+        <h2 id="continue-title" className="mt-1 text-xl font-bold text-fg-strong md:text-2xl">
+          You&apos;ve completed the curriculum
+        </h2>
+        <p className="mt-1 text-sm text-fg-muted">
+          All {lessons.length} lessons are marked complete. Revisit any of them from the curriculum.
+        </p>
+        <Link href="/curriculum" className={`${buttonClasses("primary", "md")} mt-4 max-w-full`}>
+          <span className="min-w-0 truncate">Review the curriculum</span>
+          <ArrowRight aria-hidden="true" className="size-4 shrink-0" />
+        </Link>
+      </section>
+    );
+  }
 
   return (
     <section

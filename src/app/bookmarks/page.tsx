@@ -33,7 +33,7 @@ export default async function BookmarksPage() {
   return (
     <div className="space-y-8">
       <header className="space-y-2">
-        <h1 className="text-3xl font-bold md:text-4xl">Bookmarks</h1>
+        <h1 className="text-3xl font-bold text-fg-strong md:text-4xl">Bookmarks</h1>
         <p className="text-fg-muted">Saved in this browser only.</p>
       </header>
       <BookmarksView lessons={lessons} />

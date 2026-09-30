@@ -100,16 +100,42 @@ test.describe("Home: Continue CTA (C-4)", () => {
     expect(problems()).toEqual([]);
   });
 
-  test("TC-M2-50 AC: C-4.1 resumes a completed last-viewed lesson, never 'Next up'", async ({ page }) => {
+  test("TC-M2-50 AC: C-4.1 a completed last-viewed lesson moves on to the next incomplete one", async ({ page }) => {
     await seedProgress(
       page,
       doc({ ...oneComplete, lastViewed: { slug: "l1-first-session", at: "2026-09-29T02:00:00.000Z" } }),
     );
     await page.goto("/");
     await waitHydrated(page);
-    await expect(cont(page)).toHaveAccessibleName(`Continue: ${TITLE.firstSession}`);
-    await expect(cont(page)).toHaveAttribute("href", "/lessons/l1-first-session");
-    await expect(page.getByText(/next up/i)).toHaveCount(0);
+    await expect(cont(page)).toHaveAccessibleName(`Continue: ${TITLE.permissions}`);
+    await expect(cont(page)).toHaveAttribute("href", "/lessons/l1-permissions");
+  });
+
+  test("TC-M2-50 an incomplete last-viewed lesson is resumed, not skipped", async ({ page }) => {
+    await seedProgress(page, doc({ lastViewed: { slug: "l2-memory", at: "2026-09-29T02:00:00.000Z" } }));
+    await page.goto("/");
+    await waitHydrated(page);
+    await expect(cont(page)).toHaveAttribute("href", "/lessons/l2-memory");
+  });
+
+  test("TC-M2-50 everything complete shows the completed state", async ({ page }) => {
+    const at = "2026-09-29T01:00:00.000Z";
+    await seedProgress(
+      page,
+      doc({
+        lessons: {
+          "l1-first-session": { completedAt: at },
+          "l1-permissions": { completedAt: at },
+          "l2-context-files": { completedAt: at },
+          "l2-memory": { completedAt: at },
+        },
+        lastViewed: { slug: "l2-memory", at },
+      }),
+    );
+    await page.goto("/");
+    await waitHydrated(page);
+    await expect(page.getByRole("heading", { level: 2, name: "You've completed the curriculum" })).toBeVisible();
+    await expect(cont(page)).toHaveCount(0);
   });
 });
 

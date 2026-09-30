@@ -21,14 +21,14 @@ export async function DigestTopItems() {
 
   const seeAll = (
     <Link href="/news" className={SEE_ALL_CLASS}>
-      See all
+      See all<span aria-hidden="true">&nbsp;→</span>
     </Link>
   );
 
   if (digest.kind === "none") {
     return (
       <div>
-        <h2 className="text-xl font-bold text-fg-strong">News</h2>
+        <h2 className="text-2xl font-bold text-fg-strong">News</h2>
         <div className="mt-4">
           <EmptyState
             as="h3"
@@ -52,7 +52,7 @@ export async function DigestTopItems() {
   return (
     <div>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <h2 className="text-xl font-bold text-fg-strong">{heading}</h2>
+        <h2 className="text-2xl font-bold text-fg-strong">{heading}</h2>
         {digest.stale ? (
           <Badge variant="warning" icon={<AlertTriangle />}>
             Stale

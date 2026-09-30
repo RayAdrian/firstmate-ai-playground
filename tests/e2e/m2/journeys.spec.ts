@@ -319,8 +319,9 @@ test.describe("Full journey", () => {
     await expect.poll(async () => (await readProgress(page))?.lastViewed?.slug).toBe("l1-permissions");
     await page.getByRole("link", { name: "First Mate AI Playground" }).click();
     await waitHydrated(page);
-    await expect(cont).toHaveAccessibleName(`Continue: ${TITLE.permissions}`);
-    await expect(cont).toHaveAttribute("href", "/lessons/l1-permissions");
+    // l1-permissions is complete, so Continue moves on to the next incomplete lesson in curriculum order.
+    await expect(cont).toHaveAccessibleName(`Continue: ${TITLE.contextFiles}`);
+    await expect(cont).toHaveAttribute("href", "/lessons/l2-context-files");
 
     // Bookmarks page lists the lesson.
     await mainNav(page).getByRole("link", { name: "Bookmarks" }).click();

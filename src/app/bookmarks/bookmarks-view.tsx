@@ -255,7 +255,7 @@ export function BookmarksView({ lessons }: { lessons: BookmarkLesson[] }) {
           id="bookmarks-lessons-heading"
           ref={lessonsHeading}
           tabIndex={-1}
-          className="text-2xl font-bold"
+          className="text-2xl font-bold text-fg-strong"
         >
           Lessons ({lessonRows.filter((r) => !removed[r.key]).length})
         </h2>
@@ -270,7 +270,7 @@ export function BookmarksView({ lessons }: { lessons: BookmarkLesson[] }) {
           id="bookmarks-news-heading"
           ref={newsHeading}
           tabIndex={-1}
-          className="text-2xl font-bold"
+          className="text-2xl font-bold text-fg-strong"
         >
           News ({newsRows.filter((r) => !removed[r.key]).length})
         </h2>

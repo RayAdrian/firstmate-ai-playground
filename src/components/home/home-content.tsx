@@ -32,14 +32,12 @@ export async function HomeContent() {
           : "Hands-on lessons for Claude Code and Codex CLI."}
       </p>
 
-      <div className="mt-8 lg:grid lg:grid-cols-12 lg:gap-x-8 lg:gap-y-10">
+      <div className="mt-8 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-8">
         {first ? (
-          <>
-            <div className="lg:col-span-7 lg:row-start-1">
-              <ContinueCard lessons={continueLessons} defaultSlug={first.slug} />
-            </div>
-            <section aria-labelledby="levels-title" className="mt-10 lg:col-span-12 lg:row-start-2 lg:mt-0">
-              <h2 id="levels-title" className="text-xl font-bold text-fg-strong">
+          <div className="lg:col-span-7">
+            <ContinueCard lessons={continueLessons} defaultSlug={first.slug} />
+            <section aria-labelledby="levels-title" className="mt-10">
+              <h2 id="levels-title" className="text-2xl font-bold text-fg-strong">
                 Your levels
               </h2>
               <div className="mt-4">
@@ -55,16 +53,16 @@ export async function HomeContent() {
                 href="/curriculum"
                 className="mt-4 inline-flex min-h-11 items-center font-medium text-link underline underline-offset-2"
               >
-                View full curriculum
+                View full curriculum<span aria-hidden="true">&nbsp;→</span>
               </Link>
             </section>
-          </>
+          </div>
         ) : (
-          <div className="lg:col-span-7 lg:row-start-1">
+          <div className="lg:col-span-7">
             <SeedEmptyState />
           </div>
         )}
-        <div className="mt-10 lg:col-span-5 lg:col-start-8 lg:row-start-1 lg:mt-0">
+        <div className="mt-10 lg:col-span-5 lg:col-start-8 lg:mt-0">
           <DigestTopItems />
         </div>
       </div>

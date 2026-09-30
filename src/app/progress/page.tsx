@@ -26,7 +26,7 @@ export default async function ProgressPage() {
   return (
     <div className="max-w-[700px] space-y-8">
       <header className="space-y-2">
-        <h1 className="text-3xl font-bold md:text-4xl">Progress</h1>
+        <h1 className="text-3xl font-bold text-fg-strong md:text-4xl">Progress</h1>
         <p className="text-fg-muted">Your progress is saved in this browser only.</p>
       </header>
       <ProgressPanel lessonSlugs={lessonSlugs} />

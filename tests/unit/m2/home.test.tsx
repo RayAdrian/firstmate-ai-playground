@@ -91,12 +91,12 @@ describe("ContinueCard (C-4)", () => {
       minutes: l.est_minutes,
     })),
   );
-  const seed = (lastViewed: { slug: string; at: string } | null) => {
+  const seed = (lastViewed: { slug: string; at: string } | null, done: string[] = []) => {
     window.localStorage.setItem(
       "fm-playground:v1",
       JSON.stringify({
         version: 1,
-        lessons: {},
+        lessons: Object.fromEntries(done.map((slug) => [slug, { completedAt: "2026-09-28T01:00:00.000Z" }])),
         checklists: {},
         bookmarks: { lessons: {}, news: {} },
         prefs: { tool: "claude" },
@@ -129,6 +129,38 @@ describe("ContinueCard (C-4)", () => {
     const html = renderToString(<ContinueCard lessons={lessons} defaultSlug="l1-a" />);
     expect(html).toContain('href="/lessons/l1-a"');
     expect(html).not.toContain("l2-a");
+  });
+
+  it("a completed last-viewed lesson moves on to the next incomplete one in curriculum order", async () => {
+    seed({ slug: "l1-b", at: "2026-09-29T01:00:00.000Z" }, ["l1-a", "l1-b", "l2-a"]);
+    render(<ContinueCard lessons={lessons} defaultSlug="l1-a" />);
+    await act(async () => {});
+    const link = screen.getByRole("link", { name: /^Continue: / });
+    expect(link).toHaveAccessibleName("Continue: Memory");
+    expect(link).toHaveAttribute("href", "/lessons/l2-b");
+  });
+
+  it("wraps to the earliest incomplete lesson when nothing after the last viewed one is left", async () => {
+    seed({ slug: "l2-b", at: "2026-09-29T01:00:00.000Z" }, ["l2-b", "l1-b", "l2-a"]);
+    render(<ContinueCard lessons={lessons} defaultSlug="l1-a" />);
+    await act(async () => {});
+    expect(screen.getByRole("link", { name: /^Continue: / })).toHaveAttribute("href", "/lessons/l1-a");
+  });
+
+  it("an incomplete last-viewed lesson is resumed as is", async () => {
+    seed({ slug: "l2-a", at: "2026-09-29T01:00:00.000Z" }, ["l1-a"]);
+    render(<ContinueCard lessons={lessons} defaultSlug="l1-a" />);
+    await act(async () => {});
+    expect(screen.getByRole("link", { name: /^Continue: / })).toHaveAttribute("href", "/lessons/l2-a");
+  });
+
+  it("shows the completed state when every lesson is complete", async () => {
+    seed({ slug: "l2-b", at: "2026-09-29T01:00:00.000Z" }, ["l1-a", "l1-b", "l2-a", "l2-b"]);
+    render(<ContinueCard lessons={lessons} defaultSlug="l1-a" />);
+    await act(async () => {});
+    expect(screen.getByRole("heading", { level: 2, name: "You've completed the curriculum" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /^Continue: / })).toBeNull();
+    expect(screen.getByRole("link", { name: "Review the curriculum" })).toHaveAttribute("href", "/curriculum");
   });
 
   it("keeps the whole title in the accessible name while the visible text may truncate", () => {

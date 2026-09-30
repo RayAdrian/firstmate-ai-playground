@@ -39,7 +39,7 @@ export function NewsCard({
   return (
     <article
       aria-labelledby={titleId}
-      className={`${styles.card} ${layout} gap-x-3 gap-y-2 rounded-card bg-surface p-4 md:gap-x-4 ${
+      className={`${styles.card} ${layout} gap-x-3 gap-y-2 rounded-card bg-surface p-4 dark:border dark:border-border md:gap-x-4 ${
         variant === "compact" ? "md:p-4" : "md:p-6"
       }`}
     >
