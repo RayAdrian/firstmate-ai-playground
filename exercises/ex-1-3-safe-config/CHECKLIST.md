@@ -1,4 +1,5 @@
-- [ ] c1: Ran the verify command on the starter and read what it complained about before editing anything
+- [ ] c1: Read the starter config and ran the verify command on it, without launching any agent in the folder
+- [ ] c1b: Fixed both config files by hand before launching Claude Code or Codex, and did not trust the folder while the starter config was in place
 - [ ] c2: .claude/settings.json allows `npm test` and `npm run lint` by name, and has no bare `Bash` or `Bash(*)` allow rule
 - [ ] c3: .claude/settings.json denies curl, wget, WebFetch and reading secrets.env, and enables the sandbox with `allowUnsandboxedCommands` set to false
 - [ ] c4: .codex/config.toml is workspace-write with on-request approvals, network access off and web search disabled

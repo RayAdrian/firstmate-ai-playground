@@ -8,13 +8,12 @@ Lesson: `l1-first-session`. Time: about 20 minutes.
 
 ## Setup
 
-Requires Node.js 22.18 or later (the tests are TypeScript and run with `node --test`, no build step and no dependencies).
+Requires Node.js 22.18 or later (the tests are TypeScript and run with `node --test`, no build step and no dependencies, so there is no `npm i`).
 
 ```bash
 cp -r exercises/ex-1-1-failing-test/starter ~/fm-ex/ex-1-1-failing-test
 cd ~/fm-ex/ex-1-1-failing-test
 git init && git add -A && git commit -m "starter"
-npm i
 npm test          # expect 1 failing test
 ```
 
@@ -25,7 +24,7 @@ npm test          # expect 1 failing test
 3. Run `/diff`, or `git diff`, and read every changed line. Check with `git diff --stat` that nothing under `test/` changed.
 4. Commit the result on a branch, for example `git switch -c claude-fix && git commit -am "fix slugify"`.
 5. Reset for the second run: `git switch main` (or `master`, whichever `git init` made). You are back at the failing starter.
-6. Start Codex (`codex`) in the same folder with the same prompt. Read the diff again.
+6. Start Codex (`codex`) in the same folder, now back at the failing starter, with the same prompt. Read the diff again.
 7. Quit one of the sessions, then resume it: `claude --continue` or `codex resume --last`. Ask a follow-up such as "explain the regex you changed".
 
 ## Starter prompt (both tools)

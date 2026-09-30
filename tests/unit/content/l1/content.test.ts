@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { spawnSync } from "node:child_process";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import matter from "gray-matter";
 import { describe, expect, it } from "vitest";
@@ -72,6 +73,31 @@ describe("level 1 lessons", () => {
   }
 });
 
+describe("ex-1-3 config checker", () => {
+  const solution = path.join(ROOT, "exercises/ex-1-3-safe-config/solution");
+  const runWithToml = (toml: string) => {
+    const tmp = mkdtempSync(path.join(tmpdir(), "ex13-"));
+    cpSync(solution, tmp, { recursive: true });
+    writeFileSync(path.join(tmp, ".codex/config.toml"), toml);
+    return spawnSync("node scripts/check-config.mjs", { cwd: tmp, shell: true, encoding: "utf8" });
+  };
+  const base = 'sandbox_mode = "workspace-write"\napproval_policy = "on-request"\nweb_search = "disabled"\n';
+
+  it("accepts the safe config", () => {
+    expect(runWithToml(base).status).toBe(0);
+  });
+
+  it("detects network enabled via the table form", () => {
+    expect(runWithToml(`${base}[sandbox_workspace_write]\nnetwork_access = true\n`).status).toBe(1);
+  });
+
+  it("detects network enabled via the dotted form the lesson teaches", () => {
+    const r = runWithToml(`${base}sandbox_workspace_write.network_access = true\n`);
+    expect(r.status).toBe(1);
+    expect(r.stderr).toContain("network_access");
+  });
+});
+
 describe("level 1 exercises", () => {
   for (const e of EXPECTED) {
     describe(e.exercise, () => {
@@ -111,7 +137,13 @@ describe("level 1 exercises", () => {
           spawnSync(json.verify, { cwd: path.join(dir, which), shell: true, encoding: "utf8" });
 
         it("verify command fails on starter/", () => {
-          expect(run("starter").status).not.toBe(0);
+          const r = run("starter");
+          expect(r.status).not.toBe(0);
+          if (e.exercise === "ex-1-1-failing-test") {
+            // Fails for the right reason: exactly one assertion fails, the other three pass.
+            expect(r.stdout).toMatch(/ℹ pass 3/);
+            expect(r.stdout).toMatch(/ℹ fail 1/);
+          }
         });
 
         it("verify command passes on solution/", () => {

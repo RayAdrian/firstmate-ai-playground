@@ -104,7 +104,7 @@ function parseToml(text) {
       for (const part of t[1].split(".")) table = table[part.replace(/"/g, "")] ??= {};
       continue;
     }
-    const kv = /^([A-Za-z0-9_\-]+)\s*=\s*(.+)$/.exec(line);
+    const kv = /^([A-Za-z0-9_.\-]+)\s*=\s*(.+)$/.exec(line);
     if (!kv) continue;
     const v = kv[2].trim();
     let value;
@@ -113,7 +113,11 @@ function parseToml(text) {
     else if (/^-?\d+(\.\d+)?$/.test(v)) value = Number(v);
     else if (v.startsWith("[")) value = [...v.matchAll(/"([^"]*)"|'([^']*)'/g)].map((x) => x[1] ?? x[2]);
     else value = v;
-    table[kv[1]] = value;
+    // Dotted keys ("sandbox_workspace_write.network_access = true") address nested tables.
+    const keys = kv[1].split(".");
+    let target = table;
+    for (const k of keys.slice(0, -1)) target = target[k] ??= {};
+    target[keys.at(-1)] = value;
   }
   return out;
 }

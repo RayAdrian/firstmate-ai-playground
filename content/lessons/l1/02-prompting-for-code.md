@@ -49,11 +49,11 @@ add a date range parser
 ```text title="precise"
 Add parseDateRange(input, today) to src/parseDateRange.ts.
 - input forms: "2026-03-01 to 2026-03-15", "2026-03-15", "last 7 days", "this month".
-- dates are YYYY-MM-DD strings; `today` is a YYYY-MM-DD string. Do not use Date or the system clock.
+- dates are YYYY-MM-DD strings; `today` is a YYYY-MM-DD string. Never read the system clock or the local time zone.
 - returns { start, end }, both inclusive.
 - throw RangeError for impossible dates (2026-02-30) and for start after end.
 Examples: ("last 7 days", "2026-03-03") -> { start: "2026-02-25", end: "2026-03-03" }.
-Follow the style of src/formatDate.ts. No new dependencies.
+Keep it in one file with no new dependencies.
 Done when `npm test` passes, including new tests you add for every example above.
 ```
 

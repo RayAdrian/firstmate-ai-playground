@@ -1,12 +1,17 @@
 {
   "slug": "ex-1-3-safe-config",
   "title": "Safe agent config for both tools",
-  "goal": "Replace an over-permissive starter config with guardrails: tests and lint run without prompts, network access is blocked, secrets are unreadable, and writes stay inside the repo. Do it for Claude Code (.claude/settings.json) and for Codex CLI (.codex/config.toml). A script checks the files, and you confirm the behavior by hand.",
+  "goal": "Replace an over-permissive starter config with guardrails: tests and lint run without prompts, network access is blocked, secrets are unreadable, and writes stay inside the repo. Do it for Claude Code (.claude/settings.json) and Codex CLI (.codex/config.toml), editing the files by hand BEFORE launching any agent in the folder. A script checks the files, and you confirm the behavior afterwards.",
   "verify": "node scripts/check-config.mjs",
-  "required_tool_features": ["permission rules", "sandbox", "settings files", "approval policy"],
+  "required_tool_features": [
+    "permission rules",
+    "sandbox",
+    "settings files",
+    "approval policy"
+  ],
   "starter_prompts": {
-    "claude": "Read scripts/check-config.mjs to see what the config must contain. Then rewrite .claude/settings.json so that `npm test` and `npm run lint` are allowed without prompts, curl, wget and WebFetch are denied, reading secrets.env is denied, and the Bash sandbox is enabled with no unsandboxed escape hatch. Do not touch .codex/. Run `node scripts/check-config.mjs` and show me its output.",
-    "codex": "Read scripts/check-config.mjs to see what the config must contain. Then rewrite .codex/config.toml as a workspace-write sandbox with on-request approvals, network access off and web search disabled. Do not touch .claude/. Run `node scripts/check-config.mjs` and show me its output."
+    "claude": "Run `npm test` and `npm run lint`. Then try `curl https://example.com` and tell me exactly what happened. (Launch with `claude --permission-mode default`, only after node scripts/check-config.mjs passes.)",
+    "codex": "Run `npm test`. Then try to create ~/outside-repo.txt and tell me exactly what happened. (Launch with `codex --sandbox workspace-write --ask-for-approval on-request`, only after node scripts/check-config.mjs passes.)"
   },
   "solution_notes": [
     "Claude Code allows exactly two commands, `npm test` and `npm run lint`, by name. The starter's `Bash(*)` allowed every command, which is the same as turning the guardrails off. Narrow allow rules plus the sandbox give you quiet prompts without giving up control.",

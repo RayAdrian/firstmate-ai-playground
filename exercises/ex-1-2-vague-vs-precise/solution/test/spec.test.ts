@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-// @ts-expect-error Node runs .ts files directly and needs the extension; the playground's tsconfig does not allow it.
+// @ts-expect-error TS5097 without allowImportingTsExtensions. Node runs .ts directly and needs the extension.
 import { parseDateRange } from "../src/parseDateRange.ts";
 
 // One test per row of SPEC.md. This is the file the precise prompt asks the agent to write first.
