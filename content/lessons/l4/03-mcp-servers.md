@@ -58,10 +58,10 @@ claude mcp add playwright -- npx @playwright/mcp@latest --isolated
 claude mcp add --transport http sentry https://mcp.sentry.dev/mcp
 
 # with an environment variable for the server process
-claude mcp add my-server -e API_KEY=xxx -- npx my-mcp-server
+claude mcp add my-server -e API_KEY=xxx -- npx my-mcp-server   # stores the literal value in your config: fine for local scope, never with --scope project
 ```
 
-Transport is `stdio` unless you pass `--transport http` (or `sse`). Options such as `-e` and `--scope` go before the `--`.
+Transport is `stdio` unless you pass `--transport http` (or `sse`, which is deprecated). Options such as `-e` and `--scope` go before the `--`.
 
 **Scopes** (`-s` / `--scope`):
 
@@ -129,7 +129,7 @@ Claude Code only loads an inline server from a project agent file after you trus
 codex mcp add playwright -- npx @playwright/mcp@latest --isolated
 
 # with environment variables
-codex mcp add my-server --env API_KEY=xxx -- my-mcp-command
+codex mcp add my-server --env API_KEY=xxx -- my-mcp-command   # literal value goes into config.toml; prefer env_vars = ["API_KEY"] to forward it
 
 # remote, streamable HTTP, with a bearer token read from an env var
 codex mcp add my-remote --url https://mcp.example.com/mcp --bearer-token-env-var MY_TOKEN
@@ -160,8 +160,8 @@ Useful options on a server table:
 [mcp_servers.playwright]
 command = "npx"
 args = ["@playwright/mcp@latest", "--isolated"]
-startup_timeout_sec = 30          # default 10
-tool_timeout_sec = 60             # default 60
+startup_timeout_sec = 30          # 0.154.0 default is 30 (older docs say 10)
+tool_timeout_sec = 300            # 0.154.0 default is 300 (older docs say 60)
 enabled_tools = ["browser_navigate", "browser_resize", "browser_snapshot", "browser_take_screenshot", "browser_evaluate"]   # names as the server lists them
 default_tools_approval_mode = "prompt"   # auto | prompt | writes | approve
 required = false                   # true makes startup fail if it cannot start

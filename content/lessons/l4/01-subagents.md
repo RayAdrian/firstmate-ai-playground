@@ -14,7 +14,7 @@ differences:
   - "Limiting power: Claude Code takes a tools allowlist (and disallowedTools) per subagent. Codex's documented lever is sandbox_mode, for example read-only, plus mcp_servers."
   - "Delegation: Claude Code can delegate on its own from a subagent's description, or you force it with an @-mention. In Codex you ask for it explicitly, for example 'spawn one agent per point'."
   - "Models: Claude Code sets model per subagent (sonnet, opus, haiku, inherit). Codex sets model and model_reasoning_effort per agent file, with defaults under [agents]."
-  - "Watching them: Claude Code shows a subagent panel below the prompt and lists them in /tasks. Codex uses /agent to switch between active agent threads."
+  - "Watching them: Claude Code shows a subagent panel below the prompt and lists them in /tasks. Codex uses /agents (or /subagents) to switch between active agent threads."
 exercise: ex-4-1-subagents
 claude_no_equivalent: false
 codex_no_equivalent: false
@@ -169,7 +169,7 @@ Have the reviewer agent review my changes before I commit.
 ```
 
 - Built-in agents: `default` (general purpose), `worker` (implementation and fixes) and `explorer` (read-heavy exploration). A custom agent with the same name as a built-in wins.
-- In the CLI, `/agent` (or `/subagents`) switches between active agent threads so you can inspect one.
+- In the CLI, `/agents` (or `/subagents`) switches between active agent threads so you can inspect one.
 - Global settings live under `[agents]` in `config.toml`: `enabled`, `max_concurrent_threads_per_session` (`max_threads` still works as an alias), `default_subagent_model` and `default_subagent_reasoning_effort`.
 
 ```toml
@@ -178,6 +178,6 @@ Have the reviewer agent review my changes before I commit.
 max_concurrent_threads_per_session = 4
 ```
 
-**Permissions.** Subagents inherit your current sandbox and approval settings, and Codex re-applies any live overrides you set in the session (`/permissions`, `--yolo`) even if the agent file says something different. Set `sandbox_mode` in a file to narrow one agent, as the reviewer does. In interactive sessions an approval request can come from a background agent thread. The overlay names the thread, and pressing `o` opens it. In non-interactive runs, an action that needs a fresh approval fails and the error goes back to the parent.
+**Permissions.** Subagents inherit your current sandbox and approval settings, and Codex re-applies any live overrides you set in the session (`/permissions`, or `--yolo`, which turns off approvals and the sandbox) even if the agent file says something different. Set `sandbox_mode` in a file to narrow one agent, as the reviewer does. In interactive sessions an approval request can come from a background agent thread. The overlay names the thread, and pressing `o` opens it. In non-interactive runs, an action that needs a fresh approval fails and the error goes back to the parent.
 
 Multi-agent support is listed as stable and on by default in `codex features list` for 0.154.0. Turn it off with `agents.enabled = false`.

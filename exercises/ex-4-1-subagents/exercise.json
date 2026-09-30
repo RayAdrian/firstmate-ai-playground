@@ -2,8 +2,9 @@
   "slug": "ex-4-1-subagents",
   "verify": "npm test",
   "required_tool_features": ["subagents"],
+  "setup_cmd": "cp -r exercises/ex-4-1-subagents/starter ~/fm-ex/ex-4-1-subagents && cd ~/fm-ex/ex-4-1-subagents && git init -b main && git add -A && git commit -m starter",
   "title": "Build a test-runner and a reviewer subagent, then fix a failing module",
-  "goal": "Define two scoped subagents, a test-runner that reports only failures and a read-only reviewer, then use them to fix the bugs in src/cart.js. The tests must pass and neither subagent may be able to edit files.",
+  "goal": "Define two scoped subagents, a test-runner that reports only failures and a read-only reviewer, then use them to fix the bugs in src/cart.js. The tests must pass and neither subagent may have an Edit or Write tool (or, in Codex, a writable sandbox).",
   "starter_prompts": {
     "claude": "Create two project subagents in .claude/agents/: test-runner (tools: Bash, Read, Grep, Glob; runs `npm test` and reports only failing tests, never edits) and reviewer (read-only: Read, Grep, Glob, Bash; reviews `git diff` for bugs and missing edge cases). Then use the test-runner subagent to run the suite, fix src/cart.js yourself in the main session, and have the reviewer subagent review the diff before you finish. Do not edit anything under tests/.",
     "codex": "Create two project custom agents as TOML files in .codex/agents/: test-runner (runs `npm test` and reports only failing tests, never edits files) and reviewer (sandbox_mode = \"read-only\"; reviews `git diff` for bugs and missing edge cases). Then spawn the test-runner agent to run the suite, fix src/cart.js yourself in the main thread, and spawn the reviewer agent to review the diff before you finish. Do not edit anything under tests/."

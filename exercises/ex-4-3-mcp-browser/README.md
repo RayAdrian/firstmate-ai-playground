@@ -40,6 +40,8 @@ Then start your tool and run `/mcp` to confirm the server is connected.
 
 ## Verify
 
+Do not run `npm test` until `REPRO.md` is written: its failure messages spell out the fixes.
+
 ```bash
 npm test
 ```

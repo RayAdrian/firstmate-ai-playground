@@ -25,7 +25,7 @@ No dependencies to install.
    git worktree add ../ex-4-2-duration -b feat/parse-duration
    ```
 
-   (Claude Code can also create one for you: `claude --worktree feat-format-price`.)
+   (Claude Code can also create one, but it names the branch `worktree-<name>` and branches from the remote default branch, which this local-only repo does not have. Stick to `git worktree add` here.)
 2. Start one agent session per worktree, in two terminals. Use Claude Code in one and Codex in the other if you like.
 3. Give each session a scope fence (see the starter prompts). Each also adds one line under "Unreleased" in `CHANGELOG.md`, so you will meet a small merge conflict on purpose.
 4. When both are green and committed, merge them into `main`:

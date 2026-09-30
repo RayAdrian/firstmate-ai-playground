@@ -10,8 +10,8 @@ tool_versions:
   codex_cli: "0.154.0"
 last_verified_on: "2026-09-30"
 differences:
-  - "Claude Code has a first-class flag: claude --worktree <name> creates .claude/worktrees/<name> on a new branch worktree-<name>, and prompts you to keep or remove it on exit. For Codex CLI, the dependable route is plain git worktree add plus a session started inside it."
-  - "Codex documents its managed worktrees mainly for the ChatGPT desktop app: they live under $CODEX_HOME/worktrees in a detached HEAD state. codex --help in 0.154.0 also lists a --worktree flag, but the CLI docs do not cover it."
+  - "Claude Code has a first-class flag: claude --worktree <name> creates .claude/worktrees/<name> on a new branch worktree-<name>, and, for a session with changes, prompts you to keep or remove it on exit. For Codex CLI, the dependable route is plain git worktree add plus a session started inside it."
+  - "Codex documents its managed worktrees mainly for the ChatGPT desktop app: they live under $CODEX_HOME/worktrees in a detached HEAD state. codex --help in 0.154.0 also lists a --worktree flag, but it is experimental and needs --enable worktrees."
   - "Gitignored files (.env, node_modules) are not in a new worktree. Claude Code copies files matching .worktreeinclude into worktrees it creates. Codex applies .worktreeinclude only to app-managed worktrees, not to ones you create with git."
   - "Claude Code subagents can each run in their own worktree with isolation: worktree in their frontmatter. The Codex docs describe no per-agent worktree setting, so run separate sessions instead."
 exercise: ex-4-2-worktrees
@@ -114,7 +114,7 @@ cd ../myapp-export && codex
 
 **Codex-managed worktrees.** The ChatGPT desktop app's Worktree mode creates them for you under `$CODEX_HOME/worktrees` at the branch you pick, in a detached HEAD state, and lets you hand a chat off between Local and Worktree. If you turn a worktree into a branch, remember git will not let that branch be checked out anywhere else. Codex keeps the 15 most recent managed worktrees by default and saves a snapshot before deleting one.
 
-`codex --help` in 0.154.0 lists `--worktree` ("Run the session in a new managed Git worktree"). The CLI documentation does not describe it, so treat it as something to try on a throwaway repo before you rely on it. `git worktree add` behaves the same on every version.
+`codex --help` in 0.154.0 lists `--worktree` ("Run the session in a new managed Git worktree"). It is experimental: it fails unless you also pass `--enable worktrees` (`codex --enable worktrees --worktree`). It creates a detached worktree under `$CODEX_HOME/worktrees`, refuses untrusted projects, and the CLI does not clean these up for you. The docs also list a `/worktree` slash command. For anything you rely on, `git worktree add` behaves the same on every version.
 
 **Untracked files.** For app-managed worktrees, list ignored paths in a `.worktreeinclude` file in the repo root and Codex copies them in. The docs say this does not apply to worktrees you create yourself with git, so copy `.env` and run your install in each one.
 
