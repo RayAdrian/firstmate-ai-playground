@@ -22,6 +22,8 @@
 /* No score tile at any width. */
 .unscored {
   grid-template-columns: 1fr auto;
+  /* Rows size to their content, so the bookmark cell (36px, 44px on touch) is never taller than its row. */
+  grid-template-rows: auto auto;
   grid-template-areas:
     "title bookmark"
     "meta meta";

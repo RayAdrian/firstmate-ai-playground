@@ -723,7 +723,7 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
     │ [ Review the curriculum → ]                │
     └────────────────────────────────────────────┘
     ```
-  - Pre-hydration: the server renders the C-4.2 default (`Continue: <first L1 lesson title>`). After mount, if `lastViewed` points elsewhere, the link text and `href` swap in place (same box, no CLS). Level progress uses skeletons (§4.7). No "0 / 3" flash.
+  - Pre-hydration (amended M2): the server renders the C-4.2 default href, but the link is `aria-disabled`, out of the tab order, non-clickable and reads "Loading your progress…" until the store has hydrated (the card carries `data-hydrated="false"`, then `"true"`), so nobody follows a wrong default. Once hydrated it reads `Continue: <title>`. After mount, if `lastViewed` points elsewhere, the link text and `href` swap in place (same box, no CLS). Level progress uses skeletons (§4.7). No "0 / 3" flash.
   - Last-viewed lesson no longer exists (P-4): fall back to the C-4.2 default silently.
   - No curriculum seeded: the whole levels area and the Continue card are replaced by one EmptyState: "No lessons seeded yet. Run `npm run seed`." (§7).
   - News: no digest → the news column shows a compact EmptyState whose title is the PRD string verbatim, "No news yet. Run `npm run news:run`.", and it does **not** block the page. Stale → the header reads "Latest · Tue 29 Sep" with a warning Badge showing an `AlertTriangle` icon and the text "Stale" (never the word "today"; icon plus word per C-5). Nothing ≥60 → "Nothing above the relevance bar today" plus a link to the archive. The "See all" link (N-6) goes to `/news` in every state.

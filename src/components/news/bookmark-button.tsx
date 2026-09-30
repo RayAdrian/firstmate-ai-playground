@@ -21,7 +21,7 @@ export function BookmarkButton({ id, title }: { id: string; title: string }) {
         if (bookmarked) announce("Removed from bookmarks");
         toggle();
       }}
-      className={`relative z-10 inline-flex size-9 items-center justify-center rounded-full self-start justify-self-end [grid-area:bookmark] touch:size-11 hover:bg-border-subtle ${
+      className={`relative z-10 inline-flex size-9 min-h-9 min-w-9 shrink-0 items-center justify-center rounded-full self-start justify-self-end [grid-area:bookmark] touch:size-11 hover:bg-border-subtle ${
         pressed ? "text-link" : "text-fg-muted"
       } ${hydrated ? "" : "cursor-not-allowed opacity-50"}`}
     >

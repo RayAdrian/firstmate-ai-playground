@@ -80,7 +80,9 @@ test.describe("Home: Continue CTA (C-4)", () => {
 
   test("TC-M2-05 AC: C-4.1 hydration-safe, swaps in place without layout shift", async ({ page, request }) => {
     const html = await (await request.get("/")).text();
-    expect(html).toMatch(/Continue: (<!-- -->)?Your first agent session/);
+    // Pre-hydration the link is inert and says so; it still carries the C-4.2 default href.
+    expect(html).toContain("Loading your progress…");
+    expect(html).toContain('data-hydrated="false"');
     expect(html).toContain('href="/lessons/l1-first-session"');
     expect(html).not.toContain('role="progressbar"');
     expect(html).not.toContain('href="/lessons/l2-context-files"');

@@ -89,6 +89,7 @@ for (const scheme of SCHEMES) {
         const unscored = page.getByText(/^Unscored \(\d+\)/);
         if (await unscored.count()) {
           await unscored.first().click();
+          await page.evaluate(() => window.scrollTo(0, 0)); // same sticky-header artifact as above
           await page.waitForTimeout(500);
           await axeBlocking(page, `unscored open ${scheme} ${width}`);
         }

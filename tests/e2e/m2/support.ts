@@ -64,6 +64,7 @@ export async function waitHydrated(page: Page): Promise<void> {
   await page.waitForFunction(() => document.title.length > 0);
   await page.waitForFunction(
     () =>
+      document.querySelector('[data-hydrated="false"]') === null &&
       document.querySelector('[data-testid="progress-placeholder"]') === null &&
       document.querySelector('[data-testid$="-skeleton"]') === null,
   );
