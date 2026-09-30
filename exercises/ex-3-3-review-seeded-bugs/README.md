@@ -7,7 +7,8 @@ A teammate added order handling to a small app (`src/orders.js`) with tests. The
 Needs Node 22.13 or newer (the project uses the built-in `node:sqlite`).
 
 ```bash
-mkdir -p ~/fm-ex && rm -rf ~/fm-ex/ex-3-3-review-seeded-bugs ~/fm-ex/ex-3-3-origin.git   # safe to re-run
+# If ~/fm-ex/ex-3-3-review-seeded-bugs or ~/fm-ex/ex-3-3-origin.git already exists, you are set up: delete both to start over.
+mkdir -p ~/fm-ex
 cp -r exercises/ex-3-3-review-seeded-bugs/starter ~/fm-ex/ex-3-3-review-seeded-bugs
 cd ~/fm-ex/ex-3-3-review-seeded-bugs
 G="git -c user.name=fm -c user.email=fm@example.com"
