@@ -1,18 +1,33 @@
-import { dbRead } from "@/lib/db";
-import { getReadClient } from "@/lib/db/server";
+import type { Metadata } from "next";
+import { CurriculumList } from "@/components/lesson/curriculum-list";
+import { SeedEmptyState } from "@/components/lesson/seed-empty";
+import { getCurriculum } from "@/components/lesson/server/queries";
 
 // Content routes render dynamically so seeded changes show without a rebuild (S-3).
 export const dynamic = "force-dynamic";
 
-// M0 stub: a real DB read so the "database unreachable" state (PRD §9) is exercised.
+export const metadata: Metadata = { title: "Curriculum" };
+
 export default async function CurriculumPage() {
-  const levels = await dbRead(
-    getReadClient().from("levels").select("slug").is("archived_at", null),
-  );
+  const { levels, today } = await getCurriculum();
+  const lessonCount = levels.reduce((n, l) => n + l.lessons.length, 0);
+
   return (
     <>
-      <h1>Curriculum</h1>
-      {levels.length === 0 && <p>No lessons seeded yet. Run `npm run seed`.</p>}
+      <h1 className="text-3xl font-bold text-fg-strong md:text-4xl">Curriculum</h1>
+      {lessonCount === 0 ? (
+        <div className="mt-6">
+          <SeedEmptyState />
+        </div>
+      ) : (
+        <>
+          <p className="mt-2 mb-8 text-base text-fg-muted">
+            {levels.length} {levels.length === 1 ? "level" : "levels"} · {lessonCount}{" "}
+            {lessonCount === 1 ? "lesson" : "lessons"}. No lesson is locked; start wherever fits.
+          </p>
+          <CurriculumList levels={levels} today={today} />
+        </>
+      )}
     </>
   );
 }
