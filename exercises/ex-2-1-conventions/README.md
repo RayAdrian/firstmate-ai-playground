@@ -33,4 +33,4 @@ The checks live in `.verify/`. Try not to read them before you have written your
 ```bash
 npm run verify
 ```
-Fails on the starter (no context files, no feature). Passes on the solution. Needs Node 21+.
+Fails on the starter (no context files, no feature). Passes on the solution. Needs Node 20+.
