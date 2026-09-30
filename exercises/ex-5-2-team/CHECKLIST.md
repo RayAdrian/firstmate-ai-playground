@@ -1,0 +1,9 @@
+- [ ] c1: `OWNERSHIP.json` was committed on `main` before any worktree was created
+- [ ] c2: Every file in `src/` has exactly one owner and no worker owns a test
+- [ ] c3: Three worktrees were created with `git worktree add` (check `git worktree list`)
+- [ ] c4: Each worker brief named its owned file, the spec section, the frozen tests and the handoff format
+- [ ] c5: The three workers ran at the same time, not one after another
+- [ ] c6: No worker edited a file it does not own (check `git log --stat` on each branch)
+- [ ] c7: Each `handoffs/<name>.md` has real pasted test output
+- [ ] c8: The branches merged with no conflicts (`git log --merges` shows three clean merges)
+- [ ] c9: You wrote `src/index.mjs` yourself, after the merges, and `npm test` passes

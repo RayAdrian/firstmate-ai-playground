@@ -1,0 +1,8 @@
+- [ ] c1: `npm test` passes and you did not edit `tests/` or `fixtures/`
+- [ ] c2: `node gate.mjs fixtures/good.json` exits 0
+- [ ] c3: `node gate.mjs fixtures/seeded-bad-pr.json` exits 1 and lists every failing rule
+- [ ] c4: A status posted on an older commit does not satisfy a gate (you can point to the line that does this)
+- [ ] c5: An empty `check_runs` list blocks the merge
+- [ ] c6: You can explain in one sentence why gate approvals are pinned to the reviewed commit SHA
+- [ ] c7: You told the agent to fail closed, and checked what `evaluate({})` returns
+- [ ] c8: (Optional) The gate runs from a GitHub Action, and the workflow keeps secrets in `secrets.*`

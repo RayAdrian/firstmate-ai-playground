@@ -1,0 +1,12 @@
+- [ ] c1: `AGENTS.md` has real rules for path ownership, test ownership, branches and gates (no TODO left)
+- [ ] c2: `SPEC.md` has numbered acceptance criteria, exact interfaces and explicit file ownership per workstream
+- [ ] c3: `PLAN.md` was drafted by the strong model without editing code, read and edited by you, and committed before implementation
+- [ ] c4: A commit on `main` holds failing tests for every P0 criterion, before any implementation commit
+- [ ] c5: Two worktrees exist, one per workstream, each on its own branch (`git worktree list`)
+- [ ] c6: The implementation sessions used the fast model, and the planning and review sessions used the strong one
+- [ ] c7: Neither PR touches a file outside its workstream's owned paths (`git diff --stat main...HEAD`)
+- [ ] c8: (GitHub path) Each PR has `gate/browser`, `gate/review` and `gate/uiux` statuses on its head SHA, and the three labels
+- [ ] c9: (GitHub path) The review gate was posted for the SHA the reviewer actually reviewed, not for whatever the head was later
+- [ ] c10: (GitHub path) You pushed an extra commit after green gates, and `npm run gate:merge` refused to merge until the gates were re-run
+- [ ] c11: (GitHub path) Both PRs merged with `npm run gate:merge`, never with `gh pr merge` directly
+- [ ] c12: `npm test` passes on `main` after both merges (12 tests in the reference)
