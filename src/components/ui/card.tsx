@@ -18,7 +18,7 @@ function CardRoot({ children, className, as = "div", interactive = false, ...res
       className={cn(
         "rounded-card bg-surface p-5 md:p-6 dark:border dark:border-border",
         interactive &&
-          "relative transition-shadow duration-[var(--fm-duration-fast)] hover:shadow-md dark:hover:border-link has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-solid has-[a:focus-visible]:outline-focus has-[a:focus-visible]:outline-offset-2",
+          "relative [&_a:focus-visible]:outline-none transition-shadow duration-[var(--fm-duration-fast)] hover:shadow-md dark:hover:border-link has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-solid has-[a:focus-visible]:outline-focus has-[a:focus-visible]:outline-offset-2",
         className,
       )}
       {...rest}
@@ -64,7 +64,7 @@ function CardFooter({ children, className }: { children: ReactNode; className?: 
 /** Stretched link for an interactive Card: the whole card is the hit area. */
 function CardLink({ className, children, ...props }: ComponentProps<typeof Link>) {
   return (
-    <Link className={cn("after:absolute after:inset-0 hover:underline focus-visible:outline-none", className)} {...props}>
+    <Link className={cn("after:absolute after:inset-0 hover:underline", className)} {...props}>
       {children}
     </Link>
   );

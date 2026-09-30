@@ -1,7 +1,8 @@
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { CodeBlock, CommandLine, LiveRegion, PlainCodeBlock } from "@/components/ui";
+import { CommandLine, LiveRegion, PlainCodeBlock } from "@/components/ui";
+import { CodeBlock } from "@/components/ui/code-block";
 
 type ClipboardMock = { writeText: ReturnType<typeof vi.fn> };
 
@@ -213,5 +214,23 @@ describe("CommandLine and PlainCodeBlock", () => {
     render(<PlainCodeBlock code={"a\nb"} language="ts" title="src/app/page.tsx" />);
     expect(screen.getByRole("figure", { name: "src/app/page.tsx" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Copy code: src/app/page.tsx" })).toBeInTheDocument();
+  });
+});
+
+describe("wrap prop", () => {
+  it("wraps long lines for prompts instead of scrolling", async () => {
+    await renderBlock({ code: "a long prompt", language: "text", wrap: true });
+    expect(screen.getByLabelText("Code: text").className).toContain("whitespace-pre-wrap");
+    expect(screen.getByLabelText("Code: text").className).not.toContain("overflow-x-auto");
+  });
+  it("PlainCodeBlock and CommandLine accept wrap", () => {
+    render(
+      <>
+        <PlainCodeBlock code="x" title="Prompt" wrap />
+        <CommandLine command="y" label="Verify" wrap />
+      </>,
+    );
+    expect(screen.getByLabelText("Code: Prompt").className).toContain("whitespace-pre-wrap");
+    expect(screen.getByLabelText("Code: Verify").className).toContain("whitespace-pre-wrap");
   });
 });

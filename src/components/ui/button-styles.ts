@@ -4,7 +4,7 @@ export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "link
 export type ButtonSize = "md" | "sm" | "icon";
 
 const base =
-  "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap transition-colors duration-[var(--fm-duration-fast)] ease-standard";
+  "inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap transition-colors duration-[var(--fm-duration-fast)] ease-standard focus-visible:transition-none";
 
 const variants: Record<ButtonVariant, string> = {
   primary: "bg-primary text-primary-fg hover:bg-primary-hover font-bold",

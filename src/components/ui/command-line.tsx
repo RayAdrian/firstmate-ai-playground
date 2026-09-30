@@ -11,15 +11,17 @@ import { codeLabel, codeSource } from "./code-source";
 export function CommandLine({
   command,
   label = "Terminal",
+  wrap,
   className,
 }: {
   command: string;
   label?: string;
+  wrap?: boolean;
   className?: string;
 }) {
   const raw = codeSource(command);
   return (
-    <CodeBlockView label={label} raw={raw} className={className}>
+    <CodeBlockView label={label} raw={raw} wrap={wrap} className={className}>
       <code>{raw}</code>
     </CodeBlockView>
   );
@@ -33,16 +35,18 @@ export function PlainCodeBlock({
   code,
   language,
   title,
+  wrap,
   className,
 }: {
   code: string;
   language?: string;
   title?: string;
+  wrap?: boolean;
   className?: string;
 }) {
   const raw = codeSource(code);
   return (
-    <CodeBlockView label={codeLabel({ title, language })} raw={raw} className={className}>
+    <CodeBlockView label={codeLabel({ title, language })} raw={raw} wrap={wrap} className={className}>
       <code data-language={language}>{raw}</code>
     </CodeBlockView>
   );

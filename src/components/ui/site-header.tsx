@@ -12,11 +12,11 @@ const DESKTOP_QUERY = "(min-width: 768px)";
 
 function BrandLink() {
   return (
-    <Link href="/" className="inline-flex items-center gap-3 rounded-lg">
+    <Link href="/" className="inline-flex min-h-11 shrink-0 items-center gap-3 rounded-lg">
       <Logo />{" "}
       {/* Below 375px the label is visually hidden so the logo fits; the link keeps its full name. */}
-      <span aria-hidden="true" className="h-5 w-px bg-border max-[374px]:sr-only" />
-      <span className="text-sm font-bold text-fg-strong max-[374px]:sr-only">AI Playground</span>
+      <span aria-hidden="true" className="h-5 w-px bg-border max-[374px]:sr-only md:max-lg:sr-only" />
+      <span className="text-sm font-bold whitespace-nowrap text-fg-strong max-[374px]:sr-only md:max-lg:sr-only">AI Playground</span>
     </Link>
   );
 }
@@ -116,8 +116,9 @@ export function SiteHeader() {
                 <Link
                   href={item.href}
                   aria-current={active ? "page" : undefined}
+                  onClick={() => setOpenFor(null)}
                   className={cn(
-                    "flex h-12 items-center gap-3 px-4 text-base md:px-6",
+                    "flex h-12 items-center gap-3 px-4 text-base focus-visible:outline-offset-[-2px] md:px-6",
                     active ? "font-bold text-fg-strong" : "font-medium text-fg",
                   )}
                 >
@@ -154,7 +155,7 @@ function NavLink({
         href={href}
         aria-current={active ? "page" : undefined}
         className={cn(
-          "relative inline-flex items-center gap-2 px-3 text-sm transition-colors duration-[var(--fm-duration-fast)]",
+          "relative inline-flex items-center gap-2 px-3 text-sm transition-colors duration-[var(--fm-duration-fast)] focus-visible:transition-none",
           active ? "font-bold text-fg-strong" : "font-medium text-fg-muted hover:text-fg",
         )}
       >

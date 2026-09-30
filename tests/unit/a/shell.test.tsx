@@ -112,6 +112,16 @@ describe("SiteHeader (TC-A-28)", () => {
     expect(button).toHaveAttribute("aria-expanded", "false");
   });
 
+  it("closes when the current page's own link is chosen", async () => {
+    const user = userEvent.setup();
+    render(<SiteHeader />);
+    const button = screen.getByRole("button", { name: "Menu" });
+    await user.click(button);
+    const panel = document.getElementById("mobile-nav") as HTMLElement;
+    await user.click(panel.querySelector("a[aria-current='page']") as HTMLElement);
+    expect(button).toHaveAttribute("aria-expanded", "false");
+  });
+
   it("closes when the viewport grows to the desktop breakpoint", async () => {
     let listener: ((e: { matches: boolean }) => void) | undefined;
     window.matchMedia = vi.fn().mockImplementation((query: string) => ({

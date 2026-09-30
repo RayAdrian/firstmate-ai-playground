@@ -23,6 +23,7 @@ export function Button({
   icon,
   loading = false,
   type = "button",
+  onClick,
   ...props
 }: ButtonProps) {
   const ref = useRef<HTMLButtonElement>(null);
@@ -45,9 +46,10 @@ export function Button({
       ref={ref}
       type={type}
       aria-busy={loading || undefined}
+      onClick={loading ? undefined : onClick}
       className={cn(
         buttonClasses(variant, size),
-        "aria-disabled:cursor-not-allowed aria-disabled:opacity-50 disabled:cursor-not-allowed disabled:opacity-50",
+        "aria-disabled:pointer-events-none aria-disabled:cursor-not-allowed aria-disabled:opacity-50 disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
       {...props}

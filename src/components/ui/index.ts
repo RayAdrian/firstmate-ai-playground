@@ -8,8 +8,8 @@ export { Card } from "./card";
 export { Badge, type BadgeVariant } from "./badge";
 export { FilterChip } from "./filter-chip";
 export { Tabs, type TabItem } from "./tabs";
-// CodeBlock is an async Server Component (server-side Shiki). PlainCodeBlock is the client-safe twin.
-export { CodeBlock } from "./code-block";
+// CodeBlock (server-side Shiki, server-only) is NOT exported here so client bundles never pull in shiki:
+// import it from "@/components/ui/code-block". PlainCodeBlock is the client-safe twin.
 export { CommandLine, PlainCodeBlock } from "./command-line";
 export { Checkbox } from "./checkbox";
 export { ProgressBar, progressPercent } from "./progress-bar";

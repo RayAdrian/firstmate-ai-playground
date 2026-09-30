@@ -28,7 +28,7 @@ export default function ErrorPage({ error, reset, retry }: ErrorPageProps) {
   const tryAgain = () => startTransition(() => (retry ?? reset)());
 
   const tryAgainButton = (
-    <Button variant="secondary" onClick={tryAgain} loading={pending}>
+    <Button variant="secondary" onClick={tryAgain} loading={pending} disabled={pending}>
       Try again
     </Button>
   );

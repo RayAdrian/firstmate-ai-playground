@@ -114,7 +114,7 @@ export function Tabs({
               onClick={() => select(t.id, false)}
               // Active: weight + colour + a real 2px bottom border, never colour alone.
               className={cn(
-                "-mb-px inline-flex h-11 items-center gap-2 border-b-2 px-4 text-sm transition-colors duration-[var(--fm-duration-fast)]",
+                "-mb-px inline-flex h-11 items-center gap-2 border-b-2 px-4 text-sm transition-colors duration-[var(--fm-duration-fast)] focus-visible:transition-none",
                 selected
                   ? "border-link font-bold text-fg-strong"
                   : "border-transparent font-medium text-fg-muted hover:text-fg",

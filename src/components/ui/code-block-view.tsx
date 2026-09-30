@@ -25,10 +25,12 @@ export function CodeBlockView({
   label,
   raw,
   children,
+  wrap = false,
   className,
 }: {
   label: string;
   raw: string;
+  wrap?: boolean;
   children: ReactNode;
   className?: string;
 }) {
@@ -143,7 +145,10 @@ export function CodeBlockView({
         ref={preRef}
         tabIndex={0}
         aria-label={`Code: ${label}`}
-        className="overflow-x-auto p-4 font-mono text-[0.875rem] leading-6 text-code-fg"
+        className={cn(
+          "p-4 font-mono text-[0.875rem] leading-6 text-code-fg",
+          wrap ? "whitespace-pre-wrap [overflow-wrap:anywhere]" : "overflow-x-auto",
+        )}
       >
         {children}
       </pre>

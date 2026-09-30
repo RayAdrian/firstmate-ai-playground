@@ -6,7 +6,8 @@
 
 @layer base {
   /* Programmatic focus targets (main, h1 after a dismissal) are not interactive: no ring on the whole region. */
-  [tabindex="-1"]:focus {
+  main[tabindex="-1"]:focus,
+  h1[tabindex="-1"]:focus {
     outline: none;
   }
 

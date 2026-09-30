@@ -151,6 +151,12 @@ test.describe("below 375px the label is visually hidden but the link keeps its n
     expect((await label.boundingBox())?.width ?? 0).toBeLessThanOrEqual(1);
     await page.setViewportSize({ width: 375, height: 740 });
     expect((await label.boundingBox())?.width ?? 0).toBeGreaterThan(50);
+    await page.setViewportSize({ width: 768, height: 740 });
+    expect((await label.boundingBox())?.width ?? 0).toBeLessThanOrEqual(1);
+    const logo = await page.locator("header img").boundingBox();
+    expect(Math.abs((logo?.width ?? 0) / (logo?.height ?? 1) - 825 / 169)).toBeLessThan(0.05); // never squashed
+    await page.setViewportSize({ width: 1024, height: 740 });
+    expect((await label.boundingBox())?.width ?? 0).toBeGreaterThan(50);
   });
 });
 
@@ -332,5 +338,31 @@ test.describe("hit targets (TC-A-30)", () => {
         expect((await links.nth(i).boundingBox())?.height).toBeGreaterThanOrEqual(44);
       }
     });
+  });
+});
+
+test.describe("client bundles stay free of shiki (review N1)", () => {
+  test("no shiki code is shipped to the browser on shell, 404 and error-boundary routes", async ({ page }) => {
+    const offenders: string[] = [];
+    page.on("response", async (res) => {
+      const url = res.url();
+      if (!/\.js(\?|$)/.test(new URL(url).pathname)) return;
+      const body = await res.text().catch(() => "");
+      if (/shiki/i.test(url) || /createHighlighter|ShikiError|@shikijs/.test(body)) offenders.push(url);
+    });
+    for (const route of ["/", "/curriculum", "/definitely-not-a-page"]) {
+      await page.goto(route);
+      await page.waitForLoadState("networkidle");
+    }
+    expect(offenders).toEqual([]);
+  });
+});
+
+test.describe("brand link hit area (C-6)", () => {
+  test.use({ viewport: { width: 360, height: 740 }, hasTouch: true, isMobile: true });
+  test("home link is at least 44px tall on coarse pointers", async ({ page }) => {
+    await page.goto("/curriculum");
+    const box = await page.getByRole("link", { name: "First Mate AI Playground" }).boundingBox();
+    expect(box?.height).toBeGreaterThanOrEqual(44);
   });
 });

@@ -1,3 +1,4 @@
+import "server-only";
 import { CodeBlockView } from "./code-block-view";
 import { codeLabel, codeSource } from "./code-source";
 import { highlightLines } from "./highlight";
@@ -12,18 +13,21 @@ export async function CodeBlock({
   code,
   language,
   title,
+  wrap,
   className,
 }: {
   code: string;
   language?: string;
   /** Filename shown instead of the language (for example "src/app/page.tsx"). */
   title?: string;
+  /** Wrap long lines instead of scrolling (for prompts). */
+  wrap?: boolean;
   className?: string;
 }) {
   const raw = codeSource(code);
   const lines = await highlightLines(raw, language);
   return (
-    <CodeBlockView label={codeLabel({ title, language })} raw={raw} className={className}>
+    <CodeBlockView label={codeLabel({ title, language })} raw={raw} wrap={wrap} className={className}>
       <code data-language={language}>
         {lines
           ? lines.map((line, i) => (

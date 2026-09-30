@@ -14,7 +14,7 @@ export function NotFoundView({
   children?: ReactNode;
 }) {
   return (
-    <div className="mx-auto max-w-xl pt-12 md:pt-16">
+    <div className="mx-auto max-w-xl">
       <p className="text-sm font-bold uppercase tracking-eyebrow text-link">404</p>
       <h1 className="mt-2 text-3xl font-bold text-fg-strong md:text-4xl">{heading}</h1>
       <p className="mt-4 text-prose text-fg">{children}</p>

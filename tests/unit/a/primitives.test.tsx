@@ -314,3 +314,17 @@ describe("announce()", () => {
     document.getElementById("fm-live")?.remove();
   });
 });
+
+describe("Button loading guard", () => {
+  it("ignores clicks while loading", async () => {
+    const onClick = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <Button onClick={onClick} loading>
+        Try again
+      </Button>,
+    );
+    await user.click(screen.getByRole("button", { name: "Try again" }));
+    expect(onClick).not.toHaveBeenCalled();
+  });
+});
