@@ -91,6 +91,10 @@ describe("ex-1-3 config checker", () => {
     expect(runWithToml(`${base}[sandbox_workspace_write]\nnetwork_access = true\n`).status).toBe(1);
   });
 
+  it("rejects an inline table for the sandbox settings", () => {
+    expect(runWithToml(`${base}sandbox_workspace_write = { network_access = true }\n`).status).toBe(1);
+  });
+
   it("detects network enabled via the dotted form the lesson teaches", () => {
     const r = runWithToml(`${base}sandbox_workspace_write.network_access = true\n`);
     expect(r.status).toBe(1);

@@ -11,11 +11,7 @@ Implement `parseDateRange(input, today)` twice with the same agent. Attempt A us
 Requires Node.js 22.18 or later. No dependencies.
 
 ```bash
-mkdir -p ~/fm-ex
-cp -r exercises/ex-1-2-vague-vs-precise/starter ~/fm-ex/ex-1-2-vague
-cp -r exercises/ex-1-2-vague-vs-precise/starter ~/fm-ex/ex-1-2-precise
-rm ~/fm-ex/ex-1-2-vague/SPEC.md           # the vague attempt must not have the spec
-for d in vague precise; do (cd ~/fm-ex/ex-1-2-$d && git init -q && git add -A && git commit -qm starter); done
+mkdir -p ~/fm-ex && cp -R exercises/ex-1-2-vague-vs-precise/starter ~/fm-ex/ex-1-2-precise && cp -R exercises/ex-1-2-vague-vs-precise/starter ~/fm-ex/ex-1-2-vague && rm ~/fm-ex/ex-1-2-vague/SPEC.md && for d in ex-1-2-vague ex-1-2-precise; do (cd ~/fm-ex/$d && git init -q && git add -A && git -c user.name=learner -c user.email=learner@example.com commit -qm start && npm install); done
 ```
 
 Each folder has three visible tests (`npm test`) and a dot-folder `.hidden/` with the edge cases. **Do not open `.hidden/` and do not point the agent at it.** Doing so defeats the exercise.

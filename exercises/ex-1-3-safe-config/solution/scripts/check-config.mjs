@@ -112,7 +112,7 @@ function parseToml(text) {
     else if (v === "true" || v === "false") value = v === "true";
     else if (/^-?\d+(\.\d+)?$/.test(v)) value = Number(v);
     else if (v.startsWith("[")) value = [...v.matchAll(/"([^"]*)"|'([^']*)'/g)].map((x) => x[1] ?? x[2]);
-    else value = v;
+    else value = v; // inline tables ({ ... }) stay a raw string; checkCodex rejects them
     // Dotted keys ("sandbox_workspace_write.network_access = true") address nested tables.
     const keys = kv[1].split(".");
     let target = table;
@@ -136,6 +136,7 @@ function checkCodex() {
     fail("codex", `approval_policy must be "on-request" (found ${JSON.stringify(c.approval_policy)})`);
   }
   const ws = c.sandbox_workspace_write ?? {};
+  if (typeof ws === "string") fail("codex", "write sandbox_workspace_write as a [table] or dotted keys, not an inline table");
   if (ws.network_access === true) fail("codex", "sandbox_workspace_write.network_access must not be true");
   if ((ws.writable_roots ?? []).length > 0) {
     fail("codex", "sandbox_workspace_write.writable_roots must be empty (no writes outside the repo)");

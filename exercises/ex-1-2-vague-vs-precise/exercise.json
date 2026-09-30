@@ -1,9 +1,13 @@
 {
   "slug": "ex-1-2-vague-vs-precise",
   "title": "Vague prompt vs spec-quality prompt",
-  "goal": "Implement the same date-range parser twice with the same agent: once from a one-line vague prompt, once from a prompt with context, constraints, examples and a done-when. Then compare the two diffs and run the hidden edge-case tests against both.",
+  "goal": "Implement the same date-range parser twice with the same agent: once from a one-line vague prompt, once from a prompt with context, constraints, examples and a done-when. Then compare the two diffs and run the hidden edge-case tests against both. Setup creates two copies, ex-1-2-vague (no SPEC.md) and ex-1-2-precise, each with a committed baseline.",
   "verify": "node --test \"test/*.test.ts\" \".hidden/*.test.ts\"",
-  "required_tool_features": ["@file references", "prompt structure", "diff review"],
+  "required_tool_features": [
+    "@file references",
+    "prompt structure",
+    "diff review"
+  ],
   "starter_prompts": {
     "claude": "Implement parseDateRange in @src/parseDateRange.ts exactly as described in @SPEC.md. First add tests in test/spec.test.ts for every input form and every error case in the spec, run them and watch them fail. Then implement. Do not edit test/basic.test.ts and add no dependencies. Done when `npm test` passes.",
     "codex": "Implement parseDateRange in @src/parseDateRange.ts exactly as described in @SPEC.md. First add tests in test/spec.test.ts for every input form and every error case in the spec, run them and watch them fail. Then implement. Do not edit test/basic.test.ts and add no dependencies. Done when `npm test` passes."
@@ -13,5 +17,6 @@
     "The precise prompt supplies a done-when the agent can execute. It writes a test for every rule, sees them fail, then implements. Tests written from the spec catch the leap-year and month-boundary bugs before you do.",
     "The reference solution does date arithmetic on UTC day numbers and round-trips each parsed date to reject impossible days such as 2026-02-30. `Date.UTC` silently rolls those over to March, which is the classic bug a vague implementation contains.",
     "`today` is a parameter, so the function has no hidden dependency on the clock or time zone and the tests are deterministic. That constraint is one line in the prompt and prevents a whole class of flaky tests."
-  ]
+  ],
+  "setup_cmd": "mkdir -p ~/fm-ex && cp -R exercises/ex-1-2-vague-vs-precise/starter ~/fm-ex/ex-1-2-precise && cp -R exercises/ex-1-2-vague-vs-precise/starter ~/fm-ex/ex-1-2-vague && rm ~/fm-ex/ex-1-2-vague/SPEC.md && for d in ex-1-2-vague ex-1-2-precise; do (cd ~/fm-ex/$d && git init -q && git add -A && git -c user.name=learner -c user.email=learner@example.com commit -qm start && npm install); done"
 }

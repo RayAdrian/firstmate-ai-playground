@@ -131,7 +131,11 @@ The sandbox restricts what Bash commands can do at the OS level, regardless of h
 }
 ```
 
-By default sandboxed commands can write to the working directory and temp directory (plus directories you add) and read most of the machine. Widen writes with `sandbox.filesystem.allowWrite` and narrow them with `denyWrite` / `denyRead`. No network domain is pre-allowed: the first use of a new host prompts you, and `sandbox.network.allowedDomains` pre-approves specific hosts. In auto-allow mode, sandboxed commands run without prompts, but explicit deny rules and content-scoped ask rules such as `Bash(git push *)` still apply. Setting `allowUnsandboxedCommands` to `false` removes the escape hatch that lets a failed command retry outside the sandbox. On Linux and WSL2 the sandbox needs `bubblewrap` and `socat`.
+By default sandboxed commands can write to the working directory and temp directory (plus directories you add) and read most of the machine. Widen writes with `sandbox.filesystem.allowWrite` and narrow them with `denyWrite` / `denyRead`.
+
+No network domain is pre-allowed: the first use of a new host prompts you, and `sandbox.network.allowedDomains` pre-approves specific hosts. In auto-allow mode, sandboxed commands run without prompts, but explicit deny rules and content-scoped ask rules such as `Bash(git push *)` still apply.
+
+Setting `allowUnsandboxedCommands` to `false` removes the escape hatch that lets a failed command retry outside the sandbox. On Linux and WSL2 the sandbox needs `bubblewrap` and `socat`.
 
 ### Undo
 
