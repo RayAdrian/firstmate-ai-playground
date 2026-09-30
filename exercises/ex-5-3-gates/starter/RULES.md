@@ -1,17 +1,4 @@
-# ex-5-3-gates: a merge gate that fails closed
-
-Build a local `gate` script that blocks a merge unless every gate passes, and test it against a seeded bad PR.
-
-## Setup
-
-```bash
-mkdir -p ~/fm-ex && cp -r exercises/ex-5-3-gates/starter ~/fm-ex/ex-5-3-gates && cd ~/fm-ex/ex-5-3-gates
-git init -q -b main && git add -A && git -c user.name=fm-learner -c user.email=learner@example.com commit -q -m baseline
-npm install
-npm test    # fails on purpose
-node gate.mjs fixtures/seeded-bad-pr.json; echo "exit=$?"    # blocked, but for too few reasons
-node gate.mjs fixtures/stale-sha.json; echo "exit=$?"        # wrongly exits 0
-```
+# Gate rules
 
 ## What the gate reads
 
@@ -30,7 +17,7 @@ node gate.mjs fixtures/stale-sha.json; echo "exit=$?"        # wrongly exits 0
 
 `statuses` is in the order they were posted. `fixtures/` holds a good PR and a set of bad ones, one per rule, plus `seeded-bad-pr.json` which breaks almost every rule at once.
 
-## The rules (also in `RULES.md` inside the starter)
+## The rules
 
 A PR may merge only if all of these hold. Report every rule that fails, not just the first.
 
@@ -43,14 +30,3 @@ A PR may merge only if all of these hold. Report every rule that fails, not just
 
 Exit codes: `0` merge, `1` blocked (reasons on stderr), `2` bad usage or unreadable file.
 
-## Your job
-
-Fix `gate.mjs` until `npm test` passes. Do not edit `tests/` or `fixtures/`. Rule 1 is the one that matters most: it is the lesson learned from this repo's own gate script, `scripts/gate-status.sh`. Ask your agent why an approval must be pinned to the reviewed commit, and check that it can explain it back to you.
-
-Stretch (not tested): add a `--pr <number>` mode that builds the same JSON from `gh pr view` and `gh api repos/<owner>/<repo>/commits/<sha>/status`, then wire the script into a workflow.
-
-## Verify
-
-```bash
-npm test
-```

@@ -140,6 +140,20 @@ describe("L5 exercises", () => {
         expect(json.starter_prompts?.codex).toBeTruthy();
         expect(json.solution_notes.length).toBeGreaterThanOrEqual(2);
         expect(json.setup_cmd).toContain(`exercises/${dir}/starter`);
+        // Works on a fresh machine: creates ~/fm-ex, has a baseline commit that needs no git identity, installs.
+        expect(json.setup_cmd).toContain("mkdir -p ~/fm-ex");
+        expect(json.setup_cmd).toMatch(/git init .*-c user\.name=\S+ -c user\.email=\S+ commit/);
+        expect(json.setup_cmd).toContain("npm install");
+        expect(json.setup_cmd).not.toContain("--public");
+      });
+
+      it("prompts and AGENTS.md only mention files that ship in starter/", () => {
+        const starter = path.join(base, "starter");
+        const text = [json.starter_prompts.claude, json.starter_prompts.codex, readFileSync(path.join(starter, "AGENTS.md"), "utf8")].join("\n");
+        for (const m of text.matchAll(/\b([A-Z][A-Za-z_]+\.md)\b/g)) {
+          if (dir === "ex-5-4-capstone" && ["SPEC.md", "PLAN.md"].includes(m[1])) continue; // written by the learner
+          expect(existsSync(path.join(starter, m[1])), `${m[1]} is mentioned but missing from starter/`).toBe(true);
+        }
       });
 
       it("has a checklist with unique, stable ids", () => {

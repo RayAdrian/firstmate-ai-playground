@@ -71,6 +71,7 @@ test("Codex: plan profile is read-only and thinks harder than the implementation
     ["fm-impl", impl],
   ]) {
     assert.ok(p.model, `${name}: model is required`);
+    assert.doesNotMatch(p.model, /^</, `${name}: replace the placeholder with a slug from \`codex debug models\``);
     assert.ok(EFFORT.includes(p.model_reasoning_effort), `${name}: model_reasoning_effort must be one of ${EFFORT}`);
   }
   assert.equal(plan.sandbox_mode, "read-only");
@@ -87,6 +88,7 @@ test("Codex: project reviewer agent is read-only with high reasoning", () => {
   assert.ok(a.description, "description is required");
   assert.ok(read(".codex/agents/reviewer.toml").includes("developer_instructions"), "developer_instructions is required");
   assert.ok(a.model, "model is required");
+  assert.doesNotMatch(a.model, /^</, "replace the placeholder with a slug from `codex debug models`");
   assert.equal(a.sandbox_mode, "read-only");
   assert.ok(EFFORT.indexOf(a.model_reasoning_effort) >= EFFORT.indexOf("high"), "reviewer effort must be high or above");
   const impl = toml("codex/fm-impl.config.toml");

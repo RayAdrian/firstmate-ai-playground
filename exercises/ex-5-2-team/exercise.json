@@ -1,10 +1,15 @@
 {
   "slug": "ex-5-2-team",
   "verify": "npm test",
-  "required_tool_features": ["git-worktrees", "subagents-or-parallel-sessions", "file-ownership", "handoff-notes"],
+  "required_tool_features": [
+    "git-worktrees",
+    "subagents-or-parallel-sessions",
+    "file-ownership",
+    "handoff-notes"
+  ],
   "title": "An orchestrator and three workers",
   "goal": "Split a 3-part feature across three worktrees with explicit file ownership, hand off through files, and merge with no conflicts.",
-  "setup_cmd": "cp -r exercises/ex-5-2-team/starter ~/fm-ex/ex-5-2-team && cd ~/fm-ex/ex-5-2-team && npm i && git init -b main && git add -A && git commit -m starter",
+  "setup_cmd": "mkdir -p ~/fm-ex && cp -r exercises/ex-5-2-team/starter ~/fm-ex/ex-5-2-team && cd ~/fm-ex/ex-5-2-team && git init -q -b main && git add -A && git -c user.name=fm-learner -c user.email=learner@example.com commit -q -m baseline && npm install",
   "starter_prompts": {
     "claude": "You are the orchestrator. Read SPEC.md and the tests in tests/. Do not write any feature code. Propose OWNERSHIP.json: three workers (parser, grouper, renderer) with a branch each and one explicit owned file each, and src/index.mjs for me. Then write a worker brief for each: owned file, spec section, the frozen test file, and the handoffs/<name>.md format from SPEC.md. Show me both before anything runs.",
     "codex": "You are the orchestrator. Read SPEC.md and the tests in tests/. Do not write any feature code. Propose OWNERSHIP.json: three workers (parser, grouper, renderer) with a branch each and one explicit owned file each, and src/index.mjs for me. Then write a worker brief for each: owned file, spec section, the frozen test file, and the handoffs/<name>.md format from SPEC.md. Show me both before anything runs."

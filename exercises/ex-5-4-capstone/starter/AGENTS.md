@@ -1,6 +1,6 @@
 # fm-capstone
 
-A tiny todo library. Your job is to ship one feature through the full First Mate process (see README.md).
+A tiny todo library. Your job is to ship one feature through the full First Mate process (the feature is described in `FEATURE.md`).
 
 ## Commands
 - `npm test`: the test suite. It must pass before any push.

@@ -1,6 +1,6 @@
 # Gate script
 
-`gate.mjs` decides whether a PR may merge, from a JSON snapshot of the PR state. The rules are in `README.md`.
+`gate.mjs` decides whether a PR may merge, from a JSON snapshot of the PR state. The rules are in `RULES.md`.
 
 - Run `npm test` before you say you are done. Never edit files under `tests/` or `fixtures/`.
 - The gate fails closed: missing or malformed input blocks the merge. It never guesses "probably fine".

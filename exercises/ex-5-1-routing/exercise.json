@@ -1,10 +1,16 @@
 {
   "slug": "ex-5-1-routing",
   "verify": "npm test",
-  "required_tool_features": ["model-selection", "opusplan", "subagent-model", "codex-profiles", "codex-subagents"],
+  "required_tool_features": [
+    "model-selection",
+    "opusplan",
+    "subagent-model",
+    "codex-profiles",
+    "codex-subagents"
+  ],
   "title": "Route strong and fast models",
   "goal": "Configure Claude Code and Codex so planning and review use the strong model and implementation uses the fast one, then record timings for one small task.",
-  "setup_cmd": "cp -r exercises/ex-5-1-routing/starter ~/fm-ex/ex-5-1-routing && cd ~/fm-ex/ex-5-1-routing && npm i",
+  "setup_cmd": "mkdir -p ~/fm-ex && cp -r exercises/ex-5-1-routing/starter ~/fm-ex/ex-5-1-routing && cd ~/fm-ex/ex-5-1-routing && git init -q -b main && git add -A && git -c user.name=fm-learner -c user.email=learner@example.com commit -q -m baseline && npm install",
   "starter_prompts": {
     "claude": "Read AGENTS.md and tests/routing.test.mjs. Fix the Claude Code routing config so plan mode uses Opus and execution uses Sonnet: set the default model in .claude/settings.json, make the reviewer subagent Opus and read-only, and make the implementer subagent Sonnet. Do not edit anything under tests/. Run npm test and show me the failures that remain (the Codex profiles and timings.md are next).",
     "codex": "Read AGENTS.md and tests/routing.test.mjs. Fix the Codex side of the routing config: codex/fm-plan.config.toml (strong model, high effort, read-only sandbox), codex/fm-impl.config.toml (fast model, low effort, workspace-write) and .codex/agents/reviewer.toml (strong model, high effort, read-only). Use models that /model lists. Do not edit anything under tests/. Run npm test and report what still fails."

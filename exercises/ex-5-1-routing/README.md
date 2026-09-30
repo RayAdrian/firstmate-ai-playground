@@ -5,7 +5,9 @@ Configure both tools so planning and review use the strong model and implementat
 ## Setup
 
 ```bash
-cp -r exercises/ex-5-1-routing/starter ~/fm-ex/ex-5-1-routing && cd ~/fm-ex/ex-5-1-routing && npm i
+mkdir -p ~/fm-ex && cp -r exercises/ex-5-1-routing/starter ~/fm-ex/ex-5-1-routing && cd ~/fm-ex/ex-5-1-routing
+git init -q -b main && git add -A && git -c user.name=fm-learner -c user.email=learner@example.com commit -q -m baseline
+npm install
 npm test    # fails on purpose
 ```
 

@@ -4,19 +4,31 @@ Ship one small feature to a real GitHub repo through the full loop: spec, plan, 
 
 ## Setup
 
-You need `gh` authenticated, and a throwaway GitHub repo (public; it holds no secrets).
+Local setup needs only `git` and Node. A bare repository on disk plays the part of GitHub, so you can do every step that does not need GitHub itself.
 
 ```bash
-cp -r exercises/ex-5-4-capstone/starter ~/fm-ex/ex-5-4-capstone && cd ~/fm-ex/ex-5-4-capstone && npm i
-git init -b main && git add -A && git commit -m "starter"
-gh repo create fm-capstone --public --source . --push
-for l in gate:browser-green gate:review-green gate:uiux-green; do gh label create "$l"; done
+mkdir -p ~/fm-ex && cp -r exercises/ex-5-4-capstone/starter ~/fm-ex/ex-5-4-capstone && cd ~/fm-ex/ex-5-4-capstone
+git init -q -b main && git add -A && git -c user.name=fm-learner -c user.email=learner@example.com commit -q -m baseline
+npm install
+git init -q --bare ~/fm-ex/ex-5-4-capstone-remote.git
+git remote add origin ~/fm-ex/ex-5-4-capstone-remote.git && git push -q -u origin main
 npm test    # 3 passing tests: the baseline
 ```
 
-Branch protection needs a public repo or an org/Pro account (a private repo on a free personal account cannot use it). If you cannot protect `main`, `gate:merge` is still your only merge path. The gate scripts in `scripts/` are the ones this app was built with: `gate-status.sh` posts a status on the commit that was reviewed, and `gate-merge.sh` (`npm run gate:merge`) refuses to merge unless everything is green on the head commit.
+### Optional: use GitHub for the gates (steps 7 to 9)
 
-## The feature
+`gate-status.sh` and `gate-merge.sh` call GitHub, so gates and the gated merge need a real repo. Make it **private**, since First Mate client work never goes in a public repo, and needs `gh` authenticated (`gh auth login`):
+
+```bash
+gh repo create fm-capstone --private --source . --remote github --push
+for l in gate:browser-green gate:review-green gate:uiux-green; do gh label create "$l"; done
+```
+
+Branch protection on a private repo needs a GitHub Team or Pro plan. Without it, `gate:merge` is still your only merge path by convention. The gate scripts in `scripts/` are the ones this app was built with: `gate-status.sh` posts a status on the commit that was reviewed, and `gate-merge.sh` (`npm run gate:merge`) refuses to merge unless everything is green on the head commit.
+
+Local only? Do steps 1 to 6, then merge your branches into `main` yourself and skip the GitHub-dependent checklist items (marked "GitHub path").
+
+## The feature (also in `FEATURE.md` inside the starter)
 
 Add due dates to the todo library:
 

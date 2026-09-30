@@ -5,8 +5,9 @@ Build a small feature with one orchestrator session and three worker sessions, e
 ## Setup
 
 ```bash
-cp -r exercises/ex-5-2-team/starter ~/fm-ex/ex-5-2-team && cd ~/fm-ex/ex-5-2-team && npm i
-git init -b main && git add -A && git commit -m "starter"
+mkdir -p ~/fm-ex && cp -r exercises/ex-5-2-team/starter ~/fm-ex/ex-5-2-team && cd ~/fm-ex/ex-5-2-team
+git init -q -b main && git add -A && git -c user.name=fm-learner -c user.email=learner@example.com commit -q -m baseline
+npm install
 npm test    # fails on purpose
 ```
 
