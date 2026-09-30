@@ -1,0 +1,10 @@
+{
+  "name": "ex-4-2-worktrees",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "verify": "node scripts/verify.mjs"
+  }
+}

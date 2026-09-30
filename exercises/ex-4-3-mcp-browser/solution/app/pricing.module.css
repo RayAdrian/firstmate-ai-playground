@@ -1,0 +1,52 @@
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  font-family: system-ui, sans-serif;
+}
+
+.title {
+  font-size: 2rem;
+  margin: 0 0 24px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 24px;
+}
+
+.card {
+  border: 1px solid #d0d5dd;
+  border-radius: 12px;
+  padding: 20px;
+  background: #fff;
+}
+
+.name {
+  font-size: 1.125rem;
+  margin: 0 0 8px;
+}
+
+.price {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin: 0 0 12px;
+  overflow-wrap: anywhere;
+}
+
+.blurb {
+  color: #475467;
+  margin: 0 0 16px;
+}
+
+.cta {
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #101828;
+  color: #fff;
+  font-size: 0.875rem;
+  cursor: pointer;
+}

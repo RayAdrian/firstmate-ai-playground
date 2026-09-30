@@ -1,0 +1,18 @@
+{
+  "slug": "ex-4-4-automation",
+  "verify": "npm test",
+  "required_tool_features": ["hooks", "skills"],
+  "setup_cmd": "cp -r exercises/ex-4-4-automation/starter ~/fm-ex/ex-4-4-automation && cd ~/fm-ex/ex-4-4-automation && git init -b main && git add -A && git commit -m starter",
+  "title": "Add a format-on-edit hook and a route-scaffolding skill",
+  "goal": "Write a hook script that formats every file the agent edits, wire it into your tool's hook config, then write a repo skill that scaffolds a new API route to the conventions in CONVENTIONS.md. Use the skill to add an orders route.",
+  "starter_prompts": {
+    "claude": "Read CONVENTIONS.md and scripts/format.mjs. 1) Write scripts/hook-format.mjs: it reads a hook event as JSON on stdin and runs formatFile from scripts/format.mjs on the file the tool edited (Claude Code Edit/Write events carry tool_input.file_path; it must also handle Codex apply_patch events, where tool_input.command holds the patch text with '*** Add File:' and '*** Update File:' lines, paths relative to the event's cwd). It must always exit 0. 2) Add a PostToolUse hook in .claude/settings.json with matcher Edit|Write that runs it. 3) Create a project skill at .claude/skills/new-api-route/SKILL.md (single-line description) that scaffolds a route per CONVENTIONS.md. 4) Invoke the skill with /new-api-route orders: GET /orders?customer=<id> returns that customer's orders and returns badRequest without a customer. Do not edit anything under tests/ except adding tests/routes/orders.test.js.",
+    "codex": "Read CONVENTIONS.md and scripts/format.mjs. 1) Write scripts/hook-format.mjs: it reads a hook event as JSON on stdin and runs formatFile from scripts/format.mjs on the files the tool edited (Codex apply_patch events carry tool_input.command with the patch text, using '*** Add File:' and '*** Update File:' lines, paths relative to the event's cwd; it must also handle Claude Code events where tool_input.file_path is set). It must always exit 0. 2) Add a PostToolUse hook in .codex/hooks.json with matcher ^apply_patch$ that runs it (resolve the script from the git root). 3) Create a repo skill at .agents/skills/new-api-route/SKILL.md (single-line description) that scaffolds a route per CONVENTIONS.md. 4) Use the skill with $new-api-route orders: GET /orders?customer=<id> returns that customer's orders and returns badRequest without a customer. Do not edit anything under tests/ except adding tests/routes/orders.test.js. Then run /hooks and trust the new hook."
+  },
+  "solution_notes": [
+    "The formatting rule lives in a script, and the hook config is three lines that call it. A hook is deterministic: it runs every time, which an instruction in CLAUDE.md or AGENTS.md ('always format your files') can never promise.",
+    "One script serves both tools. Claude Code hands it a file_path; Codex hands it a patch, so the script pulls '*** Add File:' and '*** Update File:' paths out of tool_input.command and resolves them against the event's cwd.",
+    "The hook always exits 0 and only reports problems on stderr. A formatter hiccup should never block the agent's turn.",
+    "The skill is instructions, not code: it points at CONVENTIONS.md and the example routes instead of restating them, so the convention has one source of truth. The identical SKILL.md works in .claude/skills/ and .agents/skills/ because it sticks to the shared name and description fields."
+  ]
+}

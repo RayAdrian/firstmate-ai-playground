@@ -1,0 +1,8 @@
+- [ ] c1: The Playwright MCP server is added and shows as connected (`/mcp` in the session, or `claude mcp list` / `codex mcp list`)
+- [ ] c2: You chose a scope on purpose (Claude Code: local, project or user; Codex: `~/.codex/config.toml` or the project `.codex/config.toml`) and can say why
+- [ ] c3: The agent opened the running page and resized the viewport to a phone width, and you saw it take a screenshot or snapshot
+- [ ] c4: REPRO.md lists all three bugs with measurements, written before the fix
+- [ ] c5: You approved (or denied) each MCP tool call knowingly and did not switch on blanket auto-approval for the browser server
+- [ ] c6: You only pointed the browser at localhost, not at a page whose content you do not control
+- [ ] c7: After the fix the agent re-checked at 375, 768 and 1440 wide and reported `scrollWidth` equal to `clientWidth`
+- [ ] c8: `npm test` passes and you did not edit anything under `tests/`

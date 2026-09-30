@@ -1,0 +1,18 @@
+{
+  "slug": "ex-4-2-worktrees",
+  "verify": "node scripts/verify.mjs",
+  "required_tool_features": ["git-worktrees", "parallel-sessions"],
+  "setup_cmd": "cp -r exercises/ex-4-2-worktrees/starter ~/fm-ex/ex-4-2-worktrees && cd ~/fm-ex/ex-4-2-worktrees && git init -b main && git add -A && git commit -m starter",
+  "title": "Build two features in parallel worktrees and merge them",
+  "goal": "Implement formatPrice and parseDuration in two separate git worktrees with one agent session in each, then merge both branches into main without conflict damage. Verification runs both features' tests on the merged branch.",
+  "starter_prompts": {
+    "claude": "You are in a worktree for branch feat/format-price. Implement formatPrice in src/format-price.js so that tests/format-price.test.js passes. Touch only src/format-price.js, tests/format-price.test.js and one new line under \"Unreleased\" in CHANGELOG.md. Do not edit src/index.js or any file that belongs to the other feature. Run `npm test` and commit when green.",
+    "codex": "You are in a worktree for branch feat/parse-duration. Implement parseDuration in src/parse-duration.js so that tests/parse-duration.test.js passes. Touch only src/parse-duration.js, tests/parse-duration.test.js and one new line under \"Unreleased\" in CHANGELOG.md. Do not edit src/index.js or any file that belongs to the other feature. Run `npm test` and commit when green."
+  },
+  "solution_notes": [
+    "The two features live in separate files and the barrel file src/index.js is pre-wired, so the branches share no source file. The only shared file is CHANGELOG.md, deliberately, so you meet a real (tiny) conflict.",
+    "Each session got a scope fence in its prompt: which files it may touch and which it must not. That is what keeps parallel agents from wandering into each other's files.",
+    "The CHANGELOG conflict is resolved by keeping both lines. Textual conflicts in append-only files are cheap. The expensive ones are two agents rewriting the same function.",
+    "verify.mjs runs the full test suite on the merged checkout. Each branch is green on its own, but only the merged tree proves the features coexist."
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "ex-4-3-mcp-browser",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3474",
+    "build": "next build",
+    "start": "next start -p 3474",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "next": "16.3.7",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  }
+}
