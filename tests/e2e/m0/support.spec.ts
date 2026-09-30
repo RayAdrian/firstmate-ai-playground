@@ -49,8 +49,11 @@ test("@prod runs against a production server", async ({ request }) => {
 });
 
 test("@prod getNow is evaluated per request, not frozen at build time", async ({ request }) => {
-  const a = (await (await request.get("/api/test-now")).json()) as { now: string };
+  // Runs with FM_TEST_MODE unset, so this exercises the production path of getNow().
+  const now = async () => /data-testid="now">([^<]+)</.exec(await (await request.get("/test-now")).text())?.[1];
+  const a = await now();
   await new Promise((r) => setTimeout(r, 50));
-  const b = (await (await request.get("/api/test-now")).json()) as { now: string };
-  expect(new Date(b.now).getTime()).toBeGreaterThan(new Date(a.now).getTime());
+  const b = await now();
+  expect(a).toBeTruthy();
+  expect(new Date(b!).getTime()).toBeGreaterThan(new Date(a!).getTime());
 });
