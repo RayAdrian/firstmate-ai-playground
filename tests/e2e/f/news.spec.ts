@@ -669,7 +669,7 @@ test.describe("integration: test hooks on fx-base", () => {
     await setCookie(context, baseURL ?? "", "fm_test_throw", `news-archive:${Date.now()}`);
     await page.goto("/news/archive");
     await expect(page.getByRole("heading", { level: 1, name: "Something went wrong" })).toBeVisible();
-    await expect(page.getByRole("alert")).toBeVisible();
+    await expect(page.getByRole("alert").filter({ hasText: "This page" })).toBeVisible();
     await expect(page.getByRole("link", { name: "Back to curriculum" })).toBeVisible();
     const text = await page.locator("body").innerText();
     expect(text).not.toMatch(/\bat \w|\.tsx?\b|Injected test failure|digest/i);
