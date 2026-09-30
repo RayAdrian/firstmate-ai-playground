@@ -47,6 +47,8 @@ export interface ImportResult {
   itemsInserted: number;
   itemsUpdated: number;
   runsUpserted: number;
+  /** Non-fatal oddities, e.g. a canonical_url conflict resolved in place. */
+  warnings: string[];
 }
 
 /** Everything the pipeline needs from the database. Implemented over Supabase and in memory (tests). */

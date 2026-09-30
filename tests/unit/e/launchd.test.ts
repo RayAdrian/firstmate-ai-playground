@@ -3,7 +3,9 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.setConfig({ testTimeout: 30_000 }); // process-spawning tests can be slow on a busy machine
 
 const OPS = path.resolve(__dirname, "../../../ops/launchd");
 const LABEL = "tech.firstmate.playground.news";

@@ -16,6 +16,7 @@ export async function main(env: Env = process.env): Promise<number> {
     // Source rows must exist locally before items can reference them (matched by slug).
     await store.upsertSources(loadSources(sourcesPath(env)));
     const { snapshots, result } = await importSnapshots({ store, repoDir: paths.repoDir, remote: paths.remote, env });
+    for (const w of result.warnings) log.warn(w);
     log.info(`Imported ${snapshots} snapshot${snapshots === 1 ? "" : "s"}: ${result.itemsInserted} new, ${result.itemsUpdated} updated (${result.runsUpserted} new run${result.runsUpserted === 1 ? "" : "s"})`);
     return 0;
   } catch (err) {

@@ -188,6 +188,7 @@ export class MemoryStore implements NewsStore {
     const items: SnapshotItem[] = this.items
       .filter((i) => i.digest_date === date)
       .map((i) => ({
+        id: i.id,
         source_slug: i.source_slug,
         guid: i.guid,
         canonical_url: i.canonical_url,
@@ -215,14 +216,25 @@ export class MemoryStore implements NewsStore {
     this.check();
     let itemsInserted = 0;
     let itemsUpdated = 0;
+    const warnings: string[] = [];
     for (const s of items) {
-      const local = this.items.find((i) => i.canonical_url === s.canonical_url);
-      if (!local) {
-        this.items.push({ id: randomUUID(), ...s });
-        itemsInserted++;
-      } else if (s.scoring_status === "scored" && (local.scoring_status === "pending" || local.scoring_status === "failed")) {
-        Object.assign(local, { score: s.score, tags: s.tags, why_it_matters: s.why_it_matters, scoring_status: "scored", attempts: s.attempts, scored_at: s.scored_at, scorer_model: s.scorer_model });
+      const byId = this.items.find((i) => i.id === s.id);
+      const byUrl = this.items.find((i) => i.canonical_url === s.canonical_url);
+      const takes = (l: MemItem) => s.scoring_status === "scored" && (l.scoring_status === "pending" || l.scoring_status === "failed");
+      const score = { score: s.score, tags: s.tags, why_it_matters: s.why_it_matters, scoring_status: s.scoring_status, attempts: s.attempts, scored_at: s.scored_at, scorer_model: s.scorer_model };
+      if (byId) {
+        if (takes(byId)) {
+          Object.assign(byId, score);
+          itemsUpdated++;
+        }
+      } else if (byUrl) {
+        warnings.push(`canonical_url conflict: local id ${byUrl.id} replaced by snapshot id ${s.id} (${s.canonical_url})`);
+        byUrl.id = s.id;
+        if (takes(byUrl)) Object.assign(byUrl, score);
         itemsUpdated++;
+      } else {
+        this.items.push({ ...s });
+        itemsInserted++;
       }
     }
     let runsUpserted = 0;
@@ -232,6 +244,6 @@ export class MemoryStore implements NewsStore {
         runsUpserted++;
       }
     }
-    return { itemsInserted, itemsUpdated, runsUpserted };
+    return { itemsInserted, itemsUpdated, runsUpserted, warnings };
   }
 }

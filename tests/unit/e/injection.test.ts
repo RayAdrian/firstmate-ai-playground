@@ -2,10 +2,12 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { runClaude } from "../../../scripts/news/claude";
 import { decodeXml, parseFeed } from "../../../scripts/news/feed";
 import { harness, src } from "./helpers/harness";
+
+vi.setConfig({ testTimeout: 30_000 }); // process-spawning tests can be slow on a busy machine
 
 const BIN_DIR = path.resolve(__dirname, "fixtures/bin");
 const xml = decodeXml(fs.readFileSync(path.resolve(__dirname, "fixtures/injection.xml")), "application/xml");

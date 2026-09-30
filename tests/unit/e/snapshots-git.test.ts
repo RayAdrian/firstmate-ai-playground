@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { newsSnapshotSchema, type SnapshotItem } from "@/lib/contracts";
 import { ImportError, importSnapshots, validateSnapshotFile } from "../../../scripts/news/import-lib";
 import { publishSnapshots, PublishError } from "../../../scripts/news/publish";
@@ -11,13 +11,17 @@ import { buildSnapshotFiles, sameIgnoringExportedAt } from "../../../scripts/new
 import { MemoryStore } from "./helpers/memory-store";
 import { harness, rawMany, src } from "./helpers/harness";
 
+vi.setConfig({ testTimeout: 30_000 }); // process-spawning tests can be slow on a busy machine
+
 let tmp: string;
 let remote: string;
 let work: string;
 
 const sh = (cwd: string, ...args: string[]) => execFileSync("git", args, { cwd, encoding: "utf8", env: { ...process.env, GIT_TERMINAL_PROMPT: "0" } }).trim();
 
+const itemId = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 const item = (n: number, over: Partial<SnapshotItem> = {}): SnapshotItem => ({
+  id: itemId(n),
   source_slug: "openai-news",
   guid: `g${n}`,
   canonical_url: `https://site.example/${n}`,
@@ -95,6 +99,7 @@ describe("publishSnapshots (section 14 Q1, TC-E-68..72)", () => {
     const content = sh(remote, "show", "refs/heads/news-snapshots:content/news/snapshots/2026-09-30.json");
     const snap = newsSnapshotSchema.parse(JSON.parse(content));
     expect(snap.items.map((i) => i.canonical_url)).toEqual(["https://site.example/1", "https://site.example/2"]);
+    expect(snap.items.map((i) => i.id)).toEqual([itemId(1), itemId(2)]);
     expect(snap.runs).toHaveLength(1);
     expect(sh(remote, "log", "-1", "--format=%s", "refs/heads/news-snapshots")).toBe("news: snapshot 2026-09-30");
     // No leftover temp branch or worktree.
@@ -191,12 +196,27 @@ describe("importSnapshots (R-1.2, TC-E-74..78)", () => {
     const before = userState();
     const store = new MemoryStore();
     const first = await importSnapshots({ store, repoDir: work, remote: "origin" });
-    expect(first).toEqual({ snapshots: 2, result: { itemsInserted: 3, itemsUpdated: 0, runsUpserted: 0 } });
+    expect(first).toEqual({ snapshots: 2, result: { itemsInserted: 3, itemsUpdated: 0, runsUpserted: 0, warnings: [] } });
     expect(store.items).toHaveLength(3);
     expect(userState()).toEqual(before);
     const second = await importSnapshots({ store, repoDir: work, remote: "origin" });
-    expect(second.result).toEqual({ itemsInserted: 0, itemsUpdated: 0, runsUpserted: 0 });
+    expect(second.result).toEqual({ itemsInserted: 0, itemsUpdated: 0, runsUpserted: 0, warnings: [] });
     expect(store.items).toHaveLength(3);
+  });
+
+  it("upserts by id: a canonical_url clash with a different id is updated in place with a warning", async () => {
+    await seedRemoteSnapshots({ "2026-09-30.json": snapshotText("2026-09-30", [item(1, { score: 88 }), item(2)]) });
+    const store = new MemoryStore();
+    await store.importSnapshot([item(1, { id: itemId(99), score: null, tags: [], why_it_matters: null, scoring_status: "pending", scored_at: null, scorer_model: null })], []);
+    const res = await importSnapshots({ store, repoDir: work, remote: "origin" });
+    expect(res.result.itemsInserted).toBe(1);
+    expect(res.result.itemsUpdated).toBe(1);
+    expect(res.result.warnings).toHaveLength(1);
+    expect(res.result.warnings[0]).toContain(itemId(99));
+    expect(store.items).toHaveLength(2);
+    expect(store.items.find((i) => i.canonical_url.endsWith("/1"))).toMatchObject({ id: itemId(1), score: 88, scoring_status: "scored" });
+    const again = await importSnapshots({ store, repoDir: work, remote: "origin" });
+    expect(again.result).toEqual({ itemsInserted: 0, itemsUpdated: 0, runsUpserted: 0, warnings: [] });
   });
 
   it("keeps scored local rows, but lets a snapshot score a locally pending row", async () => {

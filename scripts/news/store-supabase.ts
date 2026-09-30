@@ -227,6 +227,7 @@ export function createSupabaseStore(client: Client): NewsStore {
         const rows = (data ?? []) as NewsItemRow[];
         for (const r of rows) {
           items.push({
+            id: r.id,
             source_slug: slugById.get(r.source_id) ?? "unknown",
             guid: r.guid,
             canonical_url: r.canonical_url,
@@ -282,21 +283,59 @@ export function createSupabaseStore(client: Client): NewsStore {
       let itemsInserted = 0;
       let itemsUpdated = 0;
 
+      const warnings: string[] = [];
       for (const part of chunk(items, 100)) {
-        const existing = new Map<string, { id: string; canonical_url: string; scoring_status: NewsItemRow["scoring_status"] }>();
+        type Local = { id: string; canonical_url: string; scoring_status: NewsItemRow["scoring_status"] };
+        const byId = new Map<string, Local>();
+        const byUrl = new Map<string, Local>();
+        for (const ids of chunkByChars(part.map((i) => i.id))) {
+          const { data, error } = await client.from("news_items").select("id, canonical_url, scoring_status").in("id", ids);
+          fail("read news_items", error);
+          for (const r of data ?? []) byId.set(r.id, r);
+        }
         for (const urls of chunkByChars(part.map((i) => i.canonical_url))) {
           const { data, error } = await client.from("news_items").select("id, canonical_url, scoring_status").in("canonical_url", urls);
           fail("read news_items", error);
-          for (const r of data ?? []) existing.set(r.canonical_url, r);
+          for (const r of data ?? []) byUrl.set(r.canonical_url, r);
         }
 
+        const scoring = (item: SnapshotItem) => ({
+          score: item.score,
+          tags: item.tags,
+          why_it_matters: item.why_it_matters,
+          scoring_status: "scored" as const,
+          attempts: item.attempts,
+          scored_at: item.scored_at,
+          scorer_model: item.scorer_model,
+        });
+        const takesScore = (item: SnapshotItem, local: Local) =>
+          item.scoring_status === "scored" && (local.scoring_status === "pending" || local.scoring_status === "failed");
+
         const toInsert: Array<Partial<NewsItemRow>> = [];
+        const seenIds = new Set<string>();
         for (const item of part) {
           const sourceId = idBySlug.get(item.source_slug);
           if (!sourceId) throw new StoreError(`unknown source "${item.source_slug}" (not in news_sources)`);
-          const local = existing.get(item.canonical_url);
-          if (!local) {
+          const local = byId.get(item.id);
+          const clash = byUrl.get(item.canonical_url);
+          if (local) {
+            // Same id: never overwrite a scored local row; a pending/failed one takes the snapshot's score.
+            if (takesScore(item, local)) {
+              const { error } = await client.from("news_items").update(scoring(item)).eq("id", local.id);
+              fail("update news_items", error);
+              itemsUpdated++;
+            }
+          } else if (clash) {
+            // Same canonical_url, different id: update in place to the snapshot id so ids match across machines.
+            warnings.push(`canonical_url conflict: local id ${clash.id} replaced by snapshot id ${item.id} (${item.canonical_url})`);
+            const patch = takesScore(item, clash) ? { id: item.id, ...scoring(item) } : { id: item.id };
+            const { error } = await client.from("news_items").update(patch).eq("id", clash.id);
+            fail("update news_items", error);
+            itemsUpdated++;
+          } else if (!seenIds.has(item.id)) {
+            seenIds.add(item.id);
             toInsert.push({
+              id: item.id,
               source_id: sourceId,
               guid: item.guid,
               canonical_url: item.canonical_url,
@@ -315,29 +354,10 @@ export function createSupabaseStore(client: Client): NewsStore {
               scored_at: item.scored_at,
               scorer_model: item.scorer_model,
             });
-          } else if (item.scoring_status === "scored" && (local.scoring_status === "pending" || local.scoring_status === "failed")) {
-            // AMB-08: a local row that has no score yet takes the snapshot's score; scored local rows are never overwritten.
-            const { error: upErr } = await client
-              .from("news_items")
-              .update({
-                score: item.score,
-                tags: item.tags,
-                why_it_matters: item.why_it_matters,
-                scoring_status: "scored",
-                attempts: item.attempts,
-                scored_at: item.scored_at,
-                scorer_model: item.scorer_model,
-              })
-              .eq("id", local.id);
-            fail("update news_items", upErr);
-            itemsUpdated++;
           }
         }
         if (toInsert.length > 0) {
-          const { data: ins, error: insErr } = await client
-            .from("news_items")
-            .upsert(toInsert, { onConflict: "canonical_url", ignoreDuplicates: true })
-            .select("id");
+          const { data: ins, error: insErr } = await client.from("news_items").upsert(toInsert, { onConflict: "id", ignoreDuplicates: true }).select("id");
           fail("insert news_items", insErr);
           itemsInserted += ins?.length ?? 0;
         }
@@ -355,7 +375,7 @@ export function createSupabaseStore(client: Client): NewsStore {
           runsUpserted += fresh.length;
         }
       }
-      return { itemsInserted, itemsUpdated, runsUpserted };
+      return { itemsInserted, itemsUpdated, runsUpserted, warnings };
     },
   };
 }

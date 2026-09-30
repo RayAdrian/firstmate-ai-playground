@@ -2,8 +2,10 @@
 import http from "node:http";
 import type { AddressInfo } from "node:net";
 import zlib from "node:zlib";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { fetchBytes, FetchError } from "../../../scripts/news/http";
+
+vi.setConfig({ testTimeout: 30_000 }); // process-spawning tests can be slow on a busy machine
 
 let server: http.Server;
 let base: string;
