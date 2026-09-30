@@ -18,9 +18,15 @@ test.describe("lesson under an archived level", () => {
 
   test.beforeAll(async () => {
     const db = service();
+    // levels.number is constrained to 1..5 and unique: take the first free one instead of assuming it.
+    const used = await db.from("levels").select("number");
+    if (used.error) throw used.error;
+    const taken = new Set((used.data ?? []).map((r) => r.number as number));
+    const free = [1, 2, 3, 4, 5].find((n) => !taken.has(n));
+    if (free === undefined) throw new Error("no free level number for the archived-level test");
     const level = await db
       .from("levels")
-      .insert({ number: 5, slug: LEVEL_SLUG, title: "M2 archived", summary: "", archived_at: "2026-09-01T00:00:00Z" })
+      .insert({ number: free, slug: LEVEL_SLUG, title: "M2 archived", summary: "", archived_at: "2026-09-01T00:00:00Z" })
       .select("id")
       .single();
     if (level.error) throw level.error;

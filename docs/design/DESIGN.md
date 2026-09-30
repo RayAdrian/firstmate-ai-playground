@@ -694,7 +694,7 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 │ ├──────────────────────────────────┤ │    │ │3 / 3 ✓Done ││1 / 3       ││0 / 4       ││0 / 4       ││0 / 4       │          │
 │ │ L2 Context engineering  1 / 3    │ │    │ │━━━━━━━━━━━ ││━━━───────  ││─────────── ││─────────── ││─────────── │          │
 │ │ ━━━━━━━━━━───────────────────── │ │    │ └────────────┘└────────────┘└────────────┘└────────────┘└────────────┘          │
-│ ├ … L3, L4, L5 rows ───────────────┤ │    │   (grid-cols-5, stretched-link cards → /curriculum#level-2; link name "Level 2 …") │
+│ ├ … L3, L4, L5 rows ───────────────┤ │    │   (grid-cols-3, stretched-link cards → /curriculum#level-2; link name "Level 2 …") │
 │ └──────────────────────────────────┘ │    │ View full curriculum →                                                          │
 │ View full curriculum →               │    └────────────────────────────────────────────────────────────────────────────────┘
 │                                      │
@@ -706,12 +706,23 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 └──────────────────────────────────────┘
 ```
 
-- At 360, Continue comes first, then levels as a compact list (not 5 cards), then news. At md, levels become `grid-cols-2`; at lg, `grid-cols-5`.
+- At 360, Continue comes first, then levels as a compact list (not 5 cards), then news. At md, levels become `grid-cols-2`. **At lg (M2 layout, supersedes the wireframe above):** the 7-column side holds Continue, then "Your levels" as `grid-cols-3` cards under it, then "View full curriculum →"; the 5-column side holds the news column. The levels no longer span the full width (that left about 250px of dead space under Continue). The "→" on "See all" and "View full curriculum" is `aria-hidden`.
 - Level cards: the stretched link's text is `<span aria-hidden="true">L2</span><span class="sr-only">Level 2</span> Context engineering`, so the visible form is short and the accessible name is "Level 2 Context engineering" (§11). At 360 the compact rows use the same markup.
 - The Continue card is `bg-accent-soft rounded-card`. It is the only accent-filled surface on the page.
 - **States**
   - **Continue link (C-4, verbatim)**: the primary control is a link whose visible text and accessible name are exactly `Continue: <lesson title>`, styled as a `primary` button (`max-w-full`, the title truncates with `truncate` inside the button but the full title stays in the accessible name). The card also shows the title as an `h2` and the meta line above it. With no history, the same link reads `Continue: <first L1 lesson title>` and points at it (C-4.2).
     - *Suggestion (not shipped):* "Start here" / "Start lesson 1.1" copy for the no-history case would be clearer. It needs a PRD change first.
+  - **Continue target (amended M2, PRD C-4.1):** resume the last-viewed lesson; if it is already completed, the link points to the next incomplete lesson in curriculum order (wrapping to the earliest incomplete one). Same link, same `Continue: <title>` name.
+  - **All lessons complete:** the card keeps its box and shows the h2 "You've completed the curriculum", a meta line ("All N lessons are marked complete. Revisit any of them from the curriculum."), and a primary link "Review the curriculum" → `/curriculum`. There is no `Continue: …` link in this state.
+
+    ```
+    ┌─ Continue card (accent-soft) ──────────────┐
+    │ CONTINUE                          eyebrow  │
+    │ You've completed the curriculum      (h2)  │
+    │ All 18 lessons are marked complete. …      │
+    │ [ Review the curriculum → ]                │
+    └────────────────────────────────────────────┘
+    ```
   - Pre-hydration: the server renders the C-4.2 default (`Continue: <first L1 lesson title>`). After mount, if `lastViewed` points elsewhere, the link text and `href` swap in place (same box, no CLS). Level progress uses skeletons (§4.7). No "0 / 3" flash.
   - Last-viewed lesson no longer exists (P-4): fall back to the C-4.2 default silently.
   - No curriculum seeded: the whole levels area and the Continue card are replaced by one EmptyState: "No lessons seeded yet. Run `npm run seed`." (§7).
@@ -1110,7 +1121,7 @@ WS-A restyles `error.tsx`. It keeps the detection logic and the constants and do
 | 2 | Should opening a `?tool=codex` link update `prefs.tool`? | No. Only explicit tab activation writes the preference (§4.4 step 3). |
 | 3 | `/bookmarks` "newest first": one mixed list or per type? | Two sections, newest first within each (§6.7). |
 | 4 | Do checkboxes need a custom style for brand fit? | No. Native with `accent-color`. Revisit only if the stakeholder objects. |
-| 5 | Continue CTA when the last-viewed lesson is complete: resume it or jump to the next incomplete one? | The PRD (C-4) says last viewed. Keep that. The label says "Continue", not "Next up". |
+| 5 | Continue CTA when the last-viewed lesson is complete: resume it or jump to the next incomplete one? | **Revised 2026-09-30 (orchestrator, M2 browser gate; PRD C-4.1 amended):** resume the last-viewed lesson, but when it is complete point to the next incomplete lesson in curriculum order, and show a completed state when everything is done. Reason: resuming a finished lesson is a dead end. The label still says "Continue", not "Next up". |
 | 6 | News time zone for users outside Manila? | Always Manila (the digest date is Manila-based). Label the footer "Manila time". |
 | 7 | Dark-mode logo asset: ask brand owner for an official reverse logo? | Ship the derived white-wordmark SVG (§1.5) and flag it for brand sign-off. |
 | 8 | The `danger` button in dark mode is a soft fill, not solid. | Intentional. A solid `#ff9a7a` fill with dark text would be the loudest thing in the app. |
@@ -1304,6 +1315,7 @@ This is the authoritative list of **accessible roles and names** for every landm
 |---|---|---|
 | Page heading | `heading` level 1 | "Learn Claude Code and Codex CLI, basics to orchestration" |
 | Continue | `link` | `/^Continue: .+/` (exactly "Continue: \<lesson title\>") |
+| Continue, all lessons complete | `heading` level 2 + `link` | heading "You've completed the curriculum"; link "Review the curriculum" → `/curriculum`; no `/^Continue: /` link |
 | Level cards | `link` (stretched title) | `/^Level \d/`, for example "Level 2 Context engineering" |
 | Level progress | `progressbar` | "Level \<n\>" |
 | Curriculum link | `link` | "View full curriculum" |

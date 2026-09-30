@@ -104,6 +104,7 @@ Priorities are marked P0 (Must), P1 (Should) and P2 (Could). Every AC is written
 **C-4 (P1)** As an engineer, I want a "Continue" call to action on the home page, so that I can resume in one click.
 - Given I last viewed `/lessons/l2-context-files`, when I open `/`, then "Continue: <lesson title>" links to that lesson.
 - Given no history, it links to the first lesson in L1.
+- **C-4.1 (amended 2026-09-30):** Continue resumes the last-viewed lesson; if that lesson is already completed, it points to the next incomplete lesson in curriculum order; if all lessons are complete, it shows a completed state (with a link to /curriculum) instead of `Continue: <title>`.
 
 **C-5 (P1)** As an engineer, I want to see when each lesson was last verified, so that I trust it.
 - Each lesson row and lesson header shows "Verified <date> · Claude Code vX / Codex vY".
@@ -523,3 +524,5 @@ Each worktree authors 3–4 lessons and exercises. Every lesson is verified agai
 3. **Q3: Anthropic source.** A lightweight HTML scraper for anthropic.com/news, plus the Claude Code GitHub releases feed. The scraper is fixture-tested and degrades to "source failed" without breaking the run.
 4. **Q4: Measurement owner and headcount.** Still open and non-blocking. It does not gate the build.
 5. **Q5: Content authorship.** Agents draft all lessons and exercises. Each lesson PR is labelled `needs-human-tool-check` and a senior engineer verifies it against the live CLIs before its `last_verified_on` is set.
+
+6. **C-4 Continue behaviour (2026-09-30, orchestrator decision from the M2 browser gate).** A completed last-viewed lesson no longer stays the Continue target: Continue moves to the next incomplete lesson in curriculum order, and shows a completed state linking to /curriculum when every lesson is done. Reason: after finishing a lesson, resuming it is a dead end for the one-click "pick up where I left off" goal. See C-4.1.
