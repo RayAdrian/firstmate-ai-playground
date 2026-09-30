@@ -4,7 +4,7 @@ import { priceOrder } from "../src/pricing.js";
 
 const line = (unitPriceCents, qty, sku = "A") => ({ sku, unitPriceCents, qty });
 
-// These three are a starting point. Write the rest yourself from README.md (step 1),
+// These three are a starting point. Write the rest yourself from RULES.md,
 // then run `npm run lock-tests` and commit before the agent implements anything.
 
 test("subtotal sums unit price times qty across lines", () => {

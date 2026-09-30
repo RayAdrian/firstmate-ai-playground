@@ -2,9 +2,10 @@ import { test, before, after } from "node:test";
 import assert from "node:assert/strict";
 import { startApp } from "./helpers.js";
 
-// Spec (see README): pagination applies only when `limit` is given.
-// page defaults to 1. limit must be an integer 1..100. The body stays a bare array.
-// Headers: X-Total-Count (all items) and X-Total-Pages. `page` without `limit` is a 400.
+// Spec: GET /items with no query is unchanged (bare array of all items).
+// Pagination applies only when `limit` is given. page defaults to 1. limit must be an integer 1..100.
+// The body stays a bare array. Headers: X-Total-Count (all items) and X-Total-Pages.
+// Invalid limit or page, or `page` without `limit`: 400 with { error }. A page past the end: 200 and [].
 
 let app;
 before(async () => {

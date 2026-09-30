@@ -1,5 +1,5 @@
 /**
- * Prices an order. All amounts are integer cents. See README.md for the rules.
+ * Prices an order. All amounts are integer cents. See RULES.md for the rules.
  * @param {{ sku: string, unitPriceCents: number, qty: number }[]} items
  * @param {{ tier?: "standard" | "gold", coupon?: string }} [options]
  * @returns {{
