@@ -58,10 +58,16 @@ export const getCurriculum = cache(async (): Promise<Curriculum> => {
  * boundary (a real 404 needs it), so it must stay light or the skeleton never gets a chance to show.
  */
 export const lessonExists = cache(async (slug: string): Promise<boolean> => {
-  const row = await dbRead<{ slug: string } | null>(
-    getReadClient().from("lessons").select("slug").eq("slug", slug).is("archived_at", null).maybeSingle(),
+  const db = getReadClient();
+  const lesson = await dbRead<{ level_id: string } | null>(
+    db.from("lessons").select("level_id").eq("slug", slug).is("archived_at", null).maybeSingle(),
   );
-  return row !== null;
+  if (!lesson) return false;
+  // A lesson under an archived level is not in the curriculum either (getCurriculum drops it), so it must 404 too.
+  const level = await dbRead<{ id: string } | null>(
+    db.from("levels").select("id").eq("id", lesson.level_id).is("archived_at", null).maybeSingle(),
+  );
+  return level !== null;
 });
 
 export type LessonPageData = {

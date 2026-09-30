@@ -111,15 +111,20 @@ function heading(level: number, shift: number) {
 /** Shallowest ATX heading level outside code fences, or null when the source has none. */
 export function shallowestHeading(source: string): number | null {
   let min: number | null = null;
-  let fence: string | null = null;
+  let fence: { char: string; length: number } | null = null;
   for (const line of source.split("\n")) {
-    const f = /^ {0,3}(`{3,}|~{3,})/.exec(line);
-    if (f) {
-      if (fence === null) fence = f[1][0];
-      else if (f[1][0] === fence) fence = null;
+    const f = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(line);
+    if (fence === null) {
+      // CommonMark: a backtick fence's info string cannot contain a backtick (that would be inline code).
+      if (f && !(f[1][0] === "`" && f[2].includes("`"))) {
+        fence = { char: f[1][0], length: f[1].length };
+        continue;
+      }
+    } else {
+      // The closing fence uses the same character, is at least as long as the opening one, and has nothing after it.
+      if (f && f[1][0] === fence.char && f[1].length >= fence.length && f[2].trim() === "") fence = null;
       continue;
     }
-    if (fence !== null) continue;
     const h = /^ {0,3}(#{1,6})(?:\s|$)/.exec(line);
     if (h && (min === null || h[1].length < min)) min = h[1].length;
   }

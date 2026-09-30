@@ -1,12 +1,11 @@
 // npm run news:import: fetch the `news-snapshots` branch and upsert its snapshots into local Supabase (PRD section 14, Q1).
 import type { Env } from "./env";
-import { isConnectionFailure } from "@/lib/db/errors";
 import { getServiceClient } from "@/lib/db/service";
 import { newsPaths } from "./config";
 import { ImportError, importSnapshots } from "./import-lib";
 import { createLogger } from "./log";
 import { SourcesConfigError, loadSources, sourcesPath } from "./sources";
-import { createSupabaseStore } from "./store-supabase";
+import { createSupabaseStore, isConnectionFailure } from "./store-supabase";
 
 export async function main(env: Env = process.env): Promise<number> {
   const log = createLogger(env);

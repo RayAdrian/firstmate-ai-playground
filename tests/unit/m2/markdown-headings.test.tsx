@@ -23,4 +23,13 @@ describe("lesson markdown heading levels (axe heading-order)", () => {
     expect(shallowestHeading("~~~\n# x\n~~~\n#### y")).toBe(4);
     expect(shallowestHeading("#hashtag is not a heading")).toBeNull();
   });
+
+  it("follows CommonMark fence rules: a shorter inner fence does not close a longer one", () => {
+    const src = "````md\n```\n# comment inside\n```\n# still inside\n````\n\n#### real";
+    expect(shallowestHeading(src)).toBe(4);
+    // a different fence character never closes, and the closing fence takes no info string
+    expect(shallowestHeading("```\n~~~\n# inside\n``` js\n# inside too\n```\n### out")).toBe(3);
+    // an unterminated fence swallows the rest of the document
+    expect(shallowestHeading("```\n# inside\n")).toBeNull();
+  });
 });

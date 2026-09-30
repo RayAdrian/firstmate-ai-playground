@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { NewsItemRow, SnapshotItem, SnapshotRun } from "@/lib/contracts";
-import { isConnectionFailure } from "@/lib/db/errors";
+import { isConnectionFailure as isNetworkFailure } from "@/lib/db/errors";
 import type { Database } from "@/lib/db/types";
 import { sanitize } from "./sanitize";
 import { dedupeSnapshotItems } from "./snapshot-dedupe";
@@ -45,7 +45,20 @@ function chunkByChars(values: readonly string[], budget = 2500): string[][] {
 }
 
 function fail(action: string, error: { message: string } | null): asserts error is null {
-  if (error) throw new StoreError(`${action}: ${error.message}`);
+  // Keep the original error as the cause so callers can tell a dropped database (code/status) from a bad row.
+  if (error) throw new StoreError(`${action}: ${error.message}`, { cause: error });
+}
+
+/**
+ * A dropped database: network errors, and PostgREST's "cannot reach Postgres" answers (503, PGRST000-003: connection
+ * error, schema cache, pool timeout) when the API is up but the database is not.
+ */
+export function isConnectionFailure(err: unknown): boolean {
+  if (isNetworkFailure(err)) return true;
+  if (typeof err !== "object" || err === null) return false;
+  const e = err as { code?: unknown; status?: unknown; cause?: unknown };
+  if ((typeof e.code === "string" && /^PGRST00[0-3]$/.test(e.code)) || e.status === 503) return true;
+  return e.cause !== undefined && isConnectionFailure(e.cause);
 }
 
 export class StoreError extends Error {

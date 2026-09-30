@@ -2,10 +2,10 @@
 // Backlog: `news:import` exited 0 when Supabase dropped mid-import (every item became a "skipped" warning).
 import { describe, expect, it } from "vitest";
 import type { SnapshotItem } from "@/lib/contracts";
-import { isConnectionFailure } from "@/lib/db/errors";
+import { isConnectionFailure } from "../../../scripts/news/store-supabase";
 import { createSupabaseStore } from "../../../scripts/news/store-supabase";
 
-type Result = { data: unknown; error: { message: string } | null };
+type Result = { data: unknown; error: { message: string; code?: string } | null };
 
 /** A chainable stand-in for the supabase-js query builder: every call returns the chain, awaiting yields `resolve(table, op)`. */
 function fakeClient(resolve: (table: string, op: string) => Result) {
@@ -65,6 +65,28 @@ describe("importSnapshot when the database drops mid-import", () => {
     const err = await store.importSnapshot([item], []).catch((e: unknown) => e);
     expect(err).toBeInstanceOf(Error);
     expect(isConnectionFailure(err)).toBe(true);
+  });
+
+  it.each(["PGRST000", "PGRST001", "PGRST002", "PGRST003"])(
+    "PostgREST %s (API up, Postgres down) also aborts the import",
+    async (code) => {
+      const store = createSupabaseStore(
+        fakeClient((table, op) =>
+          table === "news_items" && op === "upsert"
+            ? ({ data: null, error: { message: "Could not connect to the database", code } } as Result)
+            : reads(table),
+        ),
+      );
+      const err = await store.importSnapshot([item], []).catch((e: unknown) => e);
+      expect(err).toBeInstanceOf(Error);
+      expect(isConnectionFailure(err)).toBe(true);
+    },
+  );
+
+  it("does not treat an ordinary constraint error as a dropped database", () => {
+    expect(isConnectionFailure({ message: "duplicate key", code: "23505" })).toBe(false);
+    expect(isConnectionFailure({ message: "x", code: "PGRST116" })).toBe(false);
+    expect(isConnectionFailure({ message: "unavailable", status: 503 })).toBe(true);
   });
 
   it("still degrades a genuinely bad item to a warning", async () => {

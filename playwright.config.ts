@@ -32,6 +32,7 @@ const MUTATORS = [
   "**/e2e/b/content-pipeline.spec.ts",
   "**/e2e/c/long-token.spec.ts",
   "**/e2e/d/bookmarks.spec.ts",
+  "**/e2e/m2/archived-level.spec.ts",
   "**/e2e/f/news.spec.ts",
 ];
 

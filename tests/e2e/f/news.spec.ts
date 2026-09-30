@@ -501,10 +501,13 @@ test.describe("accessibility and responsive (D-*)", () => {
     await expect(page.getByRole("heading", { level: 2, name: /^Unscored/ })).toBeVisible();
   });
 
-  test("TC-F-52 no horizontal scroll at 360/768/1024/1440, chips wrap", async ({ page }) => {
-    const restore = await patchItems({ n01: { tags: ["new-model", "tooling", "framework", "security", "business"] } });
-    try {
-      for (const [width, height] of [[360, 800], [768, 1024], [1024, 768], [1440, 900]] as const) {
+  // M2: one test per viewport (one test with nine serial navigations timed out under dev-server load). Each patches
+  // n01's tags and always restores them, and the file runs alone (mutating project in playwright.config.ts).
+  for (const [width, height] of [[360, 800], [768, 1024], [1024, 768], [1440, 900]] as const) {
+    test(`TC-F-52 no horizontal scroll at ${width}, chips wrap`, async ({ page }) => {
+      test.slow();
+      const restore = await patchItems({ n01: { tags: ["new-model", "tooling", "framework", "security", "business"] } });
+      try {
         await page.setViewportSize({ width, height });
         for (const url of ["/news", "/news/archive"]) {
           await go(page, url);
@@ -517,11 +520,11 @@ test.describe("accessibility and responsive (D-*)", () => {
             .evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().y)));
           expect(new Set(ys).size).toBeGreaterThan(1);
         }
+      } finally {
+        await restore();
       }
-    } finally {
-      await restore();
-    }
-  });
+    });
+  }
 });
 
 test("test hooks are inert without the cookies (no delay, no throw)", async ({ page, context, baseURL }) => {

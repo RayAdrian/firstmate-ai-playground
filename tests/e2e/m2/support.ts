@@ -60,6 +60,8 @@ export async function waitHydrated(page: Page): Promise<void> {
   await page.waitForLoadState("load");
   // A streamed page keeps its real content in a hidden node until the Suspense swap: wait for a VISIBLE h1.
   await page.getByRole("heading", { level: 1 }).first().waitFor();
+  // The title is streamed with the metadata, a moment after the body on dynamic routes.
+  await page.waitForFunction(() => document.title.length > 0);
   await page.waitForFunction(
     () =>
       document.querySelector('[data-testid="progress-placeholder"]') === null &&
