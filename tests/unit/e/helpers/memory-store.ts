@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { NewsTag, SnapshotItem, SnapshotRun } from "@/lib/contracts";
+import { dedupeSnapshotItems } from "../../../../scripts/news/snapshot-dedupe";
 import { digestDate } from "../../../../scripts/news/time";
 import type { SourceConfig } from "../../../../scripts/news/sources";
 import {
@@ -186,7 +187,7 @@ export class MemoryStore implements NewsStore {
   async snapshotFor(date: string) {
     this.check();
     const items: SnapshotItem[] = this.items
-      .filter((i) => i.digest_date === date)
+      .filter((i) => i.digest_date === date && i.scoring_status !== "skipped")
       .map((i) => ({
         id: i.id,
         source_slug: i.source_slug,
@@ -216,8 +217,9 @@ export class MemoryStore implements NewsStore {
     this.check();
     let itemsInserted = 0;
     let itemsUpdated = 0;
-    const warnings: string[] = [];
-    for (const s of items) {
+    const deduped = dedupeSnapshotItems(items);
+    const warnings: string[] = [...deduped.warnings];
+    for (const s of deduped.items) {
       const byId = this.items.find((i) => i.id === s.id);
       const byUrl = this.items.find((i) => i.canonical_url === s.canonical_url);
       const takes = (l: MemItem) => s.scoring_status === "scored" && (l.scoring_status === "pending" || l.scoring_status === "failed");
@@ -233,6 +235,7 @@ export class MemoryStore implements NewsStore {
         if (takes(byUrl)) Object.assign(byUrl, score);
         itemsUpdated++;
       } else {
+        if (this.items.some((i) => i.canonical_url === s.canonical_url)) throw new Error("duplicate key value violates unique constraint news_items_canonical_url_key");
         this.items.push({ ...s });
         itemsInserted++;
       }

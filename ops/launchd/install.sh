@@ -1,8 +1,17 @@
 #!/bin/bash
 # Install the First Mate news LaunchAgent (PRD I-5). Idempotent.
-# Usage: ops/launchd/install.sh            (or: npm run news:schedule:install)
+# Usage: ops/launchd/install.sh [--dry-run]   (or: npm run news:schedule:install [-- --dry-run])
+#   --dry-run  print the plist, paths and launchctl commands; change nothing and run nothing.
 # Test hooks: HOME (plist + log location), FM_LAUNCHCTL (launchctl replacement).
 set -euo pipefail
+
+DRY_RUN=0
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run) DRY_RUN=1 ;;
+    *) echo "usage: install.sh [--dry-run]" >&2; exit 1 ;;
+  esac
+done
 
 LABEL="tech.firstmate.playground.news"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -55,27 +64,41 @@ xml_escape() { printf '%s' "$1" | sed -e 's/&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>
 # Escape for the sed replacement (delimiter |, and & and \).
 sed_escape() { printf '%s' "$1" | sed -e 's/[\\|&]/\\&/g'; }
 
-mkdir -p "$AGENT_DIR" "$LOG_DIR"
-
-TMP_PLIST="$(mktemp "${TMPDIR:-/tmp}/$LABEL.XXXXXX")"
-trap 'rm -f "$TMP_PLIST"' EXIT
-sed \
+RENDERED="$(sed \
   -e "s|@NPM@|$(sed_escape "$(xml_escape "$NPM_BIN")")|g" \
   -e "s|@REPO@|$(sed_escape "$(xml_escape "$REPO")")|g" \
   -e "s|@PATH@|$(sed_escape "$(xml_escape "$PATH_VALUE")")|g" \
   -e "s|@HOME@|$(sed_escape "$(xml_escape "$HOME")")|g" \
   -e "s|@LOGFILE@|$(sed_escape "$(xml_escape "$LOG_FILE")")|g" \
-  "$TEMPLATE" > "$TMP_PLIST"
+  "$TEMPLATE")"
 
 if command -v plutil >/dev/null 2>&1; then
-  plutil -lint "$TMP_PLIST" >/dev/null || { echo "error: generated plist failed plutil -lint" >&2; exit 1; }
+  printf '%s\n' "$RENDERED" | plutil -lint - >/dev/null || { echo "error: generated plist failed plutil -lint" >&2; exit 1; }
 fi
-if grep -q '@[A-Z]*@' "$TMP_PLIST"; then echo "error: unreplaced placeholder in plist" >&2; exit 1; fi
-
-cp "$TMP_PLIST" "$PLIST"
-chmod 644 "$PLIST"
+if printf '%s\n' "$RENDERED" | grep -q '@[A-Z]*@'; then echo "error: unreplaced placeholder in plist" >&2; exit 1; fi
 
 UID_NUM="$(id -u)"
+
+if [ "$DRY_RUN" -eq 1 ]; then
+  echo "[dry-run] nothing will be written or executed."
+  echo "[dry-run] plist path:  $PLIST"
+  echo "[dry-run] log file:    $LOG_FILE"
+  echo "[dry-run] repo:        $REPO"
+  echo "[dry-run] node:        $NODE_BIN"
+  echo "[dry-run] claude:      $CLAUDE_BIN"
+  echo "[dry-run] npm:         $NPM_BIN"
+  echo "[dry-run] would run:   mkdir -p $AGENT_DIR $LOG_DIR"
+  echo "[dry-run] would run:   $LAUNCHCTL bootout gui/$UID_NUM/$LABEL   (errors ignored)"
+  echo "[dry-run] would run:   $LAUNCHCTL bootstrap gui/$UID_NUM $PLIST"
+  echo "[dry-run] plist contents:"
+  printf '%s\n' "$RENDERED"
+  exit 0
+fi
+
+mkdir -p "$AGENT_DIR" "$LOG_DIR"
+printf '%s\n' "$RENDERED" > "$PLIST"
+chmod 644 "$PLIST"
+
 # bootout first so re-installing never fails with "already loaded"; ignore "not loaded".
 "$LAUNCHCTL" bootout "gui/$UID_NUM/$LABEL" >/dev/null 2>&1 || true
 "$LAUNCHCTL" bootstrap "gui/$UID_NUM" "$PLIST"

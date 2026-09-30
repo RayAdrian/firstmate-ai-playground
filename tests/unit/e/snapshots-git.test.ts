@@ -160,6 +160,21 @@ describe("publishSnapshots (section 14 Q1, TC-E-68..72)", () => {
   });
 });
 
+describe("snapshot size", () => {
+  it("leaves skipped items out, so a day with thousands of them stays small", async () => {
+    const store = new MemoryStore();
+    const items: SnapshotItem[] = [];
+    for (let n = 1; n <= 60; n++) items.push(item(n));
+    for (let n = 1000; n < 4500; n++) items.push(item(n, { score: null, tags: [], why_it_matters: null, scoring_status: "skipped", scored_at: null, scorer_model: null, excerpt: "x".repeat(300) }));
+    await store.importSnapshot(items, []);
+    const [file] = await buildSnapshotFiles(store, ["2026-09-30"], new Date());
+    const snap = newsSnapshotSchema.parse(JSON.parse(file.content));
+    expect(snap.items).toHaveLength(60);
+    expect(snap.items.some((i) => i.scoring_status === "skipped")).toBe(false);
+    expect(Buffer.byteLength(file.content)).toBeLessThan(200 * 1024);
+  });
+});
+
 describe("snapshot contents (TC-E-73)", () => {
   it("contains no secrets, local paths or stack traces", async () => {
     const store = await storeWith([item(1)]);

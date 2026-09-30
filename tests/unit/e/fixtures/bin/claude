@@ -17,7 +17,7 @@ process.stdin.on("end", () => {
     } catch {
       call = 1;
     }
-    fs.appendFileSync(log, JSON.stringify({ argv: process.argv.slice(2), stdin, cwd: process.cwd() }) + "\n");
+    fs.appendFileSync(log, JSON.stringify({ argv: process.argv.slice(2), stdin, cwd: process.cwd(), envKeys: Object.keys(process.env) }) + "\n");
   }
 
   if (String(call) === process.env.FAKE_CLAUDE_FAIL_ON) {

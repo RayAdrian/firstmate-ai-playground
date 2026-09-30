@@ -20,8 +20,8 @@ function makeBin(name: string, body: string) {
   fs.writeFileSync(p, `#!/bin/bash\n${body}\n`, { mode: 0o755 });
 }
 
-function run(script: string, opts: { withNode?: boolean; withClaude?: boolean } = {}) {
-  const { withNode = true, withClaude = true } = opts;
+function run(script: string, opts: { withNode?: boolean; withClaude?: boolean; args?: string[] } = {}) {
+  const { withNode = true, withClaude = true, args = [] } = opts;
   const dirs = [bin];
   const stubs = path.join(home, "stubs");
   fs.mkdirSync(stubs, { recursive: true });
@@ -35,7 +35,7 @@ function run(script: string, opts: { withNode?: boolean; withClaude?: boolean } 
   fs.mkdirSync(npmDir, { recursive: true });
   fs.writeFileSync(path.join(npmDir, "npm"), "#!/bin/bash\necho fake\n", { mode: 0o755 });
   dirs.push(stubs, npmDir, "/usr/bin", "/bin", "/usr/sbin", "/sbin");
-  return spawnSync("/bin/bash", [path.join(OPS, script)], {
+  return spawnSync("/bin/bash", [path.join(OPS, script), ...args], {
     env: { HOME: home, PATH: dirs.join(":"), FM_LAUNCHCTL: path.join(bin, "launchctl"), TMPDIR: os.tmpdir(), NODE_ENV: "test" },
     encoding: "utf8",
   });
@@ -113,6 +113,32 @@ describe.skipIf(!isMac)("launchd install/uninstall (I-5, TC-E-51..54)", () => {
     const u2 = run("uninstall.sh");
     expect(u2.status).toBe(0);
     expect(u2.stdout).toMatch(/not installed/);
+  });
+
+  it("install --dry-run prints the plist, paths and commands and changes nothing", () => {
+    const res = run("install.sh", { args: ["--dry-run"] });
+    expect(res.status, res.stderr).toBe(0);
+    expect(res.stdout).toContain("[dry-run]");
+    expect(res.stdout).toContain(plistPath());
+    expect(res.stdout).toMatch(/bootstrap gui\/\d+/);
+    expect(res.stdout).toContain("<key>StartCalendarInterval</key>");
+    expect(fs.existsSync(path.join(home, "Library"))).toBe(false);
+    expect(stubCalls()).toEqual([]);
+  });
+
+  it("uninstall --dry-run removes nothing", () => {
+    expect(run("install.sh").status).toBe(0);
+    const calls = stubCalls().length;
+    const res = run("uninstall.sh", { args: ["--dry-run"] });
+    expect(res.status).toBe(0);
+    expect(res.stdout).toContain("[dry-run]");
+    expect(fs.existsSync(plistPath())).toBe(true);
+    expect(stubCalls()).toHaveLength(calls);
+  });
+
+  it("rejects unknown flags", () => {
+    expect(run("install.sh", { args: ["--dryrun"] }).status).not.toBe(0);
+    expect(fs.existsSync(path.join(home, "Library"))).toBe(false);
   });
 
   it("uninstall on a clean HOME succeeds", () => {

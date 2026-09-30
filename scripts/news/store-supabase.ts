@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { NewsItemRow, SnapshotItem, SnapshotRun } from "@/lib/contracts";
 import type { Database } from "@/lib/db/types";
 import { sanitize } from "./sanitize";
+import { dedupeSnapshotItems } from "./snapshot-dedupe";
 import type { SourceConfig } from "./sources";
 import {
   MAX_ATTEMPTS,
@@ -221,6 +222,8 @@ export function createSupabaseStore(client: Client): NewsStore {
           .from("news_items")
           .select("*")
           .eq("digest_date", digestDate)
+          // Skipped (backfill / prefiltered) items stay local: they would add ~3 MB a day and are never shown or scored.
+          .neq("scoring_status", "skipped")
           .order("canonical_url", { ascending: true })
           .range(from, from + 999);
         fail("read news_items", error);
@@ -278,14 +281,48 @@ export function createSupabaseStore(client: Client): NewsStore {
       return { runs, items };
     },
 
-    async importSnapshot(items, runs): Promise<ImportResult> {
+    async importSnapshot(rawItems, runs): Promise<ImportResult> {
       await loadSources();
       let itemsInserted = 0;
       let itemsUpdated = 0;
+      const deduped = dedupeSnapshotItems(rawItems);
+      const items = deduped.items;
+      const warnings: string[] = [...deduped.warnings];
 
-      const warnings: string[] = [];
+      type Local = { id: string; canonical_url: string; scoring_status: NewsItemRow["scoring_status"] };
+      const scoring = (item: SnapshotItem) => ({
+        score: item.score,
+        tags: item.tags,
+        why_it_matters: item.why_it_matters,
+        scoring_status: "scored" as const,
+        attempts: item.attempts,
+        scored_at: item.scored_at,
+        scorer_model: item.scorer_model,
+      });
+      const takesScore = (item: SnapshotItem, local: Local) =>
+        item.scoring_status === "scored" && (local.scoring_status === "pending" || local.scoring_status === "failed");
+      const toRow = (item: SnapshotItem, sourceId: string): Partial<NewsItemRow> => ({
+        id: item.id,
+        source_id: sourceId,
+        guid: item.guid,
+        canonical_url: item.canonical_url,
+        url: item.url,
+        title: item.title,
+        author: item.author,
+        published_at: item.published_at,
+        first_seen_at: item.first_seen_at,
+        digest_date: item.digest_date,
+        excerpt: item.excerpt,
+        score: item.score,
+        tags: item.tags,
+        why_it_matters: item.why_it_matters,
+        scoring_status: item.scoring_status,
+        attempts: item.attempts,
+        scored_at: item.scored_at,
+        scorer_model: item.scorer_model,
+      });
+
       for (const part of chunk(items, 100)) {
-        type Local = { id: string; canonical_url: string; scoring_status: NewsItemRow["scoring_status"] };
         const byId = new Map<string, Local>();
         const byUrl = new Map<string, Local>();
         for (const ids of chunkByChars(part.map((i) => i.id))) {
@@ -299,67 +336,53 @@ export function createSupabaseStore(client: Client): NewsStore {
           for (const r of data ?? []) byUrl.set(r.canonical_url, r);
         }
 
-        const scoring = (item: SnapshotItem) => ({
-          score: item.score,
-          tags: item.tags,
-          why_it_matters: item.why_it_matters,
-          scoring_status: "scored" as const,
-          attempts: item.attempts,
-          scored_at: item.scored_at,
-          scorer_model: item.scorer_model,
-        });
-        const takesScore = (item: SnapshotItem, local: Local) =>
-          item.scoring_status === "scored" && (local.scoring_status === "pending" || local.scoring_status === "failed");
-
-        const toInsert: Array<Partial<NewsItemRow>> = [];
-        const seenIds = new Set<string>();
+        const toInsert: Array<{ item: SnapshotItem; row: Partial<NewsItemRow> }> = [];
         for (const item of part) {
           const sourceId = idBySlug.get(item.source_slug);
           if (!sourceId) throw new StoreError(`unknown source "${item.source_slug}" (not in news_sources)`);
           const local = byId.get(item.id);
           const clash = byUrl.get(item.canonical_url);
-          if (local) {
+          if (local && (!clash || clash.id === local.id)) {
             // Same id: never overwrite a scored local row; a pending/failed one takes the snapshot's score.
             if (takesScore(item, local)) {
               const { error } = await client.from("news_items").update(scoring(item)).eq("id", local.id);
               fail("update news_items", error);
+              local.scoring_status = "scored";
               itemsUpdated++;
             }
+          } else if (local && clash) {
+            // Two different local rows already hold this id and this url; merging them is not safe. Keep both.
+            warnings.push(`local rows conflict for ${item.canonical_url}: id ${local.id} and ${clash.id} both exist; skipped`);
           } else if (clash) {
-            // Same canonical_url, different id: update in place to the snapshot id so ids match across machines.
-            warnings.push(`canonical_url conflict: local id ${clash.id} replaced by snapshot id ${item.id} (${item.canonical_url})`);
+            // Same canonical_url, different local id: update in place to the snapshot id so ids match across machines.
+            // Note: a bookmark saved on the old local id no longer resolves afterwards.
+            warnings.push(`canonical_url conflict: local id ${clash.id} replaced by snapshot id ${item.id} (${item.canonical_url}); a local bookmark on the old id will show as unavailable`);
             const patch = takesScore(item, clash) ? { id: item.id, ...scoring(item) } : { id: item.id };
             const { error } = await client.from("news_items").update(patch).eq("id", clash.id);
             fail("update news_items", error);
+            byId.delete(clash.id);
+            const updated: Local = { id: item.id, canonical_url: clash.canonical_url, scoring_status: takesScore(item, clash) ? "scored" : clash.scoring_status };
+            byId.set(item.id, updated);
+            byUrl.set(item.canonical_url, updated);
             itemsUpdated++;
-          } else if (!seenIds.has(item.id)) {
-            seenIds.add(item.id);
-            toInsert.push({
-              id: item.id,
-              source_id: sourceId,
-              guid: item.guid,
-              canonical_url: item.canonical_url,
-              url: item.url,
-              title: item.title,
-              author: item.author,
-              published_at: item.published_at,
-              first_seen_at: item.first_seen_at,
-              digest_date: item.digest_date,
-              excerpt: item.excerpt,
-              score: item.score,
-              tags: item.tags,
-              why_it_matters: item.why_it_matters,
-              scoring_status: item.scoring_status,
-              attempts: item.attempts,
-              scored_at: item.scored_at,
-              scorer_model: item.scorer_model,
-            });
+          } else {
+            toInsert.push({ item, row: toRow(item, sourceId) });
           }
         }
+
         if (toInsert.length > 0) {
-          const { data: ins, error: insErr } = await client.from("news_items").upsert(toInsert, { onConflict: "id", ignoreDuplicates: true }).select("id");
-          fail("insert news_items", insErr);
-          itemsInserted += ins?.length ?? 0;
+          const bulk = await client.from("news_items").upsert(toInsert.map((t) => t.row), { onConflict: "id", ignoreDuplicates: true }).select("id");
+          if (!bulk.error) {
+            itemsInserted += bulk.data?.length ?? 0;
+          } else {
+            // Something unexpected (for example a constraint we did not foresee): insert one by one so a single bad
+            // item can never block the rest of the import.
+            for (const t of toInsert) {
+              const one = await client.from("news_items").upsert(t.row, { onConflict: "id", ignoreDuplicates: true }).select("id");
+              if (one.error) warnings.push(`skipped ${t.item.canonical_url}: ${sanitize(one.error.message)}`);
+              else itemsInserted += one.data?.length ?? 0;
+            }
+          }
         }
       }
 

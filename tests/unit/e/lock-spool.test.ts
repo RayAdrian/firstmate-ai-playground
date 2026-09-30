@@ -46,6 +46,14 @@ describe("acquireLock (I-4.5, TC-E-43/44)", () => {
     if (lock.acquired) lock.release();
   });
 
+  it("release does not remove a lock that another run took over", () => {
+    const file = path.join(tmp, "run.lock");
+    const a = acquireLock(file, { maxAgeMs: 60_000 });
+    fs.writeFileSync(file, JSON.stringify({ pid: process.pid, startedAt: new Date().toISOString(), token: "someone-else" }));
+    if (a.acquired) a.release();
+    expect(fs.existsSync(file)).toBe(true);
+  });
+
   it("treats an unreadable lock as stale", () => {
     const file = path.join(tmp, "run.lock");
     fs.writeFileSync(file, "garbage");

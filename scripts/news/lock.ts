@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { randomBytes } from "node:crypto";
 
 export const LOCK_MAX_AGE_MS = 30 * 60_000;
 
@@ -34,11 +35,17 @@ export function acquireLock(file: string, options: { maxAgeMs?: number } = {}): 
   fs.mkdirSync(path.dirname(file), { recursive: true });
   let removedStale = false;
 
+  const token = randomBytes(8).toString("hex");
+  const body = JSON.stringify({ pid: process.pid, startedAt: new Date().toISOString(), token });
+
   for (let attempt = 0; attempt < 2; attempt++) {
+    // Write the full content to a private temp file, then hard-link it into place: creation is atomic and a
+    // reader can never see a half-written lock.
+    const tmp = `${file}.${process.pid}.${token}.tmp`;
     try {
-      const fd = fs.openSync(file, "wx");
-      fs.writeSync(fd, JSON.stringify({ pid: process.pid, startedAt: new Date().toISOString() }));
-      fs.closeSync(fd);
+      fs.writeFileSync(tmp, body);
+      fs.linkSync(tmp, file);
+      fs.unlinkSync(tmp);
       let released = false;
       return {
         acquired: true,
@@ -47,18 +54,25 @@ export function acquireLock(file: string, options: { maxAgeMs?: number } = {}): 
           if (released) return;
           released = true;
           try {
-            fs.unlinkSync(file);
+            // Only remove the lock if it is still ours (it may have been taken over after an age-based expiry).
+            const cur = JSON.parse(fs.readFileSync(file, "utf8")) as { token?: string };
+            if (cur.token === token) fs.unlinkSync(file);
           } catch {
             // already gone
           }
         },
       };
     } catch (err) {
+      fs.rmSync(tmp, { force: true });
       if ((err as NodeJS.ErrnoException).code !== "EEXIST") throw err;
       if (attempt === 0 && isStale(file, maxAgeMs)) {
         try {
-          fs.unlinkSync(file);
-          removedStale = true;
+          // Re-read right before removing: if another process already took over, the content differs and we back off.
+          const seen = fs.readFileSync(file, "utf8");
+          if (isStale(file, maxAgeMs) && fs.readFileSync(file, "utf8") === seen) {
+            fs.unlinkSync(file);
+            removedStale = true;
+          }
         } catch {
           // someone else removed it; retry the create
         }

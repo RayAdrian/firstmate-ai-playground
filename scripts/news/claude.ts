@@ -1,6 +1,8 @@
 import type { Env } from "./env";
 import { spawn } from "node:child_process";
+import fs from "node:fs";
 import os from "node:os";
+import path from "node:path";
 
 export const DEFAULT_CLAUDE_TIMEOUT_MS = 120_000;
 const MAX_OUTPUT_BYTES = 5 * 1024 * 1024;
@@ -22,6 +24,11 @@ export const CLAUDE_ARGS: readonly string[] = [
   "--strict-mcp-config",
   "--disable-slash-commands",
   "--no-session-persistence",
+  // Start with CLAUDE.md, hooks, plugins, skills and MCP servers all disabled (auth and built-in behaviour still work),
+  // so a user's hooks and ~/.claude/CLAUDE.md never see feed text or steer scoring. Not `--bare`: it drops OAuth login.
+  "--safe-mode",
+  "--settings",
+  '{"disableAllHooks":true}',
 ];
 
 export type ClaudeResult =
@@ -35,6 +42,22 @@ export type ClaudeRunner = (prompt: { system: string; user: string }) => Promise
 
 const AUTH_PATTERN = /not logged in|please run \/login|invalid api key|authentication|unauthori[sz]ed|credentials|oauth/i;
 const LOGIN_REASON = "claude not logged in (run `claude` once and complete /login)";
+
+const ENV_ALLOW_EXACT = new Set(["PATH", "HOME", "USER", "LOGNAME", "SHELL", "TMPDIR", "LANG", "TERM", "XDG_CONFIG_HOME", "XDG_CACHE_HOME", "XDG_DATA_HOME"]);
+const ENV_ALLOW_PREFIX = ["LC_", "ANTHROPIC_", "CLAUDE_", "FAKE_CLAUDE_"];
+
+/**
+ * The environment the scoring child gets: only what claude needs (PATH, HOME, locale, auth-related ANTHROPIC_* and
+ * CLAUDE_* vars). Never SUPABASE_* keys or anything else from .env.local.
+ */
+export function scrubEnv(env: Env): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(env)) {
+    if (v === undefined) continue;
+    if (ENV_ALLOW_EXACT.has(k) || ENV_ALLOW_PREFIX.some((p) => k.startsWith(p))) out[k] = v;
+  }
+  return out;
+}
 
 export interface RunClaudeOptions {
   env?: Env;
@@ -54,13 +77,15 @@ export async function runClaude(prompt: { system: string; user: string }, option
       if (settled) return;
       settled = true;
       clearTimeout(timer);
+      fs.rmSync(emptyCwd, { recursive: true, force: true });
       resolve(r);
     };
 
-    // Run from a neutral directory so no project CLAUDE.md or settings leak into the scoring context.
+    // Run from a fresh empty directory so no project CLAUDE.md or settings leak into the scoring context.
+    const emptyCwd = fs.mkdtempSync(path.join(os.tmpdir(), "fm-news-claude-"));
     const child = spawn(options.bin ?? "claude", args, {
-      cwd: os.tmpdir(),
-      env: env as NodeJS.ProcessEnv,
+      cwd: emptyCwd,
+      env: scrubEnv(env) as unknown as NodeJS.ProcessEnv,
       shell: false,
       detached: true,
       stdio: ["pipe", "pipe", "pipe"],
