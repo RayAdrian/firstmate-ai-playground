@@ -141,8 +141,8 @@ describe("level 1 exercises", () => {
           expect(r.status).not.toBe(0);
           if (e.exercise === "ex-1-1-failing-test") {
             // Fails for the right reason: exactly one assertion fails, the other three pass.
-            expect(r.stdout).toMatch(/ℹ pass 3/);
-            expect(r.stdout).toMatch(/ℹ fail 1/);
+            expect(r.stdout).toMatch(/(?:ℹ|#) pass 3\b/);
+            expect(r.stdout).toMatch(/(?:ℹ|#) fail 1\b/);
           }
         });
 
