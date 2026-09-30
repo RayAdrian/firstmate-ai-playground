@@ -1,0 +1,8 @@
+- [ ] c1: I ran `npm test` (green), then `npm run typecheck` and `npm run lint` myself and saw the hidden errors.
+- [ ] c2: With no context file, I gave the agent the truncate task and noted whether it ran typecheck or lint on its own.
+- [ ] c3: AGENTS.md lists `npm run typecheck`, `npm run lint` and `npm test` in the order to run them, and explains why tests alone are not enough here.
+- [ ] c4: AGENTS.md has a definition of done based on exit codes, including files the agent did not touch.
+- [ ] c5: AGENTS.md says what the agent must not do to get green (no `@ts-ignore`, no `any`, no editing checks or tests).
+- [ ] c6: CLAUDE.md contains `@AGENTS.md`.
+- [ ] c7: In a fresh session, the same truncate prompt (no mention of typecheck or lint) made the agent run them and fix the existing errors. I read its final output rather than trusting the summary.
+- [ ] c8: `npm run verify` exits 0.

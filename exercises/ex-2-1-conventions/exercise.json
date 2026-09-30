@@ -1,0 +1,22 @@
+{
+  "slug": "ex-2-1-conventions",
+  "title": "Teach the agent four conventions it cannot guess",
+  "goal": "The repo follows four conventions that are not obvious from the code, and has no context file. Write AGENTS.md (and a thin CLAUDE.md that imports it), then have the agent add an applyDiscountCents handler that follows all four without you repeating them in the prompt.",
+  "setup_cmd": "mkdir -p ~/fm-ex && cp -r exercises/ex-2-1-conventions/starter ~/fm-ex/ex-2-1-conventions && cd ~/fm-ex/ex-2-1-conventions && npm i",
+  "verify": "npm run verify",
+  "required_tool_features": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "@path imports"
+  ],
+  "starter_prompts": {
+    "claude": "Read src/ and test/. Write an AGENTS.md at the repo root with only what a new engineer could not guess from the code: the conventions, the test command and what done means. Keep it under 40 lines. Then create CLAUDE.md that imports it with a line @AGENTS.md (Claude-only notes can go below). Do not implement any feature yet. Afterwards run /context and tell me which memory files loaded.\n\nThen, in a fresh session: Add a handler applyDiscountCents(totalCents, percent) in src/handlers/apply-discount.js. It takes a percent off the total and rounds to whole cents. A percent outside 0..100 fails with the error code E_INVALID_PERCENT. Add a test for it.",
+    "codex": "Read src/ and test/. Write an AGENTS.md at the repo root with only what a new engineer could not guess from the code: the conventions, the test command and what done means. Keep it under 40 lines. Do not implement any feature yet.\n\nThen, in a fresh session: Add a handler applyDiscountCents(totalCents, percent) in src/handlers/apply-discount.js. It takes a percent off the total and rounds to whole cents. A percent outside 0..100 fails with the error code E_INVALID_PERCENT. Add a test for it."
+  },
+  "solution_notes": [
+    "AGENTS.md is the single source of truth. CLAUDE.md is a thin file: an @AGENTS.md import plus one Claude-only note, so the tools cannot drift apart.",
+    "It lists only rules the code does not make obvious (integer cents and the Cents suffix, AppError codes, log.js instead of console, one kebab-case file per handler). It skips anything the agent can read from the code, such as the directory tree.",
+    "Every rule is concrete enough to check, and the test command and a definition of done are stated, so the agent can verify its own work.",
+    "The feature prompt names the function, file and error code (the spec) but does not repeat any convention. The context file carries them."
+  ]
+}

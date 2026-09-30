@@ -1,0 +1,24 @@
+{
+  "slug": "ex-2-2-long-task",
+  "title": "A three-part refactor across two sessions",
+  "goal": "Split a report.js monolith into parse, format and render modules over two agent sessions. End session 1 with a HANDOFF.md, start session 2 from it, and finish with every constraint intact.",
+  "setup_cmd": "mkdir -p ~/fm-ex && cp -r exercises/ex-2-2-long-task/starter ~/fm-ex/ex-2-2-long-task && cd ~/fm-ex/ex-2-2-long-task && git init -q && git add -A && git commit -qm base && npm i",
+  "verify": "npm test",
+  "required_tool_features": [
+    "/compact",
+    "/clear",
+    "/context",
+    "session resume",
+    "handoff file"
+  ],
+  "starter_prompts": {
+    "claude": "We are refactoring src/report.js in 3 parts: (1) parse.js, (2) format.js, (3) render.js, with report.js left as a thin facade. Constraints: generateReport(csv) output stays byte-identical, never edit test/fixtures/, no new dependencies, plain ESM. Do part 1 only: make test/part1-parse.test.js pass and keep `npm test` otherwise unchanged. Then write HANDOFF.md with ## Done, ## Next and ## Constraints so a fresh session can continue without this chat. Commit.",
+    "codex": "We are refactoring src/report.js in 3 parts: (1) parse.js, (2) format.js, (3) render.js, with report.js left as a thin facade. Constraints: generateReport(csv) output stays byte-identical, never edit test/fixtures/, no new dependencies, plain ESM. Do part 1 only: make test/part1-parse.test.js pass and keep `npm test` otherwise unchanged. Then write HANDOFF.md with ## Done, ## Next and ## Constraints so a fresh session can continue without this chat. Commit."
+  },
+  "solution_notes": [
+    "The constraints live in HANDOFF.md as well as in the prompt. A constraint stated only in chat is the first thing a summary drops or a new session never sees.",
+    "HANDOFF.md is written for a reader with zero memory: what is done, the exact next steps in order, the constraints, and gotchas such as the trailing newline in the golden output.",
+    "Session 2 starts fresh (Claude Code /clear or a new process, Codex /new or a new process) and its first prompt is 'Read HANDOFF.md and continue with Next', so nothing depends on compaction quality.",
+    "One commit per part gives a safe rollback point and lets the next session see the state with git log instead of trusting a summary."
+  ]
+}
