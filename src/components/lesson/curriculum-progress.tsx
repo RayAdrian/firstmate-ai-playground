@@ -1,16 +1,15 @@
 "use client";
 
 import { Check } from "lucide-react";
-import { ProgressBar, Skeleton } from "@/components/ui";
+import { Badge, ProgressBar, Skeleton } from "@/components/ui";
 import { useLessonCompletion, useLessonsProgress } from "@/lib/progress";
 
 /** Success pill: state is carried by the icon and the text, never by colour alone. */
 export function CompletedBadge({ label = "Completed" }: { label?: string }) {
   return (
-    <span className="inline-flex h-6 items-center gap-1 rounded-full bg-success-soft px-2.5 text-xs font-medium text-success">
-      <Check size={12} aria-hidden="true" />
+    <Badge variant="success" icon={<Check />}>
       {label}
-    </span>
+    </Badge>
   );
 }
 

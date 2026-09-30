@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
+import { Badge } from "@/components/ui";
+import { EYEBROW_CLASS } from "./inline-text";
 import { isOutdated, verifiedLine, type ToolVersions } from "./format";
 import { LessonState, LevelProgress, RailCount } from "./curriculum-progress";
 
@@ -22,13 +24,13 @@ export type CurriculumListLevel = {
 
 export function OutdatedBadge() {
   return (
-    <span
+    <Badge
+      variant="warning"
+      icon={<AlertTriangle />}
       title="Last verified more than 60 days ago; commands may have changed."
-      className="inline-flex h-6 items-center gap-1 rounded-full bg-warning-soft px-2.5 text-xs font-medium text-warning"
     >
-      <AlertTriangle size={12} aria-hidden="true" />
       May be outdated
-    </span>
+    </Badge>
   );
 }
 
@@ -53,7 +55,7 @@ export function CurriculumList({
         aria-label="Levels"
         className="mb-8 lg:sticky lg:top-[76px] lg:col-span-3 lg:mb-0 lg:self-start"
       >
-        <p className="mb-2 hidden text-xs font-medium uppercase tracking-eyebrow text-fg-muted lg:block">
+        <p className={`mb-2 hidden lg:block ${EYEBROW_CLASS}`}>
           On this page
         </p>
         <ul className="flex flex-wrap gap-2 lg:flex-col lg:gap-1">
@@ -81,7 +83,7 @@ export function CurriculumList({
           >
             <p
               id={`level-${level.number}-eyebrow`}
-              className="text-xs font-medium uppercase tracking-eyebrow text-fg-muted"
+              className={EYEBROW_CLASS}
             >
               Level {level.number}
             </p>
@@ -116,8 +118,8 @@ export function CurriculumList({
                     </div>
                     <p className="mt-1 text-base text-fg line-clamp-2 lg:line-clamp-none">{lesson.objective}</p>
                     <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-fg-muted">
-                      <span>{lesson.est_minutes} min</span>
-                      {line && <span>· {line}</span>}
+                      <span>{lesson.est_minutes} min{line ? " ·" : ""}</span>
+                      {line && <span>{line}</span>}
                       {outdated && <OutdatedBadge />}
                     </p>
                   </li>

@@ -2,7 +2,8 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { Check, ChevronRight } from "lucide-react";
-import { ProgressBar } from "@/components/ui";
+import { Badge, ProgressBar } from "@/components/ui";
+import { EYEBROW_CLASS, InlineText } from "@/components/lesson/inline-text";
 import { CommandLine, PlainCodeBlock } from "@/components/ui/command-line";
 import { ToolTabs } from "@/components/lesson/tool-tabs";
 import type { Tool } from "@/components/lesson/tool";
@@ -66,7 +67,7 @@ export function ExercisePanel({ exercise }: { exercise: ExercisePanelData }) {
       aria-labelledby="exercise exercise-title"
       className="my-8 rounded-card bg-surface p-5 md:p-6 dark:border dark:border-border"
     >
-      <h2 id="exercise" className="text-xs font-medium uppercase tracking-eyebrow text-fg-muted">
+      <h2 id="exercise" className={EYEBROW_CLASS}>
         Exercise
       </h2>
       <h3 id="exercise-title" className="mt-1 text-2xl font-bold text-fg-strong">
@@ -94,9 +95,7 @@ export function ExercisePanel({ exercise }: { exercise: ExercisePanelData }) {
         <CommandLine label="Verify" command={exercise.verifyCmd} />
       ) : (
         <p className="mt-2 flex flex-wrap items-center gap-2 text-base text-fg">
-          <span className="inline-flex h-6 items-center rounded-full bg-border-subtle px-2.5 text-xs font-medium text-fg-muted">
-            Manual verification
-          </span>
+          <Badge variant="neutral">Manual verification</Badge>
           Use the checklist below.
         </p>
       )}
@@ -108,10 +107,9 @@ export function ExercisePanel({ exercise }: { exercise: ExercisePanelData }) {
         <div className="mb-2 flex items-center gap-3">
           {hydrated ? (
             allDone ? (
-              <span className="inline-flex h-6 items-center gap-1 rounded-full bg-success-soft px-2.5 text-xs font-medium text-success">
-                <Check size={12} aria-hidden="true" />
+              <Badge variant="success" icon={<Check />}>
                 Exercise complete
-              </span>
+              </Badge>
             ) : (
               <span className="text-sm tabular-nums text-fg-muted">
                 {doneCount} of {total} done
@@ -136,12 +134,14 @@ export function ExercisePanel({ exercise }: { exercise: ExercisePanelData }) {
             <label key={item.id} className="flex min-h-11 cursor-pointer items-start gap-3 py-2.5">
               <input
                 type="checkbox"
-                className="mt-0.5 size-5 accent-primary dark:accent-link"
+                className="mt-0.5 size-5 shrink-0 accent-primary dark:accent-link"
                 disabled={!hydrated}
                 checked={hydrated && checked[item.id] === true}
                 onChange={(e) => setChecked(item.id, e.target.checked)}
               />
-              <span className="text-base text-fg">{item.text}</span>
+              <span className="min-w-0 text-base text-fg [overflow-wrap:anywhere]">
+                <InlineText text={item.text} />
+              </span>
             </label>
           ))}
         </div>

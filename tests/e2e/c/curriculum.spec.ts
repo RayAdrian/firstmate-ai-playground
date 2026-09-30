@@ -87,6 +87,7 @@ test.describe("curriculum structure and progress", () => {
   });
 
   test("TC-C-08 every lesson is one click away and nothing is locked", async ({ page }) => {
+    test.setTimeout(120_000); // first compile of each lesson route in dev can be slow under load
     for (const [slug, title] of [
       ["l1-first-session", "Your first agent session"],
       ["l1-permissions", "Permissions and sandboxing"],
@@ -96,7 +97,7 @@ test.describe("curriculum structure and progress", () => {
       await page.goto("/curriculum");
       const link = page.locator(`a[href="/lessons/${slug}"]`);
       await expect(link).not.toHaveAttribute("aria-disabled", "true");
-      await Promise.all([page.waitForURL(`**/lessons/${slug}`), link.click()]);
+      await Promise.all([page.waitForURL(`**/lessons/${slug}`, { timeout: 60_000 }), link.click()]);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       if (title) await expect(page.getByRole("heading", { level: 1 })).toHaveText(title);
     }

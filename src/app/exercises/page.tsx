@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { TITLE_SUFFIX } from "@/components/lesson/inline-text";
 import { ExercisesList } from "@/components/exercise/exercises-list";
 import { SeedEmptyState } from "@/components/lesson/seed-empty";
 import { getExerciseList } from "@/components/lesson/server/queries";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = { title: "Exercises" };
+export const metadata: Metadata = { title: `Exercises · ${TITLE_SUFFIX}` };
 
 export default async function ExercisesPage() {
   const exercises = await getExerciseList();

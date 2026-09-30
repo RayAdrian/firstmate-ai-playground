@@ -5,6 +5,7 @@ import ReactMarkdown, { type Components, type Options } from "react-markdown";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
 import { CodeBlock } from "@/components/ui/code-block";
+import { INLINE_CODE_CLASS } from "./inline-text";
 
 // Lesson markdown is rendered safely (L-7):
 //  - raw HTML in the source is shown as literal text, never parsed (remarkHtmlAsText);
@@ -67,6 +68,22 @@ export function parseFenceTitle(meta: string | undefined): string | null {
   return title && title.length > 0 ? title : null;
 }
 
+/** Accessible name for a table: its caption, else its first header cell, else "data". */
+function tableName(node: HastNode | undefined): string {
+  const find = (n: HastNode | undefined, tags: string[]): HastNode | null => {
+    if (!n) return null;
+    if (n.type === "element" && n.tagName && tags.includes(n.tagName)) return n;
+    for (const c of n.children ?? []) {
+      const hit = find(c, tags);
+      if (hit) return hit;
+    }
+    return null;
+  };
+  const el = find(node, ["caption"]) ?? find(node, ["th"]);
+  const text = el ? textOf(el).trim() : "";
+  return text.length > 0 ? text : "data";
+}
+
 function textOf(node: HastNode): string {
   if (node.type === "text") return node.value ?? "";
   return (node.children ?? []).map(textOf).join("");
@@ -95,15 +112,31 @@ const components: Components = {
   h4: heading(4),
   h5: heading(5),
   h6: heading(6),
-  p: ({ children }) => <p className="my-4 text-prose text-fg">{children}</p>,
-  ul: ({ children }) => <ul className="my-4 list-disc space-y-1 pl-6 text-prose text-fg">{children}</ul>,
-  ol: ({ children }) => <ol className="my-4 list-decimal space-y-1 pl-6 text-prose text-fg">{children}</ol>,
+  p: ({ children }) => (
+    <p className="my-4 max-w-[var(--fm-measure)] text-prose text-fg [overflow-wrap:anywhere]">{children}</p>
+  ),
+  ul: ({ children }) => (
+    <ul className="my-4 max-w-[var(--fm-measure)] list-disc space-y-1 pl-6 text-prose text-fg [overflow-wrap:anywhere]">
+      {children}
+    </ul>
+  ),
+  ol: ({ children }) => (
+    <ol className="my-4 max-w-[var(--fm-measure)] list-decimal space-y-1 pl-6 text-prose text-fg [overflow-wrap:anywhere]">
+      {children}
+    </ol>
+  ),
   blockquote: ({ children }) => (
     <blockquote className="my-4 border-l-4 border-border pl-4 text-fg-muted">{children}</blockquote>
   ),
   hr: () => <hr className="my-6 border-divider" />,
-  table: ({ children }) => (
-    <div className="my-4 overflow-x-auto">
+  // The scroll container is a labelled, focusable region so keyboard users can scroll it.
+  table: ({ node, children }) => (
+    <div
+      role="region"
+      tabIndex={0}
+      aria-label={`Table: ${tableName(node as HastNode | undefined)}`}
+      className="my-4 overflow-x-auto"
+    >
       <table className="w-full border-collapse text-left text-base">{children}</table>
     </div>
   ),
@@ -115,13 +148,7 @@ const components: Components = {
       <img src={src} alt={alt ?? ""} className="my-4 h-auto max-w-full rounded-lg" />
     ) : null,
   code: ({ children, className }) => (
-    <code
-      className={
-        className ? className : "rounded bg-surface px-1.5 py-0.5 font-mono text-[0.9em] text-fg-strong"
-      }
-    >
-      {children}
-    </code>
+    <code className={className ? className : INLINE_CODE_CLASS}>{children}</code>
   ),
   pre: ({ node }) => {
     const codeEl = (node as HastNode | undefined)?.children?.find(

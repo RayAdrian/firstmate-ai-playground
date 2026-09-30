@@ -9,6 +9,7 @@ import {
   PrevNextNav,
   ToolPanelContent,
 } from "@/components/lesson/lesson-sections";
+import { TITLE_SUFFIX } from "@/components/lesson/inline-text";
 import { Markdown } from "@/components/lesson/markdown";
 import { computePrevNext } from "@/components/lesson/navigation";
 import { applyRouteHooks } from "@/components/lesson/server/test-hooks";
@@ -22,7 +23,8 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({ params }: PageProps<"/lessons/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const data = await getLessonPage(slug);
-  return { title: data?.lesson.title ?? "Lesson" };
+  if (!data) return { title: `Lesson not found · ${TITLE_SUFFIX}` };
+  return { title: `${data.lesson.title} · L${data.level.number} · ${TITLE_SUFFIX}` };
 }
 
 export default async function LessonPage({ params, searchParams }: PageProps<"/lessons/[slug]">) {

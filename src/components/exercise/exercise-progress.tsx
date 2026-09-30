@@ -26,7 +26,7 @@ export function ExerciseProgress({ slug, itemIds }: { slug: string; itemIds: rea
   }
   return (
     <div className="flex items-center gap-3">
-      <span className="text-sm tabular-nums text-fg-muted">
+      <span className="whitespace-nowrap text-sm tabular-nums text-fg-muted">
         {doneCount} / {total}
       </span>
       <div className="w-20">

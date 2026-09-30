@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { TITLE_SUFFIX } from "@/components/lesson/inline-text";
 import { CurriculumList } from "@/components/lesson/curriculum-list";
 import { SeedEmptyState } from "@/components/lesson/seed-empty";
 import { getCurriculum } from "@/components/lesson/server/queries";
@@ -6,7 +7,7 @@ import { getCurriculum } from "@/components/lesson/server/queries";
 // Content routes render dynamically so seeded changes show without a rebuild (S-3).
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = { title: "Curriculum" };
+export const metadata: Metadata = { title: `Curriculum · ${TITLE_SUFFIX}` };
 
 export default async function CurriculumPage() {
   const { levels, today } = await getCurriculum();

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { Bookmark } from "lucide-react";
+import { Button } from "@/components/ui";
 import { announce, useBookmark, useLessonCompletion, useTrackLastViewed } from "@/lib/progress";
 import { CompletedBadge } from "./curriculum-progress";
 
@@ -15,16 +16,16 @@ export function HeaderCompletion({ slug }: { slug: string }) {
 export function BookmarkToggle({ slug }: { slug: string }) {
   const { hydrated, bookmarked, toggle } = useBookmark("lessons", slug);
   return (
-    <button
-      type="button"
+    <Button
+      variant="ghost"
+      size="sm"
       aria-pressed={hydrated && bookmarked}
       disabled={!hydrated}
       onClick={toggle}
-      className="inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-medium text-fg hover:bg-surface disabled:opacity-50 touch:min-h-11"
+      icon={<Bookmark aria-hidden="true" fill={hydrated && bookmarked ? "currentColor" : "none"} />}
     >
-      <Bookmark size={16} aria-hidden="true" fill={hydrated && bookmarked ? "currentColor" : "none"} />
       Bookmark
-    </button>
+    </Button>
   );
 }
 
@@ -41,50 +42,51 @@ export function TrackLastViewed({ slug }: { slug: string }) {
  */
 export function CompleteBlock({ slug }: { slug: string }) {
   const { hydrated, completed, markComplete, undo } = useLessonCompletion(slug);
-  const markRef = useRef<HTMLButtonElement>(null);
-  const undoRef = useRef<HTMLButtonElement>(null);
+  const root = useRef<HTMLDivElement>(null);
   const focusNext = useRef<"undo" | "mark" | null>(null);
 
   useEffect(() => {
-    if (focusNext.current === "undo" && completed) undoRef.current?.focus();
-    if (focusNext.current === "mark" && !completed) markRef.current?.focus();
+    const find = (a: string) => root.current?.querySelector<HTMLButtonElement>(`[data-action="${a}"]`);
+    if (focusNext.current === "undo" && completed) find("undo")?.focus();
+    if (focusNext.current === "mark" && !completed) find("mark")?.focus();
     focusNext.current = null;
   }, [completed]);
 
   return (
-    <div className="flex flex-col gap-3 rounded-card bg-surface p-5 sm:flex-row sm:items-center sm:justify-between md:p-6 dark:border dark:border-border">
+    <div ref={root} className="flex flex-col gap-3 rounded-card bg-surface p-5 sm:flex-row sm:items-center sm:justify-between md:p-6 dark:border dark:border-border">
       <p className="text-lg font-bold text-fg-strong">Done with this lesson?</p>
       {hydrated && completed ? (
         <p className="text-base">
           <span className="font-bold text-success">Completed ✓</span>
           <span aria-hidden="true"> · </span>
-          <button
-            ref={undoRef}
-            type="button"
+          <Button
+            data-action="undo"
+            variant="ghost"
+            size="sm"
+            className="underline underline-offset-2"
             onClick={() => {
               focusNext.current = "mark";
               undo();
               announce("Marked not complete");
             }}
-            className="inline-flex h-9 items-center rounded-xl px-3 font-medium text-fg underline underline-offset-2 hover:bg-canvas touch:min-h-11"
           >
             Undo
-          </button>
+          </Button>
         </p>
       ) : (
-        <button
-          ref={markRef}
-          type="button"
+        <Button
+          data-action="mark"
+          variant="primary"
           disabled={!hydrated}
+          className="max-sm:w-full"
           onClick={() => {
             focusNext.current = "undo";
             markComplete();
             announce("Lesson marked complete");
           }}
-          className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-5 text-base font-bold text-primary-fg hover:bg-primary-hover disabled:opacity-50 max-sm:w-full"
         >
           Mark complete
-        </button>
+        </Button>
       )}
     </div>
   );

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Info } from "lucide-react";
+import { EYEBROW_CLASS, InlineText } from "./inline-text";
 import { verifiedLine, isOutdated, type ToolVersions } from "./format";
 import { OutdatedBadge } from "./curriculum-list";
 import { BookmarkToggle, HeaderCompletion } from "./lesson-actions";
@@ -44,12 +45,12 @@ export function LessonHeader({
           </li>
         </ol>
       </nav>
-      <p className="mt-6 text-xs font-medium uppercase tracking-eyebrow text-fg-muted">Lesson {number}</p>
+      <p className={`mt-6 ${EYEBROW_CLASS}`}>Lesson {number}</p>
       <h1 className="mt-1 text-3xl font-bold text-fg-strong md:text-4xl">{title}</h1>
       <p className="mt-3 text-lg text-fg">{objective}</p>
       <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-fg-muted">
-        <span>{minutes} min</span>
-        {line && <span>· {line}</span>}
+        <span>{minutes} min{line ? " ·" : ""}</span>
+        {line && <span>{line}</span>}
         {isOutdated(lastVerifiedOn, today) && <OutdatedBadge />}
       </p>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
@@ -109,9 +110,11 @@ export function Differences({ items }: { items: readonly string[] }) {
       <h2 id="differences" className="text-xl font-bold text-fg-strong">
         Key differences
       </h2>
-      <ul className="mt-3 list-disc space-y-2 pl-6 text-prose text-fg">
+      <ul className="mt-3 list-disc space-y-2 pl-6 text-prose text-fg [overflow-wrap:anywhere]">
         {items.map((d, i) => (
-          <li key={i}>{d}</li>
+          <li key={i}>
+            <InlineText text={d} />
+          </li>
         ))}
       </ul>
     </section>
@@ -169,7 +172,7 @@ export function LessonRail({ hasExercise }: { hasExercise: boolean }) {
   if (hasExercise) links.push(["#exercise", "Exercise"]);
   return (
     <nav aria-label="On this lesson" className="hidden lg:sticky lg:top-[76px] lg:block lg:self-start">
-      <p className="mb-2 text-xs font-medium uppercase tracking-eyebrow text-fg-muted">On this lesson</p>
+      <p className={`mb-2 ${EYEBROW_CLASS}`}>On this lesson</p>
       <ul className="space-y-1">
         {links.map(([href, label]) => (
           <li key={href}>

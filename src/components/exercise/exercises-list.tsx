@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Badge } from "@/components/ui";
+import { EYEBROW_CLASS } from "@/components/lesson/inline-text";
 import { ExerciseProgress } from "./exercise-progress";
 
 export type ExerciseListEntry = {
@@ -13,11 +15,7 @@ export type ExerciseListEntry = {
 };
 
 function VerifyBadge({ automated }: { automated: boolean }) {
-  return (
-    <span className="inline-flex h-6 items-center rounded-full bg-border-subtle px-2.5 text-xs font-medium text-fg-muted">
-      {automated ? "Auto" : "Manual"}
-    </span>
-  );
+  return <Badge variant="neutral">{automated ? "Auto" : "Manual"}</Badge>;
 }
 
 /** Exercises index (E-5): a table from lg up, cards grouped by level below. */
@@ -55,7 +53,7 @@ export function ExercisesList({ exercises }: { exercises: readonly ExerciseListE
                 <td className="px-3 py-3">
                   <VerifyBadge automated={e.automated} />
                 </td>
-                <td className="px-3 py-3">
+                <td className="whitespace-nowrap px-3 py-3">
                   <ExerciseProgress slug={e.slug} itemIds={e.itemIds} />
                 </td>
               </tr>
@@ -66,8 +64,10 @@ export function ExercisesList({ exercises }: { exercises: readonly ExerciseListE
 
       <div className="space-y-8 lg:hidden">
         {levels.map((level) => (
-          <section key={level} aria-label={`Level ${level} exercises`}>
-            <p className="mb-2 text-xs font-medium uppercase tracking-eyebrow text-fg-muted">Level {level}</p>
+          <section key={level} aria-labelledby={`ex-level-${level}`}>
+            <h2 id={`ex-level-${level}`} className={`mb-2 ${EYEBROW_CLASS}`}>
+              Level {level}
+            </h2>
             <div className="space-y-3">
               {exercises
                 .filter((e) => e.level === level)
@@ -75,10 +75,13 @@ export function ExercisesList({ exercises }: { exercises: readonly ExerciseListE
                   <article
                     key={e.slug}
                     aria-labelledby={`ex-card-${e.slug}`}
-                    className="rounded-card bg-surface p-5 dark:border dark:border-border"
+                    className="relative rounded-card bg-surface p-5 dark:border dark:border-border"
                   >
                     <h3 id={`ex-card-${e.slug}`} className="text-lg font-bold text-fg-strong">
-                      <Link href={`/lessons/${e.lessonSlug}#exercise`} className="text-link underline underline-offset-2">
+                      <Link
+                        href={`/lessons/${e.lessonSlug}#exercise`}
+                        className="text-link underline underline-offset-2 after:absolute after:inset-0"
+                      >
                         {e.title}
                       </Link>
                     </h3>
