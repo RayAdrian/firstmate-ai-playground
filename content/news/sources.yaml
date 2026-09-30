@@ -1,0 +1,86 @@
+# News sources (PRD I-1). Source of truth: `npm run news:run` upserts this file into `news_sources` by slug.
+# All URLs were verified reachable on 2026-09-30 (`npm run news:sources:check` re-checks them).
+# type: rss | atom | html. `html` is the Anthropic scraper (PRD section 14, Q3).
+# filters.keywords: whole-word, case-insensitive prefilter over title + excerpt (used for the noisy HN feed).
+
+- name: Anthropic news
+  slug: anthropic-news
+  url: https://www.anthropic.com/news
+  type: html
+  enabled: true
+
+- name: Claude Code releases
+  slug: claude-code-releases
+  url: https://github.com/anthropics/claude-code/releases.atom
+  type: atom
+  enabled: true
+
+- name: Codex CLI releases
+  slug: codex-cli-releases
+  url: https://github.com/openai/codex/releases.atom
+  type: atom
+  enabled: true
+
+- name: OpenAI news
+  slug: openai-news
+  url: https://openai.com/news/rss.xml
+  type: rss
+  enabled: true
+
+- name: Google DeepMind blog
+  slug: deepmind-blog
+  url: https://deepmind.google/blog/rss.xml
+  type: rss
+  enabled: true
+
+- name: Hacker News front page
+  slug: hacker-news
+  url: https://hnrss.org/frontpage?points=150
+  type: rss
+  enabled: true
+  filters:
+    keywords:
+      - AI
+      - LLM
+      - Claude
+      - OpenAI
+      - Gemini
+      - Next.js
+      - React
+      - Supabase
+      - Postgres
+      - TypeScript
+      - Vercel
+      - security
+      - agent
+      - MCP
+
+- name: Simon Willison
+  slug: simon-willison
+  url: https://simonwillison.net/atom/everything/
+  type: atom
+  enabled: true
+
+- name: Vercel blog
+  slug: vercel-blog
+  url: https://vercel.com/atom
+  type: atom
+  enabled: true
+
+- name: Next.js blog
+  slug: nextjs-blog
+  url: https://nextjs.org/feed.xml
+  type: rss
+  enabled: true
+
+- name: Supabase blog
+  slug: supabase-blog
+  url: https://supabase.com/rss.xml
+  type: rss
+  enabled: true
+
+- name: GitHub changelog
+  slug: github-changelog
+  url: https://github.blog/changelog/feed/
+  type: rss
+  enabled: true

@@ -1,0 +1,67 @@
+#!/usr/bin/env node
+// Fake `claude` for pipeline tests. Never talks to a model.
+// FAKE_CLAUDE_MODE: ok | nonzero | not-logged-in | timeout | invalid-json | partial-json | extra-ids | score-injected-100 | is-error
+// FAKE_CLAUDE_LOG: append {argv, stdin, cwd} JSON lines here. FAKE_CLAUDE_FAIL_ON=n: exit 3 on the nth call only.
+const fs = require("node:fs");
+
+const chunks = [];
+process.stdin.on("data", (c) => chunks.push(c));
+process.stdin.on("end", () => {
+  const stdin = Buffer.concat(chunks).toString("utf8");
+  const mode = process.env.FAKE_CLAUDE_MODE || "ok";
+  const log = process.env.FAKE_CLAUDE_LOG;
+  let call = 1;
+  if (log) {
+    try {
+      call = fs.readFileSync(log, "utf8").split("\n").filter(Boolean).length + 1;
+    } catch {
+      call = 1;
+    }
+    fs.appendFileSync(log, JSON.stringify({ argv: process.argv.slice(2), stdin, cwd: process.cwd(), envKeys: Object.keys(process.env) }) + "\n");
+  }
+
+  if (String(call) === process.env.FAKE_CLAUDE_FAIL_ON) {
+    process.stderr.write("boom\n");
+    process.exit(3);
+  }
+  if (mode === "nonzero") {
+    process.stderr.write("boom\n");
+    process.exit(3);
+  }
+  if (mode === "not-logged-in") {
+    process.stderr.write("Invalid API key · Please run /login\n");
+    process.exit(1);
+  }
+  if (mode === "timeout") {
+    setTimeout(() => process.exit(0), 10_000);
+    return;
+  }
+
+  const ids = [...stdin.matchAll(/<<<BEGIN_ITEM_[0-9a-f]+ id="([^"]+)">>>/g)].map((m) => m[1]);
+  const score = (id, i) => ({ id, score: 50 + (i % 40), tags: ["tooling"], why: "Relevant to First Mate engineers." });
+  let results = ids.map(score);
+  let text;
+  if (mode === "invalid-json") {
+    text = "Sorry, I cannot produce JSON right now.";
+  } else if (mode === "partial-json") {
+    const full = JSON.stringify(results);
+    text = full.slice(0, Math.floor(full.length * 0.6));
+  } else {
+    if (mode === "extra-ids") {
+      results = [...results, { id: "00000000-0000-0000-0000-00000000dead", score: 100, tags: [], why: "stray" }, { ...results[1], score: 99 }];
+    }
+    if (mode === "score-injected-100") {
+      results = results.map((r) => ({ ...r, score: 100 }));
+      results = [...results, ...results.slice(1).map((r) => ({ ...r, score: 100 }))];
+    }
+    text = "```json\n" + JSON.stringify(results) + "\n```";
+  }
+  const envelope = {
+    type: "result",
+    subtype: mode === "is-error" ? "error_during_execution" : "success",
+    is_error: mode === "is-error",
+    result: text,
+    modelUsage: { "fake-model-1": { inputTokens: 1, outputTokens: 1 } },
+  };
+  process.stdout.write(JSON.stringify(envelope));
+});

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Template. ops/launchd/install.sh (npm run news:schedule:install) fills the AT-sign placeholders below
+  with absolute paths and writes the result to ~/Library/LaunchAgents/. Do not load this file directly.
+
+  Schedule: fires at minute 0 of EVERY hour. The run is gated (the gate flag) so it is a no-op unless it is
+  at or after 08:00 Asia/Manila and no scheduled run has finished today. See ops/launchd/README.md for why.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>tech.firstmate.playground.news</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>@NPM@</string>
+    <string>run</string>
+    <string>news:run</string>
+    <string>--</string>
+    <string>--gate</string>
+    <string>--publish</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>@REPO@</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>@PATH@</string>
+    <key>HOME</key>
+    <string>@HOME@</string>
+    <key>NEWS_TRIGGER</key>
+    <string>schedule</string>
+  </dict>
+
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+
+  <!-- Also evaluate the gate at login/boot: covers a Mac that was powered off (not just asleep) at 08:00. -->
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>@LOGFILE@</string>
+  <key>StandardErrorPath</key>
+  <string>@LOGFILE@</string>
+
+  <key>ProcessType</key>
+  <string>Background</string>
+</dict>
+</plist>
