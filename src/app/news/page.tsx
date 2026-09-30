@@ -1,10 +1,11 @@
 import { Newspaper } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { applyTestHooks, getNow } from "@/components/news/clock";
+import { applyTestHooks } from "@/components/news/clock";
 import { formatDigestDay, formatTime } from "@/components/news/dates";
 import { NewsCard } from "@/components/news/news-card";
 import { getDigest, RELEVANCE_BAR } from "@/components/news/queries";
+import { getNow } from "@/lib/time/now";
 import { UnscoredSection } from "@/components/news/unscored-section";
 import { CommandLine, EmptyState, Notice } from "@/components/ui";
 

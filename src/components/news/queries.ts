@@ -3,7 +3,7 @@ import type { IngestRunRow, NewsItemRow, NewsSourceRow } from "@/lib/contracts";
 import { dbRead } from "@/lib/db";
 import { getReadClient } from "@/lib/db/server";
 import { ARCHIVE_PAGE_SIZE, type ArchiveParams } from "./archive-params";
-import { manilaDate } from "./dates";
+import { manilaDate } from "@/lib/time/now";
 import { compareRanked, DIGEST_SIZE, RELEVANCE_BAR, selectDigest } from "./rank";
 
 /** What a news card needs. `url` is null when the stored URL is not http(s): the title then renders as text. */
@@ -85,7 +85,7 @@ export async function getDigest(
   const run = runs[0];
   if (!run) return { kind: "none" };
 
-  const digestDate = manilaDate(run.started_at);
+  const digestDate = manilaDate(new Date(run.started_at));
   const [sources, rows] = await Promise.all([
     loadSources(),
     dbRead(db.from("news_items").select("*").eq("digest_date", digestDate)),

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getNow } from "./clock";
+import { getNow } from "@/lib/time/now";
 import { formatDigestDay } from "./dates";
 import { NewsCard } from "./news-card";
 import { getDigest } from "./queries";

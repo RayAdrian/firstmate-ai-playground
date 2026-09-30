@@ -1,20 +1,8 @@
 import "server-only";
 import { cookies } from "next/headers";
 
-// Test-only seams (AMB-03, AMB-F15). Active under `next dev` (what Playwright starts) or when
-// FM_TEST_MODE=1 is set on a production server; a plain `next start` ignores these cookies entirely.
-const TEST_MODE = process.env.FM_TEST_MODE === "1" || process.env.NODE_ENV !== "production";
-
-/** "Now" for the news pages. In test mode the `fm_test_now` cookie (ISO with offset) overrides the clock. */
-export async function getNow(): Promise<Date> {
-  if (!TEST_MODE) return new Date();
-  const raw = (await cookies()).get("fm_test_now")?.value;
-  if (raw) {
-    const d = new Date(decodeURIComponent(raw));
-    if (!Number.isNaN(d.getTime())) return d;
-  }
-  return new Date();
-}
+// Test-only hooks (AMB-F15), active only under FM_TEST_MODE=1. The server clock itself is `getNow` in @/lib/time/now.
+const TEST_MODE = process.env.FM_TEST_MODE === "1";
 
 const thrown = new Set<string>();
 

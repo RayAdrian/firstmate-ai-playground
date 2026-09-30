@@ -4,10 +4,6 @@ import { formatInTimeZone } from "date-fns-tz";
 
 export const NEWS_TZ = "Asia/Manila";
 
-/** yyyy-MM-dd of an instant in Manila. */
-export function manilaDate(instant: Date | string): string {
-  return formatInTimeZone(instant, NEWS_TZ, "yyyy-MM-dd");
-}
 
 /** A plain yyyy-MM-dd digest date as an instant (noon Manila, so the day never shifts). */
 function digestInstant(date: string): Date {

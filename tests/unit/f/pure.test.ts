@@ -1,14 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { activeFilterCount, archiveHref, parseArchiveParams } from "@/components/news/archive-params";
-import { formatDigestDay, formatFullStamp, formatShortStamp, formatTime, isIsoDate, manilaDate } from "@/components/news/dates";
+import { formatDigestDay, formatFullStamp, formatShortStamp, formatTime, isIsoDate } from "@/components/news/dates";
+import { manilaDate } from "@/lib/time/now";
 import { compareRanked, selectDigest } from "@/components/news/rank";
 
 describe("Manila dates (N-1.1, N-3.1)", () => {
   it("uses the Manila calendar day, not UTC", () => {
-    expect(manilaDate("2026-09-30T23:59:00+08:00")).toBe("2026-09-30");
-    expect(manilaDate("2026-10-01T00:00:00+08:00")).toBe("2026-10-01");
+    expect(manilaDate(new Date("2026-09-30T23:59:00+08:00"))).toBe("2026-09-30");
+    expect(manilaDate(new Date("2026-10-01T00:00:00+08:00"))).toBe("2026-10-01");
     // 16:30Z on the 29th is 00:30 on the 30th in Manila.
-    expect(manilaDate("2026-09-29T16:30:00Z")).toBe("2026-09-30");
+    expect(manilaDate(new Date("2026-09-29T16:30:00Z"))).toBe("2026-09-30");
   });
 
   it("formats day, time and stamps in Manila", () => {

@@ -5,7 +5,7 @@ import * as store from "@/lib/progress/store";
 
 const getDigest = vi.fn<(now: Date, opts?: { limit?: number }) => Promise<Digest>>();
 vi.mock("@/components/news/queries", () => ({ getDigest: (...args: Parameters<typeof getDigest>) => getDigest(...args) }));
-vi.mock("@/components/news/clock", () => ({ getNow: async () => new Date("2026-09-30T13:00:00+08:00") }));
+vi.mock("@/lib/time/now", () => ({ getNow: async () => new Date("2026-09-30T13:00:00+08:00") }));
 
 import { DigestTopItems } from "@/components/news";
 
