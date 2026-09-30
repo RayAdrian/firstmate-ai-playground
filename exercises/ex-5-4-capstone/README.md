@@ -20,11 +20,12 @@ npm test    # 3 passing tests: the baseline
 `gate-status.sh` and `gate-merge.sh` call GitHub, so gates and the gated merge need a real repo. Make it **private**, since First Mate client work never goes in a public repo, and needs `gh` authenticated (`gh auth login`):
 
 ```bash
-gh repo create fm-capstone --private --source . --remote github --push
+git remote rename origin local
+gh repo create fm-capstone --private --source . --remote origin --push
 for l in gate:browser-green gate:review-green gate:uiux-green; do gh label create "$l"; done
 ```
 
-Branch protection on a private repo needs a GitHub Team or Pro plan. Without it, `gate:merge` is still your only merge path by convention. The gate scripts in `scripts/` are the ones this app was built with: `gate-status.sh` posts a status on the commit that was reviewed, and `gate-merge.sh` (`npm run gate:merge`) refuses to merge unless everything is green on the head commit.
+After this, `origin` is GitHub for every later step, and the bare repo stays available as `local`. Branch protection on a private repo needs a GitHub Team or Pro plan. Without it, `gate:merge` is still your only merge path by convention. The gate scripts in `scripts/` are the ones this app was built with: `gate-status.sh` posts a status on the commit that was reviewed, and `gate-merge.sh` (`npm run gate:merge`) refuses to merge unless everything is green on the head commit.
 
 Local only? Do steps 1 to 6, then merge your branches into `main` yourself and skip the GitHub-dependent checklist items (marked "GitHub path").
 
