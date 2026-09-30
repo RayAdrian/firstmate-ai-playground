@@ -1,0 +1,35 @@
+/* Named grid areas for the news card (DESIGN 4.12). Children pick their area with [grid-area:...]. */
+.card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    "tile meta bookmark"
+    "title title title"
+    "tags tags tags"
+    "why why why";
+}
+
+@media (width >= 48rem) {
+  .card {
+    grid-template-areas:
+      "tile title bookmark"
+      "tile meta meta"
+      "tile tags tags"
+      "tile why why";
+  }
+}
+
+/* No score tile at any width. */
+.unscored {
+  grid-template-columns: 1fr auto;
+  grid-template-areas:
+    "title bookmark"
+    "meta meta";
+}
+
+/* Home top 3: tile beside the title even at 360, no tags or why rows. */
+.compact {
+  grid-template-areas:
+    "tile title bookmark"
+    "tile meta meta";
+}
