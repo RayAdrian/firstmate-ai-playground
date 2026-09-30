@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { ProgressNotices } from "@/lib/progress";
 import { CONTAINER_CLASS, GlobalNotices, LiveRegion, SiteFooter, SiteHeader, SkipLink, cn } from "@/components/ui";
 
 // Satoshi, self-hosted (DESIGN.md §1.2, §2.6). next/font/local adds the metric-adjusted fallback (CLS < 0.05).
@@ -28,8 +29,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-dvh flex-col">
         <SkipLink />
         <SiteHeader />
-        {/* WS-D mounts <ProgressNotices /> here once it merges: <GlobalNotices><ProgressNotices /></GlobalNotices> */}
-        <GlobalNotices />
+        <GlobalNotices>
+          <ProgressNotices />
+        </GlobalNotices>
         <main id="main" tabIndex={-1} className={cn(CONTAINER_CLASS, "flex-1 pt-8 pb-16 md:pt-12")}>
           {children}
         </main>
