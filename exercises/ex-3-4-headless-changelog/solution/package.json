@@ -1,0 +1,13 @@
+{
+  "name": "ex-3-4-headless-changelog",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "changelog": "bin/changelog.js"
+  },
+  "scripts": {
+    "test": "node --test \"tests/*.test.js\"",
+    "changelog": "node bin/changelog.js"
+  }
+}

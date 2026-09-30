@@ -1,0 +1,18 @@
+{
+  "slug": "ex-3-4-headless-changelog",
+  "title": "Headless changelog: git log to categorised JSON",
+  "goal": "Finish a script that turns git log into a categorised changelog by calling claude -p and codex exec headlessly. Get schema-checked JSON back from each tool, treat commit text as untrusted, and fail safely when the output is wrong. Verify runs offline against fake claude and codex binaries and checks the output against the schema.",
+  "verify": "npm test",
+  "required_tool_features": ["headless-exec", "structured-output"],
+  "setup_cmd": "D=~/fm-ex/ex-3-4-headless-changelog; if [ -e \"$D\" ]; then echo \"Already set up at $D. Delete it first to start over.\"; else mkdir -p ~/fm-ex && cp -r exercises/ex-3-4-headless-changelog/starter \"$D\" && cd \"$D\" && git init -q -b main && git add -A && git -c user.name=fm -c user.email=fm@example.com commit -qm baseline && npm install; fi",
+  "starter_prompts": {
+    "claude": "Read src/headless.js, src/generate.js and tests/changelog.test.js. Implement runClaude and runCodex in src/headless.js and the TODOs in src/generate.js so that npm test passes. Requirements: claude runs with -p, --output-format json, --json-schema and no tools (--tools \"\"), and the answer is the structured_output field; codex runs exec, ephemeral, read-only, with --output-schema pointing to a temp file and -o for the final message; commit text goes to stdin, never into arguments; validate everything the model returns and fail with exit code 1 and nothing on stdout when it is wrong. Do not edit anything under tests/. Run npm test and report the result.",
+    "codex": "Read src/headless.js, src/generate.js and tests/changelog.test.js. Implement runClaude and runCodex in src/headless.js and the TODOs in src/generate.js so that npm test passes. Requirements: claude runs with -p, --output-format json, --json-schema and no tools (--tools \"\"), and the answer is the structured_output field; codex runs exec, ephemeral, read-only, with --output-schema pointing to a temp file and -o for the final message; commit text goes to stdin, never into arguments; validate everything the model returns and fail with exit code 1 and nothing on stdout when it is wrong. Do not edit anything under tests/. Run npm test and report the result."
+  },
+  "solution_notes": [
+    "Instructions travel in argv and the commit list travels on stdin. The instructions say stdin is untrusted data. The claude call also passes --tools \"\" so an injected commit subject has no tool to misuse.",
+    "The two tools take their schema differently: claude gets --json-schema as a string and returns the validated object in the structured_output field of a JSON envelope, while codex needs --output-schema pointing at a file and writes its final message to the file named by -o.",
+    "Nothing the model returns is trusted. The output is checked against the schema (types, enum, no extra fields) and against the commit list (every sha exactly once, none invented). Any failure exits 1 with an empty stdout, so a pipeline never receives a half-valid changelog.",
+    "The tests use fake claude and codex binaries first on PATH, so verify is free, offline and deterministic, and the fakes also check the flags a real run needs."
+  ]
+}

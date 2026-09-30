@@ -1,0 +1,59 @@
+#!/usr/bin/env node
+// Fake `claude` for tests. It records how it was called and prints canned output in the
+// shape of `claude -p --output-format json --json-schema ...`. It costs nothing and is deterministic.
+import { appendFileSync, readFileSync } from "node:fs";
+
+const args = process.argv.slice(2);
+const stdin = readFileSync(0, "utf8");
+if (process.env.FAKE_LOG) appendFileSync(process.env.FAKE_LOG, JSON.stringify({ tool: "claude", args, stdin }) + "\n");
+
+const fail = (msg, code = 1) => {
+  console.error(msg);
+  process.exit(code);
+};
+if (!args.includes("-p") && !args.includes("--print")) fail("fake claude: expected -p");
+const schemaIdx = args.indexOf("--json-schema");
+if (schemaIdx === -1) fail("fake claude: expected --json-schema");
+try {
+  JSON.parse(args[schemaIdx + 1]);
+} catch {
+  fail("Error: --json-schema is not a valid JSON Schema");
+}
+
+const mode = process.env.FAKE_MODE ?? "ok";
+if (mode === "error") fail("fake claude: simulated failure");
+
+const envelope = (extra) => ({ type: "result", subtype: "success", is_error: false, session_id: "fake", total_cost_usd: 0, ...extra });
+if (mode === "garbage") {
+  console.log(JSON.stringify(envelope({ result: "Sorry, I cannot do that." })));
+  process.exit(0);
+}
+if (mode === "not-json") {
+  console.log("this is not json at all");
+  process.exit(0);
+}
+
+const structured = fakeEntries(stdin, mode);
+console.log(JSON.stringify(envelope({ result: JSON.stringify(structured), structured_output: structured })));
+
+function fakeEntries(text, mode) {
+  const commits = text
+    .split("\n")
+    .filter(Boolean)
+    .map((l) => {
+      const [sha, ...rest] = l.split("\t");
+      return { sha, subject: rest.join("\t") };
+    });
+  const category = (s) =>
+    /^\w+(\(.+\))?!:/.test(s) ? "breaking" : /^feat/.test(s) ? "feature" : /^fix/.test(s) ? "fix" : /^docs/.test(s) ? "docs" : "chore";
+  const entries = commits.map((c) => ({
+    sha: c.sha,
+    category: category(c.subject),
+    summary: c.subject.replace(/^\w+(\(.+\))?!?:\s*/, "").slice(0, 80) || c.subject,
+  }));
+  if (mode === "bad-category") entries[0].category = "banana";
+  if (mode === "unknown-sha") entries.push({ sha: "deadbee", category: "fix", summary: "invented" });
+  if (mode === "missing-sha") entries.pop();
+  if (mode === "extra-field") entries[0].note = "not in the schema";
+  return { entries };
+}

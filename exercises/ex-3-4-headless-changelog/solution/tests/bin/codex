@@ -1,0 +1,64 @@
+#!/usr/bin/env node
+// Fake `codex` for tests. It records how it was called, checks the flags a real `codex exec`
+// needs for schema output, writes the final message to the -o file and prints it to stdout.
+import { appendFileSync, existsSync, readFileSync, writeFileSync } from "node:fs";
+
+const args = process.argv.slice(2);
+const stdin = readFileSync(0, "utf8");
+if (process.env.FAKE_LOG) appendFileSync(process.env.FAKE_LOG, JSON.stringify({ tool: "codex", args, stdin }) + "\n");
+
+const fail = (msg, code = 1) => {
+  console.error(msg);
+  process.exit(code);
+};
+if (args[0] !== "exec") fail("fake codex: expected the exec subcommand", 2);
+
+const flagValue = (...names) => {
+  for (const name of names) {
+    const i = args.indexOf(name);
+    if (i !== -1) return args[i + 1];
+  }
+  return undefined;
+};
+const schemaFile = flagValue("--output-schema");
+if (!schemaFile || !existsSync(schemaFile)) fail("fake codex: --output-schema must point to an existing file", 2);
+try {
+  JSON.parse(readFileSync(schemaFile, "utf8"));
+} catch {
+  fail("fake codex: schema file is not valid JSON", 2);
+}
+const outFile = flagValue("-o", "--output-last-message");
+
+const mode = process.env.FAKE_MODE ?? "ok";
+if (mode === "error") fail("fake codex: simulated failure");
+
+let finalMessage;
+if (mode === "garbage" || mode === "not-json") {
+  finalMessage = "Sorry, I cannot do that.";
+} else {
+  finalMessage = JSON.stringify(fakeEntries(stdin, mode));
+}
+if (outFile) writeFileSync(outFile, finalMessage);
+console.log(finalMessage);
+
+function fakeEntries(text, mode) {
+  const commits = text
+    .split("\n")
+    .filter(Boolean)
+    .map((l) => {
+      const [sha, ...rest] = l.split("\t");
+      return { sha, subject: rest.join("\t") };
+    });
+  const category = (s) =>
+    /^\w+(\(.+\))?!:/.test(s) ? "breaking" : /^feat/.test(s) ? "feature" : /^fix/.test(s) ? "fix" : /^docs/.test(s) ? "docs" : "chore";
+  const entries = commits.map((c) => ({
+    sha: c.sha,
+    category: category(c.subject),
+    summary: c.subject.replace(/^\w+(\(.+\))?!?:\s*/, "").slice(0, 80) || c.subject,
+  }));
+  if (mode === "bad-category") entries[0].category = "banana";
+  if (mode === "unknown-sha") entries.push({ sha: "deadbee", category: "fix", summary: "invented" });
+  if (mode === "missing-sha") entries.pop();
+  if (mode === "extra-field") entries[0].note = "not in the schema";
+  return { entries };
+}
