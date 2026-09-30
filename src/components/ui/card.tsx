@@ -18,7 +18,7 @@ function CardRoot({ children, className, as = "div", interactive = false, ...res
       className={cn(
         "rounded-card bg-surface p-5 md:p-6 dark:border dark:border-border",
         interactive &&
-          "relative [&_a:focus-visible]:outline-none transition-shadow duration-[var(--fm-duration-fast)] hover:shadow-md dark:hover:border-link has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-solid has-[a:focus-visible]:outline-focus has-[a:focus-visible]:outline-offset-2",
+          "relative [&_a:focus-visible]:outline-none [&_a:focus-visible]:after:outline-none transition-shadow duration-[var(--fm-duration-fast)] hover:shadow-md dark:hover:border-link has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-solid has-[a:focus-visible]:outline-focus has-[a:focus-visible]:outline-offset-2",
         className,
       )}
       {...rest}
@@ -64,7 +64,14 @@ function CardFooter({ children, className }: { children: ReactNode; className?: 
 /** Stretched link for an interactive Card: the whole card is the hit area. */
 function CardLink({ className, children, ...props }: ComponentProps<typeof Link>) {
   return (
-    <Link className={cn("after:absolute after:inset-0 hover:underline", className)} {...props}>
+    <Link
+      className={cn(
+        // Own focus ring on the stretched area, so a link inside a non-interactive Card is still visibly focused.
+        "after:absolute after:inset-0 after:rounded-card hover:underline focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-solid focus-visible:after:outline-focus focus-visible:after:outline-offset-2",
+        className,
+      )}
+      {...props}
+    >
       {children}
     </Link>
   );

@@ -33,7 +33,7 @@ test.describe("exercise panel (E-1 to E-3)", () => {
     await expect(p).toContainText("exercises/ex-fx-auto/starter");
     await p.getByRole("button", { name: "Copy code: Setup" }).click();
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
-      "cp -r exercises/ex-fx-auto/starter ~/fm-ex/ex-fx-auto && cd ~/fm-ex/ex-fx-auto && npm i",
+      "mkdir -p ~/fm-ex && cp -R exercises/ex-fx-auto/starter ~/fm-ex/ex-fx-auto && cd ~/fm-ex/ex-fx-auto && git init -q && git add -A && git -c user.name=learner -c user.email=learner@example.com commit -qm start && npm install",
     );
     await p.getByRole("button", { name: "Copy code: Verify" }).click();
     expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("npm test");

@@ -6,13 +6,17 @@ import NotFound from "@/app/not-found";
 import { NotFoundView } from "@/components/ui";
 import { DB_UNAVAILABLE_COMMAND, DB_UNAVAILABLE_MESSAGE, DbUnavailableError } from "@/lib/db/errors";
 
+// M2: the commands in the message render as <code> (no literal backticks), so match on the paragraph's text.
+const MESSAGE_TEXT = DB_UNAVAILABLE_MESSAGE.replaceAll("`", "");
+const isMessageParagraph = (_: string, el: Element | null) => el?.tagName === "P" && el.textContent === MESSAGE_TEXT;
+
 describe("error boundary (DESIGN §6.10)", () => {
   it("DB down: h1, verbatim message, Terminal command with 'Copy code: Terminal', Try again", async () => {
     const retry = vi.fn();
     const user = userEvent.setup();
     render(<ErrorPage error={new DbUnavailableError()} reset={vi.fn()} retry={retry} />);
     expect(screen.getByRole("heading", { level: 1, name: "Database unavailable" })).toBeInTheDocument();
-    expect(screen.getByText(DB_UNAVAILABLE_MESSAGE)).toBeInTheDocument();
+    expect(screen.getByText(isMessageParagraph)).toBeInTheDocument();
     expect(screen.getByRole("figure", { name: "Terminal" })).toBeInTheDocument();
     expect(screen.getByText(DB_UNAVAILABLE_COMMAND)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Copy code: Terminal" })).toBeInTheDocument();

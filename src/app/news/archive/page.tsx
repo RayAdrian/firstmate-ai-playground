@@ -49,11 +49,11 @@ export default async function NewsArchivePage({ searchParams }: { searchParams: 
               {filtered ? (
                 <EmptyState
                   icon={<SearchX />}
-                  title="No items match these filters"
+                  title={pastEnd && activeFilterCount(params) === 0 ? "No results on this page" : "No items match these filters"}
                   action={pastEnd ? { label: "Back to page 1", href: archiveHref({ ...params, page: 1 }) } : undefined}
                 >
                   <p>{pastEnd ? "That page is past the last result." : "Try removing a filter or widening the date range."}</p>
-                  <ClearFiltersLink />
+                  {activeFilterCount(params) > 0 ? <ClearFiltersLink /> : null}
                 </EmptyState>
               ) : (
                 <EmptyState

@@ -66,7 +66,7 @@ export function Pagination({ params, result }: { params: ArchiveParams; result: 
   return (
     <FocusResultsLinks as="nav" className="mt-6 flex flex-wrap items-center justify-center gap-1">
       {page > 1 ? (
-        <Link href={href(page - 1)} prefetch={false} aria-label="Previous page" className={`${pageLink} gap-1 pr-3`}>
+        <Link href={href(Math.min(page - 1, pageCount))} prefetch={false} aria-label="Previous page" className={`${pageLink} gap-1 pr-3`}>
           <ChevronLeft aria-hidden="true" className="size-4" />
           Prev
         </Link>

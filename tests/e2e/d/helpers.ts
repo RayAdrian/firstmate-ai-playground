@@ -120,6 +120,9 @@ export async function createDbRows(): Promise<Created> {
     level_id: levelId,
     slug,
     title,
+    // Sort last: these rows share level 1 with the fixtures, and a parallel spec (home "Continue", curriculum order)
+    // must not see them as the first lesson while they exist.
+    sort: 9000,
     est_minutes: 12,
     differences: ["d"],
     claude_md: "x",

@@ -356,8 +356,10 @@ test.describe("archive (N-4.1)", () => {
 
   test("TC-F-34 out-of-range page and inverted range", async ({ page }) => {
     expect((await go(page, "/news/archive?page=999"))?.status()).toBe(200);
-    await expect(page.getByRole("region", { name: "No items match these filters" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Clear filters" })).toHaveCount(1);
+    // M2: no filter is active, so the past-the-end state must not claim filters or offer to clear them.
+    await expect(page.getByRole("region", { name: "No results on this page" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Clear filters" })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: "Previous page" })).toHaveAttribute("href", "/news/archive?page=2");
     await expect(page.getByRole("link", { name: "Back to page 1" })).toHaveAttribute("href", "/news/archive");
     await expect(page.locator("body")).not.toContainText("page 999");
     expect((await go(page, "/news/archive?from=2026-09-30&to=2026-09-28"))?.status()).toBe(200);

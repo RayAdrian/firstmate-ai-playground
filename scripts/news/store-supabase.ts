@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { NewsItemRow, SnapshotItem, SnapshotRun } from "@/lib/contracts";
+import { isConnectionFailure } from "@/lib/db/errors";
 import type { Database } from "@/lib/db/types";
 import { sanitize } from "./sanitize";
 import { dedupeSnapshotItems } from "./snapshot-dedupe";
@@ -375,10 +376,14 @@ export function createSupabaseStore(client: Client): NewsStore {
           if (!bulk.error) {
             itemsInserted += bulk.data?.length ?? 0;
           } else {
+            // A dropped connection is not a bad item: stop, so the import exits non-zero instead of "succeeding"
+            // with every item skipped. The upsert is idempotent, so a retry converges.
+            if (isConnectionFailure(bulk.error)) fail("insert news_items", bulk.error);
             // Something unexpected (for example a constraint we did not foresee): insert one by one so a single bad
             // item can never block the rest of the import.
             for (const t of toInsert) {
               const one = await client.from("news_items").upsert(t.row, { onConflict: "id", ignoreDuplicates: true }).select("id");
+              if (one.error && isConnectionFailure(one.error)) fail("insert news_items", one.error);
               if (one.error) warnings.push(`skipped ${t.item.canonical_url}: ${sanitize(one.error.message)}`);
               else itemsInserted += one.data?.length ?? 0;
             }

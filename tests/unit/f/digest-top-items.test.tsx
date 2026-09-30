@@ -55,13 +55,16 @@ describe("DigestTopItems (N-6.1)", () => {
     getDigest.mockResolvedValue(digest({ stale: true, digestDate: "2026-09-29" }));
     render(await DigestTopItems());
     expect(screen.getByRole("list", { name: "Latest digest" })).toBeInTheDocument();
-    expect(screen.getByText("No digest yet today. Showing Tue 29 Sep")).toBeInTheDocument();
+    // M2 (DESIGN 6.1): "Latest · <day>" with a "Stale" badge; the column never says "today".
+    expect(screen.getByRole("heading", { level: 2, name: "Latest · Tue 29 Sep" })).toBeInTheDocument();
+    expect(screen.getByText("Stale")).toBeInTheDocument();
+    expect(screen.queryByText(/today/i)).toBeNull();
   });
 
   it("has an empty state when nothing has ever run", async () => {
     getDigest.mockResolvedValue({ kind: "none" });
     render(await DigestTopItems());
-    expect(screen.getByText(/No news yet\./)).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "No news yet. Run npm run news:run." })).toBeInTheDocument();
     expect(screen.queryByRole("list")).toBeNull();
   });
 

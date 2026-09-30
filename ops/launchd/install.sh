@@ -25,10 +25,40 @@ LOG_FILE="$LOG_DIR/news.log"
 
 fail=0
 NODE_BIN="$(command -v node || true)"
-CLAUDE_BIN="$(command -v claude || true)"
+CLAUDE_BIN=""
 NPM_BIN="$(command -v npm || true)"
+# A temporary directory (a test shim, a build sandbox) disappears, and the plist would keep pointing at it.
+# Test hook: FM_ALLOW_TEMP_BIN=1 skips the check (the installer tests use shims in a temp dir).
+is_temp_path() {
+  [ "${FM_ALLOW_TEMP_BIN:-0}" = "1" ] && return 1
+  case "$1" in /tmp/*|/private/tmp/*|/var/folders/*|/private/var/folders/*) return 0 ;; esac
+  return 1
+}
+real_path() {
+  realpath "$1" 2>/dev/null || perl -MCwd=realpath -e 'print realpath(shift)' "$1" 2>/dev/null || printf '%s' "$1"
+}
+# First `claude` on PATH that is a real install: skip shims whose location or symlink target is temporary.
+REJECTED_CLAUDE=""
+IFS=':' read -r -a PATH_DIRS <<< "$PATH"
+for dir in "${PATH_DIRS[@]}"; do
+  candidate="$dir/claude"
+  [ -n "$dir" ] && [ -x "$candidate" ] && [ ! -d "$candidate" ] || continue
+  if is_temp_path "$candidate" || is_temp_path "$(real_path "$candidate")"; then
+    REJECTED_CLAUDE="${REJECTED_CLAUDE:-$candidate}"
+    continue
+  fi
+  CLAUDE_BIN="$candidate"
+  break
+done
 if [ -z "$NODE_BIN" ]; then echo "error: node not found on PATH" >&2; fail=1; fi
-if [ -z "$CLAUDE_BIN" ]; then echo "error: claude not found on PATH" >&2; fail=1; fi
+if [ -z "$CLAUDE_BIN" ]; then
+  if [ -n "$REJECTED_CLAUDE" ]; then
+    echo "error: the only claude on PATH is $REJECTED_CLAUDE, in a temporary directory that will disappear; put the real claude on PATH" >&2
+  else
+    echo "error: claude not found on PATH" >&2
+  fi
+  fail=1
+fi
 if [ -z "$NPM_BIN" ]; then echo "error: npm not found on PATH" >&2; fail=1; fi
 if [ "$fail" -ne 0 ]; then
   echo "Install node and Claude Code, make sure both are on PATH in this shell, then re-run." >&2

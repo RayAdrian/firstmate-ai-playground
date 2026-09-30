@@ -33,6 +33,8 @@ export default defineConfig({
   grep: PROD ? /@prod/ : undefined,
   grepInvert: excluded.length ? new RegExp(excluded.join("|")) : undefined,
   fullyParallel: true,
+  // Capped: the specs share one dev server and one Supabase stack, and 12 workers produced flakes (TC-C-08, TC-F-52, TC-B-34).
+  workers: process.env.CI ? 2 : 4,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",

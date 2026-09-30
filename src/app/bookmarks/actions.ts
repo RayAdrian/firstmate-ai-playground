@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import type { NewsItemRow } from "@/lib/contracts";
 import { dbRead, isConnectionFailure } from "@/lib/db";
 import { getReadClient } from "@/lib/db/server";
 
@@ -12,6 +13,9 @@ export type NewsBookmarkItem = {
   url: string | null;
   sourceName: string | null;
   publishedAt: string | null;
+  score: number | null;
+  tags: NewsItemRow["tags"];
+  status: NewsItemRow["scoring_status"];
 };
 
 export type ResolveNewsResult =
@@ -54,7 +58,7 @@ export async function resolveNewsBookmarks(ids: string[]): Promise<ResolveNewsRe
     const rows = (
       await Promise.all(
         chunks.map((chunk) =>
-          dbRead(db.from("news_items").select("id,title,url,published_at,source_id").in("id", chunk)),
+          dbRead(db.from("news_items").select("id,title,url,published_at,source_id,score,tags,scoring_status").in("id", chunk)),
         ),
       )
     ).flat();
@@ -72,6 +76,9 @@ export async function resolveNewsBookmarks(ids: string[]): Promise<ResolveNewsRe
         url: safeHttpUrl(row.url),
         sourceName: sourceName.get(row.source_id) ?? null,
         publishedAt: row.published_at,
+        score: row.score,
+        tags: row.tags,
+        status: row.scoring_status,
       })),
     };
   } catch (err) {

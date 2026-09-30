@@ -1,12 +1,13 @@
 "use client";
 
-import { ArrowUpRight, BookmarkCheck } from "lucide-react";
+import { BookmarkCheck } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { NewsCard } from "@/components/news/news-card";
 import { Button, EmptyState, Notice, Skeleton } from "@/components/ui";
 import { DbUnavailableError } from "@/lib/db/errors";
 import { announce, useBookmarks, type BookmarkKind } from "@/lib/progress";
-import { formatDateTime, formatDay } from "@/lib/progress/dates";
+import { formatDay } from "@/lib/progress/dates";
 import { resolveNewsBookmarks, type NewsBookmarkItem } from "./actions";
 
 export type BookmarkLesson = {
@@ -179,11 +180,11 @@ export function BookmarksView({ lessons }: { lessons: BookmarkLesson[] }) {
         <li
           key={key}
           data-bookmark-row={key}
-          className={`flex ${ROW_MIN_H} items-center justify-between gap-3 rounded-lg border border-dashed p-4`}
+          className={`flex ${ROW_MIN_H} items-center justify-between gap-3 rounded-lg border border-dashed border-border p-4`}
         >
           <span className="text-fg-muted">Item no longer available</span>
           <Button
-            className="min-h-11 rounded-lg border px-4"
+            className="min-h-11 rounded-lg border border-border px-4"
             onClick={() => onRemove("news", entry.id, entry.at, "Unavailable item")}
           >
             Remove bookmark
@@ -214,10 +215,10 @@ export function BookmarksView({ lessons }: { lessons: BookmarkLesson[] }) {
         <li
           key={key}
           data-bookmark-row={key}
-          className={`flex ${ROW_MIN_H} items-center justify-between gap-3 rounded-lg border p-4`}
+          className={`flex ${ROW_MIN_H} items-center justify-between gap-3 rounded-lg border border-border p-4`}
         >
           <span className="min-w-0 [overflow-wrap:anywhere]">Removed {entry.label}.</span>
-          <Button className="min-h-11 rounded-lg border px-4" onClick={() => onUndo(entry)}>
+          <Button className="min-h-11 rounded-lg border border-border px-4" onClick={() => onUndo(entry)}>
             Undo
           </Button>
         </li>
@@ -236,10 +237,10 @@ export function BookmarksView({ lessons }: { lessons: BookmarkLesson[] }) {
           Use the Bookmark button on any lesson or news item. Bookmarks stay in this browser.
         </p>
         <p className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
-          <Link href="/curriculum" className="inline-block py-2 underline">
+          <Link href="/curriculum" className="inline-flex min-h-11 items-center underline">
             Browse curriculum
           </Link>
-          <Link href="/news" className="inline-block py-2 underline">
+          <Link href="/news" className="inline-flex min-h-11 items-center underline">
             Today&apos;s digest
           </Link>
         </p>
@@ -277,7 +278,7 @@ export function BookmarksView({ lessons }: { lessons: BookmarkLesson[] }) {
           <Notice tone="error">
             <p>
               Couldn&apos;t load your bookmarked news. Your bookmarks are safe.{" "}
-              <Button className="min-h-11 rounded-lg border px-4" onClick={retry}>
+              <Button className="min-h-11 rounded-lg border border-border px-4" onClick={retry}>
                 Try again
               </Button>
             </p>
@@ -297,10 +298,12 @@ function ToggleButton({
   id,
   title,
   onClick,
+  className = "",
 }: {
   id: string;
   title: string;
   onClick: () => void;
+  className?: string;
 }) {
   return (
     <button
@@ -309,7 +312,7 @@ function ToggleButton({
       aria-label={`Bookmark: ${title}`}
       aria-pressed={true}
       onClick={onClick}
-      className="inline-flex size-11 shrink-0 items-center justify-center rounded-full"
+      className={`inline-flex size-11 shrink-0 items-center justify-center rounded-full ${className}`}
     >
       <BookmarkCheck aria-hidden="true" className="size-5" />
     </button>
@@ -331,7 +334,7 @@ function LessonRow({
     Boolean,
   );
   return (
-    <li data-bookmark-row={rowKey} className={`flex ${ROW_MIN_H} items-start justify-between gap-3 rounded-lg border p-4`}
+    <li data-bookmark-row={rowKey} className={`flex ${ROW_MIN_H} items-start justify-between gap-3 rounded-lg border border-border p-4`}
     >
       <div className="min-w-0">
         <Link
@@ -358,40 +361,31 @@ function NewsRow({
   item: NewsBookmarkItem;
   onRemove: () => void;
 }) {
-  // TODO(M2): swap this row for WS-F's NewsCard "compact" (title, source, time) once it is merged.
+  // The shared compact NewsCard; only the bookmark toggle is ours, so removing keeps its Undo row.
   return (
-    <li
-      data-bookmark-row={rowKey}
-      className={`flex ${ROW_MIN_H} items-start justify-between gap-3 rounded-lg border p-4`}
-    >
-      <div className="min-w-0">
-        {item.url ? (
-          <a
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block py-2 text-lg font-bold underline [overflow-wrap:anywhere]"
-          >
-            {item.title}
-            <ArrowUpRight aria-hidden="true" className="ml-1 inline size-3.5" />
-            <span className="sr-only"> (opens in new tab)</span>
-          </a>
-        ) : (
-          <span className="inline-block py-2 text-lg font-bold [overflow-wrap:anywhere]">
-            {item.title}
-          </span>
-        )}
-        {(item.sourceName || item.publishedAt) && (
-          <p className="text-sm text-fg-muted">
-            {item.sourceName}
-            {item.sourceName && item.publishedAt ? " · " : ""}
-            {item.publishedAt && (
-              <time dateTime={item.publishedAt}>{formatDateTime(item.publishedAt)}</time>
-            )}
-          </p>
-        )}
-      </div>
-      <ToggleButton id={`bookmark-toggle-${rowKey}`} title={item.title} onClick={onRemove} />
+    <li data-bookmark-row={rowKey}>
+      <NewsCard
+        variant="compact"
+        item={{
+          id: item.id,
+          title: item.title,
+          url: item.url,
+          sourceName: item.sourceName ?? "Unknown source",
+          publishedAt: item.publishedAt,
+          score: item.score,
+          tags: item.tags,
+          why: null,
+          status: item.status,
+        }}
+        bookmarkSlot={
+          <ToggleButton
+            id={`bookmark-toggle-${rowKey}`}
+            title={item.title}
+            onClick={onRemove}
+            className="self-start justify-self-end [grid-area:bookmark]"
+          />
+        }
+      />
     </li>
   );
 }

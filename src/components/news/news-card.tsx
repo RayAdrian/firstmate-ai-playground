@@ -1,5 +1,5 @@
 import { ArrowUpRight, ShieldAlert } from "lucide-react";
-import { useId } from "react";
+import { useId, type ReactNode } from "react";
 import { Badge } from "@/components/ui";
 import { BookmarkButton } from "./bookmark-button";
 import { formatFullStamp, formatShortStamp } from "./dates";
@@ -17,11 +17,14 @@ export function NewsCard({
   item,
   variant = "scored",
   dateStyle = "short",
+  bookmarkSlot,
 }: {
   item: NewsCardItem;
   variant?: NewsCardVariant;
   /** "short" = Wed 30 Sep, 06:10. "full" (archive) adds the year. */
   dateStyle?: "short" | "full";
+  /** Replaces the default bookmark toggle (the /bookmarks page supplies one with Undo). Place it in the `bookmark` grid area. */
+  bookmarkSlot?: ReactNode;
 }) {
   const titleId = useId();
   const showTile = variant !== "unscored" && item.score !== null;
@@ -87,7 +90,7 @@ export function NewsCard({
         ) : null}
       </p>
 
-      <BookmarkButton id={item.id} title={item.title} />
+      {bookmarkSlot ?? <BookmarkButton id={item.id} title={item.title} />}
 
       {showBody && tags.length > 0 ? (
         <ul aria-label="Tags" className="flex flex-wrap gap-2 [grid-area:tags]">
