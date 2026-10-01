@@ -110,7 +110,10 @@ if ! git cat-file -e "${SHA}^{commit}" 2>/dev/null; then
   SUMMARY="head commit not present after fetching refs/pull/$PR/head (head moved?)"
   exit 1
 fi
-WT="$(mktemp -d /private/tmp/ci-local-wt.XXXXXX)"
+# Not under /tmp: tests/unit/m2/install-temp-claude.test.ts assumes the checkout is outside a temp dir.
+WT_BASE="${CI_LOCAL_WT_BASE:-$HOME/.cache/firstmate-ci-local}"
+mkdir -p "$WT_BASE"
+WT="$(mktemp -d "$WT_BASE/wt.XXXXXX")"
 if ! git worktree add --detach --quiet "$WT" "$SHA"; then
   SUMMARY="could not create worktree at ${SHA:0:7}"
   WT=""
