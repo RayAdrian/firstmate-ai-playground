@@ -1,0 +1,28 @@
+name: Workflow is outdated
+description: A shared workflow no longer works, or its tool versions have moved on.
+title: "Outdated: <slug>"
+labels: ["workflow-outdated"]
+body:
+  - type: input
+    id: workflow
+    attributes:
+      label: Workflow slug
+      description: The file name under content/workflows/ without .md. The "Report outdated" link on the workflow page fills this in.
+      placeholder: per-sha-gate-statuses
+    validations:
+      required: true
+  - type: textarea
+    id: what-broke
+    attributes:
+      label: What broke?
+      description: Which step failed and what you saw. Do not paste client code, client names, internal URLs or secrets.
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Tool versions (optional)
+      description: Output of `claude --version` and `codex --version`.
+      placeholder: claude 2.1.286, codex-cli 0.154.0
+    validations:
+      required: false
