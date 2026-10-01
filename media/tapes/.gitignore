@@ -1,0 +1,4 @@
+node_modules/
+# Intermediate render output. The goldens (out/*.golden.txt) are committed.
+out/*
+!out/*.golden.txt

@@ -1,0 +1,16 @@
+{
+  "id": "l1-first-session",
+  "lesson_slug": "l1-first-session",
+  "kind": "recording",
+  "title": "First session: a working install",
+  "duration_s": 24.6,
+  "width": 1280,
+  "height": 720,
+  "tool_versions": {
+    "claude_code": "2.1.286",
+    "codex_cli": "0.154.0"
+  },
+  "made_on": "2026-10-01",
+  "model_calls": false,
+  "source_hash": "6add21f5604e2d76f4c5daa62b58a5679207ec7c77885c51af80b393d3fd592a"
+}

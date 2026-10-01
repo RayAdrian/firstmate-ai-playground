@@ -1,0 +1,24 @@
+{
+  "l1-first-session": {
+    "lesson_slug": "l1-first-session",
+    "title": "First session: a working install",
+    "model_calls": false,
+    "tools": ["claude_code", "codex_cli"],
+    "max_duration_s": 45
+  },
+  "l3-headless-agents": {
+    "lesson_slug": "l3-headless-agents",
+    "title": "Headless JSON output from both CLIs",
+    "model_calls": true,
+    "tools": ["claude_code", "codex_cli"],
+    "max_duration_s": 60,
+    "expect_word": "pong"
+  },
+  "l4-mcp-servers": {
+    "lesson_slug": "l4-mcp-servers",
+    "title": "Add and list an MCP server in both CLIs",
+    "model_calls": false,
+    "tools": ["claude_code", "codex_cli"],
+    "max_duration_s": 60
+  }
+}

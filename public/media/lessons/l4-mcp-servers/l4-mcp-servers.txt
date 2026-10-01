@@ -1,0 +1,9 @@
+A dark terminal, no audio. One small local MCP server is added to each CLI.
+
+1. The command "claude mcp add docs -- node fs-server.js ." runs. Claude Code prints "Added stdio MCP server docs with command: node fs-server.js . to local config", then a line "File modified:" naming the .claude.json file in the home folder, with the project folder in brackets. That file is where Claude Code stores the server.
+2. The command "claude mcp list" runs. It prints one line, "docs: node fs-server.js . - Connected". Claude Code started the server to check it.
+3. The screen clears. The command "codex mcp add docs -- node fs-server.js ." runs and prints "Added global MCP server 'docs'."
+4. The command "codex mcp list" runs. It prints a table with the columns Name, Command, Args, Env, Cwd, Status and Auth. The row shows docs, node, fs-server.js, status enabled, auth Unsupported.
+5. The screen clears. The command "cat ~/.codex/config.toml" runs and prints a TOML table: "[mcp_servers.docs]", then command = "node" and args = ["fs-server.js", "."]. That is where Codex stores the server.
+
+The server is a pinned copy of the filesystem MCP server. No model is called and no network is used.

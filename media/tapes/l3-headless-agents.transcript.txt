@@ -1,0 +1,6 @@
+A dark terminal, no audio. Each CLI is asked, in headless mode, to reply with the single word "pong".
+
+1. The command "claude -p "Reply with only the word pong." --output-format json --tools "" --no-session-persistence | jq '{type, is_error, result}'" runs. Claude Code answers with one JSON object, and jq shows three fields: "type": "result", "is_error": false and "result": "pong".
+2. The screen clears. The command "codex exec --json --sandbox read-only --skip-git-repo-check --ephemeral "Reply with only the word pong. Do not run commands." | jq -c 'select(.item.type == "agent_message") | .item | {type, text}'" runs. Codex streams JSON events, one per line. jq keeps the one that carries the answer and prints it on one line: {"type":"agent_message","text":"pong"}.
+
+Both calls use a one-word reply so the output stays short. Session ids, costs and token counts are left out on purpose.

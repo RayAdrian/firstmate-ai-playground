@@ -1,0 +1,8 @@
+{
+  "name": "fm-tapes-mcp-server",
+  "private": true,
+  "description": "Pinned local stdio MCP server used by the 4.3 recording (PRD 15). Installed by record.sh with npm ci.",
+  "dependencies": {
+    "@modelcontextprotocol/server-filesystem": "2026.8.31"
+  }
+}
