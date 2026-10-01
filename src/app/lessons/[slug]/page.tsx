@@ -16,6 +16,7 @@ import { applyRouteHooks } from "@/components/lesson/server/test-hooks";
 import { getLessonPage } from "@/components/lesson/server/queries";
 import { parseTool } from "@/components/lesson/tool";
 import { ToolProvider, ToolTabs } from "@/components/lesson/tool-tabs";
+import { LessonWorkflowsRow } from "@/components/workflows/lesson-workflows";
 
 // Content routes render dynamically so seeded changes show without a rebuild (S-3).
 export const dynamic = "force-dynamic";
@@ -115,6 +116,7 @@ export default async function LessonPage({ params, searchParams }: PageProps<"/l
 
           <CompleteBlock slug={lesson.slug} />
           {prevNext && <PrevNextNav prevNext={prevNext} />}
+          <LessonWorkflowsRow lessonSlug={lesson.slug} />
         </article>
 
         <div className="lg:col-span-4">

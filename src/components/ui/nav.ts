@@ -4,6 +4,7 @@ export type NavItem = { href: string; label: string };
 export const NAV_ITEMS: readonly NavItem[] = [
   { href: "/curriculum", label: "Curriculum" },
   { href: "/exercises", label: "Exercises" },
+  { href: "/workflows", label: "Workflows" },
   { href: "/news", label: "News" },
   { href: "/bookmarks", label: "Bookmarks" },
   { href: "/progress", label: "Progress" },
@@ -14,7 +15,7 @@ function within(pathname: string, base: string): boolean {
 }
 
 /**
- * Which nav item is current. `/curriculum` also covers `/lessons/*`, `/news` covers `/news/archive`,
+ * Which nav item is current. `/curriculum` also covers `/lessons/*`, `/news` covers `/news/archive`, `/workflows` covers `/workflows/*`,
  * everything else matches exactly. `/` activates nothing (the logo is home).
  */
 export function isNavActive(href: string, pathname: string | null): boolean {
@@ -22,6 +23,8 @@ export function isNavActive(href: string, pathname: string | null): boolean {
   switch (href) {
     case "/curriculum":
       return within(pathname, "/curriculum") || within(pathname, "/lessons");
+    case "/workflows":
+      return within(pathname, "/workflows");
     case "/news":
       return within(pathname, "/news");
     default:
