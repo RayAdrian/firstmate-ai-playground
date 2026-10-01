@@ -49,7 +49,7 @@ test.beforeEach(async ({ context, page, baseURL }) => {
 });
 
 const blocks = (page: Page) => page.getByTestId("media-block");
-const alpha = (page: Page) => page.getByRole("region", { name: "Watch: Alpha fixture" });
+const alpha = (page: Page) => page.getByRole("region", { name: "Watch: Alpha fixture", exact: true });
 
 async function canPlayH264(page: Page): Promise<boolean> {
   return page.evaluate(() => document.createElement("video").canPlayType('video/mp4; codecs="avc1.42E01E"') !== "");
@@ -59,7 +59,10 @@ test.describe("presence (MD-1)", () => {
   test("TC-V3-01 a lesson with media shows Watch blocks inside Concept, after the prose and before 'In your tool', in id order", async ({ page }) => {
     await page.goto(WITH_MEDIA);
     await expect(blocks(page)).toHaveCount(2);
-    await expect(page.getByRole("heading", { level: 3, name: /^Watch:/ })).toHaveText(["Watch: Alpha fixture", "Watch: Beta fixture"]);
+    await expect(page.getByRole("heading", { level: 3, name: "Watch: Alpha fixture", exact: true })).toHaveCount(1);
+    await expect(page.getByRole("heading", { level: 3, name: "Watch: Beta fixture", exact: true })).toHaveCount(1);
+    await expect(page.getByRole("region", { name: "Watch: Alpha fixture", exact: true })).toHaveCount(1);
+    await expect(page.locator("h3[id^=watch-]")).toHaveCount(2);
     const order = await page.evaluate(() => {
       const concept = document.querySelector("#concept")!.closest("section")!;
       const blocks = [...document.querySelectorAll('[data-testid="media-block"]')];
@@ -92,6 +95,7 @@ test.describe("presence (MD-1)", () => {
     await expect(video).toHaveAttribute("controls", "");
     await expect(video).toHaveAttribute("playsinline", "");
     await expect(video).toHaveAttribute("preload", "none");
+    await expect(video).toHaveAttribute("aria-labelledby", "watch-fx-alpha");
     await expect(video).toHaveAttribute("poster", "/media/lessons/l1-first-session/fx-alpha.webp");
     await expect(video).toHaveAttribute("width", "640");
     await expect(video).toHaveAttribute("height", "360");
@@ -107,20 +111,58 @@ test.describe("presence (MD-1)", () => {
   });
 });
 
+test.describe("design conformance (DESIGN §6.3.2)", () => {
+  test("TC-V3-12 one wrapper, eyebrow heading, meta line, framed video", async ({ page }) => {
+    await page.goto(WITH_MEDIA);
+    const wrapper = blocks(page).first().locator("xpath=..");
+    await expect(wrapper).toHaveClass(/mt-8/);
+    await expect(wrapper).toHaveClass(/space-y-10/);
+    await expect(blocks(page).first()).not.toHaveCSS("background-color", "rgb(249, 249, 249)");
+    const h3 = alpha(page).getByRole("heading", { level: 3, name: "Watch: Alpha fixture", exact: true });
+    await expect(h3).toHaveAttribute("aria-label", "Watch: Alpha fixture");
+    await expect(h3.locator("span").first()).toHaveAttribute("aria-hidden", "true");
+    await expect(h3.locator("span").first()).toHaveText("Watch");
+    await expect(alpha(page).locator("p").first()).toHaveText(
+      "Terminal recording · 0:03 · No sound · Claude Code 2.1.0 · Recorded 1 Oct 2026",
+    );
+    await expect(alpha(page).locator("time")).toHaveAttribute("datetime", "PT3S");
+    await expect(page.getByRole("region", { name: "Watch: Beta fixture" }).locator("p").first()).toHaveText(
+      "Animation · 0:03 · No sound",
+    );
+    const video = alpha(page).locator("video");
+    await expect(video).toHaveClass(/rounded-xl/);
+    await expect(video).toHaveClass(/border/);
+    await expect(video).toHaveCSS("background-color", "rgb(15, 23, 41)");
+  });
+
+  test("TC-V3-13 captions are at least 15px below md and keep the default size at md and up", async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 900 });
+    await page.goto(WITH_MEDIA);
+    const cue = () => alpha(page).locator("video").evaluate((v) => getComputedStyle(v, "::cue").fontSize);
+    expect(parseFloat(await cue())).toBeGreaterThanOrEqual(15);
+    await page.setViewportSize({ width: 1440, height: 900 });
+    expect(parseFloat(await cue())).not.toBe(15);
+  });
+});
+
 test.describe("transcript (MD-2)", () => {
   test("TC-V3-04 the transcript is a closed 'Transcript' disclosure with plain text", async ({ page }) => {
     await page.goto(WITH_MEDIA);
     const details = alpha(page).locator("details");
     const summary = details.locator("summary");
-    await expect(summary).toHaveText("Transcript");
+    await expect(summary).toHaveText("Transcript for Alpha fixture");
+    expect((await summary.evaluate((el) => el.childNodes[1]?.textContent ?? "")).trim()).toBe("Transcript");
+    expect((await summary.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     await expect(details).not.toHaveAttribute("open", "");
     await expect(details.getByText("A solid blue rectangle")).toBeHidden();
     await summary.click();
     await expect(details).toHaveAttribute("open", "");
-    await expect(details.getByText("A solid blue rectangle is shown for three seconds.")).toBeVisible();
+    const panel = alpha(page).getByRole("region", { name: "Transcript for Alpha fixture" });
+    await expect(panel).toBeVisible();
+    await expect(panel).toContainText("A solid blue rectangle is shown for three seconds.");
     // "<b>not markup</b>" in the file is shown as literal text, never parsed.
-    await expect(details).toContainText("<b>not markup</b>");
-    await expect(details.locator("b")).toHaveCount(0);
+    await expect(panel).toContainText("<b>not markup</b>");
+    await expect(panel.locator("b")).toHaveCount(0);
   });
 });
 

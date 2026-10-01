@@ -118,8 +118,17 @@ describe("MediaBlock (MD-1, MD-2)", () => {
     expect(track).toHaveAttribute("kind", "captions");
     expect(track).toHaveAttribute("srclang", "en");
     expect(track).toHaveAttribute("default");
-    expect(screen.getByText("Transcript")).toBeInTheDocument();
-    expect(container.querySelector("details b")).toBeNull();
-    expect(container.querySelector("details")).toHaveTextContent("Transcript <b>x</b>");
+    expect(video).toHaveAttribute("aria-labelledby", "watch-a-first");
+    expect(screen.getByRole("heading", { level: 3, name: "Watch: Title a-first" })).toBeInTheDocument();
+    expect(container.querySelector("summary")).toHaveTextContent("Transcript for Title a-first");
+    const panel = container.querySelector("details [role=region]")!;
+    expect(panel).toHaveAttribute("aria-labelledby", "watch-a-first-transcript-toggle");
+    expect(panel).toHaveTextContent("Transcript <b>x</b>");
+    expect(panel.querySelector("b")).toBeNull();
+    expect(container.querySelector("time")).toHaveAttribute("datetime", "PT10S");
+    expect(container).toHaveTextContent(
+      "Terminal recording · 0:10 · No sound · Claude Code 2.1.0 · Recorded 1 Oct 2026",
+    );
+    expect(container.firstElementChild).toHaveClass("mt-8", "space-y-10");
   });
 });
