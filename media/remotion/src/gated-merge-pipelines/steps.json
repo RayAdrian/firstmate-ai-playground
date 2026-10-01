@@ -1,0 +1,41 @@
+{
+  "id": "gated-merge-pipelines",
+  "lesson_slug": "l5-gated-merge-pipelines",
+  "title": "Gate approvals are pinned to one commit",
+  "fps": 30,
+  "width": 1280,
+  "height": 720,
+  "duration_s": 80,
+  "poster_s": 47,
+  "steps": [
+    { "id": "pr", "start_s": 0, "end_s": 8, "text": "One pull request, one commit: the head is a1b2c3d" },
+    { "id": "post", "start_s": 8, "end_s": 22, "text": "Each gate posts its verdict on that exact commit" },
+    { "id": "push", "start_s": 22, "end_s": 34, "text": "Then a push moves the head to e4f5a6b" },
+    { "id": "reset", "start_s": 34, "end_s": 46, "text": "Statuses belong to a commit, so the new head has none" },
+    { "id": "refuse", "start_s": 46, "end_s": 58, "text": "gate:merge refuses until all three are re-run" },
+    { "id": "rerun", "start_s": 58, "end_s": 70, "text": "Each gate re-runs on e4f5a6b" },
+    { "id": "merge", "start_s": 70, "end_s": 80, "text": "All green on the new head: the merge is pinned to e4f5a6b" }
+  ],
+  "pr": { "number": 24, "title": "PR #24", "headLabel": "head", "oldSha": "a1b2c3d", "newSha": "e4f5a6b" },
+  "gates": [
+    { "name": "gate/browser", "label": "gate:browser-green" },
+    { "name": "gate/review", "label": "gate:review-green" },
+    { "name": "gate/uiux", "label": "gate:uiux-green" }
+  ],
+  "ui": {
+    "pending": "pending",
+    "success": "success",
+    "none": "no status",
+    "labelStays": "labels stay"
+  },
+  "terminal": {
+    "command": "npm run gate:merge -- 24",
+    "refuse": [
+      "Refusing to merge PR #24 at e4f5a6b:",
+      "  - status gate/browser is not success on e4f5a6b",
+      "  - status gate/review is not success on e4f5a6b",
+      "  - status gate/uiux is not success on e4f5a6b"
+    ],
+    "done": ["All gates green for PR #24 at e4f5a6b. Merging (squash)."]
+  }
+}

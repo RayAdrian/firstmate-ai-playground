@@ -1,0 +1,17 @@
+Three agents, three worktrees, one clean merge. A silent animation, about 80 seconds. Each step below is also a caption.
+
+0:00 One repo, three worktrees, three branches. A dark bar labelled "main" sits across the top. Below it, three cards appear side by side. Each card is one worktree: feat/settings in ../myapp-settings, feat/export in ../myapp-export, and feat/email in ../myapp-email.
+
+0:08 Three agents work at the same time, in separate folders. A progress bar fills in all three cards together. File chips appear in each card as its agent edits them. Settings touches settings.tsx and router.ts. Export touches export.ts, router.ts and package.json. Email touches email.tsx and package.json.
+
+0:20 Two shared files are about to collide. The router.ts chips in the settings and export cards turn orange and are joined by an orange bar. The package.json chips in the export and email cards are joined the same way. These are the places where parallel branches clash.
+
+0:32 Fix it before you start: one owner for each shared file. router.ts is pre-wired on main, so a green "pre-wired on main" tag appears in the main bar and both router.ts chips turn green. package.json is owned by the export branch: its chip turns green and the email card's package.json chip is struck through and greyed out.
+
+0:44 Merge one branch at a time. Settings goes first. The settings card shows a green "tests pass" badge. A blue dot travels up from the card into the main bar and becomes a "settings" chip with a check mark. The settings card fades.
+
+0:54 Rebase export onto the result, run the tests, merge. The export card shows a "rebased" badge, then "tests pass". Its dot travels to main and an "export" chip joins the bar.
+
+1:04 Email last, then test the merged result. The email card is rebased and tested, then merges the same way. A final green "tests pass" badge appears in the main bar, which now holds all three branches.
+
+1:14 Remove the worktrees and delete the merged branches. The three cards fade out. Only the main bar remains, with settings, export and email merged and the tests passing.

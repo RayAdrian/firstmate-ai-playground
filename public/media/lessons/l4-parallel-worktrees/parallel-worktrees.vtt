@@ -1,0 +1,33 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:08.000
+One repo, three worktrees, three branches
+
+2
+00:00:08.000 --> 00:00:20.000
+Three agents work at the same time, in separate folders
+
+3
+00:00:20.000 --> 00:00:32.000
+Two shared files are about to collide
+
+4
+00:00:32.000 --> 00:00:44.000
+Fix it before you start: one owner for each shared file
+
+5
+00:00:44.000 --> 00:00:54.000
+Merge one branch at a time. Settings goes first.
+
+6
+00:00:54.000 --> 00:01:04.000
+Rebase export onto the result, run the tests, merge
+
+7
+00:01:04.000 --> 00:01:14.000
+Email last, then test the merged result
+
+8
+00:01:14.000 --> 00:01:20.000
+Remove the worktrees and delete the merged branches
