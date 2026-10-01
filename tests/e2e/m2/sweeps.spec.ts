@@ -173,15 +173,20 @@ test.describe("hydration sweep (P-5, S9-09)", () => {
     await seedProgress(page, oneComplete);
     // Only scripts are held back (the document and stylesheets are not), so the server-rendered placeholders show.
     const scripts = /\/_next\/static\/chunks\/.*\.js/;
+    // Held requests wait on an explicit gate (no timers), and are never unrouted, so none is left unhandled.
+    let release!: () => void;
+    const gate = new Promise<void>((r) => {
+      release = r;
+    });
     const hold = async (route: Route) => {
-      await new Promise((r) => setTimeout(r, 2000));
-      await route.continue();
+      await gate;
+      await route.continue().catch(() => {});
     };
     await page.route(scripts, hold);
     await page.goto("/curriculum", { waitUntil: "commit" });
     const placeholders = page.getByTestId("progress-placeholder");
     await expect(placeholders.first()).toBeAttached({ timeout: 30_000 });
-    // One synchronous snapshot inside the 2s script delay: nothing that looks like progress is on screen yet.
+    // One synchronous snapshot while scripts are held: nothing that looks like progress is on screen yet.
     const snapshot = await page.evaluate(() => ({
       bars: document.querySelectorAll('[role="progressbar"]').length,
       text: document.body.innerText,
@@ -190,7 +195,7 @@ test.describe("hydration sweep (P-5, S9-09)", () => {
     expect(snapshot.text).not.toMatch(/\d \/ \d/);
     expect(snapshot.text).not.toContain("Completed");
     await expect(page.locator('a[href="/lessons/l1-first-session"]')).toBeVisible();
-    await page.unroute(scripts, hold);
+    release();
     await expect(page.getByRole("progressbar", { name: "Level 1" })).toHaveAttribute("aria-valuenow", "50", {
       timeout: 30_000,
     });
