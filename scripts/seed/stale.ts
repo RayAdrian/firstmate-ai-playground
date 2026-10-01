@@ -1,7 +1,9 @@
 // `npm run content:stale [-- --strict]`: list lessons verified more than 60 days ago, or whose tool_versions are behind
 // the latest Claude Code / Codex CLI release seen in the news feed (PRD S-6). Reports only; --strict exits 1 when any are stale.
+import path from "node:path";
 import { getServiceClient } from "../../src/lib/db/service";
 import { loadLocalEnv, requireServiceEnv } from "./lib/env";
+import { describeMediaReason, findStaleMedia, hashSourceFromDisk, loadManifests, type LessonInfo } from "./lib/media-stale";
 import { RELEASE_SOURCE_SLUGS, describeReason, findStale, latestVersionsFromReleases, type StaleLessonInput } from "./lib/stale";
 
 async function main(): Promise<number> {
@@ -47,13 +49,29 @@ async function main(): Promise<number> {
     console.log(`content:stale: latest releases seen: Claude Code ${latest.claude_code ?? "unknown"}, Codex CLI ${latest.codex_cli ?? "unknown"}.`);
   }
 
+  // Lesson media (PRD §15 MD-7). Reads all lessons, archived included, so archived ones can be reported.
+  const { data: allLessons, error: allError } = await db.from("lessons").select("slug, archived_at, tool_versions");
+  if (allError) throw new Error(`cannot read lessons: ${allError.message}`);
+  const lessonInfo = new Map<string, LessonInfo>(
+    allLessons.map((l) => [l.slug, { archived: l.archived_at !== null, tool_versions: l.tool_versions }]),
+  );
+  const repoRoot = path.resolve(__dirname, "../..");
+  const manifests = loadManifests(repoRoot);
+  const staleMedia = findStaleMedia({ manifests, lessons: lessonInfo, sourceHash: hashSourceFromDisk(repoRoot) });
+
   if (stale.length === 0) {
     console.log(`content:stale: no stale lessons (${lessons.length} checked).`);
-    return 0;
+  } else {
+    console.log(`content:stale: ${stale.length} of ${lessons.length} lesson(s) need re-verification:`);
+    for (const s of stale) console.log(`  ${s.slug}: ${s.reasons.map(describeReason).join("; ")}`);
   }
-  console.log(`content:stale: ${stale.length} of ${lessons.length} lesson(s) need re-verification:`);
-  for (const s of stale) console.log(`  ${s.slug}: ${s.reasons.map(describeReason).join("; ")}`);
-  return strict ? 1 : 0;
+  if (staleMedia.length === 0) {
+    console.log(`content:stale: no stale media (${manifests.length} checked).`);
+  } else {
+    console.log(`content:stale: ${staleMedia.length} of ${manifests.length} media item(s) need re-rendering:`);
+    for (const m of staleMedia) console.log(`  ${m.label}: ${m.reasons.map(describeMediaReason).join("; ")}`);
+  }
+  return strict && (stale.length > 0 || staleMedia.length > 0) ? 1 : 0;
 }
 
 main().then(
