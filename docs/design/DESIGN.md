@@ -600,7 +600,7 @@ These live in a `GlobalNotices` slot directly under the header, inside the conta
 </body>
 ```
 
-**Header (≥ md, 768px+)**
+**Header (≥ lg, 1024px+)**
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────────┐
@@ -613,9 +613,9 @@ These live in a `GlobalNotices` slot directly under the header, inside the conta
 - Nav: `<nav aria-label="Main">` holding a `<ul>` of links `h-[60px] inline-flex items-center px-3 text-sm font-medium text-fg-muted hover:text-fg`. **Active: `text-fg-strong font-bold` plus a 2px `link` bar pinned to the header's bottom edge, plus `aria-current="page"`.**
 - Active matching: `/curriculum` is active for `/curriculum` and `/lessons/*`. `/exercises` is active for `/exercises`. `/news` is active for `/news` **and** `/news/archive`. `/bookmarks` and `/progress` match exactly. `/` activates nothing (the logo is home).
 - "Progress" sits alone on the right with a lucide `Settings2` icon plus text, because it is utility rather than content.
-- At md (768–1023px) all 5 links still fit: about 470px of links plus about 220px of brand fits in 720px. Verify at 768px; if they don't fit, drop the "AI Playground" label below lg first.
+- **The full nav starts at lg (1024px).** With six links ("Workflows" was added) the row needs about 1000px once the brand is counted, and it overflowed at 768px on Linux, where the fallback font is wider than on macOS. So between md and lg (768–1023px) the header uses the same Menu button and disclosure as below md, with the "AI Playground" label visible. Do not shave padding to fit six links at 768; a wider font will break it again. The e2e checks 1024px and 768px with a wide-font stress style.
 
-**Header (< md)**
+**Header (< lg, 360–1023px)**
 
 ```
 ┌──────────────────────────────────────┐
@@ -637,7 +637,7 @@ These live in a `GlobalNotices` slot directly under the header, inside the conta
 - The panel is a **disclosure, not a modal**: `nav#mobile-nav[aria-label="Main"]` directly under the header, `bg-surface-raised shadow-sm`, full-width links `h-12 px-4 text-base`. It pushes content down; it is not an overlay. There's no focus trap.
 - Behaviour: on open, focus moves to the first link (PR #2 expects this; there is still no focus trap). **Esc** closes and returns focus to the button. Choosing a link navigates and closes (close on `pathname` change). The panel closes if the viewport grows to md or wider.
 - **Fit at 360**: brand (h-8 logo ≈ 156px + divider + "AI Playground" ≈ 95px + gaps) plus the 44px menu button leaves about 8px in 328px. Below 375px (`max-[374px]:`), the "AI Playground" label and divider are `sr-only`, so the link keeps its full accessible name while the logo stands alone. At 375px and up the label shows.
-- Render the desktop `<nav>` and the mobile `<nav>` so that only one is exposed at a time (`hidden md:flex` / `md:hidden`). Two visible "Main" landmarks fail axe.
+- Render the desktop `<nav>` and the mobile `<nav>` so that only one is exposed at a time (`hidden lg:flex` / `lg:hidden`). Two visible "Main" landmarks fail axe.
 
 **Skip link**: `<a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 bg-canvas text-link px-4 py-2 rounded-lg">Skip to content</a>`. Activating it focuses `<main tabindex=-1>`.
 
@@ -648,7 +648,7 @@ These live in a `GlobalNotices` slot directly under the header, inside the conta
 | Breakpoint | Width | Content columns | Notes |
 |---|---|---|---|
 | base | 360–767 | 1 | `px-4`. Everything stacks. |
-| md | 768–1023 | 1 (level/news grids go to 2) | `px-6`. Desktop header. |
+| md | 768–1023 | 1 (level/news grids go to 2) | `px-6`. Menu-button header (the full nav starts at lg). |
 | lg | 1024–1279 | 12-col grid, `gap-8` | `px-8`. Lesson right rail appears. Archive filter sidebar appears. |
 | xl | ≥1280 | same, capped at 1180px | Centred. 1440 has about 130px margins. |
 
@@ -1230,6 +1230,81 @@ WS-A restyles `error.tsx`. It keeps the detection logic and the constants and do
 - This is where the "Copy" fallback matters most (clipboard can be blocked on `http://localhost` in some browser configs), and the §4.5 fallback covers it.
 - `/progress` doesn't need the DB for its core functions. If the DB is down it still renders (it reads localStorage), and only lesson-title lookups degrade to showing slugs.
 
+### 6.11 `/workflows` (PRD §16, WF-30, WF-31, WF-32)
+
+**Hierarchy**: 1. The cards (what exists). 2. Search. 3. Active filters. 4. Filter controls. It is the `/news/archive` pattern (§6.6) with a card grid instead of a list, and no pagination (the library is expected to hold 10-30 items; PRD §12 lists pagination as a Could above 60).
+
+```
+360                                         1440
+┌──────────────────────────────────────┐    ┌────────────────────────────────────────────────────────────────────────────────┐
+│ Workflows              Share ↗  (h1) │    │ Workflows                                                      Share ↗  (h1)  │
+│ Search workflows                     │    │ Setups engineers got working: …                                    (fg-muted) │
+│ [ Title or problem     ] [ Search ]  │    │ Search workflows                                                               │
+│ [ Filters (2) ▾ ]  ← disclosure      │    │ [ Title or problem                        ] [ Search ]                         │
+│ 6 workflows                          │    │ ┌─ lg:col-span-3 <form method=get> ─┐ ┌─ lg:col-span-9 ──────────────────────┐ │
+│ [Codex CLI ✕] [Review ✕]  Clear      │    │ │ Filters                    (h2)   │ │ 6 workflows                          │ │
+│ Results                        (h2)  │    │ │ Tool [ Any tool ▾ ]               │ │ [Codex CLI ✕] [Review ✕]  Clear      │ │
+│ ┌ card ────────────────────────────┐ │    │ │ Use case (fieldset, checkboxes)   │ │ Results                      (h2)    │ │
+│ │ Title (stretched link)           │ │    │ │ Level [ Any level ▾ ]             │ │ ┌ card ──────────┐ ┌ card ─────────┐ │ │
+│ │ Problem, clamped to 2 lines      │ │    │ │ Stack (fieldset, checkboxes)      │ │ │ Title          │ │ Title         │ │ │
+│ │ [Claude Code] [Hook] [Skill]     │ │    │ │ [ Apply filters ]                 │ │ │ Problem (2 ln) │ │ Problem       │ │ │
+│ │ [Next.js] [TypeScript]           │ │    │ └───────────────────────────────────┘ │ │ badges · chips │ │ badges        │ │ │
+│ │ Verified 25 Sep 2026 · by Ada    │ │    │                                       │ │ Verified · by  │ │ Verified · by │ │ │
+│ └──────────────────────────────────┘ │    │                                       │ └────────────────┘ └───────────────┘ │ │
+│ Show archived (2)                    │    │                                       │ Show archived (2)                    │ │
+└──────────────────────────────────────┘    └────────────────────────────────────────────────────────────────────────────────┘
+```
+
+- **Header row**: `h1` "Workflows" and a "Share ↗" link to `<REPO_URL>/blob/main/CONTRIBUTING.md#share-a-workflow` (`target=_blank`, `rel="noopener noreferrer"`, sr-only " (opens in new tab)"). `min-h-11`. The `REPO_URL` constant comes from the contract, never a literal in a component.
+- **Search** sits above the grid at every width so it never hides behind the disclosure. It is a `type=search` input labelled "Search workflows" plus a "Search" button, both attached to the filter form through the `form` attribute, so one submit carries search and filters together. `maxlength=100`.
+- **Filters are a real `<form method="get" action="/workflows">`** (the §6.6 pattern: works before hydration, URL is the state, explicit "Apply filters", no auto-submit). Controls: `tool` is a native select labelled "Tool" ("Any tool", "Claude Code", "Codex CLI"); `use` is a `fieldset` "Use case" of checkboxes; `level` is a select labelled "Level" ("Any level", "Level 1" to "Level 5"; the level of the related lesson); `stack` is a `fieldset` "Stack" of checkboxes. Checkbox options are the PRD §16.6 taxonomy plus any value the data adds. Empty fields are left out of the URL on submit. A `lesson` or `archived` view is carried through an Apply with hidden inputs. After a submit, focus moves to the Results `h2` (same `sessionStorage` handoff as §6.6).
+- **Filters disclosure** below lg: `button[aria-expanded][aria-controls]` "Filters (N)", where N counts facet filters (tool, use, level, stack, lesson; the always-visible search is not counted). Closed by default. From lg it is a left column and the button is gone.
+- **Active filters row**: `FilterChip`s ("Remove filter: Codex CLI", "Remove filter: Review", "Remove filter: Level 2", "Remove filter: Lesson <slug>", "Remove filter: Search: <q>"), each a link to the same URL minus that value, plus one "Clear filters" link. When the result set is empty the row's Clear link is not rendered, so the EmptyState's is the only one on the page.
+- **Count**: plain text, "6 workflows" ("1 workflow"). Not a live region (the page navigates).
+- **Card** (`Card interactive`, an `li` in a `ul`; 1 column at base, 2 columns from md): title as an `h3` with the stretched link; problem in `text-base` clamped to 2 lines with `line-clamp-2` (the full text stays in the DOM); a row of text badges, one per tool ("Claude Code", "Codex CLI", `accent`) and one per distinct setup kind (`neutral`: "Context file", "Hook", "Skill", "Subagent", "Config", "Script") or a single "Prompt only"; stack chips (`tag` badges); a footer line "Verified 25 Sep 2026 · by Ada Lovelace". Past 60 days the verified text is replaced by the `warning` badge "May be outdated" (§4.3, icon plus words). In the archived view the badge is `neutral` "Archived" with the date.
+- **Order**: `verified_on` descending, then title ascending. Archived (181 days or more) is hidden; "Show archived (N)" at the end of the list links to `?archived=1` and, once on, becomes "Hide archived".
+- **States**: no workflows at all: EmptyState "No workflows yet." with a link "Share the first one ↗" (new tab). No matches: EmptyState "No workflows match these filters" with "Clear filters". Loading: `workflows-skeleton` (heading, search, the filter column and 6 card skeletons). Error: route boundary (§6.10). The `/workflows` page and its loading and error files live in a `(index)` route group so `loading.tsx` does not wrap `/workflows/[slug]`, which needs a real HTTP 404.
+
+### 6.12 `/workflows/[slug]` (`?tool=claude|codex`) (PRD §16, WF-33 to WF-38)
+
+**Hierarchy**: 1. What it fixes and whether to trust it (header, Result). 2. What to copy (Setup, Prompt). 3. How to apply it (Steps). 4. Why (callout). The rail answers "does this fit me" without scrolling.
+
+```
+360                                         1440
+┌──────────────────────────────────────┐    ┌────────────────────────────────────────────────────────────────────────────────┐
+│ Workflows / Title          (crumb)   │    │ Workflows / Title                                    (crumb)                   │
+│ [Archived: not verified since …]     │    │ ┌─ lg:col-span-8 ────────────────────────────┐ ┌─ lg:col-span-4 (sticky) ───────┐ │
+│ WORKFLOW                    (eyebrow)│    │ │ WORKFLOW                                   │ │ AT A GLANCE            (aside) │ │
+│ Title                          (h1)  │    │ │ Title                                (h1)  │ │ Tools [Claude Code] [Codex CLI]│ │
+│ Problem sentence                     │    │ │ Problem sentence                           │ │ Setup type [Context file] …    │ │
+│ ✓ Reviewed by stewards · 26 Sep 2026 │    │ │ ✓ Reviewed by stewards · 26 Sep 2026       │ │ Stack [Next.js]                │ │
+│ Author-verified on Claude Code v2…   │    │ │ Author-verified on Claude Code v2.1.0, …   │ │ Builds on Lesson 2.2: … →      │ │
+│ by Ada Lovelace                      │    │ │ by Ada Lovelace                            │ │ Report outdated ↗              │ │
+│ ┌ AT A GLANCE (no On this page) ───┐ │    │ │ Result (h2)                                │ │ ─────────────                  │ │
+│ └──────────────────────────────────┘ │    │ │ ┌ Before ────────┐ ┌ After ──────────┐     │ │ On this page                   │ │
+│ Result                         (h2)  │    │ │ Setup (h2)   [Claude Code | Codex CLI]     │ │  Result · Setup · Prompt …     │ │
+│ ┌ Before ┐                           │    │ │ [Context file] AGENTS.md  (CodeBlock+Copy) │ └────────────────────────────────┘ │
+│ ┌ After  ┐                           │    │ │ Prompt (h2)  [Claude Code | Codex CLI]     │                                    │
+│ Setup … Prompt … Steps …             │    │ │ Steps (h2)   1. … 2. … 3. …                │                                    │
+│ │ Why it works (callout)           │ │    │ │ │ Why it works (callout)                   │                                    │
+└──────────────────────────────────────┘    │ └────────────────────────────────────────────┘                                    │
+                                            └────────────────────────────────────────────────────────────────────────────────┘
+```
+
+- **Header**: `nav[aria-label=Breadcrumb]` ("Workflows / <title>", the current item `aria-current=page`), eyebrow "Workflow" (`EYEBROW_CLASS`, uppercased by CSS), `h1`, the problem sentence (`text-lg`), then the meta line. Document title "<title> · Workflow · First Mate AI Playground".
+- **Meta line: two signals that are never merged** (WF-34). **Reviewed** is a `success` badge with a `BadgeCheck` icon reading "Reviewed by stewards", followed by the `reviewed_on` date (omitted when unknown). It says a steward merged this file, and its element never contains the word "verified". **Verified** is plain `fg-muted` text, "Author-verified on Claude Code v2.1.0, Codex CLI v0.40.0 · 25 Sep 2026" (only the tools the workflow covers); it is the author's claim. Then "by <author>" and, from 61 days, the `warning` "May be outdated" badge. The two are separate sibling elements so a screen reader and a test can tell them apart.
+- **Archived** (181 days or more): a `warning` Notice with `live={false}` above the eyebrow, "Archived: not verified since <date>. Kept for reference; the setup may no longer work." The page is still fully readable.
+- **At a glance** (WF-35). From lg: a sticky (`top-[76px]`) right rail, an `aside[aria-label="At a glance"]` with Tools, Setup type (kind badges or "Prompt only"), Stack, "Builds on Lesson X.Y: <title> →" (only when `related_lesson` resolves to an active lesson, so X.Y is the curriculum number), "Report outdated ↗" and a `nav[aria-label="On this page"]` with the five section links (`#result`, `#setup`, `#prompt`, `#steps`, `#why-it-works`). Below lg the same facts render as a `section[aria-label="At a glance"]` between the meta line and Result, without "On this page". Only one of the two is displayed at a time (`hidden lg:block` / `lg:hidden`), so there is never a duplicate landmark in the accessibility tree.
+- **Report outdated** opens `<REPO_URL>/issues/new?template=workflow-outdated.yml&labels=workflow-outdated&title=Outdated%3A+<slug>&workflow=<slug>` in a new tab (`rel="noopener noreferrer"`, sr-only " (opens in new tab)"). `REPO_URL` and the template name come from the contract.
+- **Result**: an `h2` with two `Card`s, "Before" and "After" (`h3`), side by side from md and stacked below. The After card has a 4px `link` left border so the pair does not read as two equal boxes (the border is decoration; the headings carry the meaning). Body text is rendered by the lesson `Markdown` component (L-7: raw HTML shown as text).
+- **Setup**: one `CodeBlock` per artifact. The figure label is the file `path` (so Copy reads "Copy code: AGENTS.md"), the language is the fence language, and a `neutral` kind badge ("Context file", "Hook", ...) sits above it. With no setup files: "No setup files." (and "Prompt only" in the rail and on the card).
+- **Prompt**: the prompt markdown, whose fenced blocks render as `CodeBlock`s. Per-tool prompts exist only when the file has `### Claude Code` and `### Codex CLI` subsections; a tool with no prompt of its own shows the shared one.
+- **Tool tabs only when both tools are covered** (WF-36). `tools` has both: Setup and Prompt each get the §4.4 tabs (tablists "Setup tool" and "Prompt tool"), bound to the same page-wide selection, the same `?tool=` param and the same `prefs.tool` preference as lessons, so choosing Codex CLI in one switches the other. A setup block tagged `tool=` shows only in its tab; an untagged block shows in both. Result, Steps and Why it works are outside the tabs. `tools` has one value: no tabs and no tablist exist in the DOM, and the prompt and setup show for that tool only.
+- **Steps**: an ordered list (`list-decimal`), each item plain text with `backtick` spans as inline code (`InlineText`, never HTML).
+- **Why it works**: a callout like Key differences (§6.3): `border-l-4 border-link bg-accent-soft`, `h2` inside, body rendered by `Markdown`.
+- **States**: unknown or removed slug: a real HTTP 404 (the existence check is in `[slug]/layout.tsx`, above `loading.tsx`) rendering `not-found.tsx`: `h1` "Workflow not found", a primary link "Go to workflows" to `/workflows`, and "Home". The slug is never echoed. Loading: `workflow-skeleton` (header, two result cards, two code blocks). Error: route boundary (§6.10). The workflow page never writes progress; it only reads `prefs.tool`.
+- **Lesson row** (WF-39a): on `/lessons/[slug]`, after previous/next, an `h2` "Workflows that use this" (`section[aria-labelledby=lesson-workflows]`) lists up to 3 non-archived workflows (newest verified first), each a full-width link row (`rounded-xl bg-surface`, the same shape as the previous/next links) with the title in bold and the problem below. More than 3: a "See all N →" link to `/workflows?lesson=<slug>`. With none, or when the read fails, nothing is rendered, including the heading. It sits after the Watch block (§6.3.2) and after everything else on the page.
+
 ---
 
 ## 7. Content and microcopy rules
@@ -1325,7 +1400,7 @@ Each item says how to check it. **B** = Blocking, **M** = Major, **m** = Minor.
 | ID | Sev | Check | How to verify |
 |---|---|---|---|
 | D-1 | B | No horizontal page scroll at 360, 768, 1024 or 1440. Code scrolls inside its own block | `document.documentElement.scrollWidth <= innerWidth` at each width |
-| D-2 | B | Tabs remain tabs below 768px. Nav collapses to a menu button with `aria-expanded` | Screenshot at 360 |
+| D-2 | B | Tabs remain tabs below 768px. Nav collapses to a menu button below 1024px with `aria-expanded` | Screenshot at 360 |
 | D-3 | M | Information hierarchy matches the §6 order for the route (for example, lesson order L-1) | Screenshots against the wireframes |
 | D-4 | M | Long titles, URLs and paths wrap or truncate inside their card, never overflow | Fixture with an 80-character title and a long URL |
 | D-5 | m | Prose stays within the 700px measure | Screenshot at 1440 |
@@ -1403,9 +1478,9 @@ This is the authoritative list of **accessible roles and names** for every landm
 | Skip link | `link` | "Skip to content" | First focusable element; `href="#main"` |
 | Header | `banner` | (none) | One per page |
 | Home link (logo) | `link` | "First Mate AI Playground" | `img alt="First Mate"` + visible "AI Playground" text |
-| Desktop nav (≥768) | `navigation` | "Main" | Links "Curriculum", "Exercises", "News", "Bookmarks", "Progress"; current one has `aria-current="page"` |
-| Menu button (<768) | `button` | "Menu" | `aria-expanded` `false`/`true`, `aria-controls="mobile-nav"`; absent at ≥768 |
-| Mobile nav (<768, open) | `navigation` | "Main" | Same 5 links. Only one "Main" nav is exposed at a time |
+| Desktop nav (≥1024) | `navigation` | "Main" | Links "Curriculum", "Exercises", "Workflows", "News", "Bookmarks", "Progress"; current one has `aria-current="page"` |
+| Menu button (<1024) | `button` | "Menu" | `aria-expanded` `false`/`true`, `aria-controls="mobile-nav"`; absent at ≥1024 |
+| Mobile nav (<1024, open) | `navigation` | "Main" | Same 6 links. Only one "Main" nav is exposed at a time |
 | Main | `main` | (none) | `id="main"`, `tabindex="-1"` |
 | Footer | `contentinfo` | (none) | |
 | Live region | `status` | (none) | `id="fm-live"`; texts: "Copied", "Copy blocked. Code selected. Press ⌘C to copy." (or Ctrl+C), "Lesson marked complete", "Marked not complete", "Exercise complete", "Removed from bookmarks", "Progress exported and copied" |
@@ -1427,7 +1502,7 @@ This is the authoritative list of **accessible roles and names** for every landm
 | CommandLine | same as CodeBlock | `figure` | Label is "Setup", "Verify", "Prompt" or "Terminal"; copy button "Copy code: Setup" and so on |
 | Checkbox item | input | `checkbox` | The item text, exactly as in `CHECKLIST.md` |
 | ProgressBar | bar | `progressbar` | "Level \<n\>" on curriculum and home; "Checklist" in the exercise panel. `aria-valuenow` is 0–100. Not rendered before hydration (skeleton instead) |
-| Badge | | (none; text) | "Completed", "May be outdated", "Unscored", "Scoring failed", "Stale", "Exercise complete", tag labels |
+| Badge | | (none; text) | "Completed", "May be outdated", "Unscored", "Scoring failed", "Stale", "Exercise complete", tag labels; workflows: "Claude Code", "Codex CLI", "Prompt only", "Archived", "Reviewed by stewards", setup kinds ("Context file", "Hook", "Skill", "Subagent", "Config", "Script") |
 | Notice | container | `alert` (event-driven danger), `status` (event-driven other tones), none (server-rendered) | Dismiss `button` "Dismiss" |
 | EmptyState | section | `region` | Its title text (`aria-labelledby`) |
 | NewsCard | card | `article` | `<title>` (via `aria-labelledby`) |
@@ -1435,7 +1510,7 @@ This is the authoritative list of **accessible roles and names** for every landm
 | | bookmark | `button` | "Bookmark: \<title\>", `aria-pressed` |
 | | tags | `list` | "Tags"; `listitem` per tag |
 | | remove (unavailable variant) | `button` | "Remove bookmark" |
-| Skeletons | container | (none) | `data-testid`: `curriculum-skeleton`, `lesson-skeleton`, `news-skeleton`, `archive-skeleton`, `home-skeleton`, `bookmarks-skeleton`, `progress-placeholder` (pre-hydration progress). Each has `aria-busy="true"` |
+| Skeletons | container | (none) | `data-testid`: `curriculum-skeleton`, `lesson-skeleton`, `news-skeleton`, `archive-skeleton`, `home-skeleton`, `bookmarks-skeleton`, `workflows-skeleton`, `workflow-skeleton`, `progress-placeholder` (pre-hydration progress). Each has `aria-busy="true"` |
 
 ### 11.3 Pages
 
@@ -1540,6 +1615,58 @@ This is the authoritative list of **accessible roles and names** for every landm
 | Missing news item | (text) | "Item no longer available"; `button` "Remove bookmark" |
 | Undo after removal | `button` | "Undo" |
 | Empty | `region` | "Nothing bookmarked yet"; links "Browse curriculum", "Today's digest" |
+
+**`/workflows`**
+
+| Element | Role | Name |
+|---|---|---|
+| Heading | `heading` 1 | "Workflows" (exactly one) |
+| Share | `link` | `/^Share/` (visible "Share ↗", plus sr-only "(opens in new tab)") → `<REPO_URL>/blob/main/CONTRIBUTING.md#share-a-workflow`, `target=_blank`, `rel="noopener noreferrer"` |
+| Search | `searchbox` | "Search workflows"; `button` "Search" |
+| Count | (text) | "N workflows" ("1 workflow") |
+| Filters toggle (<lg) | `button` | `/^Filters/` (for example "Filters (2)"), `aria-expanded` |
+| Filter form | `form` | "Filters" (`method=get`, `action=/workflows`) |
+| Tool | `combobox` (select) | "Tool"; options "Any tool", "Claude Code", "Codex CLI" |
+| Use case | `group` | "Use case"; `checkbox`es "Planning", "Review", "Testing", "Refactoring", "Debugging", "Parallel work", "CI and gates", "Security", "Context", "Automation" (plus any the data adds) |
+| Level | `combobox` (select) | "Level"; options "Any level", "Level 1" to "Level 5" |
+| Stack | `group` | "Stack"; `checkbox`es "General (no specific stack)" (value `any`; ticking it narrows to stack-agnostic workflows, while an unticked group means no stack filter), "Next.js", "React", "TypeScript", "Node.js", "Supabase", "Postgres", "Python", "GitHub Actions" (plus any the data adds) |
+| Apply | `button` | "Apply filters" |
+| Filter chips | `link` | `/^Remove filter: /` ("Remove filter: Codex CLI", "Remove filter: Review", "Remove filter: Level 2", "Remove filter: Lesson <slug>", "Remove filter: Search: <q>") |
+| Clear | `link` | "Clear filters" (exactly one on the page) |
+| Results heading | `heading` 2 | "Results" |
+| Card | `listitem` in a `list` | contains the title `link` (`<title>`, an `h3`) and the badges above |
+| Show archived | `link` | `/^Show archived \(\d+\)$/` → `?archived=1`; "Hide archived" when on |
+| Empty (none exist) | `region` | "No workflows yet."; `link` `/^Share the first one/` |
+| Empty (no match) | `region` | "No workflows match these filters"; `link` "Clear filters" |
+
+**`/workflows/[slug]`**
+
+| Element | Role | Name |
+|---|---|---|
+| Breadcrumb | `navigation` | "Breadcrumb" (links "Workflows"; current item is the title, `aria-current=page`) |
+| Heading | `heading` 1 | `<title>` |
+| Eyebrow | (text) | "Workflow" |
+| Archived notice | (text, no role) | Starts "Archived:" and contains "not verified since" |
+| Reviewed | badge (text) | "Reviewed by stewards" (+ the `reviewed_on` date); never contains "verified" |
+| Verified | (text) | `/^Author-verified on /` followed by the tool versions, " · " and the date |
+| Section headings | `heading` 2 | "Result", "Setup", "Prompt", "Steps", "Why it works" (ids `result`, `setup`, `prompt`, `steps`, `why-it-works`); each section is a `region` with that name |
+| Result cards | `heading` 3 | "Before", "After" |
+| Setup / Prompt tabs (both tools only) | `tablist` | "Setup tool", "Prompt tool"; tabs "Claude Code", "Codex CLI"; none in the DOM when `tools` has one value |
+| Setup blocks | `figure` | Its `figcaption`: the file `path`; Copy `button` "Copy code: <path>" |
+| Steps | `list` (ordered) | in the "Steps" region |
+| Rail (lg+) | `complementary` | "At a glance"; contains `navigation` "On this page" (links "Result", "Setup", "Prompt", "Steps", "Why it works") |
+| Rail (<lg) | `region` | "At a glance" (no "On this page") |
+| Builds on | `link` | `/^Builds on Lesson \d+\.\d+: /` → `/lessons/<slug>`; absent when the lesson is unset, archived or removed |
+| Report outdated | `link` | `/^Report outdated/` → the prefilled issue URL, `target=_blank`, `rel="noopener noreferrer"` |
+| Unknown or removed slug | `heading` 1 | "Workflow not found" (HTTP 404); `link` "Go to workflows" → `/workflows` |
+
+**`/lessons/[slug]` workflows row**
+
+| Element | Role | Name |
+|---|---|---|
+| Section | `region` | "Workflows that use this" (`h2`); absent when there are none |
+| Items | `link` | the workflow title (the problem is in the same link); at most 3 |
+| See all | `link` | `/^See all \d+/` → `/workflows?lesson=<slug>`, only when more than 3 |
 
 **`/progress`**
 

@@ -44,14 +44,14 @@ test.describe("shell landmarks and skip link (D-2, DESIGN §5.1, §11.1)", () =>
   });
 });
 
-test.describe("desktop nav (>= 768px)", () => {
+test.describe("desktop nav (>= 1024px)", () => {
   test.use({ viewport: { width: 1440, height: 900 } });
 
-  test("five links, current page has aria-current, no menu button, one Main navigation", async ({ page }) => {
+  test("six links, current page has aria-current, no menu button, one Main navigation", async ({ page }) => {
     await page.goto("/curriculum");
     const nav = page.getByRole("navigation", { name: "Main" });
     await expect(nav).toHaveCount(1);
-    for (const name of ["Curriculum", "Exercises", "News", "Bookmarks", "Progress"]) {
+    for (const name of ["Curriculum", "Exercises", "Workflows", "News", "Bookmarks", "Progress"]) {
       await expect(nav.getByRole("link", { name })).toBeVisible();
     }
     await expect(nav.getByRole("link", { name: "Curriculum" })).toHaveAttribute("aria-current", "page");
@@ -69,20 +69,31 @@ test.describe("desktop nav (>= 768px)", () => {
     await expect(page.locator("header [aria-current='page']")).toHaveCount(0);
   });
 
-  test("all five links fit at 768px without wrapping or page scroll", async ({ page }) => {
+  test("at 1024px all six links fit in one row with no page scroll, even in a wide font", async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 900 });
+    await page.goto("/curriculum");
+    // Stress: a font wider than the macOS one, so a layout that only fits there fails here too.
+    await page.addStyleTag({ content: 'header nav { font-family: "DejaVu Sans", Verdana, sans-serif !important; }' });
+    const nav = page.getByRole("navigation", { name: "Main" });
+    await expect(nav.getByRole("link")).toHaveText(["Curriculum", "Exercises", "Workflows", "News", "Bookmarks", "Progress"]);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(
+      true,
+    );
+  });
+
+  test("at 768px the nav is collapsed into the Menu button, in a wide font too, with no page scroll", async ({ page }) => {
     await page.setViewportSize({ width: 768, height: 900 });
     await page.goto("/curriculum");
-    const nav = page.getByRole("navigation", { name: "Main" });
-    for (const name of ["Curriculum", "Exercises", "News", "Bookmarks", "Progress"]) {
-      await expect(nav.getByRole("link", { name })).toBeVisible();
-    }
+    await page.addStyleTag({ content: 'header, header * { font-family: "DejaVu Sans", Verdana, sans-serif !important; }' });
+    await expect(page.getByRole("button", { name: "Menu" })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Main" })).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(
       true,
     );
   });
 });
 
-test.describe("mobile menu (< 768px) (TC-A-28, TC-A-29)", () => {
+test.describe("mobile menu (< 1024px) (TC-A-28, TC-A-29)", () => {
   test.use({ viewport: { width: 360, height: 740 } });
 
   test("Menu button discloses the nav; first link gets focus; Esc closes and refocuses the button", async ({ page }) => {
@@ -96,7 +107,7 @@ test.describe("mobile menu (< 768px) (TC-A-28, TC-A-29)", () => {
     await expect(button).toHaveAttribute("aria-expanded", "true");
     const nav = page.getByRole("navigation", { name: "Main" });
     await expect(nav).toHaveCount(1);
-    await expect(nav.getByRole("link")).toHaveCount(5);
+    await expect(nav.getByRole("link")).toHaveText(["Curriculum", "Exercises", "Workflows", "News", "Bookmarks", "Progress"]);
     await expect(nav.getByRole("link", { name: "Curriculum" })).toBeFocused();
     await expect(nav.getByRole("link", { name: "Curriculum" })).toHaveAttribute("aria-current", "page");
 
@@ -124,7 +135,7 @@ test.describe("mobile menu (< 768px) (TC-A-28, TC-A-29)", () => {
 
     await button.click();
     await expect(button).toHaveAttribute("aria-expanded", "true");
-    await page.setViewportSize({ width: 900, height: 740 });
+    await page.setViewportSize({ width: 1100, height: 740 });
     await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Curriculum" })).toBeVisible();
     await expect(button).toBeHidden();
   });
@@ -144,7 +155,7 @@ test.describe("mobile menu (< 768px) (TC-A-28, TC-A-29)", () => {
 
 test.describe("below 375px the label is visually hidden but the link keeps its name", () => {
   test.use({ viewport: { width: 360, height: 740 } });
-  test("360 shows the logo only, 375 shows the label", async ({ page }) => {
+  test("360 shows the logo only, 375 and wider show the label", async ({ page }) => {
     await page.goto("/curriculum");
     await expect(page.getByRole("link", { name: "First Mate AI Playground" })).toBeVisible();
     const label = page.getByText("AI Playground", { exact: true });
@@ -152,7 +163,8 @@ test.describe("below 375px the label is visually hidden but the link keeps its n
     await page.setViewportSize({ width: 375, height: 740 });
     expect((await label.boundingBox())?.width ?? 0).toBeGreaterThan(50);
     await page.setViewportSize({ width: 768, height: 740 });
-    expect((await label.boundingBox())?.width ?? 0).toBeLessThanOrEqual(1);
+    // The nav is collapsed into the menu up to lg, so the label has room and stays visible at 768.
+    expect((await label.boundingBox())?.width ?? 0).toBeGreaterThan(50);
     const logo = await page.locator("header img").boundingBox();
     expect(Math.abs((logo?.width ?? 0) / (logo?.height ?? 1) - 825 / 169)).toBeLessThan(0.05); // never squashed
     await page.setViewportSize({ width: 1024, height: 740 });

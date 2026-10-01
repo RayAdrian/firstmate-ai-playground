@@ -8,20 +8,20 @@ import { cn } from "./cn";
 import { Logo } from "./logo";
 import { isNavActive, NAV_ITEMS } from "./nav";
 
-const DESKTOP_QUERY = "(min-width: 768px)";
+const DESKTOP_QUERY = "(min-width: 1024px)";
 
 function BrandLink() {
   return (
     <Link href="/" className="inline-flex min-h-11 shrink-0 items-center gap-3 rounded-lg">
       <Logo />{" "}
       {/* Below 375px the label is visually hidden so the logo fits; the link keeps its full name. */}
-      <span aria-hidden="true" className="h-5 w-px bg-border max-[374px]:sr-only md:max-lg:sr-only" />
-      <span className="text-sm font-bold whitespace-nowrap text-fg-strong max-[374px]:sr-only md:max-lg:sr-only">AI Playground</span>
+      <span aria-hidden="true" className="h-5 w-px bg-border max-[374px]:sr-only" />
+      <span className="text-sm font-bold whitespace-nowrap text-fg-strong max-[374px]:sr-only">AI Playground</span>
     </Link>
   );
 }
 
-/** Sticky header with the desktop nav (>= md) and a disclosure menu (< md). */
+/** Sticky header with the desktop nav (>= lg: six links need about 1000px in any font) and a disclosure menu (< lg). */
 export function SiteHeader() {
   const pathname = usePathname();
   const pathKey = pathname ?? "";
@@ -69,7 +69,7 @@ export function SiteHeader() {
       <div className="mx-auto flex h-[var(--fm-header-h)] w-full max-w-[var(--fm-container)] items-center justify-between gap-4 px-4 md:px-6 lg:px-8">
         <BrandLink />
 
-        <nav aria-label="Main" className="hidden flex-1 items-stretch justify-between self-stretch md:flex">
+        <nav aria-label="Main" className="hidden flex-1 items-stretch justify-between self-stretch lg:flex">
           <ul className="ml-4 flex items-stretch lg:ml-8">
             {primary.map((item) => (
               <NavLink key={item.href} href={item.href} label={item.label} active={isNavActive(item.href, pathname)} />
@@ -95,7 +95,7 @@ export function SiteHeader() {
           aria-expanded={open}
           aria-controls="mobile-nav"
           onClick={() => setOpenFor(open ? null : pathKey)}
-          className="-mr-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-fg-strong hover:bg-surface md:hidden"
+          className="-mr-2 inline-flex size-11 shrink-0 items-center justify-center rounded-full text-fg-strong hover:bg-surface lg:hidden"
         >
           {open ? <X aria-hidden="true" className="size-5" /> : <Menu aria-hidden="true" className="size-5" />}
         </button>
@@ -106,7 +106,7 @@ export function SiteHeader() {
         ref={panelRef}
         aria-label="Main"
         hidden={!open}
-        className="border-t border-border-subtle bg-surface-raised shadow-sm md:hidden"
+        className="border-t border-border-subtle bg-surface-raised shadow-sm lg:hidden"
       >
         <ul className="mx-auto max-w-[var(--fm-container)] py-1">
           {NAV_ITEMS.map((item) => {
