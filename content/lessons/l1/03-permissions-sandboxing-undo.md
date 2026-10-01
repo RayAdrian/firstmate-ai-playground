@@ -27,6 +27,39 @@ Two separate questions control how much an agent can hurt you:
 1. **When does it ask?** (permission mode, approval policy, allow and deny rules.) This is about your attention.
 2. **What can it reach?** (the sandbox: which paths it can write, which hosts it can contact.) This is about blast radius.
 
+```diagram
+type: boundary
+id: sandbox-and-gate
+title: What the sandbox reaches and when it asks
+summary: The sandbox sets what commands can reach. Going past its edge needs your approval, and the permission mode or approval policy sets when the agent asks.
+zones:
+  - id: sandbox
+    label: Sandbox
+    items:
+      - id: commands
+        label: Agent commands
+        sub: run in here
+      - id: workspace
+        label: Workspace files
+        sub: within reach
+  - id: outside
+    label: Outside the sandbox
+    items:
+      - id: other-paths
+        label: Other paths
+        sub: out of reach
+      - id: hosts
+        label: Network hosts
+        sub: out of reach
+crossings:
+  - from: commands
+    to: other-paths
+    label: asks to leave
+  - from: commands
+    to: hosts
+    label: asks to leave
+```
+
 Rules and modes are enforced by the tool, not by the model. A line in your prompt or in `CLAUDE.md` saying "never run curl" shapes what the agent tries. It is not a boundary. To actually block something, use a deny rule, a sandbox or a hook.
 
 Think in three postures:
