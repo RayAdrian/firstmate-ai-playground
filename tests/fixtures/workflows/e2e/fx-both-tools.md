@@ -39,7 +39,7 @@ diagram:
       label: failures
   exits:
     - from: report
-      label: all green
+      label: done
       text: Open PR
       style: ok
 ---
