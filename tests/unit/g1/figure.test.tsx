@@ -8,6 +8,9 @@ import { Markdown } from "@/components/lesson/markdown";
 import type { DiagramInput } from "@/lib/contracts/diagram";
 import { boundaryInput, flowInput, lanesInput, parse, stackInput } from "../g0/fixtures";
 
+type FlowInput = Extract<DiagramInput, { type: "flow" }>;
+const flowWith = (o: Partial<FlowInput>): DiagramInput => ({ ...(flowInput() as FlowInput), ...o });
+
 const TYPES: [string, () => DiagramInput][] = [
   ["flow", flowInput],
   ["stack", stackInput],
@@ -98,7 +101,7 @@ describe("DG-4: the diagram as text", () => {
     const { container } = render(
       <>
         <DiagramFigure diagram={d} />
-        <DiagramFigure diagram={parse({ ...stackInput(), id: "other" })} />
+        <DiagramFigure diagram={parse({ ...(stackInput() as Extract<DiagramInput, { type: "stack" }>), id: "other" })} />
       </>,
     );
     const ids = [...container.querySelectorAll("[id]")].map((e) => e.id);
@@ -136,8 +139,8 @@ describe("DG-4: the diagram as text", () => {
   };
 
   it("flow: steps, arrows, loops and exits as sentences, with (key) and (risk)", () => {
-    const d = parse({
-      ...flowInput(),
+    const d = parse(
+      flowWith({
       steps: [
         { id: "ask", label: "Ask", next: "plan" },
         { id: "edit", label: "Edit", sub: "agent proposes", emphasis: true },
@@ -148,7 +151,8 @@ describe("DG-4: the diagram as text", () => {
         { from: "verify", label: "passes", text: "Merge", style: "ok" },
         { from: "approve", label: "denied", text: "Stop", style: "risk" },
       ],
-    });
+    }),
+    );
     const t = text(d);
     expect(t).toContain("Ask Arrow to step 2: plan.");
     expect(t).toContain("Edit: agent proposes (key)");
@@ -220,15 +224,16 @@ describe("DG-5: colour is never the only cue, and no colour literals", () => {
 
 describe("DG-6: diagram content renders safely", () => {
   it("a script tag and an img onerror in labels render as escaped text everywhere", () => {
-    const d = parse({
-      ...flowInput(),
-      steps: [
-        { id: "a", label: "<script>x</script>" },
-        { id: "b", label: '<img onerror="x">' },
-      ],
-      loops: [],
-      exits: [],
-    });
+    const d = parse(
+      flowWith({
+        steps: [
+          { id: "a", label: "<script>x</script>" },
+          { id: "b", label: '<img onerror="x">' },
+        ],
+        loops: [],
+        exits: [],
+      }),
+    );
     const { container } = render(<DiagramFigure diagram={d} />);
     expect(container.querySelector("script, img")).toBeNull();
     expect(container.querySelector("[onerror]")).toBeNull();

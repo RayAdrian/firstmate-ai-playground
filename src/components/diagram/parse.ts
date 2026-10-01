@@ -65,6 +65,30 @@ export function parseDiagramYamlValue(source: string): { ok: true; value: unknow
   }
 }
 
+/**
+ * DG-6 for a workflow's frontmatter: the `diagram` subtree may contain no anchor, alias or explicit tag. Frontmatter is
+ * parsed by `parseYamlSafe` (`maxAliasCount: 20`), which allows them, so this re-reads the document and checks the one subtree.
+ */
+export function diagramSubtreeIssues(frontmatter: string): DiagramIssue[] {
+  let doc;
+  try {
+    doc = parseDocument(frontmatter, { version: "1.2", uniqueKeys: true });
+  } catch {
+    return [];
+  }
+  const node = doc.get("diagram", true);
+  if (!node || typeof node !== "object") return [];
+  const out: DiagramIssue[] = [];
+  visit(node as Parameters<typeof visit>[0], (_key, n) => {
+    if (isAlias(n)) out.push({ path: "diagram", reason: "YAML aliases are not allowed in a diagram" });
+    else if (n && typeof n === "object") {
+      if ("anchor" in n && n.anchor) out.push({ path: "diagram", reason: "YAML anchors are not allowed in a diagram" });
+      if ("tag" in n && n.tag) out.push({ path: "diagram", reason: "YAML tags are not allowed in a diagram" });
+    }
+  });
+  return dedupe(out);
+}
+
 export function parseDiagramYaml(source: string): DiagramParseResult {
   const yaml = parseDiagramYamlValue(source);
   if (!yaml.ok) return yaml;
