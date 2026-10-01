@@ -1,0 +1,11 @@
+/* Watch block captions (DESIGN §6.3.2). Chromium sizes cues at ~5% of the video height, ~9px at 360. */
+.video::cue {
+  font-family: var(--font-sans);
+  background: rgb(0 0 0 / 0.8);
+}
+
+@media (width < 48rem) {
+  .video::cue {
+    font-size: 15px;
+  }
+}
