@@ -1,0 +1,27 @@
+/* Forced colours (DESIGN §6.3.3): map the token classes to system colours so the result does not depend on whether a
+   browser forces SVG paint. Dashes, ✕ caps, stroke widths and bold labels survive, so emphasis and risk stay distinct. */
+@media (forced-colors: active) {
+  .figure svg {
+    forced-color-adjust: none;
+  }
+  .figure svg :global(.fill-surface-raised),
+  .figure svg :global(.fill-accent-soft) {
+    fill: Canvas;
+  }
+  .figure svg :global(.stroke-control-border),
+  .figure svg :global(.stroke-fg-muted),
+  .figure svg :global(.stroke-danger) {
+    stroke: CanvasText;
+  }
+  .figure svg :global(.fill-fg),
+  .figure svg :global(.fill-fg-muted),
+  .figure svg :global(.fill-danger) {
+    fill: CanvasText;
+  }
+  .figure svg :global(.stroke-link) {
+    stroke: Highlight;
+  }
+  .figure svg :global(.stroke-surface) {
+    stroke: Canvas;
+  }
+}
