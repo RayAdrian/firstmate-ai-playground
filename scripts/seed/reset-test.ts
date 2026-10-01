@@ -10,6 +10,7 @@ import { seedFixtureWorkflows } from "./lib/workflows-fixtures";
 import { formatIssues } from "./lib/issues";
 import { loadContent } from "./lib/load";
 import { assertLocalSupabase } from "./lib/local-guard";
+import { applyLocalRoles } from "../db/local-roles";
 
 /** The fixed test clock (docs/test-cases README 4.1). Fixture rows never depend on the real clock. */
 const FM_TEST_NOW = new Date("2026-09-30T13:00:00+08:00");
@@ -30,6 +31,12 @@ async function main(): Promise<number> {
   }
   assertLocalSupabase(process.env.SUPABASE_URL);
   requireServiceEnv();
+  // Idempotent: the community_writer role is created NOLOGIN by the migration; its local login lives in seed.sql (PRD 18.4).
+  try {
+    await applyLocalRoles();
+  } catch (err) {
+    console.warn(`db:reset:test: could not set the local community_writer login (${err instanceof Error ? err.message : "unknown error"}); community writes will fail until \`npm run db:local-roles\` succeeds.`);
+  }
   const variant: VariantData = buildVariant(name);
   const db = getServiceClient();
 

@@ -22,12 +22,13 @@ describe("TC-D-28 migrations", () => {
   });
 
   it("returns a current-version doc unchanged with the production registry", () => {
-    expect(migrate(v1Full as Record<string, unknown>)).toBe(v1Full);
+    const v2 = { ...v1Full, version: 2, community: { clientId: "11111111-2222-4333-8444-555555555555", displayName: null, namePrompted: false } };
+    expect(migrate(v2)).toBe(v2);
   });
 
   it("throws when there is no path", () => {
     expect(() => migrate({ version: 0 })).toThrow();
-    expect(() => migrate({ version: 2 })).toThrow();
+    expect(() => migrate({ version: 3 })).toThrow();
     expect(() => migrate({ version: "1" })).toThrow();
   });
 });
@@ -37,7 +38,7 @@ describe("parseProgressText", () => {
     expect(parseProgressText(null)).toEqual({ kind: "empty" });
     const res = parseProgressText(V1);
     expect(res.kind).toBe("ok");
-    if (res.kind === "ok") expect(res.state).toEqual(v1Full);
+    if (res.kind === "ok") expect(res.state).toEqual({ ...v1Full, version: 2, community: expect.objectContaining({ displayName: null, namePrompted: false }) });
   });
 
   const invalid: [string, string][] = [
@@ -49,7 +50,7 @@ describe("parseProgressText", () => {
     ["empty object", "{}"],
     ["wrong lessons type", '{"version":1,"lessons":"nope"}'],
     ["v0", JSON.stringify({ ...v1Full, version: 0 })],
-    ["v2 on a v1 app", JSON.stringify({ ...v1Full, version: 2 })],
+    ["v2 doc without community", JSON.stringify({ ...v1Full, version: 2 })],
     ["string version", JSON.stringify({ ...v1Full, version: "1" })],
     ["bad tool", JSON.stringify({ ...v1Full, prefs: { tool: "vim" } })],
     [

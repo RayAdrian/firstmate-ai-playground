@@ -39,8 +39,14 @@ instance is absent, so both can coexist without duplicates.
 - Storage is read on first mount, never on the server. Read-only page loads never write the progress key (a transient probe key checks that writes work). `useTrackLastViewed` is the exception: it writes `lastViewed` once per lesson-page mount or slug change and never reacts to other tabs.
 - Every mutation re-reads storage first (read-modify-write), so two tabs do not erase each other.
   Other tabs are followed through the `storage` event.
-- Invalid JSON, schema failures and unknown/missing versions are replaced by an empty document and
+- Invalid JSON, schema failures and older/missing versions are replaced by an empty document and
   raise the corruption notice (P-2). The rest of the app never sees the bad data.
+- A document with a version NEWER than the code's is never reset, rewritten or removed (R-H). The store reads the fields it
+  knows (any field failing its schema is empty in memory), exposes `readOnly: true`, shows the "newer version" Notice, and
+  lets toggles work in memory only, including for `storage` events. Only `invalid` docs are reset.
+- `community` (`clientId`, `displayName`, `namePrompted`, PRD 18.3) is this browser's anonymous reaction identity. It is
+  never exported (`serializeProgress` omits it), never imported (`replaceProgress` keeps the local one) and survives
+  reset. A corrupt-doc reset makes a new `clientId`. Never show or log the `clientId`.
 - If localStorage is missing, throws, or rejects a write, state lives in memory for the session and
   `storageAvailable` is false (P-3).
 - Slugs and ids that no longer exist stay in storage and are never rendered (P-4).
@@ -48,8 +54,8 @@ instance is absent, so both can coexist without duplicates.
 
 ## Migrations
 
-`migrate.ts` holds an ordered registry keyed by `from` version (`MIGRATIONS`, empty at v1).
-To ship v2: bump `PROGRESS_VERSION` in the contract and append `{ from: 1, to: 2, up }`. Older
+`migrate.ts` holds an ordered registry keyed by `from` version (`MIGRATIONS`: v1 -> v2 adds `community`).
+To ship v3: bump `PROGRESS_VERSION` in the contract and append `{ from: 2, to: 3, up }`. Older
 documents are migrated on load and import; anything without a path is treated as corrupt.
 
 ## Pure API (also fine on the server)

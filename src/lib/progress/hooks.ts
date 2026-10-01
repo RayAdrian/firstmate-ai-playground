@@ -45,10 +45,12 @@ export function useProgressStatus(): {
   hydrated: boolean;
   storageAvailable: boolean;
   corruptNotice: boolean;
+  /** Stored progress is from a newer version of the app: shown read-only, never written (R-H). */
+  readOnly: boolean;
   dismissCorruptNotice: () => void;
 } {
-  const { hydrated, storageAvailable, corruptNotice } = useProgressSnapshot();
-  return { hydrated, storageAvailable, corruptNotice, dismissCorruptNotice };
+  const { hydrated, storageAvailable, corruptNotice, readOnly } = useProgressSnapshot();
+  return { hydrated, storageAvailable, corruptNotice, readOnly, dismissCorruptNotice };
 }
 
 /** One lesson's completion, with undo (L-5). */

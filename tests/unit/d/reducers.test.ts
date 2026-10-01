@@ -25,15 +25,16 @@ describe("TC-D-01 empty state", () => {
     const s = emptyState();
     expect(progressStateSchema.strict().safeParse(s).success).toBe(true);
     expect(Object.keys(s).sort()).toEqual(
-      ["bookmarks", "checklists", "lastViewed", "lessons", "prefs", "version"].sort(),
+      ["bookmarks", "checklists", "community", "lastViewed", "lessons", "prefs", "version"].sort(),
     );
     expect(s).toEqual({
-      version: 1,
+      version: 2,
       lessons: {},
       checklists: {},
       bookmarks: { lessons: {}, news: {} },
       prefs: { tool: "claude" },
       lastViewed: null,
+      community: { clientId: expect.any(String), displayName: null, namePrompted: false },
     });
   });
 });
