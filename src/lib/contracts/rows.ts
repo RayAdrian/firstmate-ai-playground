@@ -1,6 +1,12 @@
 import { z } from "zod";
 import { newsTagSchema, scoringStatusSchema } from "./news";
 import { toolVersionsSchema } from "./lesson";
+import {
+  WORKFLOW_TOOLS,
+  workflowPromptSchema,
+  workflowSetupBlockSchema,
+  workflowSetupKindSchema,
+} from "./workflow";
 
 // guid (not uuid): zod v4 uuid() enforces RFC variant bits and rejects hand-written fixture ids.
 const uuid = z.guid();
@@ -115,3 +121,32 @@ export const ingestRunRowSchema = z.object({
   error_summary: z.string().nullable(),
 });
 export type IngestRunRow = z.infer<typeof ingestRunRowSchema>;
+
+/** public.workflows (PRD §16.8). No freshness or client_safe column: freshness is derived, client_safe is a merge-time property. */
+export const workflowRowSchema = z.object({
+  id: uuid,
+  slug: z.string(),
+  title: z.string(),
+  problem: z.string(),
+  tools: z.array(z.enum(WORKFLOW_TOOLS)).min(1),
+  setup: z.array(workflowSetupBlockSchema),
+  setup_kinds: z.array(workflowSetupKindSchema),
+  prompt: workflowPromptSchema,
+  result_before: z.string(),
+  result_after: z.string(),
+  steps: z.array(z.string()).min(1).max(5),
+  why_md: z.string(),
+  use_cases: z.array(z.string()),
+  stacks: z.array(z.string()),
+  related_lesson_slug: z.string().nullable(),
+  level: z.number().int().min(1).max(5).nullable(),
+  tool_versions: z.object({ claude_code: z.string(), codex_cli: z.string() }).partial(),
+  verified_on: date,
+  author_name: z.string(),
+  reviewed_on: date.nullable(),
+  content_hash: z.string(),
+  removed_at: ts.nullable(),
+  created_at: ts,
+  updated_at: ts,
+});
+export type WorkflowRow = z.infer<typeof workflowRowSchema>;
