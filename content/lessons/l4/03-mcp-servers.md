@@ -40,6 +40,34 @@ Two kinds of server:
 - A config committed to a repo is a way to run commands on whoever clones it. Treat a teammate's `.mcp.json` or `.codex/config.toml` like a script: read it before you approve it.
 - For a browser MCP, point it at `localhost` or sites you control. A page you do not control is exactly where injected instructions come from.
 
+```diagram
+type: boundary
+id: injection-path
+title: Where untrusted text enters
+summary: Text that comes back through a tool is untrusted. A page you do not control can steer an agent that holds your secrets.
+zones:
+  - id: yours
+    label: Your machine
+    items:
+      - id: agent
+        label: Agent
+        sub: runs your session
+      - id: secrets
+        label: Secrets
+        sub: .env, tokens
+  - id: outside
+    label: Not under your control
+    items:
+      - id: page
+        label: Web page or issue
+        sub: anyone can write it
+crossings:
+  - from: page
+    to: agent
+    label: injected text
+    style: risk
+```
+
 If a plain CLI already does the job (`gh`, `psql`, `curl`), the agent can call that through its shell, with less to install and less to trust. Reach for MCP when a CLI cannot do it, as with a real browser, or when a server gives structured results that beat parsing terminal output.
 
 ### First Mate tip
