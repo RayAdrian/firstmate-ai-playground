@@ -171,6 +171,8 @@ export function createSupabaseStore(client: Client): NewsStore {
         .eq("scoring_status", "pending")
         .lt("attempts", MAX_ATTEMPTS)
         .order("first_seen_at", { ascending: true })
+        // Within one fetch (same first_seen_at), score the newest items first so a backfill never crowds out today's.
+        .order("published_at", { ascending: false, nullsFirst: false })
         .order("id", { ascending: true })
         .limit(limit);
       fail("read pending news_items", error);

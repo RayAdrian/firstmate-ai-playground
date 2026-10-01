@@ -69,6 +69,28 @@ describe("parseFeed RSS/Atom", () => {
   });
 });
 
+describe("YouTube Atom feeds", () => {
+  const yt = (entry: string) =>
+    `<?xml version="1.0"?><feed xmlns:yt="http://www.youtube.com/xml/schemas/2015" xmlns:media="http://search.yahoo.com/mrss/" xmlns="http://www.w3.org/2005/Atom"><title>Chan</title>${entry}</feed>`;
+  const entry = (id: string, desc: string, extra = "") =>
+    `<entry><id>yt:video:${id}</id><title>Video ${id}</title><link rel="alternate" href="https://www.youtube.com/watch?v=${id}"/><author><name>Chan</name></author><published>2026-09-29T01:00:00+00:00</published>${extra}<media:group><media:title>Video ${id}</media:title><media:description>${desc}</media:description></media:group></entry>`;
+
+  it("uses media:group > media:description as the excerpt when nothing else is present", () => {
+    const items = parseFeed(yt(entry("a1", "Summary line\nhttps://example.com sponsor")));
+    expect(items[0]).toMatchObject({ guid: "yt:video:a1", link: "https://www.youtube.com/watch?v=a1", author: "Chan", excerpt: "Summary line https://example.com sponsor" });
+  });
+
+  it("prefers a regular summary or content over media:description", () => {
+    const items = parseFeed(yt(entry("a2", "media text", "<summary>real summary</summary>")));
+    expect(items[0].excerpt).toBe("real summary");
+  });
+
+  it("leaves the excerpt null when the media group has no description", () => {
+    const xml = yt(`<entry><id>yt:video:a3</id><title>t</title><link rel="alternate" href="https://www.youtube.com/watch?v=a3"/><media:group><media:title>t</media:title></media:group></entry>`);
+    expect(parseFeed(xml)[0].excerpt).toBeNull();
+  });
+});
+
 describe("decodeXml (TC-E-11)", () => {
   it("honours a declared ISO-8859-1 encoding", () => {
     const bytes = Buffer.concat([
@@ -118,6 +140,19 @@ describe("normalizeItems (I-2.1, TC-E-09)", () => {
       opts,
     );
     for (const i of res.items) expect(i.published_at).toBe(NOW.toISOString());
+  });
+
+  it("drops /shorts/ links, from any feed, and keeps the long video with the same title", () => {
+    const res = normalizeItems(
+      [
+        raw({ link: "https://www.youtube.com/watch?v=abc", title: "Introducing X" }),
+        raw({ link: "https://www.youtube.com/shorts/xyz", title: "Introducing X" }),
+        raw({ link: "https://example.com/blog/shorts-guide", title: "Not a short" }),
+      ],
+      opts,
+    );
+    expect(res.items.map((i) => i.url)).toEqual(["https://www.youtube.com/watch?v=abc", "https://example.com/blog/shorts-guide"]);
+    expect(res.dropped).toEqual(["s: short-form video https://www.youtube.com/shorts/xyz"]);
   });
 
   it("resolves relative links against the feed url", () => {

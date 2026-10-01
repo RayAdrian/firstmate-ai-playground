@@ -65,6 +65,11 @@ export function normalizeItems(raw: RawFeedItem[], opts: NormalizeOptions): { it
       dropped.push(`${opts.sourceSlug}: duplicate ${canonical}`);
       continue;
     }
+    // Short-form video (YouTube Shorts) duplicates the long video under a different url and adds noise.
+    if (new URL(absolute).pathname.startsWith("/shorts/")) {
+      dropped.push(`${opts.sourceSlug}: short-form video ${canonical}`);
+      continue;
+    }
     seen.add(canonical);
 
     const parsedUrl = new URL(canonical);

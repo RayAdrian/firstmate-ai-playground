@@ -168,6 +168,16 @@ describe("backfill guard and caps (I-2.3, I-3.4, TC-E-19/20/23)", () => {
     expect(claude.calls).toHaveLength(10);
   });
 
+  it("when a backfill overflows the cap, scores the newest published items first and carries the oldest over", async () => {
+    // 90 items in the 7-day window, published one hour apart; item 1 is the newest.
+    const feed = Array.from({ length: 90 }, (_, i) => raw(i + 1, { published: new Date(Date.parse("2026-09-29T20:00:00Z") - i * 3_600_000).toISOString() }));
+    h = harness({ sources: [src("a")], feeds: { a: feed }, claude: goodClaude() });
+    const r1 = await h.run();
+    expect(r1.counts).toMatchObject({ new: 90, scored: 80, pending: 10 });
+    const pending = h.store.items.filter((i) => i.scoring_status === "pending").map((i) => i.url);
+    expect(pending.sort()).toEqual(Array.from({ length: 10 }, (_, i) => `https://site.example/p/${81 + i}`).sort());
+  });
+
   it("exactly 80 leaves nothing pending, 81 leaves one", async () => {
     h = harness({ sources: [src("a")], feeds: { a: rawMany(80) } });
     expect((await h.run()).counts.pending).toBe(0);

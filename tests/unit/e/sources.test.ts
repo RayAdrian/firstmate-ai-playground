@@ -34,6 +34,22 @@ describe("sources.yaml (I-1.1, I-1.2, TC-E-01)", () => {
     expect(sources.find((s) => s.slug === "anthropic-news")?.type).toBe("html");
   });
 
+  it("includes the 2026-10 web and YouTube sources with the right types", () => {
+    const sources = loadSources(REPO_SOURCES);
+    const by = new Map(sources.map((s) => [s.slug, s]));
+    for (const slug of ["react-blog", "typescript-releases", "nodejs-vulnerability", "github-security", "socket-blog", "stepsecurity-blog", "latent-space", "mcp-blog", "cursor-changelog"]) {
+      expect(by.has(slug), slug).toBe(true);
+    }
+    const yt = sources.filter((s) => s.slug.startsWith("yt-"));
+    expect(yt.map((s) => s.slug).sort()).toEqual(["yt-anthropic", "yt-claude", "yt-cole-medin", "yt-fireship", "yt-indydevdan", "yt-latent-space", "yt-matt-pocock", "yt-theo"]);
+    for (const s of yt) {
+      expect(s.type).toBe("atom");
+      expect(s.url).toMatch(/^https:\/\/www\.youtube\.com\/feeds\/videos\.xml\?channel_id=UC[A-Za-z0-9_-]{22}$/);
+    }
+    expect(by.get("yt-fireship")?.filters.keywords).toBeDefined();
+    expect(by.get("yt-fireship")?.filters.keywords).not.toContain("AI");
+  });
+
   const good = "- {name: A, slug: a, url: 'https://a.com/feed', type: rss, enabled: true}\n";
   it.each([
     ["missing url", "- {name: A, slug: a, type: rss, enabled: true}\n", /url/],

@@ -124,7 +124,13 @@ export class MemoryStore implements NewsStore {
     this.check();
     return this.items
       .filter((i) => i.scoring_status === "pending" && i.attempts < MAX_ATTEMPTS)
-      .sort((a, b) => (a.first_seen_at === b.first_seen_at ? a.id.localeCompare(b.id) : a.first_seen_at.localeCompare(b.first_seen_at)))
+      .sort((a, b) =>
+        a.first_seen_at !== b.first_seen_at
+          ? a.first_seen_at.localeCompare(b.first_seen_at)
+          : a.published_at !== b.published_at
+            ? (b.published_at ?? "").localeCompare(a.published_at ?? "")
+            : a.id.localeCompare(b.id),
+      )
       .slice(0, limit)
       .map((i) => this.stored(i));
   }
