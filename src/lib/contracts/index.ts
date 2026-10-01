@@ -5,3 +5,4 @@ export * from "./news";
 export * from "./rows";
 export * from "./media";
 export * from "./workflow";
+export * from "./diagram";
