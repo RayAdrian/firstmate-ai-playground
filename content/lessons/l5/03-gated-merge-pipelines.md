@@ -51,35 +51,6 @@ Our own code review of the gate scripts caught it: a gate approval that is not p
 
 The approval and the code it covers came apart. Labels make it worse: a label belongs to the PR, not to a commit, so it stays after every push.
 
-```diagram
-type: lanes
-id: pinned-approval
-title: A success cannot cover a commit nobody reviewed
-summary: A push during the review moves the head, so gate-status.sh refuses success for the old commit. The reviewer must re-review the new head.
-lanes:
-  - id: reviewer
-    label: Reviewer
-  - id: author
-    label: Author
-steps:
-  - id: start
-    label: Review A
-    lane: reviewer
-    col: 1
-  - id: push
-    label: Push B
-    lane: author
-    col: 2
-  - id: post
-    label: Post success on A
-    lane: reviewer
-    col: 3
-marker:
-  col: 3
-  label: success refused
-  style: risk
-```
-
 The fix has three parts, all in the repo today:
 
 - **The reviewer states which commit it reviewed**, and posts the status on that commit. `scripts/gate-status.sh <pr#> <gate> <state> <sha> "<desc>"` takes the SHA as an argument, and posts on that SHA, not on whatever head is current.
