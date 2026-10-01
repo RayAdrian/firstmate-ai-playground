@@ -21,6 +21,9 @@
     "exercises:verify": "tsx scripts/exercises/verify.ts",
     "content:stale": "tsx scripts/seed/stale.ts",
     "gate:merge": "bash scripts/gate-merge.sh",
+    "workflows:validate": "tsx scripts/workflows/validate.ts",
+    "workflows:scan": "tsx scripts/workflows/scan.ts",
+    "workflows:share": "tsx scripts/workflows/share.ts",
     "media:render": "npm --prefix media/remotion run render --",
     "media:record": "bash media/tapes/record.sh"
   },

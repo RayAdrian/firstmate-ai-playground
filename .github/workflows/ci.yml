@@ -2,6 +2,9 @@ name: CI
 
 on:
   pull_request:
+    # GitHub skips this workflow only when EVERY changed file matches, so a workflows-only PR runs
+    # only workflows-content.yml and a mixed PR runs both (PRD §16 WF-20).
+    paths-ignore: ['content/workflows/**']
   push:
     branches: [main]
 
@@ -22,6 +25,12 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Share-workflow skill copies are byte-identical (WF-14)
+        run: |
+          a=.claude/skills/share-workflow/SKILL.md
+          b=.agents/skills/share-workflow/SKILL.md
+          if [ ! -e "$a" ] && [ ! -e "$b" ]; then echo "no share-workflow skill yet"; exit 0; fi
+          cmp "$a" "$b"
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test
