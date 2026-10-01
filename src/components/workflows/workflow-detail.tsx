@@ -1,6 +1,6 @@
 import { ToolProvider, ToolTabs } from "@/components/lesson/tool-tabs";
 import type { Tool } from "@/components/lesson/tool";
-import type { WorkflowFreshness, WorkflowRow } from "@/lib/contracts";
+import type { CommunitySummary, WorkflowFreshness, WorkflowRow } from "@/lib/contracts";
 import { AtAGlance, type RelatedLesson } from "./at-a-glance";
 import { WorkflowHeader } from "./workflow-header";
 import {
@@ -21,12 +21,15 @@ export function WorkflowDetail({
   freshness,
   lesson,
   urlTool,
+  community = null,
 }: {
   workflow: WorkflowRow;
   freshness: WorkflowFreshness;
   lesson: RelatedLesson | null;
   /** The valid ?tool value, or null. */
   urlTool: Tool | null;
+  /** Stars and reaction counts (PRD 18); null when the community read failed. */
+  community?: CommunitySummary | null;
 }) {
   const bothTools = workflow.tools.length > 1;
   const onlyTool: Tool | null = bothTools ? null : workflow.tools[0] === "codex" ? "codex" : "claude";
@@ -73,7 +76,7 @@ export function WorkflowDetail({
   const page = (
     <div className="lg:grid lg:grid-cols-12 lg:gap-8">
       <article className="min-w-0 lg:col-span-8">
-        <WorkflowHeader workflow={workflow} freshness={freshness} />
+        <WorkflowHeader workflow={workflow} freshness={freshness} community={community} />
         <AtAGlance workflow={workflow} lesson={lesson} variant="inline" />
         {body}
       </article>
