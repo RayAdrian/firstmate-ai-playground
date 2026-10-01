@@ -11,7 +11,7 @@
 #      user's data is ALWAYS restored afterwards (`npm run seed && npm run news:import`, via a trap);
 #   5. posts commit status `ci/local` (success or failure) on THAT SHA; success is refused if the PR
 #      head moved during the run (same rule as gate-status.sh).
-# Log: /private/tmp/ci-local-pr<PR>-<sha7>.log. Env overrides: CI_LOCAL_DB_LOCK (lock script),
+# Log: /private/tmp/ci-local-pr<PR>-<sha7>.log. Env overrides: CI_LOCAL_DB_LOCK_DIR (default /private/tmp/firstmate-playground-db.lock, the mkdir lock gate agents use),
 # CI_LOCAL_ENV_FILE (.env.local to copy into the worktree), CI_LOCAL_PORT_START (default 3490).
 set -uo pipefail
 
@@ -63,6 +63,35 @@ fi
 LOG="/private/tmp/ci-local-pr${PR}-${SHA:0:7}.log"
 exec > >(tee -a "$LOG") 2>&1
 echo "ci-local: PR #$PR at $SHA  (log: $LOG)  $(date)"
+echo "node $(node --version 2>&1)  npm $(npm --version 2>&1)  gitleaks $(gitleaks version 2>&1 || echo 'not installed')"
+
+DB_LOCK="${CI_LOCAL_DB_LOCK_DIR:-/private/tmp/firstmate-playground-db.lock}"
+HAVE_LOCK=0
+acquire_db_lock() {
+  local i pid
+  for ((i = 0; i < 900; i++)); do
+    if mkdir "$DB_LOCK" 2>/dev/null; then
+      echo "$$ $WT" >"$DB_LOCK/owner"
+      HAVE_LOCK=1
+      echo "db lock acquired ($DB_LOCK)"
+      return 0
+    fi
+    # Break a stale lock whose owner process is gone.
+    pid="$(cut -d' ' -f1 "$DB_LOCK/owner" 2>/dev/null || true)"
+    if [[ -n "$pid" ]] && ! kill -0 "$pid" 2>/dev/null; then
+      rm -rf "$DB_LOCK"
+      continue
+    fi
+    ((i % 15 == 0)) && echo "waiting for db lock held by: $(cat "$DB_LOCK/owner" 2>/dev/null)"
+    sleep 2
+  done
+  SUMMARY="timed out waiting for the db lock ($DB_LOCK)"
+  exit 75
+}
+release_db_lock() {
+  [[ "$HAVE_LOCK" == 1 ]] && rm -rf "$DB_LOCK"
+  HAVE_LOCK=0
+}
 
 WT=""
 RESULT=failure
@@ -74,6 +103,7 @@ post_status() { # <state> <desc>
 finish() {
   local rc=$?
   trap - EXIT
+  release_db_lock
   if [[ -n "$WT" && -d "$WT" ]]; then
     git -C "$ROOT" worktree remove --force "$WT" >/dev/null 2>&1 || rm -rf "$WT"
   fi
@@ -221,30 +251,11 @@ if [[ "$LANE" == code ]]; then
   done
   echo "e2e port: $PORT"
 
-  LOCK_SH="${CI_LOCAL_DB_LOCK:-/private/tmp/claude-501/-Users-raymundrafael-Desktop-repos-firstmate-firstmate-ai-playground/306262ac-df6b-4239-a527-cb2a8a8b93ce/scratchpad/db-lock.sh}"
-  if [[ ! -x "$LOCK_SH" && ! -f "$LOCK_SH" ]]; then
-    # Fallback: a repo-local mkdir lock with the same semantics as db-lock.sh.
-    LOCK_SH="$WT/.ci-local-db-lock.sh"
-    COMMON="$(cd "$ROOT" && git rev-parse --git-common-dir)"
-    cat >"$LOCK_SH" <<EOF
-#!/usr/bin/env bash
-LOCK="$(cd "$ROOT" && cd "$COMMON" && pwd)/fm-db.lock"
-for i in \$(seq 1 900); do
-  if mkdir "\$LOCK" 2>/dev/null; then
-    echo "\$\$ \$(pwd)" >"\$LOCK/owner"
-    trap 'rm -rf "\$LOCK"' EXIT INT TERM
-    "\$@"; exit \$?
-  fi
-  pid=\$(cut -d' ' -f1 "\$LOCK/owner" 2>/dev/null); [ -n "\$pid" ] && ! kill -0 "\$pid" 2>/dev/null && rm -rf "\$LOCK"
-  sleep 2
-done
-echo "db-lock: timed out waiting" >&2; exit 75
-EOF
-    chmod +x "$LOCK_SH"
-  fi
-
+  # The shared DB lock: the same mkdir lock the gate agents use. Held across the whole e2e block, including
+  # the data restore (the inner trap), and released by finish() on any exit.
+  acquire_db_lock
   step e2e env CI_LOCAL_DB_BLOCK=1 CI_LOCAL_WT="$WT" CI_LOCAL_PORT="$PORT" CI_LOCAL_LANE="$LANE" \
-    bash "$LOCK_SH" bash "$HERE/ci-local.sh"
+    bash "$HERE/ci-local.sh"
   DONE+=("e2e-prod")
 fi
 
