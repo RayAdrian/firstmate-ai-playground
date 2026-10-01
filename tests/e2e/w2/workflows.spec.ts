@@ -9,6 +9,7 @@ import {
   PREFIX,
   buildFixtures,
   clearFixtures,
+  lessonExists,
   pickLessons,
   seedFixtures,
   type FixtureLesson,
@@ -21,10 +22,14 @@ test.describe.configure({ mode: "serial" });
 
 let related: FixtureLesson;
 let unrelated: FixtureLesson;
+// A lesson that ships a Watch block (media manifest on main). Present only in the real curriculum, not in fx-base.
+const MEDIA_LESSON = "l4-parallel-worktrees";
+let hasMediaLesson = false;
 
 test.beforeAll(async () => {
   ({ related, unrelated } = await pickLessons());
-  await seedFixtures(buildFixtures(related));
+  hasMediaLesson = await lessonExists(MEDIA_LESSON);
+  await seedFixtures(buildFixtures(related, hasMediaLesson ? MEDIA_LESSON : null));
 });
 
 test.afterAll(async () => {
@@ -347,6 +352,16 @@ test.describe("WF-33..WF-37 workflow page", () => {
     expect(blockTop).toBeLessThan(resultTop);
   });
 
+  test("C-6 the At a glance links are at least 44px tall at 360", async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto(PAGE("both"));
+    const block = page.getByRole("region", { name: "At a glance" });
+    for (const name of [/^Builds on Lesson/, /^Report outdated/]) {
+      const box = await block.getByRole("link", { name }).boundingBox();
+      expect(box!.height).toBeGreaterThanOrEqual(44);
+    }
+  });
+
   test("WF-33 raw HTML in the body is escaped text, never an element", async ({ page }) => {
     const problems = collectConsole(page);
     await page.goto(PAGE("script"));
@@ -442,16 +457,23 @@ test.describe("WF-39a lesson row", () => {
       return Boolean(prevNext && rowEl && prevNext.compareDocumentPosition(rowEl) & Node.DOCUMENT_POSITION_FOLLOWING);
     });
     expect(after).toBe(true);
-    // The Watch block (when a lesson has one) stays above the row; nothing above it changed order.
-    const exercise = page.getByRole("region", { name: /^Exercise/ });
-    if ((await exercise.count()) > 0) {
-      const order = await page.evaluate(() => {
-        const ex = document.querySelector("section[aria-labelledby='exercise exercise-title']");
-        const rowEl = document.querySelector("#lesson-workflows");
-        return Boolean(ex && rowEl && ex.compareDocumentPosition(rowEl) & Node.DOCUMENT_POSITION_FOLLOWING);
-      });
-      expect(order).toBe(true);
-    }
+  });
+
+  test("the Watch block, when the lesson has one, comes before the workflows row", async ({ page }) => {
+    test.skip(!hasMediaLesson, `${MEDIA_LESSON} is not in this database`);
+    await page.goto(`/lessons/${MEDIA_LESSON}`);
+    const media = page.locator('[data-testid="media-block"]');
+    await expect(media).toBeVisible();
+    await expect(page.getByRole("heading", { level: 2, name: "Workflows that use this" })).toBeVisible();
+    const order = await page.evaluate(() => {
+      const m = document.querySelector('[data-testid="media-block"]');
+      const row = document.querySelector("#lesson-workflows");
+      const prevNext = document.querySelector('nav[aria-label="Lesson"]');
+      const after = (a: Element | null, b: Element | null) =>
+        Boolean(a && b && a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+      return { mediaBeforeRow: after(m, row), prevNextBeforeRow: after(prevNext, row) };
+    });
+    expect(order).toEqual({ mediaBeforeRow: true, prevNextBeforeRow: true });
   });
 
   test("See all opens the lesson-filtered index", async ({ page }) => {

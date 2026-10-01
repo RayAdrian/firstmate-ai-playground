@@ -45,7 +45,7 @@ export const KNOWN_STACKS = [
 const FACET_LABEL: Record<string, string> = {
   "parallel-work": "Parallel work",
   "ci-and-gates": "CI and gates",
-  any: "Any stack",
+  any: "General (no specific stack)",
   nextjs: "Next.js",
   react: "React",
   typescript: "TypeScript",

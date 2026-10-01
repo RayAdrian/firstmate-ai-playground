@@ -99,7 +99,7 @@ function base(over: Partial<Fixture> & Pick<Fixture, "slug" | "title">): Fixture
   };
 }
 
-export function buildFixtures(related: FixtureLesson): Fixture[] {
+export function buildFixtures(related: FixtureLesson, mediaLessonSlug: string | null = null): Fixture[] {
   const rel = { related_lesson_slug: related.slug, level: related.level };
   const both = { tools: ["claude-code", "codex"] as Fixture["tools"], tool_versions: { claude_code: "2.1.0", codex_cli: "0.40.0" } };
   const aged = (days: number) =>
@@ -172,6 +172,18 @@ export function buildFixtures(related: FixtureLesson): Fixture[] {
       why_md: "Because <script>window.__w2xss = 1</script> never runs, the plan stays visible to every reviewer.",
       verified_on: ago(25),
     }),
+    ...(mediaLessonSlug
+      ? [
+          base({
+            // Deliberately without the W2FX mark, so `?q=w2fx` counts stay fixed.
+            slug: `${PREFIX}media`,
+            title: "W2MEDIA lesson with a Watch block",
+            problem: "A fixture attached to a lesson that has a Watch block, for the ordering test.",
+            related_lesson_slug: mediaLessonSlug,
+            level: 4,
+          }),
+        ]
+      : []),
     base({
       slug: `${PREFIX}removed`,
       title: `${MARK} Removed one`,
@@ -215,4 +227,10 @@ export async function seedFixtures(fixtures: Fixture[]): Promise<void> {
 export async function clearFixtures(): Promise<void> {
   const { error } = await serviceClient().from("workflows").delete().like("slug", `${PREFIX}%`);
   if (error) throw new Error(`could not clear workflow fixtures: ${error.message}`);
+}
+
+/** True when this lesson is in the database (the Watch-block ordering test needs the real curriculum). */
+export async function lessonExists(slug: string): Promise<boolean> {
+  const { data } = await serviceClient().from("lessons").select("slug").eq("slug", slug).is("archived_at", null).maybeSingle();
+  return data !== null;
 }

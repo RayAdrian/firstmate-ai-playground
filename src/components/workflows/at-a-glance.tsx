@@ -43,7 +43,7 @@ function Facts({ workflow, lesson }: { workflow: WorkflowRow; lesson: RelatedLes
         <div>
           <dt className="sr-only">Related lesson</dt>
           <dd>
-            <Link href={`/lessons/${lesson.slug}`} className={`inline-flex items-center gap-1 ${LINK}`}>
+            <Link href={`/lessons/${lesson.slug}`} className={`inline-flex min-h-11 items-center gap-1 ${LINK}`}>
               Builds on Lesson {lesson.number}: {lesson.title}
               <ArrowRight aria-hidden="true" className="size-4" />
             </Link>
@@ -53,7 +53,7 @@ function Facts({ workflow, lesson }: { workflow: WorkflowRow; lesson: RelatedLes
       <div>
         <dt className="sr-only">Feedback</dt>
         <dd>
-          <a href={url} target="_blank" rel="noopener noreferrer" className={LINK}>
+          <a href={url} target="_blank" rel="noopener noreferrer" className={`inline-flex min-h-11 items-center gap-1 ${LINK}`}>
             Report outdated <span aria-hidden="true">↗</span>
             <span className="sr-only"> (opens in new tab)</span>
           </a>
