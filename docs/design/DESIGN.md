@@ -632,7 +632,7 @@ meta line…
 ┌───────────────┐ ┌───────────────┐
 │ 🙌 Worked   4 │ │ 💡 Learned  1 │      ← grid-cols-2 gap-2, each pill full cell width (160px)
 ├───────────────┤ ├───────────────┤
-│ ⏱️ Saved time │ │ 🔥 Game-changer 2│
+│ ⏱️ Saved      │ │ 🔥 Game-changer 2│
 └───────────────┘ └───────────────┘
 🙌 Rafael, Ana and 2 others
 Reacting as Rafael · Edit name
@@ -667,7 +667,7 @@ First reaction in this browser (inline, not a modal):
 - **Container.** A `div role="group" aria-label="Reactions"` holding the four reaction buttons and nothing else (the Star is in the header, §4.13.1). It sits directly after the meta line, before At a glance and Result: `mt-5 grid grid-cols-2 gap-2 md:flex md:flex-wrap md:items-center`.
 - **Reaction button.** `button type="button" aria-pressed aria-describedby="reactors-<key>"` with `inline-flex h-11 items-center gap-2 rounded-full border border-border bg-canvas px-3.5 text-sm font-medium text-fg hover:bg-surface`.
   - Content: `<span aria-hidden="true">🙌</span>`, then the visible label, then the count `<span class="ml-auto tabular-nums text-fg-muted md:ml-0">4</span>`.
-  - **Visible label by width.** md and up shows the full label ("Worked for me", "Learned something", "Saved me time", "Game-changer"). Below md it shows a short form so two pills fit in a 328px row: "Worked", "Learned", "Saved time", "Game-changer". The labels are two spans, `<span class="md:hidden">Worked</span><span class="hidden md:inline">Worked for me</span>`. Each short form is the start of its full label, so the accessible name still contains what is visible (2.5.3).
+  - **Visible label by width.** md and up shows the full label ("Worked for me", "Learned something", "Saved me time", "Game-changer"). Below md it shows a short form so two pills fit in a 328px row: "Worked", "Learned", "Saved", "Game-changer". The labels are two spans, `<span class="md:hidden">Worked</span><span class="hidden md:inline">Worked for me</span>`. **Rule: each short form must be a prefix of its full label**, so the accessible name always contains the visible text as a contiguous substring (2.5.3 Label in Name). The pairs are "Worked" in "Worked for me", "Learned" in "Learned something", "Saved" in "Saved me time" and "Game-changer" in "Game-changer". "Saved time" is **not** allowed, because it isn't a substring of "Saved me time". R1 adds a unit test asserting `fullLabel.startsWith(shortLabel)` for all four.
   - **Accessible name** comes from `aria-label="<Full label> <n>"`, for example `aria-label="Worked for me 4"`, so it is identical at every width and doesn't depend on which span is displayed.
   - Below md the pill is `w-full justify-start` (it fills its grid cell; the count sits at the right edge). md and up it is `w-auto`.
   - A zero count is visually hidden but kept for assistive tech (`<span class="sr-only">0</span>`). That keeps the bar from shouting "0" four times on a new workflow, while the name stays regular.
