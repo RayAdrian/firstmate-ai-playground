@@ -8,6 +8,7 @@ import { CommandLine, PlainCodeBlock } from "@/components/ui/command-line";
 import { ToolTabs } from "@/components/lesson/tool-tabs";
 import type { Tool } from "@/components/lesson/tool";
 import { announce, useChecklist } from "@/lib/progress";
+import { splitPromptSessions } from "./prompt-sessions";
 
 export type ExercisePanelData = {
   slug: string;
@@ -56,7 +57,11 @@ export function ExercisePanel({ exercise }: { exercise: ExercisePanelData }) {
   const prompt = (tool: Tool, name: string) => {
     const text = exercise.prompts[tool];
     return text ? (
-      <PlainCodeBlock code={text} title="Prompt" wrap />
+      <div className="space-y-3">
+        {splitPromptSessions(text).map((session) => (
+          <PlainCodeBlock key={session.title} code={session.text} title={session.title} wrap />
+        ))}
+      </div>
     ) : (
       <p className="text-base text-fg-muted">No {name} starting prompt for this exercise.</p>
     );
