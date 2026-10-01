@@ -29,6 +29,27 @@ The roles:
 - **Workers.** Each implements one task in its own git worktree, on its own branch, in files only it may edit. Use the fast model.
 - **Handoffs.** Everything that passes between them is a file or an issue: the brief going in, a report coming out. Never "the orchestrator told it earlier".
 
+```diagram
+type: lanes
+id: team-handoffs
+title: What passes between orchestrator and workers
+summary: The orchestrator sends each worker a self-contained brief and gets a report back. Nothing else passes between them, so each brief has to stand alone.
+lanes:
+  - { id: orch, label: Orchestrator }
+  - { id: wa, label: Worker A }
+  - { id: wb, label: Worker B }
+steps:
+  - { id: brief, lane: orch, col: 1, label: Split and brief, sub: paths per worker, emphasis: true }
+  - { id: build-a, lane: wa, col: 2, label: Build task A, sub: own worktree }
+  - { id: build-b, lane: wb, col: 2, label: Build task B, sub: own worktree }
+  - { id: integrate, lane: orch, col: 3, label: Integrate, sub: reads both reports }
+handoffs:
+  - { from: brief, to: build-a, label: brief }
+  - { from: brief, to: build-b, label: brief }
+  - { from: build-a, to: integrate, label: report }
+  - { from: build-b, to: integrate, label: report }
+```
+
 ### Split by file ownership, not by topic
 
 Two workers that need the same file will conflict, however well they are prompted. So before anyone starts, assign every file to exactly one owner. This repo's PRD (section 11) does it by directory:
