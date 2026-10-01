@@ -10,10 +10,10 @@ tool_versions:
   codex_cli: "0.154.0"
 last_verified_on: "2026-09-30"
 differences:
-  - "Claude Code has a first-class flag: claude --worktree <name> creates .claude/worktrees/<name> on a new branch worktree-<name>, and, for a session with changes, prompts you to keep or remove it on exit. For Codex CLI, the dependable route is plain git worktree add plus a session started inside it."
-  - "Codex documents its managed worktrees mainly for the ChatGPT desktop app: they live under $CODEX_HOME/worktrees in a detached HEAD state. codex --help in 0.154.0 also lists a --worktree flag, but it is experimental and needs --enable worktrees."
-  - "Gitignored files (.env, node_modules) are not in a new worktree. Claude Code copies files matching .worktreeinclude into worktrees it creates. Codex applies .worktreeinclude only to app-managed worktrees, not to ones you create with git."
-  - "Claude Code subagents can each run in their own worktree with isolation: worktree in their frontmatter. The Codex docs describe no per-agent worktree setting, so run separate sessions instead."
+  - "Claude Code has a first-class flag: `claude --worktree <name>` creates `.claude/worktrees/<name>` on a new branch `worktree-<name>`, and, for a session with changes, prompts you to keep or remove it on exit. For Codex CLI, the dependable route is plain `git worktree add` plus a session started inside it."
+  - "Codex documents its managed worktrees mainly for the ChatGPT desktop app: they live under `$CODEX_HOME/worktrees` in a detached `HEAD` state. `codex --help` in 0.154.0 also lists a `--worktree` flag, but it is experimental and needs `--enable worktrees`."
+  - "Gitignored files (`.env`, `node_modules`) are not in a new worktree. Claude Code copies files matching `.worktreeinclude` into worktrees it creates. Codex applies `.worktreeinclude` only to app-managed worktrees, not to ones you create with git."
+  - "Claude Code subagents can each run in their own worktree with `isolation: worktree` in their frontmatter. The Codex docs describe no per-agent worktree setting, so run separate sessions instead."
 exercise: ex-4-2-worktrees
 claude_no_equivalent: false
 codex_no_equivalent: false

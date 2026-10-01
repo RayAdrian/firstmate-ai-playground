@@ -10,11 +10,11 @@ tool_versions:
   codex_cli: "0.154.0"
 last_verified_on: "2026-09-30"
 differences:
-  - "Format: Claude Code subagents are Markdown files with YAML frontmatter (the body is the system prompt). Codex custom agents are standalone TOML files with a developer_instructions field."
-  - "Limiting power: Claude Code takes a tools allowlist (and disallowedTools) per subagent. Codex's documented lever is sandbox_mode, for example read-only, plus mcp_servers."
-  - "Delegation: Claude Code can delegate on its own from a subagent's description, or you force it with an @-mention. In Codex you ask for it explicitly, for example 'spawn one agent per point'."
-  - "Models: Claude Code sets model per subagent (sonnet, opus, haiku, inherit). Codex sets model and model_reasoning_effort per agent file, with defaults under [agents]."
-  - "Watching them: Claude Code shows a subagent panel below the prompt and lists them in /tasks. Codex uses /agents (or /subagents) to switch between active agent threads."
+  - "Format: Claude Code subagents are Markdown files with YAML frontmatter (the body is the system prompt). Codex custom agents are standalone TOML files with a `developer_instructions` field."
+  - "Limiting power: Claude Code takes a `tools` allowlist (and `disallowedTools`) per subagent. Codex's documented lever is `sandbox_mode`, for example `read-only`, plus `mcp_servers`."
+  - "Delegation: Claude Code can delegate on its own from a subagent's description, or you force it with an `@-mention`. In Codex you ask for it explicitly, for example 'spawn one agent per point'."
+  - "Models: Claude Code sets `model` per subagent (sonnet, opus, haiku, `inherit`). Codex sets `model` and `model_reasoning_effort` per agent file, with defaults under `[agents]`."
+  - "Watching them: Claude Code shows a subagent panel below the prompt and lists them in `/tasks`. Codex uses `/agents` (or `/subagents`) to switch between active agent threads."
 exercise: ex-4-1-subagents
 claude_no_equivalent: false
 codex_no_equivalent: false
