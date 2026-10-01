@@ -1110,7 +1110,9 @@ Same rules as §11: one worktree per branch, edit only owned paths, rebase on `m
 
 ### 17.3 The data contract
 
-A new file, `src/lib/contracts/diagram.ts` (M0-owned, G0), exports the schema below, the caps as named constants, the YAML parse options, and `estimateTextWidth(text, fontPx)` (about 0.55em per character plus 15% slack). The renderer and the label-fit check both use that function. Every cap is a zod hard fail.
+A new file, `src/lib/contracts/diagram.ts` (M0-owned, G0), exports the schema below, the caps as named constants, `DIAGRAM_YAML_OPTIONS` (no anchors, aliases or custom tags) and `estimateTextWidth(text, fontPx)` (about 0.55em per character plus 15% slack). Every cap is a zod hard fail.
+
+**The label-fit check is a runtime library function, not a test helper.** G0 also adds `src/lib/diagram/fit.ts`, which exports a pure `checkLabelsFit(diagram, layout): DiagramIssue[]`. It returns one issue (path and reason) for each label line, `sub` or edge label that does not fit its box when measured with `estimateTextWidth`, and for a total height over 560, in both orientations. The `layout` argument is G1's pure layout function, so G0 holds no geometry. It has no React and no DOM, so `scripts/` can import it. Three callers use this one function: `workflows:validate` (DG-8), the lesson seed's diagram validation (DG-7) and the workflow seed (DG-8). The unit tests use it too, through `expectLabelsFit(diagram, layout)` in `tests/support/diagram-fit.ts`, a thin assertion wrapper that fails with the issues `checkLabelsFit` returns. Nothing else implements fit.
 
 ```ts
 // Shared text rules
@@ -1201,8 +1203,8 @@ Cross-field rules, in a `superRefine`, each a hard fail with a path: node ids ar
 - `@nightly`: CLS on a diagram lesson stays under 0.05, and no layout-shift entry is attributed to the figure (same rig as D-4).
 
 **DG-3 (P0)** Labels never overflow.
-- `expectLabelsFit(diagram, layout)` (the G0 helper) passes for every diagram fixture and every diagram in `content/`, in both orientations: each label line, `sub` and edge label, measured with `estimateTextWidth`, fits its box, and the total height is at most 560.
-- A cap-maximum fixture per type (every label at 2 lines of 24 characters, every count at its cap) passes `expectLabelsFit`. Browser cross-check: in Playwright, with Satoshi loaded, no `text` element's `getBBox()` extends past its node rectangle in those fixtures, at 360px and 1440px.
+- `checkLabelsFit(diagram, layout)` returns no issues (asserted through `expectLabelsFit`) for every diagram fixture and every diagram in `content/`, in both orientations: each label line, `sub` and edge label, measured with `estimateTextWidth`, fits its box, and the total height is at most 560.
+- A cap-maximum fixture per type (every label at 2 lines of 24 characters, every count at its cap) returns no issues. A fixture with one 24-character line that is too wide for its box returns exactly one issue naming that label's path, which proves the check can fail. Browser cross-check: in Playwright, with Satoshi loaded, no `text` element's `getBBox()` extends past its node rectangle in those fixtures, at 360px and 1440px.
 
 **DG-4 (P0)** The diagram is fully available as text.
 - Each SVG has `role="img"`. Its accessible name and description resolve to the title and summary through `aria-labelledby`, and the `-h` and `-v` ids are unique on the page.
@@ -1218,7 +1220,7 @@ Cross-field rules, in a `superRefine`, each a hard fail with a path: node ids ar
 
 **DG-6 (P0)** Diagram content renders safely.
 - A fixture label containing `<script>alert(1)</script>` and an `<img onerror>` renders as escaped text in both the SVG and "Diagram as text". The kit never uses `dangerouslySetInnerHTML`.
-- YAML anchors, aliases and custom tags are rejected (parse options in the contract), so a crafted fence cannot expand.
+- YAML anchors, aliases and custom tags are rejected by `DIAGRAM_YAML_OPTIONS`, so crafted YAML cannot expand. The same rule covers a workflow's frontmatter `diagram` value: workflow frontmatter is parsed by `parseYamlSafe` (`scripts/seed/lib/yaml.ts`, `maxAliasCount: 20`), so `workflows:validate` fails a workflow whose `diagram` subtree contains an anchor or alias (fixture).
 
 #### Epic DG-B: Validation (seed and runtime)
 
@@ -1242,7 +1244,7 @@ Cross-field rules, in a `superRefine`, each a hard fail with a path: node ids ar
 - The diagram renders outside the tool tabs, the same for both tools (consistent with WF-36).
 
 **DG-11 (P0)** As a reader of a workflow, I want a link to the lesson video that shows the mechanism, so that I can watch it.
-- A fixture workflow with `watch: "l1-first-session/l1-first-session"` renders one link with the text "Watch: <manifest title> (Lesson 1.1) →" and the `href` `/lessons/l1-first-session#watch-l1-first-session`. Following it lands on the Watch block's `h3`.
+- A fixture workflow whose `watch` points at a fixture media manifest (or, once V2 and V3 are on `main`, at the real `l1-first-session/l1-first-session` item) renders one link with the text "Watch: <manifest title> (Lesson 1.1) →" and the `href` `/lessons/l1-first-session#watch-l1-first-session`. Following it lands on the Watch block's `h3` (the V3 id format `watch-<media-id>`).
 - A workflow without `watch` renders no link and no empty element.
 
 **DG-12 (P0)** `/share-workflow` never drafts a diagram.
@@ -1250,6 +1252,9 @@ Cross-field rules, in a `superRefine`, each a hard fail with a path: node ids ar
 
 **DG-13 (P1)** The merger is prompted to look at a diagram.
 - The workflow PR template's merger list gains one line: "If this PR adds or changes `diagram`: open the workflow at 360px and confirm the diagram matches the prose." A unit test asserts the line exists.
+
+**DG-14 (P1)** A `watch` link that breaks later is flagged.
+- `npm run content:stale` lists, in its Workflows group, every workflow whose `watch` no longer resolves to a valid manifest (for example after a re-render under a new media id), and `--strict` exits 1 for it. Without this, `workflows:validate` would catch the break only on the next PR that touches that workflow.
 
 ### 17.7 Lesson pilot and rollout
 
@@ -1298,7 +1303,7 @@ Cross-field rules, in a `superRefine`, each a hard fail with a path: node ids ar
 
 | Must (P0) | Should (P1) | Could (P2) | Won't |
 |---|---|---|---|
-| Contract, workflow fields, migration and fit helper (G0); the 4-template kit, two SVGs, tokens, "Diagram as text", markdown intercept, workflow placement and `watch` link (DG-1 to DG-6, DG-10, DG-11); seed, validate and runtime behaviour (DG-7 to DG-9); share never drafts (DG-12); the 4 pilot diagrams | The 13 rollout diagrams; the 5 workflow diagrams and 2 `watch` fields; the merger template line (DG-13) | A "has diagram" marker on `/curriculum`; diagrams in exercises; a `diagrams:preview` script that renders every content diagram on one local page | A 5th type without a design review; tool-comparison diagrams; animation or interactivity; author-supplied SVG or images; Remotion or video for workflows; `/share-workflow` drafting diagrams; diagrams on `/news` or the `/workflows` index |
+| Contract, workflow fields, migration and the `checkLabelsFit` runtime check (G0); the 4-template kit, two SVGs, tokens, "Diagram as text", markdown intercept, workflow placement and `watch` link (DG-1 to DG-6, DG-10, DG-11); seed, validate and runtime behaviour (DG-7 to DG-9); share never drafts (DG-12); the 4 pilot diagrams | The 13 rollout diagrams; the 5 workflow diagrams and 2 `watch` fields; the merger template line (DG-13); broken-`watch` staleness (DG-14) | A "has diagram" marker on `/curriculum`; diagrams in exercises; a `diagrams:preview` script that renders every content diagram on one local page | A 5th type without a design review; tool-comparison diagrams; animation or interactivity; author-supplied SVG or images; Remotion or video for workflows; `/share-workflow` drafting diagrams; diagrams on `/news` or the `/workflows` index |
 
 **Force-rank.** The kit plus the 4 pilot diagrams delivers standalone value: four of the most structural concepts become visible, and every later diagram is content only. The rollout is P1 because it is content, not because it is optional: G6 is met only when DG-M1 is.
 
@@ -1308,9 +1313,19 @@ Same rules as §11: one worktree per branch, edit only owned paths, rebase on `m
 
 | WS | Scope | Owns (paths) | Lane and gates | Depends on |
 |---|---|---|---|---|
-| **G0 (M0-owned, serial, first)** | `diagram.ts` (the §17.3 schema, caps, YAML parse options and `estimateTextWidth`); the additive `diagram` and `watch` fields and the `mediaIds` context in `workflow.ts`; the migration adding `workflows.diagram` and `workflows.watch`; the row types; the label-fit helper `expectLabelsFit(diagram, layout)`, which takes the renderer's layout function as an argument so G0 needs no geometry; the `AGENTS.md` test-ownership edit (`g0 g1 g2 g3`) | `src/lib/contracts/diagram.ts` (new), `src/lib/contracts/workflow.ts`, `src/lib/contracts/rows.ts`, `src/lib/contracts/index.ts`, `supabase/migrations/<ts>_workflow_diagrams.sql`, `tests/support/diagram-fit.ts`, `AGENTS.md`, `tests/unit/g0/` | Code (3 gates; UI/UX "N/A: no UI changes") | Nothing. Merges first. |
+| **G0 (M0-owned, serial, first)** | `diagram.ts` (the §17.3 schema, caps, YAML parse options and `estimateTextWidth`); the additive `diagram` and `watch` fields and the `mediaIds` context in `workflow.ts`; the migration adding `workflows.diagram` and `workflows.watch`; the row types; the runtime fit check `checkLabelsFit(diagram, layout)` in `src/lib/diagram/fit.ts` (it takes the renderer's layout function as an argument, so G0 needs no geometry) and its test wrapper `expectLabelsFit`; the `AGENTS.md` test-ownership edit (`g0 g1 g2 g3`) | `src/lib/contracts/diagram.ts` (new), `src/lib/contracts/workflow.ts`, `src/lib/contracts/rows.ts`, `src/lib/contracts/index.ts`, `src/lib/diagram/fit.ts` (new), `supabase/migrations/<ts>_workflow_diagrams.sql`, `tests/support/diagram-fit.ts`, `AGENTS.md`, `tests/unit/g0/` | Code (3 gates; UI/UX "N/A: no UI changes") | Nothing. Merges first. |
 | **D-G: DESIGN addendum** (docs PR; the UI/UX agent is the design owner) | DESIGN §6.3.3 "Diagram": the frame and figcaption, the 4 templates in both orientations at 360/768/1440, node and edge specs, emphasis and risk, forced colours, the "Diagram as text" summary styling, and the `watch` line with its final placement (Q-DG1). Also the §2.4 ledger rows (DG-5), the §6.3.2 `<details>` exception extended to "Diagram as text", and the §11 selector roles and names (`figure[data-testid="diagram"]`, the `data-part` values) | `docs/design/DESIGN.md` (§2.4 rows, the §6.3.2 exception sentence, a new §6.3.3, §11 additions only) | Docs PR | Nothing. Merges before G1. |
-| **G1: diagram kit** | The renderer: the 4 templates, a pure layout module with no React (so `scripts/` can import it), the two SVGs, the figure and "Diagram as text". The `language-diagram` intercept. The workflow "Why it works" placement and the `watch` link. The wiring of the diagram, fit and `watch` checks into the lesson seed, workflow ingest and `workflows:validate`. DG-1 to DG-13 | New: `src/components/diagram/**`, `tests/unit/g1/`, `tests/e2e/g1/`. **Granted edits:** `src/components/lesson/markdown.tsx` (the `language-diagram` branch only; the file stays WS-C's); one mount in W2's "Why it works" section component under `src/components/workflows/` and the `diagram`/`watch` select in `src/lib/workflows/queries.ts`; one call each in `scripts/seed/lib/lesson.ts`, `scripts/seed/lib/workflows.ts` and `scripts/workflows/validate.ts` (the W1 owner is a required reader of those diffs, as in the §16.14 hand-off); additive diagram fixtures in `tests/fixtures/` (existing fixture assertions stay green); the one line in `.github/PULL_REQUEST_TEMPLATE/workflow.md` (DG-13) | Code (3 gates) | G0 and D-G merged. The workflow mount needs W2 (`/workflows` UI, PR #32) on `main`. If W2 is late, the lesson half merges first and the workflow half follows in a second G1 PR. |
+| **G1: diagram kit** | The renderer: the 4 templates, a pure layout module with no React (so `scripts/` can import it), the two SVGs, the figure and "Diagram as text". The `language-diagram` intercept. The workflow "Why it works" placement and the `watch` link. Carrying `diagram` and `watch` end to end (parse → validate → seed payload → row → query → page), and calling `checkLabelsFit`, the schema and the `watch` check from the lesson seed, the workflow seed and `workflows:validate`. DG-1 to DG-14 | New: `src/components/diagram/**` (including the pure layout module), `tests/unit/g1/`, `tests/e2e/g1/`. **Sanctioned cross-ownership edits** (each limited to what is listed; the named owner is a required reader of that PR's diff, as in the §16.14 hand-off):
+<br>• **WS-C:** `src/components/lesson/markdown.tsx`: the `language-diagram` branch only.
+<br>• **W1:** `scripts/workflows/parse.ts`: add `diagram` and `watch` to `KNOWN_KEYS` and to `ParsedWorkflow`, and the alias check on the `diagram` subtree (DG-6).
+<br>• **W1:** `scripts/workflows/load.ts`: build the `mediaIds` context from `public/media/lessons/*/*.media.json`.
+<br>• **W1:** `scripts/workflows/validate.ts`: call the diagram schema, `checkLabelsFit` and the body-fence rule.
+<br>• **W1:** `scripts/seed/lib/workflows.ts`: add `diagram` and `watch` to `PAYLOAD_KEYS` and `toPayload`, so they are written to their columns and included in the idempotency comparison; skip-with-warning on failure (WF-42). Also `scripts/seed/lib/workflows-db.ts` if the column mapping lives there.
+<br>• **W1:** `scripts/seed/lib/lesson.ts`: extract `diagram` fences, then validate them with the schema, `checkLabelsFit` and the DG-7 rules.
+<br>• **W1:** `scripts/seed/lib/workflows-stale.ts`: the broken-`watch` check (DG-14).
+<br>• **W2:** `src/lib/workflows/queries.ts` (where workflow rows are read): select `diagram` and `watch`, and re-validate at read (DG-9). Also one mount in W2's "Why it works" section component under `src/components/workflows/`.
+<br>• **W3:** `.github/PULL_REQUEST_TEMPLATE/workflow.md`: the one DG-13 checklist line.
+<br>• **WS-B/W1:** `tests/fixtures/`: additive diagram and `watch` fixtures only (existing fixture assertions stay green). | Code (3 gates) | G0 and D-G merged. The workflow mount needs W2 (`/workflows` UI, PR #32) on `main`. If W2 is late, the lesson half merges first and the workflow half follows in a second G1 PR. |
 | **G2: lesson diagrams** | The pilot PR (`content/diagrams-pilot`: 1.1, 4.4, 4.3, 5.3), then one PR per level (`content/l<n>-diagrams`) for the 13 rollout diagrams | The `## Concept` sections of the §17.7 lessons in `content/lessons/l<n>/` | **Code lane: all 3 gates.** `gate/uiux` reviews every diagram at 360/768/1440 against D-G, and `gate/browser` attaches screenshots of each. | G1 (lesson half) merged. The level PRs start after the pilot merges and run in parallel. |
 | **G3: workflow diagrams** | The 5 `diagram` and 2 `watch` additions in §17.8, one PR per workflow | `content/workflows/*.md` (the frontmatter `diagram` and `watch` fields only; no body edits) | **Content lane** (green `validate` and `gitleaks`, merged by the owner or a steward with `gate:merge`, no gate statuses), per the stakeholder rule for workflows | G1 (workflow half) merged, so `validate` enforces the diagram checks, and the seed workflows (W4, PR #30) on `main` |
 
@@ -1327,6 +1342,8 @@ Same rules as §11: one worktree per branch, edit only owned paths, rebase on `m
 | §16.8 | `workflows` gains `diagram jsonb null` and `watch text null`. |
 | WF-33 | "Why it works" may open with a diagram and a `watch` line (DG-10, DG-11). |
 | WF-42 | The skip-on-invalid rule covers DG-8 failures. |
+| WF-41 | The Workflows group of `content:stale` also lists broken `watch` references (DG-14). |
+| §16.14 | W1, W2 and W3 paths receive the G1 sanctioned edits listed in §17.10; each owner is a required reader. |
 | §10 | Must: the DG P0s and the pilot. Should: the rollout, the workflow additions and DG-13. Won't: as §17.9. |
 | §11 | New workstreams G0–G3 and D-G (§17.10). |
 | DESIGN §6.3.2 | The `<details>` exception names a second case, "Diagram as text" (D-G). |
@@ -1335,7 +1352,7 @@ Same rules as §11: one worktree per branch, edit only owned paths, rebase on `m
 
 | # | Risk | Impact | Mitigation |
 |---|---|---|---|
-| R-DG1 | **Workflow diagrams go through the content lane, which has no UI/UX gate**, so a diagram can reach `main` without a designer seeing it. | A cramped, overflowing or misleading diagram on a workflow page | The visual language lives in the gated renderer (G1, 3 gates); content can change only text and counts, within 4 fixed templates. Every cap is a zod hard fail, and the label-fit and height check runs **inside `workflows:validate`**, the check run the content lane requires (DG-8), so an overflowing diagram cannot merge. The merger line (DG-13) covers whether the diagram is true. Residual risk accepted: a workflow diagram's meaning gets one human look. |
+| R-DG1 | **Workflow diagrams go through the content lane, which has no UI/UX gate**, so a diagram can reach `main` without a designer seeing it. | A cramped, overflowing or misleading diagram on a workflow page | The visual language lives in the gated renderer (G1, 3 gates); content can change only text and counts, within 4 fixed templates. Every cap is a zod hard fail, and the label-fit and height check is one runtime function (`checkLabelsFit`, G0) that runs **inside `workflows:validate`**, the check run the content lane requires (DG-8), so an overflowing diagram cannot merge. The seed calls the same function, so a file that slipped past CI is still skipped. The merger line (DG-13) covers whether the diagram is true. Residual risk accepted: a workflow diagram's meaning gets one human look. |
 | R-DG2 | The width estimate (about 0.55em per character plus 15%) is wrong for Satoshi at some widths | Labels clip even though the unit test passed | The cap-maximum browser cross-check with the real font (DG-3), and the gate/browser screenshots at 360/768/1440 on G1 and G2 |
 | R-DG3 | Diagram creep: tool comparisons, configs, "one more type" | Visual noise and a growing renderer | A closed enum in an M0 contract; the §17.1 non-goals; at most 2 per lesson, enforced by the seed |
 | R-DG4 | A diagram goes stale while its prose is updated | The diagram contradicts its lesson | The diagram sits in the same file as the prose, so every prose PR shows it in the diff; workflow diagrams fall under the 60/180-day freshness rule with the rest of the file |
