@@ -1400,16 +1400,17 @@ The timeline (stacked) form is unchanged except for the risk step.
 
 ```
 Horizontal, grid form (worked 5.3 example below, c = 3, pitch 200, box 176)
-                       ✕ head moves to B                       marker label band (24)
-Author                 ┆                                       lane caption (28)
-                       ┆ ┌ Push B ───────────┐
-                       ┆ └───────────────────┘
-Reviewer               ┆                                       lane caption (28)
-┌ Review A ─────────┐① ┆                       ┏╍ Post success on A ╍┓①
-│                   │──╪──────────────────────→┇ refused: A not head ┇   2px dashed danger,
-└───────────────────┘  ┆   handoff crosses the ┗╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍┛   bold label (key, risk)
-                       ┆   marker; marker yields (halo gap)
-Time ─────(1)──────────┴─────────(2)─────────────────────(3)──────▶   time axis band (12 + 28)
+                                             ✕ head moves to B        marker label band (24)
+Author                                       ┆                        lane caption (28)
+                         ┌ Push B ─────────┐ ┆
+                         └─────────────────┘ ┆
+Reviewer                                     ┆                        lane caption (28)
+┌ Review A ─────────┐①                       ┆ ┏╍ Post success on A ╍┓①
+│                   │────────────────────────╪→┇ refused: A not head ┇   2px dashed danger,
+└───────────────────┘   handoff crosses the  ┆ ┗╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍╍┛   bold label (key, risk)
+                        marker; marker yields┆
+Time                                         ┆                        axis caption row (16)
+──────────(1)───────────────────(2)──────────┴─────────(3)──────────▶  axis line, circles on it
 ① stale result: Review A → Post success on A                          legend
 ```
 
@@ -1423,13 +1424,26 @@ Time ─────(1)──────────┴────────
   |---|---|---|---|
   | 3 | 156 | 17 | 20 |
   | 4 | 106 | 11 | 13 |
-  | 5 | 76 | 8 | 10 |
-  | 6 | 56 | 6 | 7 |
+  | 5 | 76 | (timeline: the box is under the 96 minimum node width) | |
+  | 6 | 56 | (timeline) | |
 
   If the grid doesn't fit, the horizontal SVG uses the timeline, as in v1.
-- **Time axis (new).** It sits after the last lane row: a 12px gap, then a 28-high band. The axis line is at `y_axis = band top + 14`.
-  - "Time": 12/500 `fill-fg-muted`, x 0, baseline `y_axis + 4`, no halo.
-  - The line: 1.5px `stroke-fg-muted`, from `x = est("Time", 12) + 8` (38.4) to 576, with the arrowhead pointing right. The first column centre is always 48 or more, so it never collides with the word.
+- **Time axis (new; v2.1 geometry).** It sits after the last lane row: a 12px gap, then a **44-high band**. "Time" is a caption on its own row, like a lane caption, so it never shares a row with a circle or the line.
+  - **"Time":** 12/700 `fill-fg-muted`, x 0, baseline `band top + 12`, with the halo.
+  - **The line:** at `y_axis = band top + 30`, 1.5px `stroke-fg-muted`, from **x 0** to 576, with the arrowhead pointing right (tip 576, base 568). It is drawn before the circles, so they sit on it.
+  - **Circle clearance at every column count** (circle centre = `(col − 1)·pitch + (pitch − 24)/2`, r 10):
+
+    | c | pitch | col-1 centre (left edge) | last-col centre (right edge) |
+    |---|---|---|---|
+    | 1 | 600 | 288 (278) | 288 (298) |
+    | 2 | 300 | 138 (128) | 438 (448) |
+    | 3 | 200 | 88 (78) | 488 (498) |
+    | 4 | 150 | 63 (53) | 513 (523) |
+    | 5 | 120 | 48 (38) | 528 (538) |
+    | 6 | 100 | 38 (28) | 538 (548) |
+
+    Every left edge is ≥ 28 > 0, and every right edge is ≤ 548 < 568 (the arrowhead base). "Time" spans x 0–30.4 on the row above, 18px clear of the circles' tops (`y_axis − 10`). So nothing overlaps at 1–6 columns.
+  - **Marker ticks:** the marker line crosses the caption row at `x_m ≥ pitch − 12 ≥ 88`, clear of "Time", and ends at `y_axis`.
   - One time circle per column that holds a step or the marker. It sits at that column's centre with `cy = y_axis`, uses the badge style (`r 10`, `fill-surface-raised stroke-fg-muted`) and has the column number as its 12/700 `fill-fg` numeral. That's the same circle the timeline rail uses, so both orientations show the same 1, 2, 3.
   - The whole axis is one `g[data-part=axis]`.
 - **Marker (one at most).**
@@ -1457,7 +1471,7 @@ Time ─────(1)──────────┴────────
   5. badges;
   6. the marker label and ✕;
   7. the legend.
-- **Height.** `marker band (24 if a marker) + Σ(28 + row) + 12·(lanes − 1) + 12 + 28 (axis) + legend (16 + rows·20 if there are handoffs)`. That's 40 more than v1, which had no axis.
+- **Height.** `marker band (24 if a marker) + Σ(28 + row) + 12·(lanes − 1) + 12 + 44 (axis) + legend (16 + rows·20 if there are handoffs)`. That's 56 more than v1, which had no axis.
 
 **Timeline (stacked; v1 geometry, plus risk steps).**
 - **Rail.** A 28px rail on the left holds one time circle per column used (`r 10` at cx 14, styled like a badge), joined by a 1.5px `stroke-fg-muted` line that ends in an arrowhead pointing down.
@@ -1484,31 +1498,31 @@ steps:
   - { id: post-a, lane: reviewer, col: 3, label: Post success on A, sub: "refused: A not head", emphasis: true, style: risk }
 handoffs:
   - { from: review-a, to: post-a, label: stale result }
-marker: { col: 2, label: head moves to B, style: risk }
+marker: { col: 3, label: head moves to B, style: risk }
 ```
 
 - **Grid (fits).** With c = 3, pitch is 200, the box is 176 and the label box is 156.
   - "Post success on A": 17 × 8.855 = 150.5 ✓. "refused: A not head": 19 × 7.59 = 144.2 ✓.
-  - Marker at `x_m = 188`. Its ✕ is at 183 and its label at 196 (est 113.9, fits to 576).
-  - The handoff is route 1 (same lane, the col 2 reviewer cell is empty): a straight line at the reviewer row's centre line from x 176 to 400. It crosses the marker at 188, where the marker yields.
+  - Marker at `col: 3`, after the push: `x_m = 388`. Its ✕ is at 383 and its label at 396 (est 113.9, ending at 510 ≤ 576).
+  - The handoff is route 1 (same lane, the col 2 reviewer cell is empty): a straight line at the reviewer row's centre line (y 161) from x 176 to 400. It crosses the marker at 388, where the marker yields.
   - Heights:
     - marker band 0–24;
     - Author caption 24–52, row 52–92;
     - Reviewer caption 104–132, row 132–190 (58: one line plus a sub-line);
-    - axis band 202–230 with `y_axis` 216, circles at 88, 288 and 488;
-    - legend 246–266.
-  - Total 266 ✓ (≤ 560).
+    - axis band 202–246, with "Time" at baseline 214, `y_axis` 232, and circles at 88, 288 and 488;
+    - legend 262–282.
+  - Total 282 ✓ (≤ 560).
 - **Timeline.**
   - ① Reviewer · Review A.
-  - The risk marker "head moves to B".
   - ② Author · Push B.
+  - The risk marker "head moves to B".
   - ③ Reviewer · Post success on A, as the key risk step, with badge ① on Review A and on this box.
   - The legend reads "① stale result: Review A → Post success on A".
 - **Text alternative.**
   - "Lanes: Author, Reviewer."
   - "Time 1, Reviewer: Review A"
-  - "Time 2, event: head moves to B (risk)"
   - "Time 2, Author: Push B"
+  - "Time 3, event: head moves to B (risk)"
   - "Time 3, Reviewer: Post success on A: refused: A not head (key) (risk)"
   - Handoffs: "Review A to Post success on A: stale result."
 - **Optional.** A col-4 "Review B" in the Reviewer lane states the summary's last clause. At c = 4 the label box drops to 106, so it would need "Post success on A" written as two lines ("Post success\non A" doesn't fit either: "Post success" is 12 characters). Keep it at three columns.
@@ -1520,8 +1534,8 @@ marker: { col: 2, label: head moves to B, style: risk }
 | Owner | File | Change |
 |---|---|---|
 | G0 (contract, M0 PR) | `src/lib/contracts/diagram.ts` | The lanes `steps` item gains `style: z.enum(["normal", "risk"]).default("normal")`. No cap changes. The at-most-one-emphasis rule is unchanged, and `emphasis` combined with `style: risk` is valid. |
-| G0 | `src/lib/diagram/fit.ts` | **No new label boxes**: the time-axis word, the numerals and the badges are fixed text. Width checks are unchanged. The height check reads the layout's `drawing.height`, so it picks up the +40 automatically. Update the cap-height fixtures for lanes: grid height = v1 + 40. |
-| G1 | `src/components/diagram/layout/lanes.ts` → `lanesGrid` | (1) The time-axis band and `g[data-part=axis]` (line, "Time", circles at column centres for every column that holds a step or the marker); height +40. (2) The marker line now ends at `y_axis`; it is drawn first and is not an obstacle; the risk ✕ goes at `x_m − 5` with the label at `x_m + 8`. (3) Replace the `sb.col === sa.col + 1` rule with routes 1 to 3; the offset order is `0, +8, −8`, or `+8, −8` in the marker gap (instead of `[6, −6, 9, −9]`); check that cells are empty and that captions are cleared per crossed band. (4) Each drawn handoff gets a `stroke-surface` 6px butt underlay path before its line. (5) Lane captions get the halo. (6) Push children in the z-order above. |
+| G0 | `src/lib/diagram/fit.ts` | **No new label boxes**: the time-axis word, the numerals and the badges are fixed text. Width checks are unchanged. The height check reads the layout's `drawing.height`, so it picks up the +56 automatically. Update the cap-height fixtures for lanes: grid height = v1 + 56 (12 gap + 44 band). |
+| G1 | `src/components/diagram/layout/lanes.ts` → `lanesGrid` | (1) The time-axis band and `g[data-part=axis]` ("Time" caption 12/700 at x 0, baseline band top + 12; the line at band top + 30 from x 0 to 576, arrow right; circles r 10 at column centres for every column that holds a step or the marker, drawn after the line); height +56. (2) The marker line now ends at `y_axis`; it is drawn first and is not an obstacle; the risk ✕ goes at `x_m − 5` with the label at `x_m + 8`. (3) Replace the `sb.col === sa.col + 1` rule with routes 1 to 3; the offset order is `0, +8, −8`, or `+8, −8` in the marker gap (instead of `[6, −6, 9, −9]`); check that cells are empty and that captions are cleared per crossed band. (4) Each drawn handoff gets a `stroke-surface` 6px butt underlay path before its line. (5) Lane captions get the halo. (6) Push children in the z-order above. |
 | G1 | `layout/common.ts` → `nodeGroup` | Accept `risk`: a dashed `6 4` `stroke-danger` boundary, 1.5px, or 2px with `key`; keep `fill-surface-raised`; set `data-state` to the token list (`"risk"`, or `"key risk"`). |
 | G1 | `layout/lanes.ts` → `lanesTimeline` | Pass `risk` through to `nodeGroup`. There are no geometry changes. |
 | G1 | `text-alternative.tsx` | The lanes step template appends ` (risk)` after ` (key)` when `style: risk`. |
