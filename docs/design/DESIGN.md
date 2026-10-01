@@ -679,27 +679,27 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 │ basics to orchestration      (h1 30) │    │ 18 hands-on lessons. Pick up where you left off.                  (fg-muted)   │
 │ 18 hands-on lessons…      (fg-muted) │    │                                                                                │
 │                                      │    │ ┌─ col-span-7 ─────────────────────────────┐ ┌─ col-span-5 ─────────────────┐ │
-│ ┌─ Continue card (accent-soft) ────┐ │    │ │ CONTINUE                        eyebrow  │ │ TODAY · Wed 30 Sep     eyebrow│ │
-│ │ CONTINUE                         │ │    │ │ Project instructions: CLAUDE.md vs       │ │ ┌87┐ Anthropic ships Opus…  ↗ │ │
-│ │ Project instructions: CLAUDE.md  │ │    │ │ AGENTS.md                         (h2)   │ │ └──┘ Anthropic news · 06:10   │ │
-│ │ vs AGENTS.md               (h2)  │ │    │ │ L2 · Context engineering · 15 min        │ │ ┌74┐ Next.js 16.2 changes…  ↗ │ │
-│ │ L2 · 15 min            (meta)    │ │    │ │ [ Continue: Project instructions… → ]    │ │ └──┘ Vercel blog · 05:02      │ │
-│ │ [ Continue: Project instr… → ]   │ │    │ └──────────────────────────────────────────┘ │ ┌66┐ Supabase advisory…     ↗ │ │
-│ └──────────────────────────────────┘ │    │                                              │ └──┘ Supabase blog · 01:40    │ │
-│                                      │    │                                              │ See all →              (link) │ │
-│ Your levels                    (h2)  │    │                                              └───────────────────────────────┘ │
-│ ┌──────────────────────────────────┐ │    │ Your levels                                                        (h2)        │
-│ │ L1 Foundations         3 / 3  ✓  │ │    │ ┌ L1 ────────┐┌ L2 ────────┐┌ L3 ────────┐┌ L4 ────────┐┌ L5 ────────┐          │
-│ │ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │ │    │ │Foundations ││Context eng.││Agentic     ││Parallelism ││Orchestrat. │          │
-│ ├──────────────────────────────────┤ │    │ │3 / 3 ✓Done ││1 / 3       ││0 / 4       ││0 / 4       ││0 / 4       │          │
-│ │ L2 Context engineering  1 / 3    │ │    │ │━━━━━━━━━━━ ││━━━───────  ││─────────── ││─────────── ││─────────── │          │
-│ │ ━━━━━━━━━━───────────────────── │ │    │ └────────────┘└────────────┘└────────────┘└────────────┘└────────────┘          │
-│ ├ … L3, L4, L5 rows ───────────────┤ │    │   (grid-cols-3, stretched-link cards → /curriculum#level-2; link name "Level 2 …") │
-│ └──────────────────────────────────┘ │    │ View full curriculum →                                                          │
-│ View full curriculum →               │    └────────────────────────────────────────────────────────────────────────────────┘
-│                                      │
-│ Today · Wed 30 Sep             (h2)  │
-│ [87] Anthropic ships Opus… ↗         │
+│ ┌─ Continue card (accent-soft) ────┐ │    │ │ ┌─ Continue card (accent-soft) ────────┐ │ │ TODAY · Wed 30 Sep     eyebrow│ │
+│ │ CONTINUE                         │ │    │ │ │ CONTINUE                    eyebrow  │ │ │ ┌87┐ Anthropic ships Opus…  ↗ │ │
+│ │ Project instructions: CLAUDE.md  │ │    │ │ │ Project instructions: CLAUDE.md vs   │ │ │ └──┘ Anthropic news · 06:10   │ │
+│ │ vs AGENTS.md               (h2)  │ │    │ │ │ AGENTS.md                     (h2)   │ │ │ ┌74┐ Next.js 16.2 changes…  ↗ │ │
+│ │ L2 · 15 min            (meta)    │ │    │ │ │ L2 · Context engineering · 15 min    │ │ │ └──┘ Vercel blog · 05:02      │ │
+│ │ [ Continue: Project instr… → ]   │ │    │ │ │ [ Continue: Project instructions… →] │ │ │ ┌66┐ Supabase advisory…     ↗ │ │
+│ └──────────────────────────────────┘ │    │ │ └──────────────────────────────────────┘ │ │ └──┘ Supabase blog · 01:40    │ │
+│                                      │    │ │ Your levels                       (h2)   │ │ See all →              (link) │ │
+│ Your levels                    (h2)  │    │ │ ┌ L1 ────────┐┌ L2 ────────┐┌ L3 ────────┐ │ └───────────────────────────────┘ │
+│ ┌──────────────────────────────────┐ │    │ │ │Foundations ││Context eng.││Agentic     │ │                                    │
+│ │ L1 Foundations         3 / 3  ✓  │ │    │ │ │3 / 3 ✓Done ││1 / 3       ││0 / 4       │ │                                    │
+│ │ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  │ │    │ │ │━━━━━━━━━━━ ││━━━───────  ││─────────── │ │                                    │
+│ ├──────────────────────────────────┤ │    │ │ └────────────┘└────────────┘└────────────┘ │                                    │
+│ │ L2 Context engineering  1 / 3    │ │    │ │ ┌ L4 ────────┐┌ L5 ────────┐              │                                    │
+│ │ ━━━━━━━━━━───────────────────── │ │    │ │ │Parallelism ││Orchestrat. │              │                                    │
+│ ├ … L3, L4, L5 rows ───────────────┤ │    │ │ │0 / 4       ││0 / 4       │              │                                    │
+│ └──────────────────────────────────┘ │    │ │ └────────────┘└────────────┘              │                                    │
+│ View full curriculum →               │    │ │ View full curriculum →                   │                                    │
+│                                      │    │ └──────────────────────────────────────────┘                                    │
+│ Today · Wed 30 Sep             (h2)  │    └────────────────────────────────────────────────────────────────────────────────┘
+│ [87] Anthropic ships Opus… ↗         │      (levels: grid-cols-3 stretched-link cards → /curriculum#level-2; link name "Level 2 …")
 │ [74] Next.js 16.2 changes… ↗         │
 │ [66] Supabase advisory…    ↗         │
 │ See all →                            │
@@ -713,7 +713,7 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
   - **Continue link (C-4, verbatim)**: the primary control is a link whose visible text and accessible name are exactly `Continue: <lesson title>`, styled as a `primary` button (`max-w-full`, the title truncates with `truncate` inside the button but the full title stays in the accessible name). The card also shows the title as an `h2` and the meta line above it. With no history, the same link reads `Continue: <first L1 lesson title>` and points at it (C-4.2).
     - *Suggestion (not shipped):* "Start here" / "Start lesson 1.1" copy for the no-history case would be clearer. It needs a PRD change first.
   - **Continue target (amended M2, PRD C-4.1):** resume the last-viewed lesson; if it is already completed, the link points to the next incomplete lesson in curriculum order (wrapping to the earliest incomplete one). Same link, same `Continue: <title>` name.
-  - **All lessons complete:** the card keeps its box and shows the h2 "You've completed the curriculum", a meta line ("All N lessons are marked complete. Revisit any of them from the curriculum."), and a primary link "Review the curriculum" → `/curriculum`. There is no `Continue: …` link in this state.
+  - **All lessons complete:** the card keeps its shell (same background, padding and radius; at 360 its height follows its content, which is taller than a Continue card) and shows the h2 "You've completed the curriculum", a meta line ("All N lessons are marked complete. Revisit any of them from the curriculum."), and a primary link "Review the curriculum" → `/curriculum`. There is no `Continue: …` link in this state.
 
     ```
     ┌─ Continue card (accent-soft) ──────────────┐
@@ -723,12 +723,12 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
     │ [ Review the curriculum → ]                │
     └────────────────────────────────────────────┘
     ```
-  - Pre-hydration (amended M2): the server renders the C-4.2 default href, but the link is `aria-disabled`, out of the tab order, non-clickable and reads "Loading your progress…" until the store has hydrated (the card carries `data-hydrated="false"`, then `"true"`), so nobody follows a wrong default. Once hydrated it reads `Continue: <title>`. After mount, if `lastViewed` points elsewhere, the link text and `href` swap in place (same box, no CLS). Level progress uses skeletons (§4.7). No "0 / 3" flash.
+  - Pre-hydration (amended M2): the server renders the C-4.2 default href, but the link is `aria-disabled`, out of the tab order, non-clickable and reads "Loading your progress…" (no arrow while inert) until the store has hydrated (the card carries `data-hydrated="false"`, then `"true"`), so nobody follows a wrong default. Until then the h2 and meta line are skeleton bars of the same height (the default lesson's title is not rendered, so it cannot flash before a different last-viewed lesson). Once hydrated the link reads `Continue: <title>` and shows its arrow. After mount, if `lastViewed` points elsewhere, the link text and `href` swap in place (same box, no CLS). Level progress uses skeletons (§4.7). No "0 / 3" flash.
   - Last-viewed lesson no longer exists (P-4): fall back to the C-4.2 default silently.
   - No curriculum seeded: the whole levels area and the Continue card are replaced by one EmptyState: "No lessons seeded yet. Run `npm run seed`." (§7).
   - News: no digest → the news column shows a compact EmptyState whose title is the PRD string verbatim, "No news yet. Run `npm run news:run`.", and it does **not** block the page. Stale → the header reads "Latest · Tue 29 Sep" with a warning Badge showing an `AlertTriangle` icon and the text "Stale" (never the word "today"; icon plus word per C-5). Nothing ≥60 → "Nothing above the relevance bar today" plus a link to the archive. The "See all" link (N-6) goes to `/news` in every state.
   - DB down → the app-wide error page (§6.10).
-  - Loading: `loading.tsx` shows skeletons matching the Continue card, the 5 level cards and 3 compact news rows.
+  - Loading: the Suspense fallback (`HomeSkeleton`) shows skeletons whose heights equal the loaded Continue card, level cards (list at 360, 2 cols at md, 3 at lg) and 3 news rows at each width, so the page height does not change on swap.
 
 ### 6.2 `/curriculum`
 
