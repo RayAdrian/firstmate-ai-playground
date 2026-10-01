@@ -42,6 +42,24 @@ The order is not decoration. Each step makes the next one cheaper:
 - Tests before code give the fast model an objective target, which is what makes it safe to give the implementation to the cheaper model.
 - Gates on the head commit make it safe to let agents open PRs at all.
 
+```diagram
+type: flow
+id: capstone-loop
+title: The loop from spec to merge
+summary: Each step makes the next one cheaper, and a red gate sends you back to build; a moved main sends you back to rebase. Either way the head commit changes, so the gates run again.
+steps:
+  - { id: spec, label: "Spec + plan" }
+  - { id: tests, label: Tests first }
+  - { id: build, label: Build }
+  - { id: rebase, label: Rebase }
+  - { id: gates, label: Three gates, emphasis: true }
+loops:
+  - { from: gates, to: build, label: "red: new commit" }
+  - { from: gates, to: rebase, label: "main moved" }
+exits:
+  - { from: gates, label: pass, text: gate:merge, style: ok }
+```
+
 ### How this app went through it
 
 The foundation (M0) ran first, alone, and froze the contracts, migrations and shared test helpers. Six workstreams then ran in six worktrees, and five more content workstreams ran beside them, each owning a directory. Opus split the tasks, enforced path ownership, wrote test cases from the acceptance criteria before any implementation, and did the code and UI reviews. Sonnet implemented and ran tests. Every PR went through three gates and `npm run gate:merge`.

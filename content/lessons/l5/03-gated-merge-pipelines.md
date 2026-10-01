@@ -78,6 +78,23 @@ The fix has three parts, all in the repo today:
 
 The rule that generalizes: **an approval is a claim about one specific commit.** Store the SHA with the verdict, compare it at merge time, and treat any push as invalidating every earlier approval. Also fail closed. "No statuses found" and "no CI ran" must block, not pass.
 
+```diagram
+type: lanes
+id: pinned-approval
+title: An approval covers one commit
+summary: The review checked A. Once the head moves to B, success on A is refused, so B needs its own review.
+lanes:
+  - { id: author, label: Author }
+  - { id: reviewer, label: Reviewer }
+steps:
+  - { id: review-a, lane: reviewer, col: 1, label: Review A }
+  - { id: push-b, lane: author, col: 2, label: Push B }
+  - { id: post-a, lane: reviewer, col: 3, label: Post success on A, sub: "refused: A not head", emphasis: true, style: risk }
+handoffs:
+  - { from: review-a, to: post-a, label: stale result }
+marker: { col: 3, label: head moves to B, style: risk }
+```
+
 ### Make the agent's verdict machine-readable
 
 A gate cannot parse "Overall this looks pretty good, though you may want to…". Have the reviewer return a small JSON verdict and gate on the fields:
