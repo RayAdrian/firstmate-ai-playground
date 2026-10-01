@@ -146,8 +146,8 @@ test.describe("Cross-feature journeys", () => {
     await page.goto("/bookmarks");
     await waitHydrated(page);
     await expect(page.getByRole("region", { name: "Lessons (1)" })).toContainText(TITLE.contextFiles);
-    // Viewing the lesson after the import records lastViewed; everything else round-trips exactly.
-    expect({ ...(await readProgress(page)), lastViewed: null }).toEqual({ ...JSON.parse(exported), lastViewed: null });
+    // Viewing the lesson after the import records lastViewed; everything else round-trips exactly (the export never has `community`, P-6).
+    expect({ ...(await readProgress(page)), lastViewed: null, community: undefined }).toEqual({ ...JSON.parse(exported), lastViewed: null });
   });
 
   test("TC-M2-18 AC: L-2.3 tool preference across lesson navigation", async ({ page }) => {

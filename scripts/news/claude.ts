@@ -45,15 +45,21 @@ const LOGIN_REASON = "claude not logged in (run `claude` once and complete /logi
 
 const ENV_ALLOW_EXACT = new Set(["PATH", "HOME", "USER", "LOGNAME", "SHELL", "TMPDIR", "LANG", "TERM", "XDG_CONFIG_HOME", "XDG_CACHE_HOME", "XDG_DATA_HOME"]);
 const ENV_ALLOW_PREFIX = ["LC_", "ANTHROPIC_", "CLAUDE_", "FAKE_CLAUDE_"];
+/**
+ * Never passed on, even if an allowlisted prefix would match (PRD 18.8 DP-7). The hosted profile puts the hosted
+ * service-role key in this job's environment, and `claude -p` reads untrusted feed text.
+ */
+const ENV_DENY_PATTERN = /SUPABASE|COMMUNITY_DATABASE|SERVICE_ROLE/i;
 
 /**
  * The environment the scoring child gets: only what claude needs (PATH, HOME, locale, auth-related ANTHROPIC_* and
- * CLAUDE_* vars). Never SUPABASE_* keys or anything else from .env.local.
+ * CLAUDE_* vars). Never SUPABASE_* keys, COMMUNITY_DATABASE_URL or anything else from .env.local.
  */
 export function scrubEnv(env: Env): Record<string, string> {
   const out: Record<string, string> = {};
   for (const [k, v] of Object.entries(env)) {
     if (v === undefined) continue;
+    if (ENV_DENY_PATTERN.test(k)) continue;
     if (ENV_ALLOW_EXACT.has(k) || ENV_ALLOW_PREFIX.some((p) => k.startsWith(p))) out[k] = v;
   }
   return out;

@@ -5,6 +5,7 @@ import {
   blockStorage,
   collectConsole,
   doc,
+  type Doc,
   oneComplete,
   readProgress,
   readRaw,
@@ -12,6 +13,16 @@ import {
 } from "./helpers";
 
 const IMPORT_LABEL = "Import progress file";
+
+/** What a corrupt-doc reset writes: empty progress with a brand-new clientId (P-2). */
+const resetDoc = () => ({ ...doc(), community: { clientId: expect.any(String), displayName: null, namePrompted: false } });
+
+/** An export never carries `community` (P-6). */
+function exported(d: Doc): Omit<Doc, "community"> {
+  const rest: Partial<Doc> = { ...d };
+  delete rest.community;
+  return rest as Omit<Doc, "community">;
+}
 
 const importDoc = doc({
   lessons: {
@@ -88,7 +99,7 @@ test.describe("/progress: corrupted state (P-2)", () => {
     const notice = page.getByRole("status").filter({ hasText: "Saved progress was unreadable and has been reset" });
     await expect(notice).toBeVisible();
     const stored = await readProgress(page);
-    expect(stored).toEqual(doc());
+    expect(stored).toEqual(resetDoc());
     await notice.getByRole("button", { name: "Dismiss" }).click();
     await expect(notice).toHaveCount(0);
     await expect(page.getByRole("heading", { level: 1, name: "Progress" })).toBeFocused();
@@ -104,7 +115,7 @@ test.describe("/progress: corrupted state (P-2)", () => {
     ["array", "[]"],
     ["bad tool", JSON.stringify({ ...doc(), prefs: { tool: "vim" } })],
     ["bad timestamp", JSON.stringify(doc({ lessons: { a: { completedAt: "yesterday" } } }))],
-    ["version 2", JSON.stringify({ ...doc(), version: 2 })],
+    ["version 2 without community", JSON.stringify({ ...doc(), community: undefined })],
     ["version 0", JSON.stringify({ ...doc(), version: 0 })],
     ["string version", JSON.stringify({ ...doc(), version: "1" })],
   ] as const) {
@@ -113,7 +124,7 @@ test.describe("/progress: corrupted state (P-2)", () => {
       await seedProgress(page, raw);
       await page.goto("/progress");
       await expect(page.getByText("Saved progress was unreadable and has been reset")).toBeVisible();
-      expect(await readProgress(page)).toEqual(doc());
+      expect(await readProgress(page)).toEqual(resetDoc());
       expect(con.errors).toEqual([]);
     });
   }
@@ -124,7 +135,7 @@ test.describe("/progress: corrupted state (P-2)", () => {
     await page.goto("/progress");
     await expect(page.getByText("Saved progress was unreadable and has been reset")).toBeVisible();
     expect(Date.now() - start).toBeLessThan(10_000);
-    expect(await readProgress(page)).toEqual(doc());
+    expect(await readProgress(page)).toEqual(resetDoc());
   });
 });
 
@@ -154,7 +165,7 @@ test.describe("/progress: storage unavailable (P-3)", () => {
     await page.getByRole("button", { name: "Export progress" }).click();
     const file = await (await download).path();
     const { readFileSync } = await import("node:fs");
-    expect(JSON.parse(readFileSync(file, "utf8"))).toEqual(importDoc);
+    expect(JSON.parse(readFileSync(file, "utf8"))).toEqual(exported(importDoc));
   });
 
   test("quota error on write: banner after the failed write, storage unchanged", async ({ page }) => {
@@ -189,7 +200,7 @@ test.describe("/progress: export (P-6.1)", () => {
     expect(download.suggestedFilename()).toBe("fm-playground-progress-2026-09-30.json");
     const { readFileSync } = await import("node:fs");
     const fromFile: unknown = JSON.parse(readFileSync(await download.path(), "utf8"));
-    expect(fromFile).toEqual(await readProgress(page));
+    expect(fromFile).toEqual(exported((await readProgress(page)) as Doc));
     await expect(page.getByText("Downloaded and copied to clipboard.")).toBeVisible();
     const clip = await page.evaluate(() => navigator.clipboard.readText());
     expect(JSON.parse(clip)).toEqual(fromFile);
@@ -222,7 +233,7 @@ test.describe("/progress: export (P-6.1)", () => {
     await downloadPromise;
     await expect(page.getByText("Downloaded. Copy to clipboard was blocked.")).toBeVisible();
     await expect(page.getByText(/Press (⌘|Ctrl\+)C to copy/)).toBeVisible();
-    await expect(page.getByRole("textbox", { name: /Exported progress/ })).toHaveValue(/"version": 1/);
+    await expect(page.getByRole("textbox", { name: /Exported progress/ })).toHaveValue(/"version": 2/);
     expect(con.errors).toEqual([]);
   });
 });

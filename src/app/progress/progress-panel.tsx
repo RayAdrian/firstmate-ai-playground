@@ -332,7 +332,7 @@ function ResetSection() {
       {done && (
         <FocusOnMount>
           <Notice tone="info">
-            <p>All progress has been reset.</p>
+            <p>All progress has been reset. Your stars, reactions and name are kept.</p>
           </Notice>
         </FocusOnMount>
       )}

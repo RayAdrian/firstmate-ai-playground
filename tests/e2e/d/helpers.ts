@@ -11,16 +11,18 @@ export type Doc = {
   checklists: Record<string, Record<string, boolean>>;
   bookmarks: { lessons: Record<string, string>; news: Record<string, string> };
   prefs: { tool: string };
+  community: { clientId: string; displayName: string | null; namePrompted: boolean };
   lastViewed: { slug: string; at: string } | null;
 };
 
 export function doc(partial: Partial<Doc> = {}): Doc {
   return {
-    version: 1,
+    version: 2,
     lessons: {},
     checklists: {},
     bookmarks: { lessons: {}, news: {} },
     prefs: { tool: "claude" },
+    community: { clientId: "11111111-2222-4333-8444-555555555555", displayName: null, namePrompted: false },
     lastViewed: null,
     ...partial,
   };

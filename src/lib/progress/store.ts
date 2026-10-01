@@ -1,4 +1,11 @@
-import { PROGRESS_STORAGE_KEY, createEmptyProgress, type ProgressState } from "@/lib/contracts";
+import {
+  PLACEHOLDER_CLIENT_ID,
+  PROGRESS_STORAGE_KEY,
+  PROGRESS_VERSION,
+  createEmptyProgress,
+  progressStateSchema,
+  type ProgressState,
+} from "@/lib/contracts";
 import { parseProgressText } from "./parse";
 
 /**
@@ -10,6 +17,8 @@ import { parseProgressText } from "./parse";
  * - Every mutation re-reads storage first (read-modify-write) so two tabs never erase each other.
  * - Storage that is missing, throws, or rejects a write degrades to in-memory state for the session.
  * - Other tabs are followed through the `storage` event.
+ * - A doc written by a NEWER version of the app is never reset, rewritten or removed (R-H, PRD 18.3): the store
+ *   goes read-only. It shows the fields it understands and lets toggles work in memory for the session.
  */
 
 export type ProgressSnapshot = {
@@ -20,13 +29,17 @@ export type ProgressSnapshot = {
   readonly storageAvailable: boolean;
   /** Stored progress was unreadable and was reset; shown until dismissed (P-2). */
   readonly corruptNotice: boolean;
+  /** Stored progress is from a newer version of the app: shown read-only, never written (R-H). */
+  readonly readOnly: boolean;
 };
 
 const UNHYDRATED: ProgressSnapshot = Object.freeze({
   hydrated: false,
-  state: createEmptyProgress(),
+  // A fixed stand-in id, so nothing random is created at module load (server and client agree).
+  state: createEmptyProgress(PLACEHOLDER_CLIENT_ID),
   storageAvailable: true,
   corruptNotice: false,
+  readOnly: false,
 });
 
 let snapshot: ProgressSnapshot = UNHYDRATED;
@@ -54,24 +67,73 @@ function getStorage(): Storage | null {
   }
 }
 
-type Loaded = { state: ProgressState; readable: boolean; recovered: boolean; raw: string | null };
+type Loaded = {
+  state: ProgressState;
+  readable: boolean;
+  recovered: boolean;
+  /** The stored doc is from a newer version: nothing was written, `state` is a best-effort read. */
+  newer: boolean;
+  raw: string | null;
+};
+
+/** The id this tab already holds, so an empty or unreadable store does not mint a second one. */
+function sessionClientId(): string | undefined {
+  const id = snapshot.state.community.clientId;
+  return snapshot.hydrated && id !== PLACEHOLDER_CLIENT_ID ? id : undefined;
+}
+
+/**
+ * Best-effort read of a newer doc: every field this version knows is used when it passes its own schema,
+ * and treated as empty in memory when it does not. Nothing is written back.
+ */
+function readKnownFields(doc: Record<string, unknown>): ProgressState {
+  const base = createEmptyProgress(sessionClientId());
+  const shape = progressStateSchema.shape;
+  const lessons = shape.lessons.safeParse(doc.lessons);
+  const checklists = shape.checklists.safeParse(doc.checklists);
+  const bookmarks = shape.bookmarks.safeParse(doc.bookmarks);
+  const prefs = shape.prefs.safeParse(doc.prefs);
+  const lastViewed = shape.lastViewed.safeParse(doc.lastViewed);
+  const community = shape.community.safeParse(doc.community);
+  return {
+    version: PROGRESS_VERSION,
+    lessons: lessons.success ? lessons.data : base.lessons,
+    checklists: checklists.success ? checklists.data : base.checklists,
+    bookmarks: bookmarks.success ? bookmarks.data : base.bookmarks,
+    prefs: prefs.success ? prefs.data : base.prefs,
+    lastViewed: lastViewed.success ? lastViewed.data : base.lastViewed,
+    community: community.success ? community.data : base.community,
+  };
+}
 
 /** Read + validate storage. Corrupt content is replaced by an empty document (P-2). Never throws. */
 function loadFromStorage(): Loaded {
   const storage = getStorage();
-  if (!storage) return { state: snapshot.state, readable: false, recovered: false, raw: null };
+  const unreadable: Loaded = { state: snapshot.state, readable: false, recovered: false, newer: false, raw: null };
+  if (!storage) return unreadable;
   let raw: string | null;
   try {
     raw = storage.getItem(PROGRESS_STORAGE_KEY);
   } catch {
-    return { state: snapshot.state, readable: false, recovered: false, raw: null };
+    return unreadable;
   }
   const parsed = parseProgressText(raw);
-  if (parsed.kind === "ok") return { state: parsed.state, readable: true, recovered: false, raw };
-  if (parsed.kind === "empty") {
-    return { state: createEmptyProgress(), readable: true, recovered: false, raw: null };
+  if (parsed.kind === "ok") {
+    return { state: parsed.state, readable: true, recovered: false, newer: false, raw };
   }
-  // Corrupt: free the space and write a valid empty document.
+  if (parsed.kind === "newer") {
+    return { state: readKnownFields(parsed.doc), readable: true, recovered: false, newer: true, raw };
+  }
+  if (parsed.kind === "empty") {
+    return {
+      state: createEmptyProgress(sessionClientId()),
+      readable: true,
+      recovered: false,
+      newer: false,
+      raw: null,
+    };
+  }
+  // Corrupt: free the space and write a valid empty document (with a new clientId, P-2).
   const empty = createEmptyProgress();
   const emptyRaw = JSON.stringify(empty);
   let wrote = true;
@@ -82,7 +144,7 @@ function loadFromStorage(): Loaded {
     wrote = false;
   }
   writeOk = wrote;
-  return { state: empty, readable: true, recovered: true, raw: wrote ? emptyRaw : null };
+  return { state: empty, readable: true, recovered: true, newer: false, raw: wrote ? emptyRaw : null };
 }
 
 function applyLoaded(loaded: Loaded): void {
@@ -95,6 +157,7 @@ function applyLoaded(loaded: Loaded): void {
     state: loaded.state,
     storageAvailable: loaded.readable && writeOk,
     corruptNotice,
+    readOnly: loaded.newer,
   };
 }
 
@@ -158,15 +221,43 @@ export function getServerSnapshot(): ProgressSnapshot {
 }
 
 /**
+ * Read-only mode (a newer doc is stored): apply the reducer in memory only. Storage is read to see whether the
+ * doc is still newer, and is never written, so it stays byte-identical. Returns false when the doc is no longer
+ * newer (another tab replaced it), in which case the caller continues as normal.
+ */
+function updateInMemory(reducer: (state: ProgressState) => ProgressState): boolean {
+  const loaded = loadFromStorage();
+  if (!loaded.newer) {
+    applyLoaded(loaded);
+    return false;
+  }
+  const next = reducer(snapshot.state);
+  if (next !== snapshot.state) {
+    snapshot = { ...snapshot, state: next };
+    emit();
+  }
+  return true;
+}
+
+/**
  * Apply a pure reducer: re-read storage (so other tabs' writes are kept), reduce, persist.
- * When storage is unusable the change lives in memory for this session only.
+ * When storage is unusable the change lives in memory for this session only. When storage holds a newer
+ * version's doc, the change lives in memory only and storage is never touched.
  */
 export function updateProgress(reducer: (state: ProgressState) => ProgressState): void {
   if (typeof window === "undefined") return;
   ensureInitialized();
+  if (snapshot.readOnly && updateInMemory(reducer)) return;
   let base = snapshot.state;
   if (readable && writeOk) {
     const loaded = loadFromStorage();
+    if (loaded.newer) {
+      // Another tab just stored a newer doc: switch to read-only and apply this change in memory.
+      applyLoaded(loaded);
+      updateInMemory(reducer);
+      emit();
+      return;
+    }
     if (loaded.readable) {
       base = loaded.state;
       readable = true;
@@ -181,8 +272,8 @@ export function updateProgress(reducer: (state: ProgressState) => ProgressState)
   const next = reducer(base);
   if (next === base && readable && writeOk) {
     // Nothing to persist; still adopt a fresher document read from another tab.
-    if (base !== snapshot.state || !snapshot.hydrated) {
-      snapshot = { ...snapshot, hydrated: true, state: base };
+    if (base !== snapshot.state || !snapshot.hydrated || snapshot.readOnly) {
+      snapshot = { ...snapshot, hydrated: true, state: base, readOnly: false };
       emit();
     }
     return;
@@ -204,22 +295,26 @@ export function updateProgress(reducer: (state: ProgressState) => ProgressState)
   if (
     next === snapshot.state &&
     storageAvailable === snapshot.storageAvailable &&
-    snapshot.hydrated
+    snapshot.hydrated &&
+    !snapshot.readOnly
   ) {
     return;
   }
-  snapshot = { ...snapshot, hydrated: true, state: next, storageAvailable };
+  snapshot = { ...snapshot, hydrated: true, state: next, storageAvailable, readOnly: false };
   emit();
 }
 
-/** Replace the whole document (import). The caller has already validated it. */
+/**
+ * Replace the progress (import). The caller has already validated it. This browser's own `community` is kept:
+ * an import never changes the clientId or the display name (P-6).
+ */
 export function replaceProgress(next: ProgressState): void {
-  updateProgress(() => next);
+  updateProgress((current) => ({ ...next, community: current.community }));
 }
 
-/** Reset to an empty document (P-7; the confirmation lives in the UI). */
+/** Reset progress to empty (P-7; the confirmation lives in the UI). Keeps `community`. */
 export function resetProgress(): void {
-  updateProgress(() => createEmptyProgress());
+  updateProgress((current) => ({ ...createEmptyProgress(), community: current.community }));
 }
 
 export function dismissCorruptNotice(): void {

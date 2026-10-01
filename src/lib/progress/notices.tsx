@@ -5,6 +5,10 @@ import { useSyncExternalStore } from "react";
 import { Button, Notice } from "@/components/ui";
 import { useProgressStatus } from "./hooks";
 
+/** R-H: shown when this browser holds progress written by a newer version of the Playground. */
+export const NEWER_VERSION_NOTICE =
+  "This browser has progress from a newer version of the Playground. It's shown read-only here. Reload to get the latest version.";
+
 const GLOBAL_SELECTOR = '[data-progress-notices="global"]';
 
 const noopSubscribe = () => () => {};
@@ -29,13 +33,19 @@ function focusMainHeading(): void {
  * which stays empty whenever the global instance is present.
  */
 export function ProgressNotices({ fallback = false }: { fallback?: boolean }) {
-  const { hydrated, storageAvailable, corruptNotice, dismissCorruptNotice } = useProgressStatus();
+  const { hydrated, storageAvailable, corruptNotice, readOnly, dismissCorruptNotice } = useProgressStatus();
   const hasGlobal = useSyncExternalStore(noopSubscribe, globalMounted, notMountedOnServer);
   const suppressed = fallback && hasGlobal;
 
   let content: React.ReactNode = null;
   if (hydrated && !suppressed) {
-    if (!storageAvailable) {
+    if (readOnly) {
+      content = (
+        <Notice tone="warning">
+          <p>{NEWER_VERSION_NOTICE}</p>
+        </Notice>
+      );
+    } else if (!storageAvailable) {
       content = (
         <Notice tone="warning">
           <p>

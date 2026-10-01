@@ -5,8 +5,11 @@ import { countFileContents } from "./selectors";
 /** Import files larger than this are rejected before reading (a real export is a few KB). */
 export const MAX_IMPORT_BYTES = 1_000_000;
 
+/** The export text. `community` (clientId, display name) is never exported: a clientId is a bearer credential (P-6). */
 export function serializeProgress(state: ProgressState): string {
-  return JSON.stringify(state, null, 2);
+  const { community: omitted, ...exported } = state;
+  void omitted;
+  return JSON.stringify(exported, null, 2);
 }
 
 /** `fm-playground-progress-YYYY-MM-DD.json`, dated in the browser's local time zone. */
@@ -16,13 +19,17 @@ export function exportFilename(date: Date = new Date()): string {
   return `fm-playground-progress-${day}.json`;
 }
 
+/**
+ * `state.community` of an ok result is a stand-in, never the file's: `replaceProgress` keeps this browser's own
+ * `community`, so an import cannot change the local clientId or display name (P-6).
+ */
 export type ImportResult =
   | { ok: true; state: ProgressState; lessons: number; bookmarks: number }
   | { ok: false; reason: string };
 
 /** Validate the text of an import file. Nothing is written; the caller confirms first. */
 export function parseImportText(text: string): ImportResult {
-  const parsed = parseProgressText(text);
+  const parsed = parseProgressText(text, { ignoreCommunity: true });
   if (parsed.kind === "ok") {
     return { ok: true, state: parsed.state, ...countFileContents(parsed.state) };
   }

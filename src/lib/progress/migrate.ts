@@ -1,4 +1,4 @@
-import { PROGRESS_VERSION } from "@/lib/contracts";
+import { PROGRESS_VERSION, createCommunity } from "@/lib/contracts";
 
 /**
  * One step of the version migration chain. `up` receives the raw (not yet validated)
@@ -11,11 +11,17 @@ export type Migration = {
 };
 
 /**
- * Ordered registry of production migrations, keyed by from-version. Append the v1 -> v2
- * step here when the schema changes; existing entries never need editing.
- * Empty while the current version is 1.
+ * Ordered registry of production migrations, keyed by from-version. Append the next step
+ * here when the schema changes; existing entries never need editing.
  */
-export const MIGRATIONS: readonly Migration[] = [];
+export const MIGRATIONS: readonly Migration[] = [
+  {
+    // PRD 18.3: add the anonymous community identity. Every v1 field is carried over untouched.
+    from: 1,
+    to: 2,
+    up: (doc) => ({ ...doc, version: 2, community: createCommunity() }),
+  },
+];
 
 export class MigrationError extends Error {
   constructor(message: string) {

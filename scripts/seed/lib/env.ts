@@ -1,4 +1,5 @@
 import path from "node:path";
+import { resolveEnvFile } from "../../lib/env-profile";
 
 export interface SeedEnv {
   contentDir: string;
@@ -23,10 +24,10 @@ export function requireServiceEnv(env: NodeJS.ProcessEnv = process.env): void {
   if (!env.SUPABASE_SERVICE_ROLE_KEY) throw new Error("SUPABASE_SERVICE_ROLE_KEY is required (from .env.local).");
 }
 
-/** Load .env.local for scripts whose npm command has no --env-file flag (package.json is frozen). Variables already in the environment win. */
+/** Load .env.local (or the FM_ENV_FILE profile, PRD 18.8 DP-5) for scripts whose npm command has no --env-file flag. Variables already in the environment win. */
 export function loadLocalEnv(cwd = process.cwd()): void {
   try {
-    process.loadEnvFile(path.join(cwd, ".env.local"));
+    process.loadEnvFile(resolveEnvFile(process.env, cwd));
   } catch {
     // no .env.local: rely on the real environment
   }

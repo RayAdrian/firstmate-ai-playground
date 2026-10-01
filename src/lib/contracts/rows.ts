@@ -2,6 +2,7 @@ import { z } from "zod";
 import { newsTagSchema, scoringStatusSchema } from "./news";
 import { toolVersionsSchema } from "./lesson";
 import { diagramSchema } from "./diagram";
+import { reactionKeySchema } from "./community";
 import {
   WORKFLOW_TOOLS,
   workflowPromptSchema,
@@ -156,3 +157,37 @@ export const workflowRowSchema = z.object({
   updated_at: ts,
 });
 export type WorkflowRow = z.infer<typeof workflowRowSchema>;
+
+/** public.workflow_stars (PRD 18.6). One row per (workflow, client). Never readable by anon; no client_id leaves the database. */
+export const workflowStarRowSchema = z.object({
+  workflow_id: uuid,
+  client_id: uuid,
+  created_at: ts,
+});
+export type WorkflowStarRow = z.infer<typeof workflowStarRowSchema>;
+
+/** public.workflow_reactions (PRD 18.6). One row per (workflow, client, reaction); `display_name` is already sanitised. */
+export const workflowReactionRowSchema = z.object({
+  workflow_id: uuid,
+  client_id: uuid,
+  reaction: reactionKeySchema,
+  display_name: z.string().min(1).max(40).nullable(),
+  created_at: ts,
+});
+export type WorkflowReactionRow = z.infer<typeof workflowReactionRowSchema>;
+
+/** public.community_rate: the per-client token bucket (30 writes, refilling 1 every 2s). */
+export const communityRateRowSchema = z.object({
+  client_id: uuid,
+  tokens: z.number(),
+  refilled_at: ts,
+});
+export type CommunityRateRow = z.infer<typeof communityRateRowSchema>;
+
+/** public.community_budget: fixed-window write counters, scope `global` or `workflow:<id>`. */
+export const communityBudgetRowSchema = z.object({
+  scope: z.string(),
+  window_start: ts,
+  writes: z.number().int(),
+});
+export type CommunityBudgetRow = z.infer<typeof communityBudgetRowSchema>;
