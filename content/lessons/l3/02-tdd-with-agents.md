@@ -40,6 +40,32 @@ Layers of protection, weakest to strongest:
 
 Use all three. The first two prevent the problem cheaply. The third catches whatever got through.
 
+```diagram
+type: flow
+id: tdd-lock-loop
+title: Keeping the tests as the spec
+summary: Lock the tests before the agent starts, then verify outside the agent. If the agent edits a test to get green, the stored hash no longer matches and the run is rejected.
+steps:
+  - id: red
+    label: Tests fail
+    sub: you write them
+  - id: lock
+    label: Lock
+    sub: commit, hash
+  - id: impl
+    label: Implement
+    sub: agent
+  - id: verify
+    label: Verify
+    sub: tests, hash
+    emphasis: true
+exits:
+  - from: verify
+    label: edited
+    text: Test edit caught
+    style: risk
+```
+
 ### First Mate tip
 
 Client specs are usually prose in a ticket. Turn each sentence of business rule into one named test before the agent starts. It exposes the ambiguities ("does free shipping start at 5000 or above 5000?") while asking the client is still cheap, and the tests become the acceptance evidence you hand over with the PR.

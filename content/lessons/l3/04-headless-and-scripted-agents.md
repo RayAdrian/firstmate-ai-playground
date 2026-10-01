@@ -36,6 +36,35 @@ Rules for a script you'd trust:
 6. **Watch cost and time.** A loose headless call can load a large context. Cap turns, budget or batch size.
 7. **Keep secrets out of the agent's reach.** In CI, give the API key only to the step that runs the agent.
 
+```diagram
+type: flow
+id: headless-validate-retry
+title: One scripted agent call
+summary: The script validates every result itself. Invalid output is retried a few times, then skipped instead of trusted.
+steps:
+  - id: input
+    label: Input
+    sub: untrusted text
+  - id: agent
+    label: Agent call
+    sub: claude -p
+  - id: validate
+    label: Validate
+    sub: your code
+    emphasis: true
+  - id: use
+    label: Use result
+loops:
+  - from: validate
+    to: agent
+    label: invalid, retry
+exits:
+  - from: validate
+    label: retries used up
+    text: Left unscored
+    style: risk
+```
+
 ### First Mate tip
 
 Headless is where AI work becomes repeatable for a client: changelog drafts, PR risk summaries, log triage, release notes. Build it as a normal script with a schema and tests that use a fake agent. Deliver it with a note on cost per run and what happens if the model output is invalid. Clients accept "it fails safe and tells you" far more readily than "it's usually right".

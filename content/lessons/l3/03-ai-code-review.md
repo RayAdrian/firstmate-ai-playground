@@ -38,6 +38,36 @@ Passing tests don't mean the code is right. A reviewer reads for what the tests 
 
 Never let a reviewer's confidence substitute for reproduction. Tone is not evidence.
 
+```diagram
+type: flow
+id: finding-triage
+title: Triaging an AI review finding
+summary: A finding you cannot reproduce is unproven, whatever the reviewer's tone. Only a reproduced finding gets classified and fixed.
+steps:
+  - id: finding
+    label: Finding
+    sub: from review
+  - id: repro
+    label: Reproduce
+    sub: test or input
+    emphasis: true
+  - id: classify
+    label: Classify
+    sub: rank it
+  - id: fix
+    label: Fix
+    sub: one per commit
+exits:
+  - from: repro
+    label: no repro
+    text: Unproven
+    style: risk
+  - from: classify
+    label: false alarm
+    text: Note why
+    style: ok
+```
+
 ### First Mate tip
 
 For a client MVP, run the security pass on anything that handles auth, payments, file uploads or raw SQL before it goes to the client's staging. It costs a few minutes. Keep the triage notes (finding, verdict, evidence) in the PR description. Clients and later maintainers see that the review happened and what was decided.
