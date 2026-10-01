@@ -11,6 +11,8 @@ export const DIAGRAM_LINE_MAX = 24;
 export const DIAGRAM_LABEL_MAX_LINES = 2;
 export const DIAGRAM_LABEL_MAX = DIAGRAM_LINE_MAX * DIAGRAM_LABEL_MAX_LINES + (DIAGRAM_LABEL_MAX_LINES - 1); // 49
 export const DIAGRAM_SUB_MAX = 28;
+/** A flow exit `text` is one line (DESIGN §6.3.3 Delta 3). */
+export const DIAGRAM_EXIT_TEXT_MAX = 20;
 export const DIAGRAM_EDGE_MAX = 16;
 export const DIAGRAM_TITLE_MAX = 60;
 export const DIAGRAM_SUMMARY_MAX = 200;
@@ -31,8 +33,10 @@ export const DIAGRAM_LANES_HANDOFFS_MAX = 4;
 export const DIAGRAM_MAX_PER_LESSON = 2;
 
 /** Geometry shared by the renderer and the fit check. */
-export const DIAGRAM_VIEWBOX_WIDTH_HORIZONTAL = 640;
-export const DIAGRAM_VIEWBOX_WIDTH_VERTICAL = 296;
+/** DESIGN §6.3.3 (Deltas 1 and 2): 576 horizontal, 280 vertical, the vertical SVG capped at max-w-[336px]. */
+export const DIAGRAM_VIEWBOX_WIDTH_HORIZONTAL = 576;
+export const DIAGRAM_VIEWBOX_WIDTH_VERTICAL = 280;
+export const DIAGRAM_VERTICAL_MAX_CSS_WIDTH = 336;
 export const DIAGRAM_MAX_HEIGHT = 560;
 
 export const DIAGRAM_TYPES = ["flow", "stack", "boundary", "lanes"] as const;
@@ -80,6 +84,11 @@ const sub = z
   .max(DIAGRAM_SUB_MAX)
   .refine((s) => !s.includes("\n"), "must be a single line");
 const edge = z.string().min(1).max(DIAGRAM_EDGE_MAX);
+const exitText = z
+  .string()
+  .min(1)
+  .max(DIAGRAM_EXIT_TEXT_MAX)
+  .refine((s) => !s.includes("\n"), "must be a single line");
 const nodeId = z
   .string()
   .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "expected kebab-case id")
@@ -113,7 +122,7 @@ const flow = z
       .default([]),
     exits: z
       .array(
-        z.object({ from: nodeId, label: edge, text: label, style: z.enum(["ok", "risk"]) }).strict(),
+        z.object({ from: nodeId, label: edge, text: exitText, style: z.enum(["ok", "risk"]) }).strict(),
       )
       .max(DIAGRAM_FLOW_EXITS_MAX)
       .default([]),

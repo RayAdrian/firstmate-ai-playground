@@ -3,6 +3,10 @@ import { describe, expect, it } from "vitest";
 import { estimateTextWidth, type Diagram, type DiagramInput } from "@/lib/contracts/diagram";
 import {
   checkLabelsFit,
+  contentWidth,
+  diagramFitNotes,
+  labelBoxWidth,
+  nodeHeight,
   diagramTextSlots,
   formatDiagramIssues,
   type DiagramLayoutFn,
@@ -41,7 +45,7 @@ function layoutWith(opts: {
         path: s.path,
         text: s.text,
         fontPx: fontFor(s.path),
-        maxWidth: opts.maxWidth?.(s.path, o) ?? WIDE[o],
+        boxWidth: (opts.maxWidth?.(s.path, o) ?? WIDE[o]) + 20,
       })),
   });
 }
@@ -150,7 +154,7 @@ describe("checkLabelsFit", () => {
       const base = layoutWith({});
       const layout: DiagramLayoutFn = (dd, o) => {
         const r = base(dd, o);
-        return { ...r, boxes: [...r.boxes, { path: "legend", text: "Key", fontPx: 12, maxWidth: 100 }] };
+        return { ...r, boxes: [...r.boxes, { path: "legend", text: "Key", fontPx: 12, boxWidth: 120 }] };
       };
       expect(checkLabelsFit(d, layout)).toEqual([]);
     });
@@ -194,6 +198,56 @@ describe("checkLabelsFit", () => {
 
   it("formatDiagramIssues prints `<path>: <reason>`", () => {
     expect(formatDiagramIssues([{ path: "a.b", reason: "too wide" }])).toEqual(["a.b: too wide"]);
+  });
+});
+
+describe("DESIGN §6.3.3 geometry", () => {
+  it("node heights: 1 line 40, 2 lines 60, 1 + sub 58, 2 + sub 78", () => {
+    expect([nodeHeight(1, false), nodeHeight(2, false), nodeHeight(1, true), nodeHeight(2, true)]).toEqual([40, 60, 58, 78]);
+  });
+  it("label box is node width minus 20; padX can be overridden", () => {
+    expect(labelBoxWidth(216)).toBe(196);
+    expect(labelBoxWidth(100, 4)).toBe(92);
+  });
+  it("estimates 8.855px per character at 14px and 7.59px at 12px", () => {
+    expect(estimateTextWidth("a", 14)).toBeCloseTo(8.855, 3);
+    expect(estimateTextWidth("a", 12)).toBeCloseTo(7.59, 3);
+  });
+  it("content width is max(96, ceil(widest) + 20)", () => {
+    expect(contentWidth(["Ask"])).toBe(96);
+    expect(contentWidth(["Ask", L24])).toBe(Math.ceil(24 * 8.855) + 20);
+  });
+  it("a 20-char exit text (177px) fits the 196px vertical exit label box; 24 chars (213px) does not", () => {
+    expect(estimateTextWidth("x".repeat(20), 14)).toBeLessThanOrEqual(labelBoxWidth(216));
+    expect(estimateTextWidth("x".repeat(24), 14)).toBeGreaterThan(labelBoxWidth(216));
+  });
+  it("the box is the node width: boxes are checked against width - 20", () => {
+    const d = parse(flowInput());
+    const need = Math.ceil(estimateTextWidth("Ask", 14));
+    const mk = (nodeW: number): DiagramLayoutFn => (dd) => ({
+      height: 100,
+      boxes: diagramTextSlots(dd).map((s) => ({ path: s.path, text: s.text, fontPx: s.path === "steps[0].label" ? 14 : 12, boxWidth: s.path === "steps[0].label" ? nodeW : 400 })),
+    });
+    expect(checkLabelsFit(d, mk(need + 20))).toEqual([]);
+    expect(checkLabelsFit(d, mk(need + 19)).map((i) => i.path)).toEqual(["steps[0].label"]);
+  });
+  it("a stacked horizontal layout yields a non-failing note", () => {
+    const d = parse(flowInput());
+    const base = layoutWith({});
+    const stacked: DiagramLayoutFn = (dd, o) => ({ ...base(dd, o), mode: o === "horizontal" ? "stacked" : undefined });
+    expect(checkLabelsFit(d, stacked)).toEqual([]);
+    expect(diagramFitNotes(d, stacked)).toEqual(["diagram ask-loop: horizontal stacked, labels too wide for a row"]);
+    expect(diagramFitNotes(d, base)).toEqual([]);
+  });
+});
+
+describe("height is a budget, separate from width (DG-3)", () => {
+  it("height exactly 560 returns no issues; 1px over returns exactly one height issue", () => {
+    const d = parse(capFlow());
+    expect(checkLabelsFit(d, layoutWith({ height: 560 }))).toEqual([]);
+    const over = checkLabelsFit(d, layoutWith({ height: 561 }));
+    expect(over).toHaveLength(1);
+    expect(over[0].path).toBe("layout");
   });
 });
 

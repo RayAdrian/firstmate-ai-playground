@@ -1,6 +1,7 @@
 import { diagramSchema, type Diagram, type DiagramInput } from "@/lib/contracts/diagram";
 
 export const L24 = "abcdefghijklmnopqrstuvwx"; // 24 chars
+export const L20 = "abcdefghijklmnopqrst"; // 20 chars
 export const label2 = `${L24}\n${L24}`; // 49 chars, 2 lines
 export const SUB28 = "abcdefghijklmnopqrstuvwxyz12"; // 28 chars
 export const EDGE16 = "abcdefghijklmnop"; // 16 chars
@@ -90,8 +91,8 @@ export const capFlow = (): DiagramInput => {
       { from: "s6", to: "s6", label: EDGE16 },
     ],
     exits: [
-      { from: "s2", label: EDGE16, text: label2, style: "ok" },
-      { from: "s6", label: EDGE16, text: label2, style: "risk" },
+      { from: "s2", label: EDGE16, text: L20, style: "ok" },
+      { from: "s6", label: EDGE16, text: L20, style: "risk" },
     ],
   };
 };

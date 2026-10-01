@@ -13,6 +13,41 @@ import {
  * each orientation, the total height and one box per piece of text.
  */
 
+/**
+ * Shared geometry from DESIGN §6.3.3 (user units = CSS px at scale 1). The check owns only the
+ * numbers every template shares; positions come from the layout function.
+ */
+export const DIAGRAM_GEOMETRY = {
+  /** Label type 14px (500, 700 emphasised); small type 12px (sub, edge, axis, zone and lane captions, legend). */
+  labelPx: 14,
+  smallPx: 12,
+  labelLineBox: 20,
+  smallLineBox: 16,
+  nodePadX: 10,
+  nodePadY: 10,
+  nodeRadius: 12,
+  nodeMinWidth: 96,
+  /** The sub-line adds a 2px gap plus a 16px line. */
+  subExtra: 18,
+} as const;
+
+/** Node height = 20 + 20 per label line + 18 with a sub. 1 line 40; 2 lines 60; 1 + sub 58; 2 + sub 78. */
+export function nodeHeight(labelLines: number, hasSub: boolean): number {
+  const g = DIAGRAM_GEOMETRY;
+  return 2 * g.nodePadY + g.labelLineBox * labelLines + (hasSub ? g.subExtra : 0);
+}
+
+/** Label box = node width minus the 10px padding on each side. */
+export function labelBoxWidth(nodeWidth: number, padX: number = DIAGRAM_GEOMETRY.nodePadX): number {
+  return nodeWidth - 2 * padX;
+}
+
+/** Width a template gives a node sized to its content: max(96, ceil(widest line estimate) + 20). */
+export function contentWidth(lines: readonly string[], fontPx: number = DIAGRAM_GEOMETRY.labelPx): number {
+  const widest = Math.max(0, ...lines.map((l) => estimateTextWidth(l, fontPx)));
+  return Math.max(DIAGRAM_GEOMETRY.nodeMinWidth, Math.ceil(widest) + 2 * DIAGRAM_GEOMETRY.nodePadX);
+}
+
 export type DiagramOrientation = "horizontal" | "vertical";
 export const DIAGRAM_ORIENTATIONS: readonly DiagramOrientation[] = ["horizontal", "vertical"];
 
@@ -25,14 +60,19 @@ export interface LayoutTextBox {
   path: string;
   /** The text, `\n` separating lines. Each line is measured on its own. */
   text: string;
+  /** 14 for labels, 12 for `sub`, edge, axis, caption and legend text (DIAGRAM_GEOMETRY). */
   fontPx: number;
-  /** Inner width available to a line, in viewBox units (box width minus padding). */
-  maxWidth: number;
+  /** Width of the box the text sits in (a node's width), in viewBox units. */
+  boxWidth: number;
+  /** Horizontal padding inside the box. Defaults to the 10px node padding, so the label box is `boxWidth - 20`. */
+  padX?: number;
 }
 
 export interface DiagramLayoutResult {
   /** Total viewBox height. */
   height: number;
+  /** Horizontal only: `stacked` when the fit-or-stack rule fell back to the vertical geometry (a non-failing note). */
+  mode?: "row" | "stacked";
   boxes: readonly LayoutTextBox[];
 }
 
@@ -138,12 +178,13 @@ export function checkLabelsFit(diagram: Diagram, layout: DiagramLayoutFn): Diagr
       boxed.add(box.path);
       box.text.split("\n").forEach((line, i, lines) => {
         const width = estimateTextWidth(line, box.fontPx);
-        if (width > box.maxWidth) {
+        const allowed = labelBoxWidth(box.boxWidth, box.padX);
+        if (width > allowed) {
           const which = lines.length > 1 ? `line ${i + 1} ` : "";
           record(
             box.path,
             orientation,
-            `${which}"${line}" needs about ${Math.ceil(width)} but the box allows ${Math.floor(box.maxWidth)}`,
+            `${which}"${line}" needs about ${Math.ceil(width)} but the label box allows ${Math.floor(allowed)}`,
           );
         }
       });
@@ -164,4 +205,11 @@ export function checkLabelsFit(diagram: Diagram, layout: DiagramLayoutFn): Diagr
 /** Formats issues the way the seed and `workflows:validate` print them: `<field>: <reason>`. */
 export function formatDiagramIssues(issues: readonly DiagramIssue[]): string[] {
   return issues.map((i) => `${i.path}: ${i.reason}`);
+}
+
+/** Non-failing notes the seed and `workflows:validate` print (DESIGN §6.3.3 fit-or-stack rule). */
+export function diagramFitNotes(diagram: Diagram, layout: DiagramLayoutFn): string[] {
+  return layout(diagram, "horizontal").mode === "stacked"
+    ? [`diagram ${diagram.id}: horizontal stacked, labels too wide for a row`]
+    : [];
 }

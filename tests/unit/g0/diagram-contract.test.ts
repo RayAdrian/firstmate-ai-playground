@@ -8,6 +8,10 @@ import {
   diagramSchema,
   estimateTextWidth,
   DIAGRAM_LABEL_MAX,
+  DIAGRAM_MAX_HEIGHT,
+  DIAGRAM_VERTICAL_MAX_CSS_WIDTH,
+  DIAGRAM_VIEWBOX_WIDTH_HORIZONTAL,
+  DIAGRAM_VIEWBOX_WIDTH_VERTICAL,
   buildWorkflowFrontmatterSchema,
   workflowRowSchema,
 } from "@/lib/contracts";
@@ -106,6 +110,26 @@ describe("diagramSchema: text caps are hard fails", () => {
   });
   it("sub of exactly 28 and edge of exactly 16 pass", () => {
     expect(issues(withStep({ sub: SUB28, next: EDGE16 }))).toEqual([]);
+  });
+});
+
+describe("flow exit text is one line of at most 20 characters (DESIGN §6.3.3 Delta 3)", () => {
+  const withExit = (text: string) => {
+    const d = clone(flowInput()) as Obj;
+    (d.exits as Obj[])[0].text = text;
+    return d;
+  };
+  it("accepts 20 characters and rejects 21, two lines and empty", () => {
+    expect(issues(withExit("x".repeat(20)))).toEqual([]);
+    fails(withExit("x".repeat(21)), "exits.0.text");
+    fails(withExit("a\nb"), "exits.0.text");
+    fails(withExit(""), "exits.0.text");
+  });
+});
+
+describe("viewBox constants (DESIGN §6.3.3 Deltas 1 and 2)", () => {
+  it("are 576, 280, 336 and 560", () => {
+    expect([DIAGRAM_VIEWBOX_WIDTH_HORIZONTAL, DIAGRAM_VIEWBOX_WIDTH_VERTICAL, DIAGRAM_VERTICAL_MAX_CSS_WIDTH, DIAGRAM_MAX_HEIGHT]).toEqual([576, 280, 336, 560]);
   });
 });
 
