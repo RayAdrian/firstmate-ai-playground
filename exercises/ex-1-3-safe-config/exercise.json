@@ -20,5 +20,5 @@
     "The starter's `danger-full-access` with `never` is the Codex equivalent of `--dangerously-skip-permissions`: no sandbox and no questions. Web search is a separate tool from command network access, so the solution disables it explicitly.",
     "Both files are committed to the repo. Every engineer who clones it gets the same guardrails, and a personal override goes in `.claude/settings.local.json` or `~/.codex/config.toml`."
   ],
-  "setup_cmd": "mkdir -p ~/fm-ex && cp -R exercises/ex-1-3-safe-config/starter ~/fm-ex/ex-1-3-safe-config && cd ~/fm-ex/ex-1-3-safe-config && git init -q && git add -A && git -c user.name=learner -c user.email=learner@example.com commit -qm start && npm install"
+  "setup_cmd": "D=~/fm-ex/ex-1-3-safe-config; if [ -e \"$D\" ]; then echo \"Already set up at $D. Run: cd $D (or delete it first to start over).\"; else mkdir -p ~/fm-ex && cp -r exercises/ex-1-3-safe-config/starter \"$D\" && cd \"$D\" && git init -q && git add -A && git -c user.name=learner -c user.email=learner@example.com commit -qm start && npm install; fi"
 }

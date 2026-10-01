@@ -2,7 +2,7 @@
   "slug": "ex-2-1-conventions",
   "title": "Teach the agent four conventions it cannot guess",
   "goal": "The repo follows four conventions that are not obvious from the code, and has no context file. Write AGENTS.md (and a thin CLAUDE.md that imports it), then have the agent add an applyDiscountCents handler that follows all four without you repeating them in the prompt.",
-  "setup_cmd": "mkdir -p ~/fm-ex && cp -r exercises/ex-2-1-conventions/starter ~/fm-ex/ex-2-1-conventions && cd ~/fm-ex/ex-2-1-conventions && npm i",
+  "setup_cmd": "D=~/fm-ex/ex-2-1-conventions; if [ -e \"$D\" ]; then echo \"Already set up at $D. Run: cd $D (or delete it first to start over).\"; else mkdir -p ~/fm-ex && cp -r exercises/ex-2-1-conventions/starter \"$D\" && cd \"$D\" && npm i; fi",
   "verify": "npm run verify",
   "required_tool_features": [
     "AGENTS.md",

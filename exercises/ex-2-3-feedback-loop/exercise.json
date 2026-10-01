@@ -2,7 +2,7 @@
   "slug": "ex-2-3-feedback-loop",
   "title": "Make the agent run typecheck and lint without being asked",
   "goal": "The tests are green but typecheck and lint fail. Write a context file with the verification commands and a definition of done, then give the agent a task that never mentions them. It should run them and fix what they find.",
-  "setup_cmd": "mkdir -p ~/fm-ex && cp -r exercises/ex-2-3-feedback-loop/starter ~/fm-ex/ex-2-3-feedback-loop && cd ~/fm-ex/ex-2-3-feedback-loop && npm i",
+  "setup_cmd": "D=~/fm-ex/ex-2-3-feedback-loop; if [ -e \"$D\" ]; then echo \"Already set up at $D. Run: cd $D (or delete it first to start over).\"; else mkdir -p ~/fm-ex && cp -r exercises/ex-2-3-feedback-loop/starter \"$D\" && cd \"$D\" && npm i; fi",
   "verify": "npm install --no-audit --no-fund --no-package-lock --silent && npm run verify",
   "required_tool_features": [
     "AGENTS.md",

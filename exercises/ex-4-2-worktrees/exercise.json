@@ -2,7 +2,7 @@
   "slug": "ex-4-2-worktrees",
   "verify": "node scripts/verify.mjs",
   "required_tool_features": ["git-worktrees", "parallel-sessions"],
-  "setup_cmd": "mkdir -p ~/fm-ex && cp -r exercises/ex-4-2-worktrees/starter ~/fm-ex/ex-4-2-worktrees && cd ~/fm-ex/ex-4-2-worktrees && git init -b main && git add -A && git -c user.name=fm -c user.email=fm@example.com commit -qm starter",
+  "setup_cmd": "D=~/fm-ex/ex-4-2-worktrees; if [ -e \"$D\" ]; then echo \"Already set up at $D. Run: cd $D (or delete it first to start over).\"; else mkdir -p ~/fm-ex && cp -r exercises/ex-4-2-worktrees/starter \"$D\" && cd \"$D\" && git init -b main && git add -A && git -c user.name=fm -c user.email=fm@example.com commit -qm starter; fi",
   "title": "Build two features in parallel worktrees and merge them",
   "goal": "Implement formatPrice and parseDuration in two separate git worktrees with one agent session in each, then merge both branches into main without conflict damage. Verification runs both features' tests on the merged branch.",
   "starter_prompts": {

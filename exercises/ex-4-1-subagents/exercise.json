@@ -2,7 +2,7 @@
   "slug": "ex-4-1-subagents",
   "verify": "npm test",
   "required_tool_features": ["subagents"],
-  "setup_cmd": "mkdir -p ~/fm-ex && cp -r exercises/ex-4-1-subagents/starter ~/fm-ex/ex-4-1-subagents && cd ~/fm-ex/ex-4-1-subagents && git init -b main && git add -A && git -c user.name=fm -c user.email=fm@example.com commit -qm starter",
+  "setup_cmd": "D=~/fm-ex/ex-4-1-subagents; if [ -e \"$D\" ]; then echo \"Already set up at $D. Run: cd $D (or delete it first to start over).\"; else mkdir -p ~/fm-ex && cp -r exercises/ex-4-1-subagents/starter \"$D\" && cd \"$D\" && git init -b main && git add -A && git -c user.name=fm -c user.email=fm@example.com commit -qm starter; fi",
   "title": "Build a test-runner and a reviewer subagent, then fix a failing module",
   "goal": "Define two scoped subagents, a test-runner that reports only failures and a read-only reviewer, then use them to fix the bugs in src/cart.js. The tests must pass and neither subagent may have an Edit or Write tool (or, in Codex, a writable sandbox).",
   "starter_prompts": {

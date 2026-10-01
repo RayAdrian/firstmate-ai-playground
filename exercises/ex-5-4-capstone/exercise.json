@@ -10,7 +10,7 @@
   ],
   "title": "Capstone: ship like First Mate",
   "goal": "Ship a small feature to a real repo through the full loop: spec, plan, parallel worktrees, tests first, three gates on the head commit, and a gated merge.",
-  "setup_cmd": "mkdir -p ~/fm-ex && cp -r exercises/ex-5-4-capstone/starter ~/fm-ex/ex-5-4-capstone && cd ~/fm-ex/ex-5-4-capstone && git init -q -b main && git add -A && git -c user.name=fm-learner -c user.email=learner@example.com commit -q -m baseline && npm install",
+  "setup_cmd": "D=~/fm-ex/ex-5-4-capstone; if [ -e \"$D\" ]; then echo \"Already set up at $D. Run: cd $D (or delete it first to start over).\"; else mkdir -p ~/fm-ex && cp -r exercises/ex-5-4-capstone/starter \"$D\" && cd \"$D\" && git init -q -b main && git add -A && git -c user.name=fm-learner -c user.email=learner@example.com commit -q -m baseline && npm install; fi",
   "starter_prompts": {
     "claude": "Read AGENTS.md, FEATURE.md, SPEC_TEMPLATE.md and PLAN_TEMPLATE.md. We are adding due dates to the todo library (see FEATURE.md). Stay in plan mode and do not edit code. First draft SPEC.md: numbered P0 acceptance criteria, exact function signatures, non-goals, and two workstreams with explicit file ownership so they cannot touch the same file. Show it to me before you write PLAN.md.",
     "codex": "Read AGENTS.md, FEATURE.md, SPEC_TEMPLATE.md and PLAN_TEMPLATE.md. We are adding due dates to the todo library (see FEATURE.md). Do not edit code yet. First draft SPEC.md: numbered P0 acceptance criteria, exact function signatures, non-goals, and two workstreams with explicit file ownership so they cannot touch the same file. Show it to me before you write PLAN.md."
