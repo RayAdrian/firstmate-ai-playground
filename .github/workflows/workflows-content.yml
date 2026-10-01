@@ -4,12 +4,15 @@ name: Workflows content
 # (ci.yml ignores workflows-only PRs). No client-name scan: human review at merge is that control.
 # `npm run gate:merge` requires check runs named exactly `validate` and `gitleaks`.
 
+# GitHub Actions is off for this account (billing), so CI is run manually: `npm run ci:local -- <pr#>`
+# (scripts/ci-local.sh). The original triggers are kept below, commented out; restore them to re-enable CI.
 on:
-  pull_request:
-    paths: ['content/workflows/**']
-  push:
-    branches: [main]
-    paths: ['content/workflows/**']
+  workflow_dispatch:
+#  pull_request:
+#    paths: ['content/workflows/**']
+#  push:
+#    branches: [main]
+#    paths: ['content/workflows/**']
 
 permissions:
   contents: read

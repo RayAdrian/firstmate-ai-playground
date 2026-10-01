@@ -22,6 +22,7 @@
     "exercises:verify": "tsx scripts/exercises/verify.ts",
     "content:stale": "tsx scripts/seed/stale.ts",
     "gate:merge": "bash scripts/gate-merge.sh",
+    "ci:local": "bash scripts/ci-local.sh",
     "workflows:validate": "tsx scripts/workflows/validate.ts",
     "workflows:scan": "tsx scripts/workflows/scan.ts",
     "workflows:share": "tsx scripts/workflows/share.ts",
