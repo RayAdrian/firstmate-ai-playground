@@ -33,7 +33,7 @@ The roles:
 type: lanes
 id: team-handoffs
 title: What passes between orchestrator and workers
-summary: The orchestrator sends each worker a self-contained brief and gets a report back. Nothing else passes between them, so each brief has to stand alone.
+summary: The orchestrator sends each worker a self-contained brief and gets a report back. The orchestrator's conversation never reaches a worker, so each brief has to stand alone.
 lanes:
   - { id: orch, label: Orchestrator }
   - { id: wa, label: Worker A }
