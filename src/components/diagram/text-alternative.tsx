@@ -107,7 +107,12 @@ function Lanes({ d }: { d: LanesDiagram }): ReactElement {
     d.steps
       .filter((s) => s.col === col)
       .sort((a, b) => (laneIndex.get(a.lane) ?? 0) - (laneIndex.get(b.lane) ?? 0))
-      .forEach((s) => items.push({ key: s.id, text: `Time ${col}, ${laneLabel.get(s.lane)}: ${nodeText(s)}` }));
+      .forEach((s) =>
+        items.push({
+          key: s.id,
+          text: `Time ${col}, ${laneLabel.get(s.lane)}: ${nodeText(s)}${s.style === "risk" ? " (risk)" : ""}`,
+        }),
+      );
   }
   return (
     <>

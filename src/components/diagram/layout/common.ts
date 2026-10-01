@@ -79,7 +79,14 @@ export function nodeGroup(boxes: Boxes, s: NodeSpec): { g: GroupPrim; h: number;
   const eyebrow = s.eyebrow ? 18 : 0;
   const h = nodeHeight(ls.length, s.sub !== undefined) + eyebrow;
   const children: Prim[] = [
-    { k: "rect", x: n(s.x), y: n(s.y), w: n(s.w), h, variant: s.key ? "key" : s.risk ? "risk" : "node" },
+    {
+      k: "rect",
+      x: n(s.x),
+      y: n(s.y),
+      w: n(s.w),
+      h,
+      variant: s.key && s.risk ? "key-risk" : s.key ? "key" : s.risk ? "risk" : "node",
+    },
   ];
   const tx = s.x + 10;
   let top = s.y + 10;
@@ -97,7 +104,13 @@ export function nodeGroup(boxes: Boxes, s: NodeSpec): { g: GroupPrim; h: number;
     if (!s.noBoxes && s.subPath) boxes.add(s.subPath, s.sub, 12, s.w);
   }
   return {
-    g: { k: "g", part: "node", ...(s.key ? { state: "key" as const } : {}), ...(s.ref ? { ref: s.ref } : {}), children },
+    g: {
+      k: "g",
+      part: "node",
+      ...(s.key || s.risk ? { state: (s.key && s.risk ? "key risk" : s.key ? "key" : "risk") as "key" | "risk" | "key risk" } : {}),
+      ...(s.ref ? { ref: s.ref } : {}),
+      children,
+    },
     h,
     rect: { x: s.x, y: s.y, w: s.w, h },
   };
