@@ -866,6 +866,135 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 - "Exercise complete" (E-2) appears in the checklist header only. It never marks the lesson complete, and the Mark complete block stays separate below the panel.
 - Checklist item IDs that aren't in the content are ignored (§9 of the PRD).
 
+#### 6.3.2 Watch block (PRD §15, MD-1, MD-2, MD-3)
+
+**Purpose.** This block plays a short, silent animation or terminal recording inside the Concept section. It adds to the lesson text and never replaces it, so it is visually quieter than the Key differences callout and the Exercise panel. It is a server component with no client JS.
+
+**Placement (MD-1).** The block goes inside `section[aria-labelledby=concept]`, after the concept prose and before the "In your tool" `h2`. The L-1 order, the four `h2` ids and the right rail stay as they are. The rail gets no "Watch" entry.
+
+```
+360 (column 328)                            1440 (lg:col-span-8, column ≈ 740)
+┌──────────────────────────────────────┐    ┌───────────────────────────────────────────────────┐
+│ Concept                        (h2)  │    │ Concept                                     (h2)  │
+│ prose…                               │    │ prose…                                            │
+│                         ↕ mt-8       │    │                                     ↕ mt-8        │
+│ WATCH                        eyebrow │    │ WATCH                                    eyebrow  │
+│ Three agents, three          (h3)    │    │ Three agents, three worktrees             (h3)    │
+│ worktrees                            │    │ ▣ Animation · 1:12 · No sound            (meta)   │
+│ ▣ Animation · 1:12 · No sound (meta) │    │ ┌───────────────────────────────────────────────┐ │
+│ ┌──────────────────────────────────┐ │    │ │                                               │ │
+│ │          poster (16:9)           │ │    │ │              poster (16:9, w-full)            │ │
+│ │   ▶ 0:00 ───────────── 🔇 ⛶ ⋮    │ │    │ │                                               │ │
+│ └──────────────────────────────────┘ │    │ │ ▶ 0:00 ─────────────────────────────── 🔇 ⛶ ⋮ │ │
+│ › Transcript                 (h-11)  │    │ └───────────────────────────────────────────────┘ │
+│                         ↕ space-y-10 │    │ › Transcript                                      │
+│ WATCH …second item…                  │    │                                                   │
+│                                      │    │ In your tool                                (h2)  │
+│ In your tool                   (h2)  │    └───────────────────────────────────────────────────┘
+└──────────────────────────────────────┘
+
+Transcript open:
+│ ⌄ Transcript                                      │
+│ ┌ bg-surface rounded-lg p-4 ─────────────────────┐ │
+│ │ Three columns appear, labelled with branches…  │ │
+│ │ (plain text, line breaks kept)                 │ │
+│ └────────────────────────────────────────────────┘ │
+```
+
+**Anatomy (top to bottom, per item)**
+
+- **Wrapper:** a single `div` around all items, `mt-8 space-y-10`, with no background and no card. The video is already a framed object, so a surface card around it would be a frame inside a frame. Dropping the card also gives the video the full column width, which the captions need at 360.
+- **Item:** `section[aria-labelledby="watch-<id>"]` with `data-testid="media-block"`, which is a `region` named "Watch: \<title\>".
+- **Heading (`h3`, MD-1):** `<h3 id="watch-<id>" aria-label="Watch: {title}"><span aria-hidden="true" class="block text-sm font-bold uppercase tracking-eyebrow text-link">Watch</span><span class="mt-1 block text-lg md:text-xl font-bold text-fg-strong">{title}</span></h3>`.
+  - **V3: use this exact markup.** The explicit `aria-label` is the source of the name. Do not build it from the spans: two block spans plus an sr-only ": " compute as "Watch : \<title\>" in Chrome, with a space before the colon (PR #27 review). The eyebrow is `aria-hidden`, so it is never read twice.
+  - The region (`section[aria-labelledby="watch-<id>"]`) and the video (`aria-labelledby="watch-<id>"`) both resolve to the h3's `aria-label`, so all three names are exactly `Watch: <title>`.
+  - The eyebrow has the same look as "EXERCISE" and "LESSON 2.1".
+- **Meta line:** `mt-1 flex flex-wrap items-center gap-x-2 text-sm text-fg-muted`. The kind word is always shown, so the kind is never carried by the icon alone:
+  - Animation: a 14px `Clapperboard` icon (`aria-hidden`), then "Animation · `<time datetime="PT72S">1:12</time>` · No sound".
+  - Recording: a 14px `SquareTerminal` icon, then "Terminal recording · 0:42 · No sound · Claude Code 2.1.277 / Codex 0.154.0 · Recorded 1 Oct 2026". The versions come from the manifest's `tool_versions` and the date from `made_on`, formatted "d MMM yyyy". Show only the tools the item has.
+  - The duration is `m:ss` from `duration_s`.
+  - "No sound" is there because every item has no audio track (MD-2). Without it, people hunt for a volume control that does nothing.
+- **Frame:** the `<video>` itself, at `mt-3 block w-full h-auto rounded-xl border border-border bg-code-bg`, with `style="aspect-ratio: <width> / <height>"` and the `width`/`height` attributes from the manifest. That reserves the box, so CLS is 0.
+  - `bg-code-bg` (`#0f1729` light, `#0b0f1c` dark) is what shows before the poster paints. It matches the native controls' dark scrim and the terminal-recording theme, so there's no white flash.
+  - The `border-border` edge keeps a light poster from bleeding into the canvas in light mode. In dark mode it keeps the light-only posters (§15.4 has no dark variants) from floating.
+  - The radius is `rounded-xl` (12px, the same as CodeBlock), not `rounded-card`.
+- **Player (MD-2):** `<video controls preload="none" playsInline poster src width height aria-labelledby="watch-<id>">`, plus `<track kind="captions" srclang="en" label="English" src default>`.
+  - There is no `autoplay`, no `muted` autoplay trick, no `loop`, and no JS `play()`.
+  - The controls are native, with no overlay, custom play button or hover preview.
+- **Captions:** they are on by default because of `default`. In `globals.css` (WS-A), add `[data-testid="media-block"] video::cue { font-family: var(--font-sans); background: rgb(0 0 0 / .8); }`, and below `md` add `font-size: 15px`.
+  - Chromium sizes cues at about 5% of the video height. On a 328px-wide frame that's about 9px, which is illegible (PRD §15.6 gate 2).
+  - From `md` up the default size (19px or more) stands.
+- **Transcript (MD-2):** a `<details class="group mt-2">` that is closed by default (`group` drives the chevron via `group-open:`).
+  - The summary is `<summary id="watch-<id>-transcript-toggle" class="inline-flex h-11 cursor-pointer list-none items-center gap-2 rounded-md font-medium text-link hover:underline [&::-webkit-details-marker]:hidden">`. It holds a 16px `ChevronRight` (`aria-hidden`, `transition-transform`, `rotate-90` when open via `group-open:`, and static under reduced motion), then "Transcript", then `<span class="sr-only"> for {title}</span>`.
+    - The summary is styled like the Compare disclosure (§6.3.1), so the two disclosures on a lesson page look alike.
+    - The visible label is "Transcript", as the PRD requires.
+    - The accessible name is "Transcript for \<title\>", so it stays unique when items stack (2.5.3: it starts with the visible text).
+  - The panel is `<div role="region" aria-labelledby="watch-<id>-transcript-toggle" class="mt-2 rounded-lg bg-surface p-4 text-base text-fg whitespace-pre-line dark:border dark:border-border">`.
+    - It renders the `.txt` as plain text and never as markdown or HTML (L-7). Line breaks are kept and runs of spaces collapse.
+    - The transcript describes what is on screen (WCAG 1.2.1). The design doesn't truncate it.
+- **The `<details>` exception:** §11's rule that disclosures are always `button[aria-expanded]` has one exception, and this is it.
+  - MD-2 names the element.
+  - The block ships no JS.
+  - `<details>` opens on find-in-page, which helps a transcript.
+  - Tests locate it with `region.locator('summary')` rather than `getByRole('button')`.
+
+**Multiple items.** Items render in `id` order, each with its own heading, meta, frame and transcript, separated by `space-y-10`. There are no dividers and no "1 of 2" counters, because the eyebrow repeats and that is enough rhythm.
+
+**Spacing summary.**
+
+| From → to | Value |
+|---|---|
+| Last concept paragraph → block | `mt-8` |
+| Eyebrow → title | `mt-1` |
+| Title → meta | `mt-1` |
+| Meta → frame | `mt-3` |
+| Frame → summary | `mt-2` (the 44px summary carries its own air) |
+| Summary → open panel | `mt-2` |
+| Item → item | `space-y-10` |
+| Block → "In your tool" | the existing section rule (`mt-10`) |
+
+**Responsive.** The frame is always `w-full` of the lesson column, and the height follows the ratio.
+
+| Width | Column | 16:9 frame |
+|---|---|---|
+| 360 | 328px | 328 × 185 |
+| 768 | 720px | 720 × 405 |
+| 1440 | about 740px (`lg:col-span-8`) | about 740 × 416 |
+
+The meta line wraps at 360, which is allowed. There is no horizontal scroll at any width.
+
+**Focus and keyboard.**
+- The tab order is the video (Space/Enter plays it and the native control keys work), then the native controls in browsers that expose them, then the summary (Enter/Space toggles it).
+- The video gets `focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-focus focus-visible:outline-offset-2`. The ring sits on the canvas outside the dark frame, so accent passes. `outline-solid` is required (TW4, §4.0).
+- The summary gets the same ring with `rounded-md`.
+- Nothing moves focus programmatically.
+
+**Motion.**
+- Nothing plays until the user presses play, under either `prefers-reduced-motion` setting (MD-2, asserted in both emulations).
+- The poster is a still frame.
+- The only UI motion is the chevron rotation (`--fm-duration-base`), which drops to 0 under reduced motion.
+
+**Light and dark.**
+- Every colour is a token: `text-link` eyebrow, `text-fg-strong` title, `text-fg-muted` meta, `border-border` and `bg-code-bg` frame, `bg-surface` transcript panel (with a border in dark), and `text-link` summary. Each pair is already in the §2.4 ledger.
+- Accent-2 is never used for text.
+- Text inside rendered frames is the media gate's concern (§15.6 gate 2): Remotion uses ink, accent and Satoshi, and VHS uses a theme close to the CodeBlock palette (`#0f1729` / `#e6edf3`).
+
+**States.**
+- **No media (MD-1):** render nothing. That means no wrapper, no heading, no "No video for this lesson" EmptyState and no spacing artefact. A lesson without media is the normal case (13 of 18 lessons), not an empty state.
+- **Some items invalid (MD-3):** they are skipped silently in the UI (the server logs them), and the remaining items render. If all of them are invalid, it's the same as no media.
+- **Before the poster loads:** the reserved `bg-code-bg` frame with native controls.
+- **Playback error** (file gone after render, network): the browser's native error state. The heading, meta and transcript stay, so the content is still available as text.
+- **Loading:** media is read in the same server request as the lesson, so there is no separate skeleton. The lesson `loading.tsx` skeleton doesn't change, because adding a video placeholder to all 18 lessons would be wrong for 13 of them.
+
+**Deltas vs PR #26** (`media/v3-watch` at 46d7bec; V3 conforms to this section):
+1. Remove the per-item `bg-surface rounded-card p-4 md:p-5 my-8` card, and use one `mt-8 space-y-10` wrapper. The frame-in-frame goes, and the video gains 32px at 360.
+2. Make the `h3` an `aria-hidden` eyebrow "Watch" plus the title (`text-lg md:text-xl`), named by `aria-label="Watch: <title>"`. #26 has a single `text-lg` line.
+3. Add the meta line: the kind word plus icon, `<time>` duration, "No sound", and for recordings the versions and recorded date. #26 shows none.
+4. Change the frame to `rounded-xl border border-border bg-code-bg`, not `rounded-card bg-canvas` (that showed a white box before the poster). Add `aria-labelledby` to the video.
+5. Add the `::cue` font floor (15px below md) and the Satoshi family.
+6. Make the summary match the Compare disclosure: `h-11`, `font-medium` at body size, a rotating chevron and a hidden marker, with the sr-only " for \<title\>". #26 has 14px text, a 24px target and no open/closed indicator.
+7. Put the transcript in a `role=region` panel labelled by the summary (`bg-surface rounded-lg p-4`, `whitespace-pre-line`). #26 has a bare paragraph.
+
 ### 6.4 `/exercises` (P1, E-5)
 
 **Hierarchy**: 1. Exercise title and which lesson it belongs to. 2. My checklist progress. 3. Verify type and level.
@@ -1248,6 +1377,7 @@ Minor:    <ID> …
 | Tool preference context (shared tab state) | WS-C consumes it; WS-D owns `prefs.tool` storage | `src/lib/progress/` (D) plus `src/components/lesson/` (C) |
 | §6.1 home | M2 integration | `src/app/page.tsx` |
 | §6.2, §6.3, §6.4 | WS-C | `src/app/curriculum/`, `src/app/lessons/`, `src/app/exercises/`, `src/components/lesson/`, `src/components/exercise/` |
+| §6.3.2 Watch block, `video::cue` rule | V3 (the `::cue` rule goes in `src/app/globals.css` via WS-A, or in a V3-owned stylesheet imported by `media-block.tsx`) | `src/components/lesson/media-block.tsx`, `src/components/lesson/server/media.ts` |
 | §6.5, §6.6, §4.12 | WS-F | `src/app/news/`, `src/components/news/` |
 | §6.7, §6.8, §4.11 banner logic | WS-D | `src/app/bookmarks/`, `src/app/progress/`, `src/lib/progress/` |
 | `DbUnavailableError`, `isDbUnavailable`, `DB_UNAVAILABLE_MESSAGE` (done in M0) | M0 | `src/lib/db/errors.ts` |
@@ -1264,7 +1394,7 @@ This is the authoritative list of **accessible roles and names** for every landm
 - A name comes from visible text wherever possible. `aria-label` is used only for icon-only controls and the listed landmarks, and it always contains the visible text (WCAG 2.5.3).
 - Hidden tab panels, collapsed disclosure panels and the closed mobile menu use the `hidden` attribute, so they are out of the accessibility tree.
 - **Announcements**: `#fm-live` has `role="status"`. Because Notices can also be `status`, tests locate announcements with `page.locator('#fm-live')` or `getByRole('status').filter({ hasText: '<text>' })`, never with a bare `getByRole('status')`.
-- **Disclosures** are always `button[aria-expanded][aria-controls]`. `<details>`/`<summary>` is not used anywhere.
+- **Disclosures** are always `button[aria-expanded][aria-controls]`. `<details>`/`<summary>` is not used anywhere, with **one exception**: the Watch block transcript (§6.3.2, PRD MD-2). Locate it with `region.locator('summary')`, not `getByRole('button')`.
 
 ### 11.1 Shell (every page)
 
@@ -1348,6 +1478,11 @@ This is the authoritative list of **accessible roles and names** for every landm
 | Starter prompt tabs | `tablist` | "Starting prompt" |
 | Checklist | `group` | "Checklist" (a `fieldset` with legend "Checklist") containing `checkbox`es |
 | Compare disclosure | `button` | "Compare with reference solution" (`aria-expanded`) |
+| Watch block (§6.3.2, media lessons only) | `region` | "Watch: \<title\>" (`section[aria-labelledby]`, `data-testid="media-block"`); absent on lessons without media |
+| Watch heading | `heading` 3 | Exactly "Watch: \<title\>", from the h3's `aria-label` (the visible eyebrow "Watch" is `aria-hidden`). The region and the video resolve to this name through `aria-labelledby` |
+| Watch video | `video` (no ARIA role; locate with `region.locator('video')`) | "Watch: \<title\>" via `aria-labelledby`; `track[kind=captions][default]` |
+| Transcript toggle | `summary` (not a `button` in Playwright; locate with `region.locator('summary')`) | Visible "Transcript"; accessible name "Transcript for \<title\>" |
+| Transcript panel | `region` (exposed only while open) | "Transcript for \<title\>" (`aria-labelledby` the summary) |
 | Mark complete | `button` | "Mark complete" |
 | Completed state | text + `button` | Visible text "Completed ✓ · Undo"; `button` "Undo" |
 | Prev/next | `navigation` | "Lesson"; links `/^Previous: /` and `/^Next: /`, or "Back to curriculum" on the last lesson |
