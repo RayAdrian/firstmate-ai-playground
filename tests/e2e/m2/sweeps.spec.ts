@@ -99,7 +99,7 @@ for (const scheme of SCHEMES) {
           await axeBlocking(page, `menu open ${scheme} ${width}`);
         } else {
           await expect(page.getByRole("button", { name: "Menu" })).toHaveCount(0);
-          await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link")).toHaveCount(5);
+          await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link")).toHaveText(["Curriculum", "Exercises", "Workflows", "News", "Bookmarks", "Progress"]);
         }
       });
     });
