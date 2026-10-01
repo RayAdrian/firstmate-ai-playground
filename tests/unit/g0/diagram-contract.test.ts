@@ -412,7 +412,7 @@ describe("workflow row and migration", () => {
     level: null,
     tool_versions: {},
     verified_on: "2026-09-30",
-    author_name: "First Mate Stewards",
+    author_name: "First Mate",
     reviewed_on: null,
     content_hash: "abc",
     removed_at: null,

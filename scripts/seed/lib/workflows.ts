@@ -6,7 +6,7 @@ import path from "node:path";
 import type { WorkflowRow } from "../../../src/lib/contracts";
 import type { Database } from "../../../src/lib/db/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { formatWorkflowIssue, loadWorkflows, readTakedownHashes } from "../../workflows/load";
+import { SEED_AUTHOR_NAME, formatWorkflowIssue, loadWorkflows, readTakedownHashes } from "../../workflows/load";
 import type { ParsedWorkflow } from "../../workflows/parse";
 import { createGitMeta, type GitMetaProvider } from "./git-meta";
 import type { SeedIssue } from "./issues";
@@ -120,13 +120,17 @@ export async function seedWorkflows(store: WorkflowStore, opts: WorkflowSeedOpti
 
   // ---- upsert by slug
   const git = opts.meta ? { meta: opts.meta, warnings: [] as string[] } : createGitMeta(workflowsDir);
+  const resolveMeta = (w: { slug: string; file: string }) => {
+    const m = git.meta(path.basename(w.file));
+    return loaded.seedAuthorSlugs.has(w.slug) ? { ...m, author_name: SEED_AUTHOR_NAME } : m;
+  };
   for (const w of loaded.workflows) {
     if (takedown.hashes.has(w.content_hash)) {
       result.warnings.push(`${w.file}: matches a takedown hash in _takedowns.txt; not seeded`);
       continue;
     }
     const level = w.related_lesson_slug ? (loaded.levelBySlug.get(w.related_lesson_slug) ?? null) : null;
-    const payload = toPayload(w, level, git.meta(path.basename(w.file)));
+    const payload = toPayload(w, level, resolveMeta(w));
     const row = bySlug.get(w.slug);
     if (!row) {
       await store.insert(payload, nowIso);

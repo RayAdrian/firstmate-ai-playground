@@ -1,0 +1,13 @@
+# Workflows credited to "First Mate" instead of their commit author (PRD §16.8): the agent-drafted seed workflows.
+# One slug per line; "#" comments and blank lines are ignored. An unknown slug fails workflows:validate and the seed.
+# This file is code-lane (not in the content-lane allowlist), so changing attribution needs the three gates.
+db-reset-caveat-in-agents-md
+headless-untrusted-input
+node-version-agnostic-assertions
+opus-plan-sonnet-build
+parallel-worktree-team-path-ownership
+patch-id-rebase-reattest
+per-sha-gate-statuses
+prd-first-pm-agent
+shared-db-lock-parallel-worktrees
+uiux-gate-rubric
