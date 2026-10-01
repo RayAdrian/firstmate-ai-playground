@@ -9,6 +9,8 @@
 
 **Fixed decisions (do not reopen):** engineers-only audience; guided curriculum with hands-on exercises; the app makes no LLM calls for learners; 5 levels and 18 lessons; Claude Code and Codex CLI side by side in tabs; exercises live in `/exercises`; no auth; progress in localStorage; Next.js App Router + TypeScript + Tailwind + **local** Supabase; hybrid news pipeline (RSS, then `claude -p` scoring, then Supabase), run daily by launchd at ~08:00 Asia/Manila; firstmate.tech brand; three-gate merge process.
 
+> **Amended 2026-10-01 by §18:** the app is deployed to Vercel with a hosted Supabase project (local Supabase remains the development and test database). "No auth" and "progress in localStorage" stand. See §18.11.
+
 ---
 
 ## 1. Problem and goals
@@ -1367,3 +1369,276 @@ Same rules as §11: one worktree per branch, edit only owned paths, rebase on `m
 |---|---|---|---|
 | Q-DG1 | Where does the workflow `watch` line sit: at the top of "Why it works", or in the "At a glance" rail? | G1's workflow half only | D-G decides. This section assumes "Why it works". |
 | Q-DG2 | Who sends the DG-M3 survey question? | DG-M3 reporting only | Same answer as §14 Q4 and Q-MD2; send it with the §15.7 survey. |
+
+---
+
+## 18. Community reactions (no sign-in)
+
+| | |
+|---|---|
+| Status | v1.0 addendum (2026-10-01). Gates the workflow Star and Reactions build, and lists what hosting needs. Nothing in it is built yet. |
+| Owner | Stakeholder (decisions); PM agent (this section) |
+| Relationship to §1–§17 | Additive, except for the reversals listed in §18.11. §17 (diagrams) is separate; the two share only migration order and W2's workflow components (§18.9). |
+
+**Fixed decisions (stakeholder, 2026-10-01; do not reopen):**
+1. **No sign-in** ("No sign in. Reacts can just ask for the user's name (optional). Nothing confidential anyways."). The v1 fixed decisions **"no auth" and "progress in localStorage" stand**. An earlier draft of this section (Google OAuth, a mock sign-in, server-side progress) was withdrawn before review finished and none of it applies.
+2. Workflows get a **Star** (one per browser per workflow, with a count) and **Reactions** from a fixed set of four: 🙌 Worked for me, 💡 Learned something, ⏱️ Saved me time, 🔥 Game-changer.
+3. **Identity is a random browser id.** A UUID v4 `clientId` is generated once and kept in localStorage. There are no accounts and no profiles.
+4. **A display name is optional.** It is asked for once, can be skipped, and is shown only as plain text.
+5. **The app is being deployed now** to Vercel with a **hosted** Supabase project. Once deployed, stars and reactions are shared by everyone who uses that deployment. Local development stays on local Supabase.
+
+### 18.1 Problem, goal, non-goals
+
+**Problem.** A workflow reader cannot tell which setups colleagues actually ran, and an author never hears that theirs helped. "Worked for me" was deferred to phase 2 because it needs a server write (§16 decision 7).
+
+**Goal (G6, new).** In one glance at a workflow, a reader sees how many colleagues starred it and what it did for them ("Worked for me", and so on), at a cost to the reader of one click and no sign-up.
+
+**Non-goals.** Sign-in, accounts, profiles or avatars; verified or unique-per-person counts; comments; leaderboards, points or ranking people; notifications; syncing progress to a server; reactions on lessons or news.
+
+**Counts are best-effort and spoofable, and that is accepted.** Anyone who clears their browser data, opens a private window or calls the route with made-up ids becomes a "new person". Names are self-declared. The content is internal and not confidential, so a padded count has low impact, and the abuse controls (CM-9) bound how fast it can happen. The UI never presents counts as verified.
+
+### 18.2 Target users
+
+| Role | Needs |
+|---|---|
+| **Reader** (any engineer, §3) | Which workflows others ran successfully; a one-click way to say "this worked for me". |
+| **Author** (§16) | To see that a workflow helped someone, by name when they gave one. |
+| **Steward** (§16.10) | "Worked for me" as a freshness signal next to "Report outdated" (WF-37). |
+
+### 18.3 Identity without accounts: the P-1 contract change
+
+This is an **additive change to the frozen P-1 contract**, so it ships in the M0-owned R0 PR (§18.9).
+
+- **Shape:** P-1 goes to `version: 2` and gains one object: `community: { clientId: string (UUID v4), displayName: string | null, namePrompted: boolean }`. Every v1 field and the key string `fm-playground:v1` are unchanged (the key name is not the version, as §16.8 already decided).
+- **Migration:** P-4's chain gains a real v1→v2 step that adds `community` with a new `crypto.randomUUID()`, `displayName: null` and `namePrompted: false`. A fixture v1 doc migrates to v2 with a valid UUID v4 and every other field identical (unit test). An empty doc (first visit) is created directly as v2.
+- **P-2 (corrupted state):** the reset creates a new `clientId`. Stars and reactions made with the old id stay in the counts but are no longer shown as "mine". This is accepted.
+- **P-3 (storage unavailable):** a `clientId` is generated for the session only, so toggles work until the tab closes. The existing banner text stays true.
+- **P-5 (hydration):** the `clientId` and the user's own pressed states are client-only; nothing derived from them is in server HTML. Counts and names are not progress and are server-rendered (CM-6).
+- **P-6 (export/import):** `community` is included. Importing a file replaces it as P-6 replaces everything, which is also how someone carries their identity to another browser.
+- **P-7 (reset):** resets progress only and **keeps** `community`. The confirmation adds "Your stars, reactions and name are kept."
+- **Supersedes §16.8's plan.** §16.8 reserved a future v2 with `bookmarks.workflows`. Stars take that role (CM-10), so that shape is never built and v2 means the shape above.
+- The `clientId` is never shown in the UI, never logged by the app, and never returned by any read (CM-7).
+
+### 18.4 The write path (decision: SECURITY DEFINER functions, no table grants)
+
+**Decision.** Stars and reactions are written only through a few Postgres functions declared `SECURITY DEFINER`, called from a Next.js route handler with the existing anon client. The base tables have RLS enabled and **no grants at all** to `anon` or `authenticated`: no select, insert, update or delete.
+
+**Why this is the safer option than anon RLS policies.**
+- The only thing that stops one browser deleting another's reaction is that the other `clientId` is unknown. A delete policy for anon would need a select policy too (Postgres only deletes rows the caller can see), which would publish every `clientId` and so let anyone delete anyone's reactions. With functions, `clientId`s are write-only: no read returns them.
+- RLS has no caller identity to check here (no auth), so policies could not express "your own row" anyway. They would reduce to "any row whose id you name", which is what the functions do, but with validation in one place.
+- The functions validate everything in the database (slug, archived state, reaction key, name rules, rate limit), so calling the RPCs directly with the anon key gains nothing over the UI. The anon key is a publishable key; this design does not depend on hiding it.
+- No service-role key is needed by the app, so Vercel never holds one (DP-3).
+
+**Functions (prose; R0 writes the SQL).** Each is `SECURITY DEFINER`, owned by `postgres`, declares `set search_path = ''`, and has `EXECUTE` revoked from `PUBLIC` and granted only to `anon`, `authenticated` and `service_role`.
+
+| Function | Does |
+|---|---|
+| `community_set_star(slug, client_id, on)` | Inserts or deletes the star for (workflow, client_id). Desired-state, so idempotent. |
+| `community_set_reaction(slug, client_id, reaction, on, display_name)` | Same for one reaction. On insert it stores the sanitised name. |
+| `community_set_name(client_id, display_name)` | Updates the name on every reaction row of that `client_id` (renaming or removing it everywhere). |
+| `community_summary(slugs[])` | For up to 100 slugs: star count, count per reaction, and the 2 most recent non-null names per reaction. Never returns `client_id`. |
+| `community_mine(client_id, slugs[])` | For up to 100 slugs: whether this `client_id` starred each one and which reactions it chose. Booleans only. |
+| `community_my_stars(client_id)` | Slugs this `client_id` starred, newest first (CM-10). |
+
+**Every write function:**
+- Resolves the slug to a workflow row that exists, has `removed_at is null` and is **not Archived** (verified at most 180 days before today's Asia/Manila date, matching WF-40). Otherwise it raises `workflow_unavailable`.
+- Rejects a `client_id` that is not a UUID, and a reaction outside the four keys (also a check constraint).
+- Applies the name rules (CM-4) and rejects a name that still breaks them (also a check constraint).
+- Takes one token from the `client_id`'s bucket (CM-9) or raises `rate_limited`.
+
+### 18.5 User stories and acceptance criteria
+
+Priorities as in §5. Every P0 AC maps to a test.
+
+**Reaction set (decision).**
+
+| Key | Emoji | Label |
+|---|---|---|
+| `worked` | 🙌 | Worked for me |
+| `learned` | 💡 | Learned something |
+| `saved_time` | ⏱️ | Saved me time |
+| `game_changer` | 🔥 | Game-changer |
+
+The emoji is always `aria-hidden` and never stands alone: the label is always visible text.
+
+**CM-1 (P0)** As an engineer, I want to star a workflow, so that I can signal it's good and find it again.
+- A Star toggle sits on every workflow card (`/workflows`) and on the workflow page. It is a `button` with `aria-pressed`. On cards its accessible name includes the title ("Star <title>"); the count is visible inside the button and part of its accessible name.
+- One star per (workflow, `clientId`), enforced by the table's primary key. Starring twice is a no-op.
+
+**CM-2 (P0)** As an engineer, I want to react to a workflow, so that others know what it did for me.
+- The workflow page shows a reaction bar under the meta line: four toggle buttons (`aria-pressed`, emoji plus label plus count, for example "🙌 Worked for me 4"). Any subset can be on; each is one row per (workflow, `clientId`, reaction), enforced by the primary key.
+- Cards show reaction counts **read-only**, as a compact row (for example "🙌 4 · 🔥 2", with the accessible text "4 worked for me, 2 game-changer"). Zero counts are omitted, and so is the row when all are zero. Reacting happens on the page, after reading; the Star is the only toggle on cards (Q-RX2).
+
+**CM-3 (P0)** As a reader, I want to see who reacted.
+- Each reaction on the page has a line, as the button's description and as visible text under the bar, built by one pure function, `formatReactors(names, total)`, from `community_summary`:
+  - 2+ names and others: "Rafael, Ana and 3 others"; exactly 1 other: "Rafael, Ana and 1 other".
+  - Names only: "Rafael", "Rafael and Ana".
+  - Anonymous only: "1 person", "4 people".
+  - Anonymous reactions are counted in "others"; names beyond the 2 most recent are counted in "others" too.
+- Unit tests cover each case and the totals 0, 1, 2 and 3.
+
+**CM-4 (P0)** As an engineer, I want to add my name if I choose, and skip it if I don't.
+- The first time a browser with `namePrompted: false` stars or reacts, the action happens at once (it is not blocked) and an inline prompt appears next to the control: "Add your name? Optional", a text input (`maxlength=40`, label "Your name"), "Save" and "Skip". This is not a modal.
+- "Save" stores the name in `community.displayName` and calls `community_set_name`. "Skip" stores `null`. Both set `namePrompted: true`, so the prompt never returns in that browser.
+- A "Your name" control on the workflow page shows "Reacting as Rafael · Edit" or "Reacting anonymously · Add name". Editing updates localStorage and every reaction row of this `clientId`; clearing the field makes them anonymous.
+- **Name rules**, applied by one shared function in the app and again in the database: strip C0 and C1 control characters and the bidi override and isolate characters (U+202A–U+202E, U+2066–U+2069); collapse runs of whitespace; trim; at most 40 characters; empty becomes `null`.
+- **Plain text only.** Names render as React text nodes, never through `dangerouslySetInnerHTML` or the markdown renderer. A test saves the name `<img src=x onerror=alert(1)>` and asserts it appears as literal text, no `img` element exists, and no dialog fires.
+- Stars carry no name. Names appear only on reactions.
+
+**CM-5 (P0)** Toggles feel instant and never lie.
+- Every Star and reaction toggle updates the UI at once (optimistic), then calls the route with the **desired state** (`on: true` or `on: false`), never "toggle", so retries and double submits are idempotent.
+- If the call fails (test: the route request is aborted with `page.route`) or returns `rate_limited` or `workflow_unavailable`, the control and its count roll back within 2s and an `aria-live=polite` region says "Couldn't save your star. Try again." (or "…your reaction…"). For `rate_limited` it says "Too many changes. Wait a minute and try again."
+- Five rapid clicks end in the state of the last click, both on the server and after a reload.
+
+**CM-6 (P0)** Counts are correct on first paint; my state follows.
+- Counts and reactor lines are server-rendered from `community_summary`, so there is no flash of a wrong count.
+- After hydration, the page calls the route with the `clientId` and visible slugs to get `community_mine`, then sets the pressed states. Until then the toggles render unpressed with no layout shift.
+- Two browser contexts (two `clientId`s) that both star a workflow show a count of 2 in a third context.
+
+**CM-7 (P0)** Nobody can change another browser's stars or reactions, or see its id.
+- Database tests (Vitest against the local stack, `tests/unit/r0/`):
+  - `anon` cannot select, insert, update or delete `workflow_stars`, `workflow_reactions` or the rate-limit table directly.
+  - **A reaction made with client A survives `community_set_reaction(…, on = false)` called with client B**, and A's count is unchanged. The same holds for stars.
+  - No function's result contains a `client_id` (asserted over every column of every read function's output).
+  - An unknown slug, a removed workflow and a workflow aged 181 days are rejected with `workflow_unavailable`; one aged 180 days is accepted.
+  - A reaction key outside the four, a non-UUID `client_id`, and a 41-character name are rejected.
+  - No new function is executable by `PUBLIC`, and each has a fixed `search_path` (catalogue query).
+- A takedown hard-delete (WF-43) cascades to that workflow's stars and reactions.
+
+**CM-8 (P0)** The route is narrow.
+- One route handler, `POST /api/community`, accepts a JSON body of at most **2 KB** (larger → 413 before parsing), validated by a strict zod schema (unknown keys rejected → 400): `{ op: "star" | "react" | "name" | "mine" | "myStars", clientId, slug?, slugs? (≤ 100), reaction?, on?, displayName? }`. It calls exactly one function per request and returns only that function's result or an error code.
+- It accepts only `Content-Type: application/json` and a same-origin `Origin` header (others → 403), so a cross-site form cannot post to it.
+- No response or error body echoes the input name or slug as HTML. All responses are JSON.
+
+**CM-9 (P0)** Basic abuse controls, sized for an internal tool.
+- **Per `clientId`, in the database** (works across Vercel instances): a token bucket of 30 writes, refilling 1 token every 2 seconds. The 31st write within one burst raises `rate_limited` (test). Reads (`summary`, `mine`, `myStars`) are not limited.
+- **Per IP, in the route:** at most 120 requests per minute per client IP (taken from Vercel's forwarded-for header), held in memory. On Vercel this is best-effort per instance, which is acceptable here.
+- These controls slow abuse; they do not prevent fake counts (§18.1). If spam ever needs cleaning up, the owner deletes rows by `created_at` range with the service role from a local script (runbook note in R0's PR). No moderation UI is built.
+
+**CM-10 (P1)** Stars replace workflow bookmarks.
+- `/bookmarks` gains "Starred workflows" from `community_my_stars`, newest first. A starred workflow that was removed shows "Workflow no longer available" (the N-5 pattern).
+- `/workflows?starred=1` shows only my starred workflows, as a "Starred" filter chip.
+
+**CM-11 (P1)** Archived workflows show their counts read-only. On an Archived workflow (WF-38) the Star and reactions are rendered disabled, with the note "Reactions are closed on archived workflows."
+
+### 18.6 Data model
+
+One R0 migration, `supabase/migrations/<ts>_community.sql`, with `<ts>` assigned **at rebase onto G0** so it sorts after `20261002000000_workflow_diagrams.sql` (§18.9).
+
+```
+workflow_stars       workflow_id uuid → workflows(id) on delete cascade,
+                     client_id uuid not null,
+                     created_at timestamptz default now(),
+                     pk (workflow_id, client_id)
+workflow_reactions   workflow_id uuid → workflows(id) on delete cascade,
+                     client_id uuid not null,
+                     reaction text check in ('worked', 'learned', 'saved_time', 'game_changer'),
+                     display_name text null
+                       check (char_length(display_name) between 1 and 40 and no control characters),
+                     created_at timestamptz default now(),
+                     pk (workflow_id, client_id, reaction)
+community_rate       client_id uuid pk, tokens numeric not null, refilled_at timestamptz not null
+```
+
+- Indexes: `workflow_stars(client_id, created_at desc)` (my stars); `workflow_reactions(workflow_id, reaction, created_at desc)` (summary and recent names); `workflow_reactions(client_id)` (renames).
+- RLS is **enabled** on all three tables with **no policies** and no grants to `anon` or `authenticated`. `service_role` keeps all (fixtures, cleanup).
+- `community_rate` rows older than 1 day are deleted by the write function when it touches the table, so it does not grow without bound.
+- Fixtures (`db:reset:test`): stars from 3 client ids on one fixture workflow; reactions with names, without names, and 25 anonymous ones on another (the "and N others" case); nothing on the rest.
+
+### 18.7 Routes and UX inventory
+
+| Surface | Where | P |
+|---|---|---|
+| Star toggle with count | Workflow cards and the workflow page (CM-1) | P0 |
+| Read-only reaction counts | Workflow cards (CM-2) | P0 |
+| Reaction bar and reactor lines | Workflow page (CM-2, CM-3) | P0 |
+| "Add your name? Optional" prompt | Inline, after the first star or reaction (CM-4) | P0 |
+| "Your name" control | Workflow page (CM-4) | P0 |
+| `POST /api/community` | Route handler (CM-8) | P0 |
+| "Starred workflows" and `?starred=1` | `/bookmarks`, `/workflows` (CM-10) | P1 |
+
+**States:** zero counts show "☆ 0" on the page and nothing extra on cards. While `mine` loads, toggles render unpressed. A failed write rolls back with the CM-5 message. If the database is down, the existing app-wide state (§9) applies, because the workflow pages already read the database. If only the community route fails, the workflow still renders with counts hidden and no error page.
+
+### 18.8 Deployment prerequisites (hosted Supabase and Vercel)
+
+The stakeholder is deploying now. This is the checklist; DP-5 and DP-6 are code requirements, owned by R0.
+
+**DP-1 Hosted Supabase project.** Create the project, then `supabase link --project-ref <ref>` and `supabase db push` to apply every migration on `main`, in order (G0's before R0's). Each later migration is pushed after its PR merges. `db push` is a manual owner step, never run by CI.
+
+**DP-2 Seed the hosted database.** Run `npm run seed` (content and workflows) and `npm run news:import` (to backfill the digest) with the hosted env profile (DP-5). Re-run `npm run seed` after content changes. That includes **every workflow takedown**: §16.10.4 step 4 now also means re-seeding the hosted database, so the hard delete (WF-43) reaches it.
+
+**DP-3 Vercel environment variables.** `SUPABASE_URL` and `SUPABASE_ANON_KEY` (Production and Preview). **The service-role key is not set on Vercel at all**, because nothing in the app uses it (§18.4). It never gets a `NEXT_PUBLIC_` prefix anywhere, and the existing ESLint rule (no `src/lib/db/service.ts` import from `src/`) stays. `FM_TEST_MODE`, `FM_E2E_PROBES` and any test flag are **never** set on Vercel; `/test-now` must 404 in production (the existing guard).
+
+**DP-4 The news job writes to the hosted database.** The launchd job (I-5) runs with the hosted env profile, so the daily digest lands where the team reads it. The `claude -p` scorer still runs on the stakeholder's Mac. Once hosted, the `news-snapshots` branch and `news:import` (§14 Q1) are only needed for local development databases.
+
+**DP-5 Separate env profiles (code, R0).** Scripts already let variables in the environment win over `.env.local` (`scripts/seed/lib/env.ts`). R0 adds `FM_ENV_FILE`: when set, scripts load that file instead of `.env.local`. The hosted profile is `.env.hosted.local` (already gitignored by `.env*.local`), and holds the hosted URL, anon key and service-role key for **scripts only**. `.env.local` stays pointed at local Supabase, so `npm run dev`, tests and agents never touch the hosted database. Scripts print the target host on start ("seed → <host>").
+
+**DP-6 Destructive commands refuse the hosted database (code, R0).** `npm run db:reset:test` and the E2E fixture loaders exit 1 with a message when `SUPABASE_URL`'s host is not `127.0.0.1` or `localhost` (unit test).
+
+### 18.9 Workstreams and path ownership
+
+Same rules as §11: one worktree per branch, edit only owned paths, rebase on `main` before gates. Tests go in `tests/unit/<ws>/` and `tests/e2e/<ws>/`, with `<ws>` one of `r0 r1`.
+
+| WS | Scope | Owns (paths) | Depends on |
+|---|---|---|---|
+| **R0 (M0-owned, serial)** | The migration (§18.6 tables, the §18.4 functions, grants, the rate-limit table); the P-1 v2 contract (`community` object, the v1→v2 migration step and its fixture); the shared contracts (`REACTIONS`, the name-rule function, the `/api/community` request/response zod schemas, `formatReactors` if R1 prefers it shared); row types; the DB tests (CM-7, CM-9's bucket); DP-5 and DP-6; the `AGENTS.md` edit (test ownership `r0 r1`, the hosted env profile, "never point `.env.local` at hosted") | `supabase/migrations/<ts>_community.sql`, `src/lib/contracts/progress.ts`, `src/lib/contracts/community.ts` (new), `src/lib/contracts/rows.ts`, `src/lib/contracts/index.ts`, `scripts/lib/env-profile.ts` (new), `AGENTS.md`, `.env.example`, `tests/unit/r0/`. **Granted edits:** `src/lib/progress/migrate.ts` (the v1→v2 step only; WS-D is a required reader), `scripts/seed/lib/env.ts` (the `FM_ENV_FILE` hook only), the DP-6 guard line in `scripts/seed/reset-test.ts` (W1 is a required reader) | **G0 (PR #40) merged first** (see below) |
+| **D-R: DESIGN addendum** (docs PR; the UI/UX agent is the design owner) | DESIGN.md: the Star toggle, the reaction bar, the read-only card row, the reactor line, the inline name prompt, the "Your name" control, card and page placement next to D-G's diagram placements, and §11 selector entries for every accessible name in §18.5 | `docs/design/DESIGN.md` (new §4 component entries, §6.11/§6.12 additions, §11 additions only) | Nothing. Merges before R1's UI gate. |
+| **R1: reactions UI and the route** | CM-1 to CM-6, CM-8, the IP limit in CM-9, CM-10, CM-11 | `src/app/api/community/` (new), `src/components/community/` (new), `src/lib/community/` (new: queries, client store for pressed state, the route client), `tests/e2e/r1/`, `tests/unit/r1/`. **Granted single mounts:** the card and page components under `src/components/workflows/` (W2 is a required reader); one section in `src/app/bookmarks/page.tsx` (CM-10; WS-D is a required reader) | R0 and D-R merged, and **W2 (`/workflows` UI, PR #32) merged**, because R1 mounts into its components |
+
+**Sequencing (resolves review finding B2 on this PR).**
+- **G0 (PR #40) merges first, then R0.** Both are M0-owned and both edit `src/lib/contracts/rows.ts`, `src/lib/contracts/index.ts` and the `AGENTS.md` test-ownership list, and both add a migration that touches `workflows`. R0 rebases onto G0 and assigns its migration timestamp **at rebase**, after `20261002000000`, so no database (local or hosted) ever sees the migrations out of order. On the hosted project, push G0's migration before R0's (DP-1).
+- **R1 and G1 both mount into W2's workflow card and page components.** Whichever merges second rebases and keeps both mounts. On the page, R1's reaction bar sits under the meta line and G1's diagram sits in "Why it works", so they never share an insertion point.
+- Order: G0 → R0 (with D-R drafting alongside) → R1 (after W2). R0 is the only PR here that touches frozen paths.
+
+### 18.10 Success metrics
+
+Measured outside the app with SQL on the hosted database (the app adds no event tracking). Counts are best-effort (§18.1), so these are directional.
+
+| # | Metric | Target | Source / cadence |
+|---|---|---|---|
+| CM-M1 | Reader signal coverage | ≥ 50% of non-archived workflows have at least one "Worked for me" within 60 days of the hosted launch | SQL over `workflow_reactions`. Monthly. |
+| CM-M2 | Participation | Distinct `client_id`s with at least one star or reaction ≥ 40% of engineer headcount within 60 days. This overcounts people (one person, several browsers). | SQL; headcount from §14 Q4. Monthly. |
+| CM-M3 | Name opt-in | Share of reacting `client_id`s with a name. No target; it shows whether the prompt works. | SQL. Monthly. |
+| CM-M4 | Guardrail | 0 spam clean-ups needed, and 0 rendering incidents from names | The owner's incident log. |
+
+**Definition of done:** every P0 CM acceptance criterion passes as an automated test; DP-5 and DP-6 are tested; G0, R0 and R1 are merged in that order through all three gates; R0's migration is pushed to the hosted project; and one reaction made on the Vercel deployment from one browser shows in another browser.
+
+### 18.11 Amendments to earlier sections
+
+| Section | Was | Now |
+|---|---|---|
+| PRD header, fixed decisions | "no auth"; "progress in localStorage" | **Both stand.** No sign-in; progress stays in localStorage. |
+| PRD header, fixed decisions | "**local** Supabase" | **Changed:** local Supabase for development and tests; a hosted Supabase project behind the Vercel deployment (§18.8). |
+| §4 out of scope | "Production or hosted deployment" | **Reversed** (stakeholder, 2026-10-01): Vercel plus hosted Supabase. |
+| §4 out of scope | "Telemetry or analytics" | **Stands.** The `clientId` is a random pseudonymous id stored only with stars and reactions; no events, page views or analytics. |
+| §4 out of scope | "Auth, user accounts, server-side progress" | **Stands.** |
+| §6 | "The anon key is read-only through RLS … The browser never writes to the DB." | The anon role may also **execute** the six community functions (§18.4), which write only stars, reactions and the rate-limit table. It still has no write grant on any table, and the browser still never talks to Supabase directly (writes go through `POST /api/community`). |
+| P-1 | Frozen v1 shape | v2 adds `community` (§18.3). Same key string. |
+| P-4 | The v1→v2 migration fixture is a no-op | The step is real (§18.3). |
+| P-6, P-7 | Export/import all state; reset all state | `community` is exported and imported; reset keeps it (§18.3). |
+| §13 | "Local-only Supabase means the news DB exists only on the stakeholder's Mac" | Resolved by hosting (DP-4). |
+| §14 Q1 | Snapshots branch plus `news:import` | Still used to seed local development databases; the hosted database gets the digest directly (DP-4). |
+| §16, fixed decision 7 | "Worked for me" waits for phase 2 | **Reversed:** it ships now as a reaction. "Report outdated" stays a GitHub issue link (WF-37). |
+| §16.5, phase 2 | Hosted deployment; SSO; server-side progress; "Worked for me" | Hosting and "Worked for me" are **pulled forward**. SSO and server-side progress **stay out**. |
+| §16.8 | Planned v2 with `bookmarks.workflows` | **Superseded** by stars (CM-10). |
+| §16.10.4, step 4 | Engineers re-seed locally | Also re-seed the hosted database (DP-2). |
+| §16.13, Won't | "Worked for me", ratings, hosting | "Worked for me" and hosting ship. Ratings, comments and leaderboards stay Won't. |
+
+### 18.12 Risks
+
+| # | Risk | Impact | Mitigation |
+|---|---|---|---|
+| R-RX1 | **The Vercel URL is public and has no sign-in.** Anyone who finds it can read the curriculum, the digest and the workflows, and add reactions. | Workflows were reviewed as "client-safe" for an internal audience (§16.10); a leak that slips review is now on the open web, not just in a private repo. | The stakeholder judged the content non-confidential. Recommended anyway: turn on Vercel Deployment Protection if the plan allows it, and send `X-Robots-Tag: noindex` on every page (Q-RX1). DP-2 makes takedowns reach the hosted database. |
+| R-RX2 | Counts are padded (new `clientId`s, scripted calls). | Misleading signal. | Accepted (§18.1). CM-9 bounds the rate; spam cleanup is one SQL statement. |
+| R-RX3 | A name is offensive or impersonates a colleague. | Social harm on an internal tool. | Names are optional, plain text and short; the owner deletes rows by `client_id` with the service role. No moderation UI. |
+| R-RX4 | Clearing browser data orphans someone's stars ("Your stars" empties). | Mild confusion. | P-6 export/import carries the `clientId`; the "Your name" control's help text says "Saved in this browser." |
+| R-RX5 | Local tooling is accidentally pointed at the hosted database. | `db:reset:test` wipes production data. | DP-5 (separate profile, target host printed), DP-6 (refusal), and `AGENTS.md`. |
+| R-RX6 | Migration order differs between local and hosted. | A broken hosted schema. | Timestamps assigned at rebase; G0 then R0; `db push` after each merge (DP-1). |
+
+### 18.13 Open questions
+
+| # | Question | Blocks | Recommended default |
+|---|---|---|---|
+| Q-RX1 | Turn on Vercel Deployment Protection (or another gate in front of the deployment) and `noindex`? | Nothing in the build | Yes to `noindex` (cheap, add it in R1). Protection depends on the Vercel plan; the stakeholder decides. |
+| Q-RX2 | Reactions read-only on cards, toggled only on the workflow page (the Star toggles on both)? | R1 layout, D-R | As proposed: reacting should follow reading. |
+| Q-RX3 | Should "Worked for me" counts feed the `content:stale` workflow group (WF-41)? | Nothing | Later (P2): it needs a hosted read from a local script. |
