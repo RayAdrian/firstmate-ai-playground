@@ -732,7 +732,7 @@ First reaction in this browser (inline, not a modal):
   - With a name: "Reacting as **Rafael** · Edit name". The name is in `text-fg font-medium` inside `<bdi>`, truncated at `18ch` like the reactor names.
   - Without one: "Reacting anonymously · Add name".
   - The action is a `button` styled as the §4.1 `link` variant (`min-h-6`, `touch:min-h-11`).
-  - **Wording: "Edit name" (with a name) and "Add name" (without).** PRD §18 CM-4 (PR #39, not yet on `main`) currently says "Reacting as Rafael · Edit". **R1 builds "Edit name"**, and the PRD line should be amended to match when #39 is next edited. A bare "Edit" next to a name is ambiguous for screen-reader users who reach the button by Tab alone.
+  - **Wording: "Edit name" (with a name) and "Add name" (without).** PRD §18 CM-4 is amended in this PR to match (it said "Edit"). A bare "Edit" next to a name is ambiguous for screen-reader users who reach the button by Tab alone.
 - **Editing** swaps the line for the prompt form without the thank-you line: legend "Your name", the same input prefilled, "Save", "Cancel", and the helper "Saved in this browser. Clear it to react anonymously."
   - On open, focus goes to the input with its text selected.
   - On Save or Cancel, focus returns to the "Edit name" / "Add name" button.
