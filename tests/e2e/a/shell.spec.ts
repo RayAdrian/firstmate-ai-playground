@@ -96,7 +96,7 @@ test.describe("mobile menu (< 768px) (TC-A-28, TC-A-29)", () => {
     await expect(button).toHaveAttribute("aria-expanded", "true");
     const nav = page.getByRole("navigation", { name: "Main" });
     await expect(nav).toHaveCount(1);
-    await expect(nav.getByRole("link")).toHaveCount(5);
+    await expect(nav.getByRole("link")).toHaveText(["Curriculum", "Exercises", "Workflows", "News", "Bookmarks", "Progress"]);
     await expect(nav.getByRole("link", { name: "Curriculum" })).toBeFocused();
     await expect(nav.getByRole("link", { name: "Curriculum" })).toHaveAttribute("aria-current", "page");
 
