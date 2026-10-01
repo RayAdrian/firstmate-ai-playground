@@ -396,9 +396,10 @@ test.describe("WF-33..WF-37 workflow page", () => {
 });
 
 test.describe("WF-39 nav", () => {
-  test("Workflows sits between Exercises and News, active on /workflows and /workflows/*, six links fit at 768", async ({ page }) => {
-    await page.setViewportSize({ width: 768, height: 900 });
+  test("Workflows sits between Exercises and News, active on /workflows and /workflows/*, six links fit at 1024 in a wide font", async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 900 });
     await page.goto(INDEX);
+    await page.addStyleTag({ content: 'header nav { font-family: "DejaVu Sans", Verdana, sans-serif !important; }' });
     const nav = page.getByRole("navigation", { name: "Main" });
     await expect(nav.getByRole("link")).toHaveText(["Curriculum", "Exercises", "Workflows", "News", "Bookmarks", "Progress"]);
     await expect(nav.getByRole("link", { name: "Workflows" })).toHaveAttribute("aria-current", "page");

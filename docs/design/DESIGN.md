@@ -600,7 +600,7 @@ These live in a `GlobalNotices` slot directly under the header, inside the conta
 </body>
 ```
 
-**Header (≥ md, 768px+)**
+**Header (≥ lg, 1024px+)**
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────────┐
@@ -613,9 +613,9 @@ These live in a `GlobalNotices` slot directly under the header, inside the conta
 - Nav: `<nav aria-label="Main">` holding a `<ul>` of links `h-[60px] inline-flex items-center px-3 text-sm font-medium text-fg-muted hover:text-fg`. **Active: `text-fg-strong font-bold` plus a 2px `link` bar pinned to the header's bottom edge, plus `aria-current="page"`.**
 - Active matching: `/curriculum` is active for `/curriculum` and `/lessons/*`. `/exercises` is active for `/exercises`. `/news` is active for `/news` **and** `/news/archive`. `/bookmarks` and `/progress` match exactly. `/` activates nothing (the logo is home).
 - "Progress" sits alone on the right with a lucide `Settings2` icon plus text, because it is utility rather than content.
-- At md (768–1023px) all 5 links still fit: about 470px of links plus about 220px of brand fits in 720px. Verify at 768px; if they don't fit, drop the "AI Playground" label below lg first.
+- **The full nav starts at lg (1024px).** With six links ("Workflows" was added) the row needs about 1000px once the brand is counted, and it overflowed at 768px on Linux, where the fallback font is wider than on macOS. So between md and lg (768–1023px) the header uses the same Menu button and disclosure as below md, with the "AI Playground" label visible. Do not shave padding to fit six links at 768; a wider font will break it again. The e2e checks 1024px and 768px with a wide-font stress style.
 
-**Header (< md)**
+**Header (< lg, 360–1023px)**
 
 ```
 ┌──────────────────────────────────────┐
@@ -637,7 +637,7 @@ These live in a `GlobalNotices` slot directly under the header, inside the conta
 - The panel is a **disclosure, not a modal**: `nav#mobile-nav[aria-label="Main"]` directly under the header, `bg-surface-raised shadow-sm`, full-width links `h-12 px-4 text-base`. It pushes content down; it is not an overlay. There's no focus trap.
 - Behaviour: on open, focus moves to the first link (PR #2 expects this; there is still no focus trap). **Esc** closes and returns focus to the button. Choosing a link navigates and closes (close on `pathname` change). The panel closes if the viewport grows to md or wider.
 - **Fit at 360**: brand (h-8 logo ≈ 156px + divider + "AI Playground" ≈ 95px + gaps) plus the 44px menu button leaves about 8px in 328px. Below 375px (`max-[374px]:`), the "AI Playground" label and divider are `sr-only`, so the link keeps its full accessible name while the logo stands alone. At 375px and up the label shows.
-- Render the desktop `<nav>` and the mobile `<nav>` so that only one is exposed at a time (`hidden md:flex` / `md:hidden`). Two visible "Main" landmarks fail axe.
+- Render the desktop `<nav>` and the mobile `<nav>` so that only one is exposed at a time (`hidden lg:flex` / `lg:hidden`). Two visible "Main" landmarks fail axe.
 
 **Skip link**: `<a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 bg-canvas text-link px-4 py-2 rounded-lg">Skip to content</a>`. Activating it focuses `<main tabindex=-1>`.
 
@@ -648,7 +648,7 @@ These live in a `GlobalNotices` slot directly under the header, inside the conta
 | Breakpoint | Width | Content columns | Notes |
 |---|---|---|---|
 | base | 360–767 | 1 | `px-4`. Everything stacks. |
-| md | 768–1023 | 1 (level/news grids go to 2) | `px-6`. Desktop header. |
+| md | 768–1023 | 1 (level/news grids go to 2) | `px-6`. Menu-button header (the full nav starts at lg). |
 | lg | 1024–1279 | 12-col grid, `gap-8` | `px-8`. Lesson right rail appears. Archive filter sidebar appears. |
 | xl | ≥1280 | same, capped at 1180px | Centred. 1440 has about 130px margins. |
 
@@ -1400,7 +1400,7 @@ Each item says how to check it. **B** = Blocking, **M** = Major, **m** = Minor.
 | ID | Sev | Check | How to verify |
 |---|---|---|---|
 | D-1 | B | No horizontal page scroll at 360, 768, 1024 or 1440. Code scrolls inside its own block | `document.documentElement.scrollWidth <= innerWidth` at each width |
-| D-2 | B | Tabs remain tabs below 768px. Nav collapses to a menu button with `aria-expanded` | Screenshot at 360 |
+| D-2 | B | Tabs remain tabs below 768px. Nav collapses to a menu button below 1024px with `aria-expanded` | Screenshot at 360 |
 | D-3 | M | Information hierarchy matches the §6 order for the route (for example, lesson order L-1) | Screenshots against the wireframes |
 | D-4 | M | Long titles, URLs and paths wrap or truncate inside their card, never overflow | Fixture with an 80-character title and a long URL |
 | D-5 | m | Prose stays within the 700px measure | Screenshot at 1440 |
@@ -1478,9 +1478,9 @@ This is the authoritative list of **accessible roles and names** for every landm
 | Skip link | `link` | "Skip to content" | First focusable element; `href="#main"` |
 | Header | `banner` | (none) | One per page |
 | Home link (logo) | `link` | "First Mate AI Playground" | `img alt="First Mate"` + visible "AI Playground" text |
-| Desktop nav (≥768) | `navigation` | "Main" | Links "Curriculum", "Exercises", "Workflows", "News", "Bookmarks", "Progress"; current one has `aria-current="page"` |
-| Menu button (<768) | `button` | "Menu" | `aria-expanded` `false`/`true`, `aria-controls="mobile-nav"`; absent at ≥768 |
-| Mobile nav (<768, open) | `navigation` | "Main" | Same 6 links. Only one "Main" nav is exposed at a time |
+| Desktop nav (≥1024) | `navigation` | "Main" | Links "Curriculum", "Exercises", "Workflows", "News", "Bookmarks", "Progress"; current one has `aria-current="page"` |
+| Menu button (<1024) | `button` | "Menu" | `aria-expanded` `false`/`true`, `aria-controls="mobile-nav"`; absent at ≥1024 |
+| Mobile nav (<1024, open) | `navigation` | "Main" | Same 6 links. Only one "Main" nav is exposed at a time |
 | Main | `main` | (none) | `id="main"`, `tabindex="-1"` |
 | Footer | `contentinfo` | (none) | |
 | Live region | `status` | (none) | `id="fm-live"`; texts: "Copied", "Copy blocked. Code selected. Press ⌘C to copy." (or Ctrl+C), "Lesson marked complete", "Marked not complete", "Exercise complete", "Removed from bookmarks", "Progress exported and copied" |
