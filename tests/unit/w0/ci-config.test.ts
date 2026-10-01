@@ -11,9 +11,11 @@ describe("CI wiring for the content lane (WF-20)", () => {
   const ci = parse(read(".github/workflows/ci.yml"));
   const text = read(".github/workflows/workflows-content.yml");
 
-  it("runs on workflows PRs and on push to main, with only validate and gitleaks jobs", () => {
-    expect(content.on.pull_request.paths).toEqual(["content/workflows/**"]);
-    expect(content.on.push.branches).toEqual(["main"]);
+  // GitHub Actions is off (billing): workflows are workflow_dispatch only, original triggers kept as comments.
+  it("is workflow_dispatch only, keeps the original triggers as comments, with only validate and gitleaks jobs", () => {
+    expect(Object.keys(content.on)).toEqual(["workflow_dispatch"]);
+    expect(text).toContain("#  pull_request:\n#    paths: ['content/workflows/**']");
+    expect(text).toContain("#  push:\n#    branches: [main]");
     expect(Object.keys(content.jobs).sort()).toEqual(["gitleaks", "validate"]);
   });
 
@@ -30,10 +32,11 @@ describe("CI wiring for the content lane (WF-20)", () => {
     expect(text.toLowerCase()).not.toMatch(/denylist|client[-_ ]names?\.txt/);
   });
 
-  it("ci.yml ignores workflows-only PRs but still runs on push to main", () => {
-    expect(ci.on.pull_request["paths-ignore"]).toEqual(["content/workflows/**"]);
-    expect(ci.on.push.branches).toEqual(["main"]);
-    expect(ci.on.push["paths-ignore"]).toBeUndefined();
+  it("ci.yml is workflow_dispatch only and keeps the original triggers as comments", () => {
+    const ciText = read(".github/workflows/ci.yml");
+    expect(Object.keys(ci.on)).toEqual(["workflow_dispatch"]);
+    expect(ciText).toContain("#    paths-ignore: ['content/workflows/**']");
+    expect(ciText).toContain("#  push:\n#    branches: [main]");
   });
 
   it("ci.yml checks that the two skill copies are byte-identical (WF-14)", () => {

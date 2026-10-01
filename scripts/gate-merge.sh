@@ -4,7 +4,9 @@
 #   1. resolve the head SHA first (headRefOid);
 #   2. compute the changed files for THAT SHA (git diff --name-status --find-renames --find-copies
 #      origin/main...SHA, not the PR files API) and classify the lane with scripts/gate-lane.ts;
-#   3. require every CI check run on SHA to be completed and successful (pending means refuse);
+#   3. CI: require EITHER every GitHub check run on SHA completed and successful (pending means refuse)
+#      OR the `ci/local` commit status on SHA to be `success` (posted by scripts/ci-local.sh; GitHub
+#      Actions is off, so CI is run manually);
 #   4. re-read headRefOid and refuse if it moved;
 #   5. merge with --match-head-commit SHA.
 # Lanes:
@@ -94,24 +96,27 @@ fi
 
 FAIL=()
 
-# 4. Every CI check run on SHA (paginated): at least one, all completed and successful/skipped.
+# 4. CI: either every check run on SHA is green (rules below, unchanged), or the ci/local status on SHA
+# is `success` (scripts/ci-local.sh ran the CI steps locally on exactly this commit).
+STATUSES="$(gh api "repos/$REPO/commits/$SHA/status" --jq '.statuses[] | "\(.context)=\(.state)"')"
+CI_FAIL=()
 CHECKS="$(gh api --paginate "repos/$REPO/commits/$SHA/check-runs?per_page=100" \
   --jq '.check_runs[] | "\(.name)=\(.status)/\(.conclusion)"')"
 if [[ -z "$CHECKS" ]]; then
-  FAIL+=("no CI check runs found on ${SHA:0:7}")
+  CI_FAIL+=("no CI check runs found on ${SHA:0:7}")
 else
   while IFS= read -r line; do
     if [[ "$LANE" == content ]]; then
       # Content lane is strict: every check run must be completed/success.
       case "${line#*=}" in
         completed/success) ;;
-        *) FAIL+=("CI check ${line%%=*}: ${line#*=}") ;;
+        *) CI_FAIL+=("CI check ${line%%=*}: ${line#*=}") ;;
       esac
     else
       # Code lane: unchanged from main (lesson 5.3); neutral/skipped allowed.
       case "${line#*=}" in
         completed/success | completed/skipped | completed/neutral) ;;
-        *) FAIL+=("CI check ${line%%=*}: ${line#*=}") ;;
+        *) CI_FAIL+=("CI check ${line%%=*}: ${line#*=}") ;;
       esac
     fi
   done <<<"$CHECKS"
@@ -120,8 +125,14 @@ fi
 # Content checks are required in the content lane and whenever a code-lane PR touches content/workflows/**.
 if [[ "$LANE" == content || "$TOUCHES" == 1 ]]; then
   for req in validate gitleaks; do
-    grep -qxF "$req=completed/success" <<<"$CHECKS" || FAIL+=("required content check '$req' is missing or not successful on ${SHA:0:7}")
+    grep -qxF "$req=completed/success" <<<"$CHECKS" || CI_FAIL+=("required content check '$req' is missing or not successful on ${SHA:0:7}")
   done
+fi
+
+if grep -qxF "ci/local=success" <<<"$STATUSES"; then
+  echo "CI: ci/local=success on ${SHA:0:7} (local run)"
+elif ((${#CI_FAIL[@]} > 0)); then
+  FAIL+=("${CI_FAIL[@]}" "status ci/local is not success on ${SHA:0:7} (run: npm run ci:local -- $PR)")
 fi
 
 if [[ "$LANE" == code ]]; then
@@ -134,7 +145,6 @@ if [[ "$LANE" == code ]]; then
     grep -qxF "$label" <<<"$LABELS" || FAIL+=("missing label $label")
   done
 
-  STATUSES="$(gh api "repos/$REPO/commits/$SHA/status" --jq '.statuses[] | "\(.context)=\(.state)"')"
   for ctx in gate/browser gate/review gate/uiux; do
     grep -qxF "$ctx=success" <<<"$STATUSES" || FAIL+=("status $ctx is not success on ${SHA:0:7}")
   done

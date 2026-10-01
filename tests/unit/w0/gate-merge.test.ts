@@ -36,7 +36,12 @@ case "$args" in
   "pr merge"*) echo "$args" >>"$D/merge.log" ;;
   "api --paginate"*check-runs*) cat "$D/checks" ;;
   "api repos/o/r/compare/"*) echo "\${GH_FAKE_BEHIND:-0}" ;;
-  "api repos/o/r/commits/"*"/status"*) cat "$D/statuses" ;;
+  "api repos/o/r/commits/"*"/status"*)
+    # A line may end in @<sha>: it then applies to that commit only.
+    sha="\${args#api repos/o/r/commits/}"; sha="\${sha%%/*}"
+    while IFS= read -r l; do
+      case "$l" in *@*) if [ "\${l##*@}" = "$sha" ]; then echo "\${l%@*}"; fi ;; *) echo "$l" ;; esac
+    done <"$D/statuses"; true ;;
   *) echo "fake gh: unexpected call: $args" >&2; exit 99 ;;
 esac
 `;
@@ -334,5 +339,62 @@ describe("gate-merge.sh code lane (unchanged rules, now pinned to one SHA)", () 
     });
     expect(r.status).toBe(1);
     expect(r.err).toContain("status gate/review is not success");
+  });
+});
+
+describe("gate-merge.sh ci/local status (GitHub Actions is off)", () => {
+  const FAILED = ["checks=completed/failure", "e2e=completed/failure"];
+  const OTHER = "d".repeat(40);
+
+  it("merges a code PR when ci/local is success even though check runs failed", () => {
+    const r = run({ change: addCode, checks: FAILED, labels: LABELS, statuses: [...GATES, "ci/local=success"] });
+    expect(r.err).toBe("");
+    expect(r.status).toBe(0);
+    expect(r.merged).toContain(`--match-head-commit ${r.sha}`);
+  });
+
+  it("merges a code PR when ci/local is success and there are no check runs at all", () => {
+    const r = run({ change: addCode, checks: [], labels: LABELS, statuses: [...GATES, "ci/local=success"] });
+    expect(r.status).toBe(0);
+  });
+
+  it("merges a content PR on ci/local success without check runs", () => {
+    const r = run({ change: (w) => addWorkflow(w), checks: [], statuses: ["ci/local=success"] });
+    expect(r.err).toBe("");
+    expect(r.status).toBe(0);
+  });
+
+  it("refuses when ci/local is success on another SHA only", () => {
+    const r = run({
+      change: addCode,
+      checks: FAILED,
+      labels: LABELS,
+      statuses: [...GATES, `ci/local=success@${OTHER}`],
+    });
+    expect(r.status).toBe(1);
+    expect(r.err).toContain("status ci/local is not success");
+    expect(r.merged).toBe("");
+  });
+
+  it.each(["pending", "failure", "error"])("refuses when ci/local is %s", (state) => {
+    const r = run({ change: addCode, checks: [], labels: LABELS, statuses: [...GATES, `ci/local=${state}`] });
+    expect(r.status).toBe(1);
+    expect(r.err).toContain("status ci/local is not success");
+    expect(r.merged).toBe("");
+  });
+
+  it("refuses with no check runs and no ci/local", () => {
+    const r = run({ change: addCode, checks: [], labels: LABELS, statuses: GATES });
+    expect(r.status).toBe(1);
+    expect(r.err).toContain("no CI check runs");
+    expect(r.err).toContain("status ci/local is not success");
+  });
+
+  it("ci/local does not waive gates, labels or behind-main on the code lane", () => {
+    const r = run({ change: addCode, checks: [], statuses: ["ci/local=success"], behind: 3 });
+    expect(r.status).toBe(1);
+    expect(r.err).toContain("status gate/browser is not success");
+    expect(r.err).toContain("missing label gate:review-green");
+    expect(r.err).toContain("3 commit(s) behind main");
   });
 });
