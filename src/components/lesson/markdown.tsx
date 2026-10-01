@@ -5,6 +5,7 @@ import ReactMarkdown, { type Components, type Options } from "react-markdown";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
 import { CodeBlock } from "@/components/ui/code-block";
+import { LessonDiagram } from "@/components/diagram/lesson-diagram";
 import { INLINE_CODE_CLASS } from "./inline-text";
 
 // Lesson markdown is rendered safely (L-7):
@@ -131,6 +132,26 @@ export function shallowestHeading(source: string): number | null {
   return min;
 }
 
+/**
+ * The `pre` renderer. A fenced block whose language is `diagram` is handed to `onDiagram` when given (the diagram kit,
+ * PRD §17.5); every other fence, and a `diagram` fence with no handler, is a CodeBlock.
+ */
+function makePre(onDiagram?: (source: string) => ReactNode): Components["pre"] {
+  return function Pre({ node }) {
+    const codeEl = (node as HastNode | undefined)?.children?.find(
+      (c) => c.type === "element" && c.tagName === "code",
+    );
+    if (!codeEl) return null;
+    const classes = codeEl.properties?.className;
+    const lang = Array.isArray(classes)
+      ? String(classes.find((c) => String(c).startsWith("language-")) ?? "").replace("language-", "")
+      : "";
+    if (lang === "diagram" && onDiagram) return <>{onDiagram(textOf(codeEl))}</>;
+    const meta = typeof codeEl.properties?.dataMeta === "string" ? codeEl.properties.dataMeta : undefined;
+    return <CodeBlock code={textOf(codeEl)} language={lang || undefined} title={parseFenceTitle(meta) ?? undefined} />;
+  };
+}
+
 const components: Components = {
   p: ({ children }) => (
     <p className="my-4 max-w-[var(--fm-measure)] text-prose text-fg [overflow-wrap:anywhere]">{children}</p>
@@ -170,18 +191,7 @@ const components: Components = {
   code: ({ children, className }) => (
     <code className={className ? className : INLINE_CODE_CLASS}>{children}</code>
   ),
-  pre: ({ node }) => {
-    const codeEl = (node as HastNode | undefined)?.children?.find(
-      (c) => c.type === "element" && c.tagName === "code",
-    );
-    if (!codeEl) return null;
-    const classes = codeEl.properties?.className;
-    const lang = Array.isArray(classes)
-      ? String(classes.find((c) => String(c).startsWith("language-")) ?? "").replace("language-", "")
-      : "";
-    const meta = typeof codeEl.properties?.dataMeta === "string" ? codeEl.properties.dataMeta : undefined;
-    return <CodeBlock code={textOf(codeEl)} language={lang || undefined} title={parseFenceTitle(meta) ?? undefined} />;
-  },
+  pre: makePre(),
   a: ({ href, children }: ComponentProps<"a">) => {
     if (!href) return <span>{children}</span>;
     const cls = "text-link underline underline-offset-2 hover:text-primary-hover";
@@ -212,10 +222,22 @@ const components: Components = {
 const remarkPlugins: Options["remarkPlugins"] = [remarkGfm, remarkHtmlAsText];
 const rehypePlugins: Options["rehypePlugins"] = [rehypeFenceMeta, [rehypeSanitize, schema]];
 
-export function Markdown({ source }: { source: string }) {
+/**
+ * `diagramContext` (for logs, e.g. "lesson l1-first-session") turns on `diagram` fences. Only the Concept body passes it:
+ * a diagram anywhere else renders as the YAML code block it is, and the seed rejects it there (DG-7).
+ */
+export function Markdown({ source, diagramContext }: { source: string; diagramContext?: string }) {
   const shift = 3 - (shallowestHeading(source) ?? 3);
+  const diagramState = { count: 0, seen: new Set<string>() };
   const withHeadings: Components = {
     ...components,
+    ...(diagramContext
+      ? {
+          pre: makePre((src) => (
+            <LessonDiagram source={src} index={++diagramState.count} context={diagramContext} seenIds={diagramState.seen} />
+          )),
+        }
+      : {}),
     h1: heading(1, shift),
     h2: heading(2, shift),
     h3: heading(3, shift),

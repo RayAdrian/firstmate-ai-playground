@@ -72,8 +72,9 @@ async function main(): Promise<number> {
     console.log(`content:stale: ${staleMedia.length} of ${manifests.length} media item(s) need re-rendering:`);
     for (const m of staleMedia) console.log(`  ${m.label}: ${m.reasons.map(describeMediaReason).join("; ")}`);
   }
-  await reportWorkflowStale(db, now, latest); // PRD §16 WF-41: reports only, never affects the exit code
-  return strict && (stale.length > 0 || staleMedia.length > 0) ? 1 : 0;
+  const staleWorkflows = await reportWorkflowStale(db, now, latest); // PRD §16 WF-41: reports only, except a broken `watch`
+  const brokenWatch = staleWorkflows.some((w) => w.brokenWatch !== undefined); // PRD §17 DG-14: --strict exits 1 for it
+  return strict && (stale.length > 0 || staleMedia.length > 0 || brokenWatch) ? 1 : 0;
 }
 
 main().then(

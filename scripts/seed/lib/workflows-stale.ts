@@ -2,8 +2,10 @@
 // media workstream owns, only needs one import and one call: `await reportWorkflowStale(db, now, latest)`.
 // `--strict` still counts lessons only: workflows decay by design, so this group never changes the exit code.
 import type { SupabaseClient } from "@supabase/supabase-js";
+import path from "node:path";
 import { workflowFreshness, type WorkflowFreshness, type WorkflowTool } from "../../../src/lib/contracts";
 import type { Database } from "../../../src/lib/db/types";
+import { mediaRootOf, readMediaIds } from "../../workflows/load";
 import { isBehind, manilaDate, type ToolKey } from "./stale";
 import { workflowsClient } from "./workflows-db";
 
@@ -12,6 +14,8 @@ export interface StaleWorkflowInput {
   verified_on: string;
   tools: readonly WorkflowTool[];
   tool_versions: Partial<Record<ToolKey, string>>;
+  /** `<lesson-slug>/<media-id>` (PRD §17.3). */
+  watch?: string | null;
 }
 
 export interface StaleWorkflowFinding {
@@ -19,6 +23,8 @@ export interface StaleWorkflowFinding {
   ageDays: number;
   freshness: WorkflowFreshness;
   behind: { tool: ToolKey; workflow: string; latest: string }[];
+  /** The `watch` value, when it no longer resolves to a valid media manifest (PRD §17 DG-14). */
+  brokenWatch?: string;
 }
 
 const TOOL_KEY: Record<WorkflowTool, ToolKey> = { "claude-code": "claude_code", codex: "codex_cli" };
@@ -34,6 +40,8 @@ export function findStaleWorkflows(args: {
   workflows: readonly StaleWorkflowInput[];
   now: Date;
   latest: Partial<Record<ToolKey, string>>;
+  /** `<lesson-slug>/<media-id>` of every valid media manifest. When given, a workflow whose `watch` is not in it is flagged. */
+  validMedia?: ReadonlySet<string>;
 }): StaleWorkflowFinding[] {
   const today = manilaDate(args.now);
   const out: StaleWorkflowFinding[] = [];
@@ -47,7 +55,10 @@ export function findStaleWorkflows(args: {
       const latest = args.latest[key];
       if (have && latest && isBehind(have, latest)) behind.push({ tool: key, workflow: have, latest });
     }
-    if (freshness !== "fresh" || behind.length > 0) out.push({ slug: w.slug, ageDays, freshness, behind });
+    const brokenWatch = args.validMedia && w.watch && !args.validMedia.has(w.watch) ? w.watch : undefined;
+    if (freshness !== "fresh" || behind.length > 0 || brokenWatch !== undefined) {
+      out.push({ slug: w.slug, ageDays, freshness, behind, ...(brokenWatch === undefined ? {} : { brokenWatch }) });
+    }
   }
   return out.sort((a, b) => (a.slug < b.slug ? -1 : a.slug > b.slug ? 1 : 0));
 }
@@ -61,6 +72,7 @@ export function formatWorkflowStale(findings: readonly StaleWorkflowFinding[], c
     const parts: string[] = [];
     if (f.freshness !== "fresh") parts.push(`${FRESHNESS_LABEL[f.freshness]} (${f.ageDays} days since verified)`);
     for (const b of f.behind) parts.push(`${TOOL_NAME[b.tool]} ${b.workflow} is behind ${b.latest}`);
+    if (f.brokenWatch) parts.push(`watch "${f.brokenWatch}" no longer resolves to a valid media item`);
     lines.push(`  ${f.slug}: ${parts.join("; ")}`);
   }
   return lines;
@@ -72,17 +84,23 @@ export async function reportWorkflowStale(
   now: Date,
   latest: Partial<Record<ToolKey, string>>,
   log: (line: string) => void = console.log,
+  mediaRoot: string = mediaRootOf(path.resolve(process.cwd(), "content")),
 ): Promise<StaleWorkflowFinding[]> {
   const { data, error } = await workflowsClient(db)
     .from("workflows")
-    .select("slug, verified_on, tools, tool_versions")
+    .select("slug, verified_on, tools, tool_versions, watch")
     .is("removed_at", null)
     .order("slug");
   if (error) throw new Error(`cannot read workflows: ${error.message}`);
+  // DG-14: a `watch` must still resolve to a valid manifest on an active lesson.
+  const { data: lessons, error: lessonError } = await db.from("lessons").select("slug").is("archived_at", null);
+  if (lessonError) throw new Error(`cannot read lessons: ${lessonError.message}`);
+  const validMedia = new Set(readMediaIds(mediaRoot, new Set(lessons.map((l) => l.slug))));
   const findings = findStaleWorkflows({
-    workflows: data.map((w) => ({ slug: w.slug, verified_on: w.verified_on, tools: w.tools, tool_versions: w.tool_versions })),
+    workflows: data.map((w) => ({ slug: w.slug, verified_on: w.verified_on, tools: w.tools, tool_versions: w.tool_versions, watch: w.watch ?? null })),
     now,
     latest,
+    validMedia,
   });
   for (const line of formatWorkflowStale(findings, data.length)) log(line);
   return findings;

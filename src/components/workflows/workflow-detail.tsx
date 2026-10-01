@@ -66,7 +66,7 @@ export function WorkflowDetail({
       </Section>
 
       <StepsSection steps={workflow.steps} />
-      <WhySection why={workflow.why_md} />
+      <WhySection why={workflow.why_md} diagram={workflow.diagram ?? null} watch={workflow.watch ?? null} slug={workflow.slug} />
     </>
   );
 

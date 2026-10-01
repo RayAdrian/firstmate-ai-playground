@@ -52,7 +52,7 @@ export interface WorkflowSeedOptions {
 
 const PAYLOAD_KEYS = [
   "slug", "title", "problem", "tools", "setup", "setup_kinds", "prompt", "result_before", "result_after", "steps", "why_md",
-  "use_cases", "stacks", "related_lesson_slug", "level", "tool_versions", "verified_on", "author_name", "reviewed_on", "content_hash",
+  "use_cases", "stacks", "related_lesson_slug", "level", "tool_versions", "verified_on", "author_name", "reviewed_on", "content_hash", "diagram", "watch",
 ] as const satisfies readonly (keyof WorkflowPayload)[];
 
 /** JSON with sorted object keys, so jsonb round-trips compare equal regardless of key order. */
@@ -91,6 +91,8 @@ function toPayload(w: ParsedWorkflow, level: number | null, git: { author_name: 
     author_name: git.author_name,
     reviewed_on: git.reviewed_on,
     content_hash: w.content_hash,
+    diagram: w.diagram,
+    watch: w.watch,
   };
 }
 

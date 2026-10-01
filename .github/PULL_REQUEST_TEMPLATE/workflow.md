@@ -19,3 +19,4 @@
 - [ ] **3. Specific:** a reader could reproduce it from Setup plus Steps without asking the author
 - [ ] **4. Not a duplicate:** no existing workflow is already the same thing (if one is, suggest editing that one)
 - [ ] **5. Safe to copy:** risky flags carry a `Warning:` line, and nothing turns off permissions without saying so
+- [ ] **6. Diagram (only if this PR changes it):** If this PR adds or changes `diagram`: open the workflow at 360px and confirm the diagram matches the prose.
