@@ -5,6 +5,7 @@ import { getCurriculum } from "@/components/lesson/server/queries";
 import { parseTool } from "@/components/lesson/tool";
 import type { RelatedLesson } from "@/components/workflows/at-a-glance";
 import { WorkflowDetail } from "@/components/workflows/workflow-detail";
+import { getCommunitySummaries } from "@/lib/community/server";
 import { freshnessOf } from "@/lib/workflows/filter";
 import { getWorkflowPage } from "@/lib/workflows/queries";
 
@@ -35,13 +36,17 @@ export default async function WorkflowPage({ params, searchParams }: PageProps<"
   const data = await getWorkflowPage(slug);
   if (!data) notFound();
   const { workflow, today } = data;
-  const lesson = await findRelatedLesson(workflow.related_lesson_slug);
+  const [lesson, community] = await Promise.all([
+    findRelatedLesson(workflow.related_lesson_slug),
+    getCommunitySummaries([slug]),
+  ]);
   return (
     <WorkflowDetail
       workflow={workflow}
       freshness={freshnessOf(workflow.verified_on, today)}
       lesson={lesson}
       urlTool={parseTool(query.tool)}
+      community={community?.get(slug) ?? null}
     />
   );
 }

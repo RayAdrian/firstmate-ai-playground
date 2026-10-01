@@ -2,8 +2,10 @@ import Link from "next/link";
 import { BadgeCheck } from "lucide-react";
 import { formatVerifiedDate } from "@/components/lesson/format";
 import { EYEBROW_CLASS } from "@/components/lesson/inline-text";
+import { ReactionsBlock } from "@/components/community/reactions";
+import { StarButton } from "@/components/community/star-button";
 import { Badge, Notice } from "@/components/ui";
-import type { WorkflowFreshness, WorkflowRow } from "@/lib/contracts";
+import type { CommunitySummary, WorkflowFreshness, WorkflowRow } from "@/lib/contracts";
 import { OutdatedWorkflowBadge } from "./parts";
 
 /** "Claude Code v2.1.0, Codex CLI v0.40.0" (only the tools the workflow covers). */
@@ -43,7 +45,16 @@ function MetaLine({ workflow, freshness }: { workflow: WorkflowRow; freshness: W
   );
 }
 
-export function WorkflowHeader({ workflow, freshness }: { workflow: WorkflowRow; freshness: WorkflowFreshness }) {
+export function WorkflowHeader({
+  workflow,
+  freshness,
+  community = null,
+}: {
+  workflow: WorkflowRow;
+  freshness: WorkflowFreshness;
+  /** Stars and reaction counts (PRD 18). null when the community read failed: no Star and no reactions, no error. */
+  community?: CommunitySummary | null;
+}) {
   const since = formatVerifiedDate(workflow.verified_on) ?? workflow.verified_on;
   return (
     <header>
@@ -67,10 +78,22 @@ export function WorkflowHeader({ workflow, freshness }: { workflow: WorkflowRow;
           </p>
         </Notice>
       ) : null}
-      <p className={`mt-6 ${EYEBROW_CLASS}`}>Workflow</p>
+      <div className="mt-6 flex items-center justify-between gap-3">
+        <p className={EYEBROW_CLASS}>Workflow</p>
+        {community ? (
+          <StarButton
+            slug={workflow.slug}
+            title={workflow.title}
+            stars={community.stars}
+            variant="page"
+            closed={freshness === "archived"}
+          />
+        ) : null}
+      </div>
       <h1 className="mt-1 text-3xl font-bold text-fg-strong md:text-4xl [overflow-wrap:anywhere]">{workflow.title}</h1>
       <p className="mt-3 text-lg text-fg [overflow-wrap:anywhere]">{workflow.problem}</p>
       <MetaLine workflow={workflow} freshness={freshness} />
+      {community ? <ReactionsBlock slug={workflow.slug} summary={community} closed={freshness === "archived"} /> : null}
     </header>
   );
 }

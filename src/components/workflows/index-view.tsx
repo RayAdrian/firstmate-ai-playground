@@ -2,7 +2,7 @@ import Link from "next/link";
 import { SearchX, Workflow } from "lucide-react";
 import { FocusResultsLinks, ResultsHeading } from "@/components/news/archive-client";
 import { EmptyState, FilterChip } from "@/components/ui";
-import { REPO_URL } from "@/lib/contracts";
+import { REPO_URL, type CommunitySummary } from "@/lib/contracts";
 import { distinct, listWorkflows, type WorkflowCardData } from "@/lib/workflows/filter";
 import { facetLabel, KNOWN_STACKS, KNOWN_USE_CASES, WORKFLOW_TOOL_LABEL } from "@/lib/workflows/labels";
 import {
@@ -79,12 +79,15 @@ export function WorkflowsIndexView({
   today,
   useCases,
   stacks,
+  community = null,
 }: {
   rows: readonly WorkflowCardData[];
   params: WorkflowParams;
   today: string;
   useCases: readonly string[];
   stacks: readonly string[];
+  /** Stars and reaction counts by slug (PRD 18). null when the community read failed: cards render without them. */
+  community?: ReadonlyMap<string, CommunitySummary> | null;
 }) {
   const { items, archivedCount } = listWorkflows(rows, params, today);
   const filtered = hasAnyFilter(params);
@@ -142,7 +145,7 @@ export function WorkflowsIndexView({
           ) : (
             <ul className="mt-3 grid gap-3 md:grid-cols-2 md:gap-4">
               {items.map((w) => (
-                <WorkflowCard key={w.slug} workflow={w} />
+                <WorkflowCard key={w.slug} workflow={w} community={community?.get(w.slug) ?? null} />
               ))}
             </ul>
           )}
