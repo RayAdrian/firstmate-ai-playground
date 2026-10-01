@@ -616,15 +616,26 @@ The brand rules hold:
 **Reaction set** (fixed order everywhere): 🙌 Worked for me · 💡 Learned something · ⏱️ Saved me time · 🔥 Game-changer.
 
 ```
-/workflows card (stretched link; only the Star is interactive)        /workflows/[slug] (under the meta line)
-┌──────────────────────────────────────────┐                          ✓ Reviewed by stewards · 26 Sep 2026
-│ Title (stretched link)                   │                          Author-verified on Claude Code v2.1.0 · by Ada
-│ Problem, 2 lines                         │
-│ [Claude Code] [Hook]   [Next.js]         │                          [☆ Star 12] │ [🙌 Worked for me 4] [💡 Learned something 1]
-│ Verified 25 Sep 2026 · by Ada            │                                        [⏱️ Saved me time] [🔥 Game-changer 2]
-│ 🙌 4 · 🔥 2                     [☆ 12]   │                          🙌 Rafael, Ana and 2 others
-└──────────────────────────────────────────┘                          🔥 Lea and 1 other
-                                                                      Reacting as Rafael · Edit name
+/workflows card (stretched link; only the Star is interactive)        /workflows/[slug], md and up (Star in the eyebrow row)
+┌──────────────────────────────────────────┐                          WORKFLOW                                   [☆ Star 12]
+│ Title (stretched link)                   │                          Title                                          (h1)
+│ Problem, 2 lines                         │                          ✓ Reviewed by stewards · … · by Ada       (meta line)
+│ [Claude Code] [Hook]   [Next.js]         │                          [🙌 Worked for me 4] [💡 Learned something 1] [⏱️ Saved me time] [🔥 Game-changer 2]
+│ Verified 25 Sep 2026 · by Ada            │                          🙌 Rafael, Ana and 2 others
+│ 🙌 4 · 🔥 2                     [☆ 12]   │                          🔥 Lea and 1 other
+└──────────────────────────────────────────┘                          Reacting as Rafael · Edit name
+
+/workflows/[slug] below md (column 328): exactly 2 rows of reactions
+WORKFLOW                 [☆ 12]
+Title (h1)
+meta line…
+┌───────────────┐ ┌───────────────┐
+│ 🙌 Worked   4 │ │ 💡 Learned  1 │      ← grid-cols-2 gap-2, each pill full cell width (160px)
+├───────────────┤ ├───────────────┤
+│ ⏱️ Saved time │ │ 🔥 Game-changer 2│
+└───────────────┘ └───────────────┘
+🙌 Rafael, Ana and 2 others
+Reacting as Rafael · Edit name
 First reaction in this browser (inline, not a modal):
 ┌ bg-accent-subtle rounded-xl p-4 ─────────────────────────────┐
 │ Thanks for sharing that.                                     │
@@ -643,26 +654,31 @@ First reaction in this browser (inline, not a modal):
 - **On a card:** an icon-and-count pill, `relative z-10 inline-flex h-9 min-w-11 items-center gap-1.5 rounded-full border border-border bg-canvas px-3 text-sm font-medium text-fg-muted hover:bg-surface touch:h-11`.
   - It is the only interactive element inside the stretched-link card (§4.2). Its `relative z-10` keeps a click on it from opening the workflow.
   - **Name:** `aria-label="Star <title>, <n> stars"` ("1 star", "0 stars"). The visible count is inside the name (2.5.3).
-- **On the page:** the same pill at `h-11` with a visible word: `☆ Star 12`.
-  - **Name:** "Star, 12 stars" (the page `h1` already names the workflow).
+- **On the page: a separate control, not part of the reactions.** The Star means "save and appreciate this workflow"; reactions say what it did for you. It is **never** inside the `Reactions` group.
+  - **Placement:** the eyebrow row of W2's §6.12 header becomes `flex items-center justify-between gap-3`: eyebrow "Workflow" on the left, the Star on the right, aligned to the eyebrow at every width. That costs no extra row, which matters at 360.
+  - md and up: an `h-11` pill with a visible word, `☆ Star 12`. Below md: the same pill without the word, `☆ 12` (`min-w-11`). The name is the same at every width.
+  - **Name:** `aria-label="Star, <n> stars"`, for example "Star, 12 stars" (the page `h1` already names the workflow). The visible "Star" and count are both inside the name (2.5.3).
   - The label never changes to "Starred". `aria-pressed` and the filled icon carry the state.
 - **Zero:** shows `0` on the page ("☆ Star 0", per PRD §18.7) and `0` on cards, so the control keeps its width.
 - **Press feedback:** the icon scales 1 → 1.15 → 1 over `--fm-duration-fast`. There is no scale under reduced motion. No other motion.
 
 #### 4.13.2 Reaction bar (workflow page only; toggles)
 
-- **Container.** A `div role="group" aria-label="Reactions"` with `mt-5 flex flex-wrap items-center gap-2`, directly after the meta line and before At a glance and Result. The Star comes first, then a 1px `h-6 w-px bg-border` divider (`aria-hidden`), then the four reactions. The Star sits outside the group.
+- **Container.** A `div role="group" aria-label="Reactions"` holding the four reaction buttons and nothing else (the Star is in the header, §4.13.1). It sits directly after the meta line, before At a glance and Result: `mt-5 grid grid-cols-2 gap-2 md:flex md:flex-wrap md:items-center`.
 - **Reaction button.** `button type="button" aria-pressed aria-describedby="reactors-<key>"` with `inline-flex h-11 items-center gap-2 rounded-full border border-border bg-canvas px-3.5 text-sm font-medium text-fg hover:bg-surface`.
-  - Content: `<span aria-hidden="true">🙌</span>`, then the label "Worked for me", then the count `<span class="tabular-nums text-fg-muted">4</span>`.
+  - Content: `<span aria-hidden="true">🙌</span>`, then the visible label, then the count `<span class="ml-auto tabular-nums text-fg-muted md:ml-0">4</span>`.
+  - **Visible label by width.** md and up shows the full label ("Worked for me", "Learned something", "Saved me time", "Game-changer"). Below md it shows a short form so two pills fit in a 328px row: "Worked", "Learned", "Saved time", "Game-changer". The labels are two spans, `<span class="md:hidden">Worked</span><span class="hidden md:inline">Worked for me</span>`. Each short form is the start of its full label, so the accessible name still contains what is visible (2.5.3).
+  - **Accessible name** comes from `aria-label="<Full label> <n>"`, for example `aria-label="Worked for me 4"`, so it is identical at every width and doesn't depend on which span is displayed.
+  - Below md the pill is `w-full justify-start` (it fills its grid cell; the count sits at the right edge). md and up it is `w-auto`.
   - A zero count is visually hidden but kept for assistive tech (`<span class="sr-only">0</span>`). That keeps the bar from shouting "0" four times on a new workflow, while the name stays regular.
   - **Pressed:** `bg-accent-soft ring-2 ring-inset ring-link border-transparent text-fg-strong`, and the count turns `text-fg-strong`. The 2px ring is a weight change, not only a colour change, so pressed is never colour-only.
-  - **Name:** "<Label> <n>", for example "Worked for me 4" (the emoji is hidden).
+  - **Name:** "<Full label> <n>", for example "Worked for me 4", at every width (the emoji is hidden).
   - Any subset can be on at once.
-- **Wrapping.** It wraps naturally:
-  - About three rows at 360.
-  - Two rows at 768.
-  - At 1440 the Star and the four pills come to about 780px, so the last pill may wrap inside the ~740px column. That's fine, and nothing truncates.
-  - Pills never shrink below their content and never scroll horizontally.
+- **Rows by width.**
+  - **Below md: exactly 2 rows** (a 2×2 grid, 2 × 44px + 8px = 96px). The longest short pill, "🔥 Game-changer 2", is about 140px, which fits a 160px cell.
+  - md and up: one row. The four full-label pills are about 640px, within the 720px (md) and about 740px (lg) columns.
+  - Pills never truncate and never scroll horizontally.
+- **Vertical budget at 360** (from the end of the meta line to Result). The 2-row bar is 96px. The reactor lines are at most 4 × 20px, plus the name line at 24px, plus 32px of margins. That makes about 230px worst case, against about 340px for the earlier 4-row wrap. A workflow with no reactions spends only the 96px bar plus the name line.
 
 #### 4.13.3 Reactor lines ("who reacted", CM-3)
 
@@ -680,7 +696,10 @@ First reaction in this browser (inline, not a modal):
 
 #### 4.13.4 Read-only counts on cards (CM-2)
 
-- A `p` with `mt-2 text-sm text-fg-muted tabular-nums` in the card footer, before the Star. Each non-zero reaction is `<span aria-hidden="true">🙌 4</span><span class="sr-only">4 worked for me</span>`, joined by " · " (also `aria-hidden`). Zero reactions are omitted, and the whole `p` is omitted when every reaction is zero.
+- A `p` with `mt-2 text-sm text-fg-muted tabular-nums` in the card footer, before the Star. It has two children:
+  - One visible, `aria-hidden` span with the compact form, for example "🙌 4 · 🔥 2".
+  - One `sr-only` span with the whole sentence, comma-separated in the fixed order, for example "3 worked for me, 2 learned something, 1 saved me time, 2 game-changer". It is a single string, so a screen reader never runs two counts together.
+  - Zero reactions are omitted from both. The whole `p` is omitted when every reaction is zero.
 - **Footer layout.** `mt-auto pt-4 flex items-end justify-between gap-3`. The left column holds the existing "Verified … · by …" line, then the counts row. The Star sits on the right, bottom-aligned. At 360 the left column wraps and the Star keeps its width (`shrink-0`).
 - The emoji-only row is the **one sanctioned exception** to "an emoji never stands alone" (PRD §18.5 gives this exact form for cards). The page bar teaches each emoji's meaning, and the sr-only text gives the full words. Do not add tooltips: they don't work on touch, and they would sit under the stretched link.
 
@@ -688,7 +707,7 @@ First reaction in this browser (inline, not a modal):
 
 - **When.** It appears on the first Star or reaction in a browser whose `namePrompted` is false, *after* the action has already happened optimistically. It never blocks the action, and it never appears again once Saved or Skipped.
 - **Where.**
-  - On the page: directly under the reaction bar, above the reactor lines.
+  - On the page: directly under the reaction bar, above the reactor lines, whether it was triggered by a reaction or by the header Star. It is the one place on the page for community follow-ups.
   - On a card: inside the card, under the footer, full card width, with `relative z-10`. The card grows, and the grid row grows with it.
   - Only one prompt exists on screen at a time.
 - **Anatomy.** A `form` that is a `region` with `aria-labelledby` on its legend, styled `mt-3 rounded-xl bg-accent-subtle p-4`.
@@ -713,6 +732,7 @@ First reaction in this browser (inline, not a modal):
   - With a name: "Reacting as **Rafael** · Edit name". The name is in `text-fg font-medium` inside `<bdi>`, truncated at `18ch` like the reactor names.
   - Without one: "Reacting anonymously · Add name".
   - The action is a `button` styled as the §4.1 `link` variant (`min-h-6`, `touch:min-h-11`).
+  - **Wording: "Edit name" (with a name) and "Add name" (without).** PRD §18 CM-4 (PR #39, not yet on `main`) currently says "Reacting as Rafael · Edit". **R1 builds "Edit name"**, and the PRD line should be amended to match when #39 is next edited. A bare "Edit" next to a name is ambiguous for screen-reader users who reach the button by Tab alone.
 - **Editing** swaps the line for the prompt form without the thank-you line: legend "Your name", the same input prefilled, "Save", "Cancel", and the helper "Saved in this browser. Clear it to react anonymously."
   - On open, focus goes to the input with its text selected.
   - On Save or Cancel, focus returns to the "Edit name" / "Add name" button.
@@ -723,13 +743,13 @@ First reaction in this browser (inline, not a modal):
 
 | State | Card | Page |
 |---|---|---|
-| Server render / before `mine` resolves (CM-6) | Counts are correct. The Star is unpressed and `aria-disabled="true"` (the NewsCard bookmark pattern). | Counts and reactor lines are correct. All five toggles are unpressed and `aria-disabled`. The "Your name" slot is reserved. There is no layout shift when pressed states apply. |
+| Server render / before `mine` resolves (CM-6) | Counts are correct. The Star is unpressed and `aria-disabled="true"` (the NewsCard bookmark pattern). | Counts and reactor lines are correct. The Star and the four reaction toggles are unpressed and `aria-disabled`. The "Your name" slot is reserved. There is no layout shift when pressed states apply. |
 | `mine` fails | The toggles enable as unpressed. Writes are desired-state, so a mistaken "on" is a no-op. | Same. |
 | Optimistic press (CM-5) | The icon fills and the count goes up by 1 at once. The control is never disabled while a request is in flight. Rapid presses send only the last desired state. | Same, per reaction. The reactor line's count text updates. |
 | Rolled back (error, `workflow_unavailable`) | The state and count revert within 2s. `#fm-live` says "Couldn't save your star. Try again." A visible `text-sm text-danger` line with the same text appears under the card footer. It clears on the next successful action or after 8s. | The same revert and announcement ("…your reaction…"). The visible error line sits under the bar. |
 | Rate-limited | Reverts, with "Too many changes. Wait a minute and try again." (announced and visible). The controls stay enabled. | Same. |
 | Offline | Treated as a failed write: the same rollback and "Couldn't save…" message. There is no separate offline banner. Nothing is queued, so the UI never claims a save that didn't happen. | Same. |
-| Community read failed (§18.7) | No Star and no counts row. The card is otherwise normal. | The whole community block (bar, lines, name control) is absent. There is no empty shell and no error. |
+| Community read failed (§18.7) | No Star and no counts row. The card is otherwise normal. | The header Star and the whole community block (bar, lines, name control) are absent. There is no empty shell and no error. |
 | Archived workflow (CM-11, P1) | The Star is `aria-disabled` and shows its count. | Every toggle is `aria-disabled` with counts and `aria-describedby` a note under the bar, "Reactions are closed on archived workflows." in `text-sm text-fg-muted`. `aria-disabled` keeps the toggles focusable, so screen-reader users hear why. |
 | All zero | `0` on the Star and no counts row. | "☆ Star 0" and the four labels without counts. No reactor list. |
 
@@ -2044,10 +2064,10 @@ This is the authoritative list of **accessible roles and names** for every landm
 | | parts | (none) | `g[data-part]`: `node`, `edge`, `loop`, `exit`, `zone`, `crossing`, `lane`, `handoff`, `marker`, `axis`, `legend`; `data-state="key"` / `"risk"` |
 | Workflow watch line (§6.3.3) | link | `link` | "Watch: \<manifest title\> (Lesson X.Y)". The visible text ends " →", which is `aria-hidden`. `href` `/lessons/<slug>#watch-<media-id>` |
 | Star (card, §4.13) | button | `button` | `/^Star .+, \d+ stars?$/`, for example "Star Context files that stick, 4 stars"; `aria-pressed`; `aria-disabled` until the pressed state loads |
-| Star (workflow page) | button | `button` | `/^Star, \d+ stars?$/`; `aria-pressed` |
-| Reactions (workflow page) | group | `group` | "Reactions"; contains four `button`s with `aria-pressed`, named `/^Worked for me \d+$/`, `/^Learned something \d+$/`, `/^Saved me time \d+$/` and `/^Game-changer \d+$/` (emoji hidden), each `aria-describedby` its reactor line |
+| Star (workflow page) | button | `button` | `/^Star, \d+ stars?$/` (from `aria-label`, the same at every width); `aria-pressed`. In the header eyebrow row, **outside** the "Reactions" group |
+| Reactions (workflow page) | group | `group` | "Reactions"; contains exactly four `button`s (never the Star) with `aria-pressed`, named `/^Worked for me \d+$/`, `/^Learned something \d+$/`, `/^Saved me time \d+$/` and `/^Game-changer \d+$/` (emoji hidden), each `aria-describedby` its reactor line |
 | Reactor line | listitem | `listitem` | Starts with sr-only "<Label>: " then `formatReactors` output, for example "Worked for me: Rafael, Ana and 3 others" |
-| Card counts row | (text) | none | sr-only "4 worked for me" and so on, in fixed order; absent when all are zero |
+| Card counts row | (text) | none | One sr-only sentence, comma-separated in fixed order, for example "3 worked for me, 2 learned something"; the visible "🙌 3 · 💡 2" is `aria-hidden`; absent when all are zero |
 | Name prompt | region | `region` | "Add your name? Optional"; `textbox` "Your name"; `button`s "Save" and "Skip" |
 | Your name control | (text + button) | `button` | Text "Reacting as <name>" or "Reacting anonymously"; `button` "Edit name" or "Add name"; the edit form has `textbox` "Your name" and `button`s "Save" and "Cancel" |
 | Archived note | (text) | none | "Reactions are closed on archived workflows." (each toggle `aria-describedby` it) |
