@@ -31,7 +31,7 @@ Two separate questions control how much an agent can hurt you:
 type: boundary
 id: sandbox-and-gate
 title: What the sandbox reaches and when it asks
-summary: The sandbox sets what commands can reach. The approval gate sits on its edge and sets when the agent asks before going past it.
+summary: The sandbox sets what commands can reach. Going past its edge needs your approval, and the permission mode or approval policy sets when the agent asks.
 zones:
   - id: sandbox
     label: Sandbox
@@ -41,26 +41,23 @@ zones:
         sub: run in here
       - id: workspace
         label: Workspace files
-        sub: can write here
+        sub: within reach
   - id: outside
     label: Outside the sandbox
     items:
       - id: other-paths
         label: Other paths
-        sub: writes blocked
+        sub: out of reach
       - id: hosts
         label: Network hosts
-        sub: blocked until approved
+        sub: out of reach
 crossings:
   - from: commands
-    to: workspace
-    label: writes freely
-  - from: commands
     to: other-paths
-    label: asks first
+    label: asks to leave
   - from: commands
     to: hosts
-    label: asks first
+    label: asks to leave
 ```
 
 Rules and modes are enforced by the tool, not by the model. A line in your prompt or in `CLAUDE.md` saying "never run curl" shapes what the agent tries. It is not a boundary. To actually block something, use a deny rule, a sandbox or a hook.
