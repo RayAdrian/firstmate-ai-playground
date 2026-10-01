@@ -266,6 +266,20 @@ describe("DG-2: no client JS", () => {
   });
 });
 
+describe("DG-2: adding a diagram does not change a page's client bundle", () => {
+  it("no 'use client' module imports the kit or the markdown module that hosts it", () => {
+    const SRC = path.resolve(__dirname, "../../../src");
+    const offenders = walk(SRC)
+      .filter((f) => /\.(ts|tsx)$/.test(f))
+      .filter((f) => !f.startsWith(KIT))
+      .map((f) => ({ f, src: readFileSync(f, "utf8") }))
+      .filter(({ src }) => /^\s*["']use client["']/m.test(src))
+      .filter(({ src }) => /components\/diagram|lesson\/markdown|from "\.\/markdown"/.test(src))
+      .map(({ f }) => path.relative(SRC, f));
+    expect(offenders).toEqual([]);
+  });
+});
+
 describe("DG-9: a bad diagram never breaks a page", () => {
   it("LessonDiagram skips an invalid diagram, renders nothing and logs the page, id and reason (no text)", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
