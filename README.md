@@ -39,6 +39,8 @@ One Mac runs the scoring job. Local development databases import its snapshots w
 
 ## Contributing
 
+**Before you start:** the repo is private and the owner is the only collaborator today. Ask the owner for collaborator access, because you need it to push a branch and open a PR. Do not assume a fork works: forks of a private repo depend on the owner's settings.
+
 There are six ways to contribute. Pick yours, then follow its section.
 
 | I want to... | Section | Lane | Who merges |
@@ -124,7 +126,7 @@ Optional `diagram` (see [Diagrams](#diagrams)) and `watch` (`<lesson-slug>/<medi
 2. The owner or a steward runs `npm run gate:merge -- <pr#>`.
 3. The workflow shows on the live site after the owner re-seeds the hosted database (`FM_ENV_FILE=.env.hosted.local npm run seed`, PRD §18.8 DP-2). Locally, `npm run seed` loads it.
 
-**Attribution.** The author name shown on the site is the git author name of the commit that adds the file, so check `git config user.name` before you commit. Emails are never read or shown.
+**Attribution.** The author name shown on the site comes from the commit that adds the file on `main`. PRs merge as a squash, so that commit carries the PR opener's GitHub profile name, not your local `git config user.name`. Set your name at github.com/settings/profile before you open the PR. Emails are never read or shown. Seed workflows listed in `content/workflows/_seed-authors.txt` show "First Mate" instead (a code-lane file, since it is not one of the content-lane names).
 
 **Update a workflow.** Edit the file in a new PR on a `workflow/<slug>` branch and re-run validate and scan. To re-verify an unchanged workflow, bump `verified_on` and `tool_versions`. A workflow shows "May be outdated" after 60 days and is archived after 180 (still readable, hidden from lists). Anyone can report one with the "Report outdated" link on its page, which opens a GitHub issue from the `workflow-outdated` template.
 
