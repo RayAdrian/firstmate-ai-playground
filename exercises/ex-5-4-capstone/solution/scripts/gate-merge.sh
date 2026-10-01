@@ -64,9 +64,26 @@ LANE="${LANE_OUT#lane=}"
 LANE="${LANE%% *}"
 TOUCHES="${LANE_OUT##*touches_workflows=}"
 
-# A symlink under content/workflows is never content-lane material (the validator rejects it too).
-if [[ "$LANE" == content ]] && git ls-tree -r "$SHA" -- content/workflows/ | grep -q '^120000 '; then
-  LANE=code
+# Content lane only holds regular files (mode 100644). Symlinks (120000), gitlinks (160000) and
+# executables (100755) are code. Fail closed: capture the whole listing first (no `grep -q` on a pipe,
+# which can die of SIGPIPE under pipefail and read as "clean"); any error or odd line means code lane.
+if [[ "$LANE" == content ]]; then
+  if ! RAW="$(git diff --raw --no-abbrev --find-renames --find-copies "origin/main...$SHA")"; then
+    LANE=code
+  else
+    while IFS= read -r rawline; do
+      [[ -z "$rawline" ]] && continue
+      if [[ ! "$rawline" =~ ^:[0-7]{6}\ ([0-7]{6})\  ]]; then
+        LANE=code
+        break
+      fi
+      newmode="${BASH_REMATCH[1]}"
+      if [[ "$newmode" != 100644 && "$newmode" != 000000 ]]; then
+        LANE=code
+        break
+      fi
+    done <<<"$RAW"
+  fi
 fi
 
 if [[ "$LANE" == content ]]; then
@@ -84,10 +101,19 @@ if [[ -z "$CHECKS" ]]; then
   FAIL+=("no CI check runs found on ${SHA:0:7}")
 else
   while IFS= read -r line; do
-    case "${line#*=}" in
-      completed/success | completed/skipped) ;;
-      *) FAIL+=("CI check ${line%%=*}: ${line#*=}") ;;
-    esac
+    if [[ "$LANE" == content ]]; then
+      # Content lane is strict: every check run must be completed/success.
+      case "${line#*=}" in
+        completed/success) ;;
+        *) FAIL+=("CI check ${line%%=*}: ${line#*=}") ;;
+      esac
+    else
+      # Code lane: unchanged from main (lesson 5.3); neutral/skipped allowed.
+      case "${line#*=}" in
+        completed/success | completed/skipped | completed/neutral) ;;
+        *) FAIL+=("CI check ${line%%=*}: ${line#*=}") ;;
+      esac
+    fi
   done <<<"$CHECKS"
 fi
 

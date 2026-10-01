@@ -185,6 +185,50 @@ describe("gate-merge.sh content lane", () => {
     expect(r.merged).toBe("");
   });
 
+  it("refuses a symlink hidden among 300 regular files (SIGPIPE regression)", () => {
+    const r = run({
+      change: (w) => {
+        symlinkSync("../../.env.local", path.join(w, "content/workflows/0000.md"));
+        for (let i = 1; i <= 300; i++) addWorkflow(w, `wf-${String(i).padStart(4, "0")}.md`);
+      },
+      checks: GREEN_CONTENT,
+    });
+    expect(r.status).toBe(1);
+    expect(r.out).toContain("Lane: code");
+    expect(r.merged).toBe("");
+  });
+
+  it("refuses an executable .md", () => {
+    const r = run({
+      change: (w) => {
+        addWorkflow(w);
+        chmodSync(path.join(w, "content/workflows/a.md"), 0o755);
+      },
+      checks: GREEN_CONTENT,
+    });
+    expect(r.status).toBe(1);
+    expect(r.out).toContain("Lane: code");
+    expect(r.merged).toBe("");
+  });
+
+  it("refuses a gitlink (submodule) entry", () => {
+    const r = run({
+      change: (w) => {
+        // A nested repo staged with `add -A` becomes a gitlink (mode 160000).
+        const nested = path.join(w, "content/workflows/sub.md");
+        mkdirSync(nested);
+        git(nested, "init", "-q");
+        writeFileSync(path.join(nested, "f"), "x");
+        git(nested, "add", "-A");
+        git(nested, "commit", "-q", "-m", "n");
+      },
+      checks: GREEN_CONTENT,
+    });
+    expect(r.status).toBe(1);
+    expect(r.out).toContain("Lane: code");
+    expect(r.merged).toBe("");
+  });
+
   it.each([
     ["queued", "validate=queued/"],
     ["in_progress", "validate=in_progress/"],
@@ -250,6 +294,17 @@ describe("gate-merge.sh code lane (unchanged rules, now pinned to one SHA)", () 
     expect(r.status).toBe(0);
     expect(r.out).toContain("Lane: code");
     expect(r.merged).toContain(`--match-head-commit ${r.sha}`);
+  });
+
+  it("allows neutral and skipped check conclusions, as on main", () => {
+    const r = run({
+      change: addCode,
+      checks: ["checks=completed/success", "review=completed/neutral", "e2e=completed/skipped"],
+      labels: LABELS,
+      statuses: GATES,
+    });
+    expect(r.err).toBe("");
+    expect(r.status).toBe(0);
   });
 
   it("refuses when behind main", () => {
