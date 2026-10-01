@@ -17,7 +17,11 @@ export function formatWorkflowIssue(i: SeedIssue): string {
 }
 
 const IGNORED = new Set([".DS_Store"]);
-const isConfig = (name: string): boolean => (WORKFLOW_CONFIG_FILES as readonly string[]).includes(name);
+/** Seed attribution override (PRD §16.8). Not in the frozen contract's WORKFLOW_CONFIG_FILES, so it is allowed here. */
+export const SEED_AUTHORS_FILE = "_seed-authors.txt";
+export const SEED_AUTHOR_NAME = "First Mate";
+const CONFIG_FILES: readonly string[] = [...WORKFLOW_CONFIG_FILES, SEED_AUTHORS_FILE];
+const isConfig = (name: string): boolean => CONFIG_FILES.includes(name);
 
 function workflowsDirOf(contentDir: string): string {
   return path.join(contentDir, path.basename(WORKFLOWS_DIR));
@@ -141,6 +145,28 @@ export function readTakedownHashes(contentDir: string): { hashes: Set<string>; w
   return { hashes, warnings };
 }
 
+// ---------------------------------------------------------------- seed authors
+
+/**
+ * Slugs listed in `_seed-authors.txt` (one per line, `#` comments and blank lines ignored). Each is credited to "First Mate"
+ * instead of the git author. A slug with no matching workflow file is an issue. A missing file means no overrides.
+ */
+export function readSeedAuthors(contentDir: string, presentSlugs: Set<string>): { slugs: Set<string>; issues: SeedIssue[] } {
+  const slugs = new Set<string>();
+  const issues: SeedIssue[] = [];
+  const file = path.join(workflowsDirOf(contentDir), SEED_AUTHORS_FILE);
+  if (!existsSync(file) || !lstatSync(file).isFile()) return { slugs, issues };
+  normalizeText(readFileSync(file, "utf8"))
+    .split("\n")
+    .forEach((raw, i) => {
+      const line = raw.trim();
+      if (line === "" || line.startsWith("#")) return;
+      if (presentSlugs.has(line)) slugs.add(line);
+      else issues.push({ file: display(contentDir, SEED_AUTHORS_FILE), line: i + 1, field: "seed-authors", reason: `unknown workflow slug '${line}'; no content/workflows/${line}.md` });
+    });
+  return { slugs, issues };
+}
+
 // ---------------------------------------------------------------- the whole folder
 
 export interface WorkflowLoadOptions {
@@ -156,12 +182,14 @@ export interface LoadedWorkflows {
   presentSlugs: Set<string>;
   /** Lesson slug to level, for copying `level` at seed time. */
   levelBySlug: Map<string, number>;
+  /** Slugs credited to SEED_AUTHOR_NAME by `_seed-authors.txt`. */
+  seedAuthorSlugs: Set<string>;
 }
 
 export function loadWorkflows(opts: WorkflowLoadOptions): LoadedWorkflows {
   const { contentDir, now } = opts;
   const dir = workflowsDirOf(contentDir);
-  const out: LoadedWorkflows = { workflows: [], issues: [], warnings: [], presentSlugs: new Set(), levelBySlug: new Map() };
+  const out: LoadedWorkflows = { workflows: [], issues: [], warnings: [], presentSlugs: new Set(), levelBySlug: new Map(), seedAuthorSlugs: new Set() };
   if (!existsSync(dir)) return out;
 
   const candidates: string[] = [];
@@ -174,14 +202,17 @@ export function loadWorkflows(opts: WorkflowLoadOptions): LoadedWorkflows {
     else if (st.isDirectory()) structure("subfolders are not allowed in content/workflows/");
     else if (!st.isFile()) structure("only regular files are allowed in content/workflows/");
     else if (name.startsWith("_")) {
-      if (!isConfig(name)) structure(`'${name}' is not a known config file (allowed: ${WORKFLOW_CONFIG_FILES.join(", ")})`);
+      if (!isConfig(name)) structure(`'${name}' is not a known config file (allowed: ${CONFIG_FILES.join(", ")})`);
     } else if (name.endsWith(".md")) {
       candidates.push(name);
       out.presentSlugs.add(name.slice(0, -3));
     } else {
-      structure(`only .md workflow files and ${WORKFLOW_CONFIG_FILES.join(", ")} are allowed in content/workflows/`);
+      structure(`only .md workflow files and ${CONFIG_FILES.join(", ")} are allowed in content/workflows/`);
     }
   }
+  const seedAuthors = readSeedAuthors(contentDir, out.presentSlugs);
+  out.seedAuthorSlugs = seedAuthors.slugs;
+  out.issues.push(...seedAuthors.issues);
   if (candidates.length === 0) return out;
 
   const taxonomy = readTaxonomy(contentDir);

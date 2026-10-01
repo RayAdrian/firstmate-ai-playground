@@ -156,7 +156,7 @@ describe("workflows row + migration", () => {
     level: null,
     tool_versions: { claude_code: "2.1.0" },
     verified_on: "2026-09-30",
-    author_name: "First Mate Stewards",
+    author_name: "First Mate",
     reviewed_on: null,
     content_hash: "abc",
     removed_at: null,

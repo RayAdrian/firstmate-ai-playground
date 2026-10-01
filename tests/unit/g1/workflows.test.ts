@@ -12,7 +12,7 @@ import { memoryStore } from "../w1/memory-store";
 import { sampleDraft } from "../w3/helpers";
 import { readFileSync } from "node:fs";
 
-const meta: GitMetaProvider = () => ({ author_name: "First Mate Stewards", reviewed_on: "2026-09-25" });
+const meta: GitMetaProvider = () => ({ author_name: "First Mate", reviewed_on: "2026-09-25" });
 
 const DIAGRAM = `diagram:
   type: flow

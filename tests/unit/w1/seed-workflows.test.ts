@@ -7,7 +7,7 @@ import { seedWorkflows, type GitMetaProvider } from "../../../scripts/seed/lib/w
 import { FM_NOW, VALID, contentSandbox, readFixture } from "./helpers";
 import { memoryStore } from "./memory-store";
 
-const meta: GitMetaProvider = () => ({ author_name: "First Mate Stewards", reviewed_on: "2026-09-25" });
+const meta: GitMetaProvider = () => ({ author_name: "First Mate", reviewed_on: "2026-09-25" });
 const seed = (store: ReturnType<typeof memoryStore>, contentDir: string, now = FM_NOW, m = meta) => seedWorkflows(store, { contentDir, now, meta: m });
 const zero = { inserted: 0, updated: 0, removed: 0, restored: 0, purged: 0 };
 const counts = (r: Awaited<ReturnType<typeof seed>>) => ({ inserted: r.inserted, updated: r.updated, removed: r.removed, restored: r.restored, purged: r.purged });
@@ -28,7 +28,7 @@ describe("seedWorkflows: upsert by slug (WF-42)", () => {
       related_lesson_slug: "l1-first-session",
       level: 1,
       verified_on: "2026-09-20",
-      author_name: "First Mate Stewards",
+      author_name: "First Mate",
       reviewed_on: "2026-09-25",
       removed_at: null,
     });
@@ -63,7 +63,7 @@ describe("seedWorkflows: upsert by slug (WF-42)", () => {
     writeFileSync(path.join(workflowsDir, "gate-status-per-commit.md"), VALID.replace("verified_on: 2026-09-20", "verified_on: 2026-09-28"));
     expect(counts(await seed(store, contentDir))).toEqual({ ...zero, updated: 1 });
     expect(store.rows()[0]?.verified_on).toBe("2026-09-28");
-    expect(counts(await seed(store, contentDir, FM_NOW, () => ({ author_name: "First Mate Stewards", reviewed_on: "2026-09-29" })))).toEqual({ ...zero, updated: 1 });
+    expect(counts(await seed(store, contentDir, FM_NOW, () => ({ author_name: "First Mate", reviewed_on: "2026-09-29" })))).toEqual({ ...zero, updated: 1 });
   });
 
   it("an invalid file is skipped with its path and reason, its row is untouched, and the rest still seeds", async () => {

@@ -692,7 +692,7 @@ Measured outside the app (the app has no telemetry, §2). "Engineers" excludes s
 
 | # | Metric | Target | Source / cadence |
 |---|---|---|---|
-| WF-M1 | Engineers with at least one merged workflow | **≥ 25% within 90 days** of phase 1 launch | Distinct git author names of commits on `main` that **add** a file under `content/workflows/` (excluding the `First Mate Stewards` seed author), divided by engineer headcount (§14 Q4). Monthly. |
+| WF-M1 | Engineers with at least one merged workflow | **≥ 25% within 90 days** of phase 1 launch | Distinct git author names of commits on `main` that **add** a file under `content/workflows/` (excluding the `First Mate` seed author), divided by engineer headcount (§14 Q4). Monthly. |
 | WF-M2 | Median time from PR opened to merged, content-lane PRs | **≤ 3 business days** (Mon–Fri, Asia/Manila) | `gh pr list --state merged --label workflow --json createdAt,mergedAt`. Monthly. |
 | WF-M3 | Confidentiality incidents | **0** | Count of takedown-runbook invocations (§16.10.4) that were true positives: a client-identifying detail or secret reached any branch pushed to GitHub. Logged in the runbook's incident log. |
 | WF-M4 | First steward response within SLA | ≥ 90% of workflow PRs get a first steward comment, review or merge within 3 business days | Same `gh` query with the first steward activity timestamp. Monthly. |
@@ -731,7 +731,7 @@ Listed so nobody builds toward it by accident. Each item reverses an earlier dec
 
 ### 16.6 The workflow file (contract)
 
-One file per workflow at `content/workflows/<slug>.md`. Files in that folder whose name starts with `_` are configuration, not workflows: `_TEMPLATE.md`, `_taxonomy.yaml` and `_takedowns.txt`. Nothing else may live there: no subfolders, no symlinks, no non-`.md` files except those three.
+One file per workflow at `content/workflows/<slug>.md`. Files in that folder whose name starts with `_` are configuration, not workflows: `_TEMPLATE.md`, `_taxonomy.yaml`, `_takedowns.txt` and `_seed-authors.txt` (§16.8). Nothing else may live there: no subfolders, no symlinks, no non-`.md` files except those four.
 
 **Frontmatter**
 
@@ -917,6 +917,7 @@ Phase in brackets. Priorities as in §5.
 **WF-42 (P0)** Ingest is idempotent and attributed.
 - `npm run seed` upserts workflows by slug. Running it twice gives no diff. **A bad workflow never blocks the seed:** because the content lane does not require being up to date with `main`, a file valid against an older validator or taxonomy can land. An invalid workflow file is skipped with a warning (`<path>: <reason>`), its existing row is left unchanged, and lessons and the other workflows still seed. The S-2 all-or-nothing rule still applies to lessons and exercises. `workflows-content.yml` also runs `validate` on push to `main`, so a red `main` badge shows the bad file.
 - `author_name` is the name on the earliest commit that added the file (`git log --diff-filter=A --follow --format=%an -- <path>`, run with `execFile` and an argv array, never through a shell, and only for paths that passed the slug check). `reviewed_on` is the date of the latest commit that touched the file on `main`. **Emails are never stored or shown.** In a shallow clone, where history is unavailable, the author is "Unknown", `reviewed_on` is null, and the seed prints one warning; it does not fail.
+- **Seed author override.** `content/workflows/_seed-authors.txt` lists slugs, one per line (`#` comments allowed). Each listed slug gets `author_name = "First Mate"` instead of the git author, because the agent-drafted seed workflows were squash-merged under one person's name and history on `main` cannot be rewritten. `reviewed_on` still comes from git. A slug with no matching `<slug>.md` is a validation error (`workflows:validate` and the seed); a missing file means no overrides. The file is deliberately **not** in the content-lane allowlist (§16.4 lane classifier): changing who is credited is a code-lane change that needs the three gates.
 - A file deleted from `content/workflows/` sets `removed_at` and the page 404s. The row is kept (never deleted), with one exception: WF-43.
 
 **WF-43 (P0)** Takedowns purge local copies.
@@ -990,7 +991,7 @@ Lives at `docs/runbooks/workflow-takedown.md`. In order:
 
 ### 16.11 Seed content (W4)
 
-The stewards (agents in this build) write 10 workflows drawn from what this project actually did. Rules: each must pass §16.6 and the CI scan; each describes something that was **run**, with real versions; each Setup artifact is taken from this repo and generalised (no `/Users/…` paths, no personal handles in commands); commits use the author `First Mate Stewards` so that cards do not credit one person for agent-drafted work. Each goes through the content lane as its own PR (this is also the lane's first real test).
+The stewards (agents in this build) write 10 workflows drawn from what this project actually did. Rules: each must pass §16.6 and the CI scan; each describes something that was **run**, with real versions; each Setup artifact is taken from this repo and generalised (no `/Users/…` paths, no personal handles in commands); commits use the author name `First Mate` (applied by `content/workflows/_seed-authors.txt`, §16.8) so that cards do not credit one person for agent-drafted work. Each goes through the content lane as its own PR (this is also the lane's first real test).
 
 | Slug | Problem it solves | Tools | Builds on |
 |---|---|---|---|
