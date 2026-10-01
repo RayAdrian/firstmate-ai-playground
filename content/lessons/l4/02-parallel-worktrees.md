@@ -42,13 +42,13 @@ One rule from git: a branch can be checked out in only one worktree at a time.
 6. **Merge one at a time.** Merge the first branch, rebase or merge the second onto the result, run the tests, then merge. Tests on the merged result are the only proof the features coexist.
 7. **Clean up.** Remove the worktree and delete the merged branch. Worktrees are full copies and add up.
 
-A worktree isolates files, not the machine. Two worktrees still share one database and one set of local ports, so a second dev server on the same port fails to start, and a second test run can reset the database under the first.
+A worktree isolates files, not the machine. Two worktrees still share one database and one set of local ports, so a second dev server on the same port fails to start or quietly moves to another port while you keep testing the other worktree on :3000, and a second test run can reset the database under the first.
 
 ```diagram
 type: boundary
 id: worktree-isolation
 title: What a worktree isolates and what it shares
-summary: Each worktree gets its own files and branch. The database and the local ports are shared, so two sessions can still collide there.
+summary: Each worktree gets its own files and branch. The history, database and local ports are shared, so two sessions can still collide there.
 zones:
   - id: own
     label: Separate per worktree
@@ -62,6 +62,9 @@ zones:
   - id: shared
     label: Shared by every worktree
     items:
+      - id: git
+        label: Git history
+        sub: commits and remotes
       - id: db
         label: Database
         sub: one local instance

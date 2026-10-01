@@ -66,7 +66,7 @@ A hook is a command that receives a JSON description of the event on stdin. It c
 type: flow
 id: hook-events
 title: Where hooks fire in the agent loop
-summary: Hooks run around each tool call and at the end of a turn. Only a before-tool hook can stop a call, and a stop hook can send the agent back to work.
+summary: Hooks run around each tool call and at the end of a turn. A before-tool hook can block a call, and the agent is told why and carries on; a stop hook can send it back to work.
 steps:
   - id: call
     label: Tool call
@@ -88,8 +88,8 @@ loops:
 exits:
   - from: call
     label: hook blocks
-    text: Call refused
-    style: risk
+    text: Agent told why
+    style: ok
   - from: end
     label: allowed
     text: Reply to you

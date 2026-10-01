@@ -43,7 +43,7 @@ zones:
     items:
       - id: sub
         label: Subagent
-        sub: own prompt, limited tools
+        sub: own prompt and tools
       - id: noise
         label: Logs and dead ends
         sub: stay in here
