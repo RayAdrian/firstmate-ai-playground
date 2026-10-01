@@ -30,6 +30,35 @@ The whole skill at this level is the **edit, approve, verify loop**:
 3. **Approve.** Some actions (file writes, shell commands, network) stop and wait for you, depending on the permission mode. Lesson 1.3 covers tuning this.
 4. **Verify.** A test, a build, or a diff you read yourself. The agent stops when the work "looks done", so give it something that returns pass or fail. Then check the evidence, not the agent's summary.
 
+```diagram
+type: flow
+id: edit-approve-verify
+title: The edit, approve, verify loop
+summary: A failed check sends the agent back to edit. The loop ends only when a check you can read passes.
+steps:
+  - id: ask
+    label: Ask
+  - id: edit
+    label: Edit
+    sub: agent
+  - id: approve
+    label: Approve
+    sub: you decide
+  - id: verify
+    label: Verify
+    sub: test or diff
+    emphasis: true
+loops:
+  - from: verify
+    to: edit
+    label: check fails
+exits:
+  - from: verify
+    label: passes
+    text: Commit
+    style: ok
+```
+
 Habits worth building from day one:
 
 - Start each task from a clean `git status`. Commit or stash first, so `git diff` shows only what the agent did.

@@ -32,6 +32,27 @@ You have three ways to steer an agent, and they differ in how much you can count
 
 **Rule of thumb:** if a rule must hold every single time, and a script can check it, make it a hook. "Always format edited files" and "never run `rm -rf`" are hooks. If it takes judgement, such as "scaffold a route the way this repo does it", make it a skill or an instruction.
 
+```diagram
+type: stack
+id: guarantee-ladder
+title: How much you can count on each mechanism
+summary: Only hooks run every time the event fires. Instructions and skills depend on the model choosing to follow them.
+layers:
+  - id: instructions
+    label: Instructions
+    sub: text the model weighs
+  - id: skills
+    label: Skills
+    sub: model-driven when used
+  - id: hooks
+    label: Hooks
+    sub: your script, every time
+    emphasis: true
+axis:
+  low: may be skipped
+  high: always runs
+```
+
 **Hooks**
 
 A hook is a command that receives a JSON description of the event on stdin. It can do something (format, log, notify), and at some events it can block the action or push feedback to the model. The events you will use most:
