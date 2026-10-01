@@ -1,0 +1,23 @@
+# Allowed values for the `use_cases` and `stacks` workflow frontmatter fields (PRD §16.6).
+# Stewards extend this list in a content-lane PR. `any` must be the only stack when used.
+use_cases:
+  - planning
+  - review
+  - testing
+  - refactoring
+  - debugging
+  - parallel-work
+  - ci-and-gates
+  - security
+  - context
+  - automation
+stacks:
+  - any
+  - nextjs
+  - react
+  - typescript
+  - node
+  - supabase
+  - postgres
+  - python
+  - github-actions

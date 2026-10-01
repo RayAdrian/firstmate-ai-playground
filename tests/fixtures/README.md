@@ -75,3 +75,20 @@ db-lock.sh env FM_B_INTEGRATION=1 PLAYWRIGHT_PORT=<port> npx playwright test tes
 ```
 
 It restores fx-base afterwards.
+
+## Workflow fixtures (W1)
+
+`db:reset:test` also loads six workflows from `tests/fixtures/workflows/e2e/` (PRD §16.8) through the real seed code, with a fixed author
+(`Fixture Author`) and `reviewed_on` 2026-09-29. Ages are relative to the test clock, 2026-09-30 Asia/Manila.
+
+| Slug | Covers |
+|---|---|
+| `fx-both-tools` | Claude Code and Codex CLI (tabs); use cases `review`, `testing`; builds on `l1-first-session` (level 1); setup kinds context-file, hook, config; per-tool setup blocks |
+| `fx-claude-only` | Claude Code only (no tabs); use case `planning`; builds on `l1-permissions` (level 1) |
+| `fx-codex-prompt-only` | Codex CLI only; no setup blocks ("Prompt only"); use case `review` |
+| `fx-outdated-61` | verified 2026-07-31 = 61 days: "May be outdated" |
+| `fx-archived-181` | verified 2026-04-02 = 181 days: Archived |
+| `fx-script-tag` | a `<script>` tag in "Why it works", which must render as escaped text |
+
+`tests/fixtures/workflows/valid/` and `invalid/` are the validator fixtures (one valid file, one invalid file per §16.6 rule); they are used by
+`tests/unit/w1/` only. The symlink and subfolder cases are built in a temp dir by the tests, because git cannot carry them as plain fixtures.

@@ -6,6 +6,8 @@ import { applyContent, sumCounts } from "./lib/apply";
 import { readSeedEnv, requireServiceEnv } from "./lib/env";
 import { formatIssues } from "./lib/issues";
 import { loadContent } from "./lib/load";
+import { seedWorkflows, supabaseWorkflowStore } from "./lib/workflows";
+import { formatWorkflowIssue, loadWorkflows } from "../workflows/load";
 
 async function main(): Promise<number> {
   const dryRun = process.argv.includes("--dry-run");
@@ -30,7 +32,10 @@ async function main(): Promise<number> {
 
   const summary = `${content.levels.length} levels, ${content.lessons.length} lessons, ${content.exercises.length} exercises`;
   if (dryRun) {
-    console.log(`seed: dry run OK (${summary}); nothing written.`);
+    // A bad workflow never blocks the seed (PRD §16.7 WF-42): report it, keep the exit code.
+    const wf = loadWorkflows({ contentDir: env.contentDir, now: env.now });
+    for (const i of wf.issues) console.warn(`seed: would skip ${formatWorkflowIssue(i)}`);
+    console.log(`seed: dry run OK (${summary}, ${wf.workflows.length} workflows valid, ${wf.issues.length} problem(s)); nothing written.`);
     return 0;
   }
 
@@ -56,6 +61,14 @@ async function main(): Promise<number> {
   const result = await applyContent(db, content, env.now);
   const t = sumCounts(result);
   console.log(`seed: ${t.inserted} inserted, ${t.updated} updated, ${t.archived} archived, ${t.restored} restored (${summary}).`);
+
+  // Workflows: an invalid file is skipped with a warning and its row left unchanged; lessons above are already written.
+  const wf = await seedWorkflows(supabaseWorkflowStore(db), { contentDir: env.contentDir, now: env.now });
+  for (const i of wf.skipped) console.warn(`seed: skipped ${formatWorkflowIssue(i)}`);
+  for (const w of wf.warnings) console.warn(`seed: ${w}`);
+  console.log(
+    `seed: workflows: ${wf.inserted} inserted, ${wf.updated} updated, ${wf.removed} removed, ${wf.restored} restored, ${wf.purged} purged (takedown), ${wf.skipped.length} skipped.`,
+  );
   return 0;
 }
 
