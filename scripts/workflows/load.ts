@@ -5,6 +5,7 @@ import { existsSync, lstatSync, readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 import { WORKFLOWS_DIR, WORKFLOW_CONFIG_FILES, type WorkflowValidationContext } from "../../src/lib/contracts";
+import { mediaManifestSchema } from "../../src/lib/contracts/media";
 import type { SeedIssue } from "../seed/lib/issues";
 import { manilaDate, normalizeText } from "../seed/lib/text";
 import { parseYamlSafe } from "../seed/lib/yaml";
@@ -59,6 +60,40 @@ export function readLessonIndex(contentDir: string): Map<string, number> {
     }
   }
   return index;
+}
+
+// ---------------------------------------------------------------- media (for `watch`, PRD §17.3)
+
+/**
+ * Where lesson media lives for a content dir: `public/media/lessons` beside `content/`, else the repo's own (the fixture seed
+ * runs in a temp content dir with no `public/`).
+ */
+export function mediaRootOf(contentDir: string): string {
+  const beside = path.join(path.dirname(contentDir), "public", "media", "lessons");
+  return existsSync(beside) ? beside : path.resolve(process.cwd(), "public", "media", "lessons");
+}
+
+/**
+ * `<lesson-slug>/<media-id>` of every media manifest that passes the §15.2 contract (folder = lesson_slug, file = id) on a lesson
+ * in `lessonSlugs`. A `watch` must be in this list; an invalid manifest or an unknown lesson is simply not resolvable.
+ */
+export function readMediaIds(mediaRoot: string, lessonSlugs: ReadonlySet<string>): string[] {
+  const ids: string[] = [];
+  if (!existsSync(mediaRoot)) return ids;
+  for (const lesson of readdirSync(mediaRoot).sort()) {
+    const dir = path.join(mediaRoot, lesson);
+    if (!lessonSlugs.has(lesson) || !lstatSync(dir).isDirectory()) continue;
+    for (const name of readdirSync(dir).sort()) {
+      if (!name.endsWith(".media.json")) continue;
+      try {
+        const m = mediaManifestSchema.parse(JSON.parse(readFileSync(path.join(dir, name), "utf8")));
+        if (m.lesson_slug === lesson && name === `${m.id}.media.json`) ids.push(`${lesson}/${m.id}`);
+      } catch {
+        // an invalid manifest is not resolvable
+      }
+    }
+  }
+  return ids;
 }
 
 // ---------------------------------------------------------------- taxonomy
@@ -159,6 +194,7 @@ export function loadWorkflows(opts: WorkflowLoadOptions): LoadedWorkflows {
     useCases: taxonomy.useCases,
     stacks: taxonomy.stacks,
     lessonSlugs: [...out.levelBySlug.keys()],
+    mediaIds: readMediaIds(mediaRootOf(contentDir), new Set(out.levelBySlug.keys())),
     today: manilaDate(now),
   };
   for (const name of candidates) {
@@ -175,7 +211,7 @@ export function validateWorkflowFiles(files: string[], opts: WorkflowLoadOptions
   const taxonomy = readTaxonomy(opts.contentDir);
   if ("issues" in taxonomy) return { issues: taxonomy.issues, warnings: [] };
   const lessons = readLessonIndex(opts.contentDir);
-  const ctx: WorkflowValidationContext = { useCases: taxonomy.useCases, stacks: taxonomy.stacks, lessonSlugs: [...lessons.keys()], today: manilaDate(opts.now) };
+  const ctx: WorkflowValidationContext = { useCases: taxonomy.useCases, stacks: taxonomy.stacks, lessonSlugs: [...lessons.keys()], mediaIds: readMediaIds(mediaRootOf(opts.contentDir), new Set(lessons.keys())), today: manilaDate(opts.now) };
   const issues: SeedIssue[] = [];
   const warnings: SeedIssue[] = [];
   for (const f of files) {

@@ -17,6 +17,10 @@ import {
   type WorkflowTool,
   type WorkflowValidationContext,
 } from "../../src/lib/contracts";
+import { diagramLayout } from "../../src/components/diagram/layout";
+import { diagramSubtreeIssues } from "../../src/components/diagram/parse";
+import type { Diagram } from "../../src/lib/contracts/diagram";
+import { checkLabelsFit, diagramFitNotes } from "../../src/lib/diagram/fit";
 import type { SeedIssue } from "../seed/lib/issues";
 import { isRealDate, normalizeText, sha256 } from "../seed/lib/text";
 import { parseYamlSafe } from "../seed/lib/yaml";
@@ -39,6 +43,10 @@ export interface ParsedWorkflow {
   result_after: string;
   steps: string[];
   why_md: string;
+  /** Optional diagram (PRD §17.3), parsed and fit-checked. */
+  diagram: Diagram | null;
+  /** Optional `<lesson-slug>/<media-id>` (PRD §17.3). */
+  watch: string | null;
   /** sha-256 of the LF-normalised file text: equal to `git show <rev>:<path> | shasum -a 256` for an LF-committed file (WF-43). */
   content_hash: string;
 }
@@ -54,7 +62,7 @@ export interface ParseOptions {
   excuseClientSafe?: boolean;
 }
 
-const KNOWN_KEYS = new Set(["title", "problem", "tools", "use_cases", "stacks", "related_lesson", "tool_versions", "verified_on", "client_safe", "author"]);
+const KNOWN_KEYS = new Set(["title", "problem", "tools", "use_cases", "stacks", "related_lesson", "tool_versions", "verified_on", "client_safe", "author", "diagram", "watch"]);
 const SETUP_ATTRS = new Set(["path", "kind", "tool"]);
 const PROMPT_HEADINGS: Record<string, WorkflowTool> = { "Claude Code": "claude-code", "Codex CLI": "codex" };
 
@@ -371,10 +379,28 @@ export function parseWorkflowFile(raw: string, file: string, ctx: WorkflowValida
     issues.push({ file, line: yaml.lineOf(["verified_on"]), field: "verified_on", reason: "not a real calendar date" });
   }
 
+  // Diagram (PRD §17, DG-6, DG-8): no anchors, aliases or tags in the subtree, and every label fits in both orientations.
+  for (const i of diagramSubtreeIssues(parts.fm)) {
+    issues.push({ file, line: yaml.lineOf(["diagram"]), field: i.path, reason: i.reason });
+  }
+  if (fm?.diagram) {
+    for (const i of checkLabelsFit(fm.diagram, diagramLayout)) {
+      issues.push({ file, line: yaml.lineOf(["diagram"]), field: `diagram.${i.path}`, reason: i.reason });
+    }
+    for (const note of diagramFitNotes(fm.diagram, diagramLayout)) {
+      warnings.push({ file, line: yaml.lineOf(["diagram"]), field: "diagram", reason: note.replace(/^diagram [^:]+: /, "") });
+    }
+  }
+
   // Body. The tool list may be unusable when the frontmatter failed; then the cross-checks against it are skipped.
   const toolsKnown = Array.isArray(data["tools"]) && data["tools"].every((t) => typeof t === "string") ? (data["tools"] as string[]) : null;
   const { lines: body, unclosed } = classify(parts.body.split("\n"), parts.bodyStartLine);
   if (unclosed !== null) issues.push({ file, line: unclosed, field: "body", reason: "code fence is never closed" });
+  for (const f of fences(body)) {
+    if (f.info.split(/\s+/)[0]?.toLowerCase() === "diagram") {
+      issues.push({ file, line: f.line, field: "body", reason: "a diagram fence is not allowed in a workflow body; use the `diagram` frontmatter field (PRD §17.3)" });
+    }
+  }
   const sections = splitSections(body, file, issues);
   for (const name of WORKFLOW_SECTIONS) {
     if (!sections.has(name)) issues.push({ file, line: parts.bodyStartLine, field: name, reason: `missing ## ${name} section` });
@@ -433,6 +459,8 @@ export function parseWorkflowFile(raw: string, file: string, ctx: WorkflowValida
       result_after: r.after,
       steps,
       why_md: why,
+      diagram: fm.diagram ?? null,
+      watch: fm.watch ?? null,
       content_hash: sha256(text),
     },
   };

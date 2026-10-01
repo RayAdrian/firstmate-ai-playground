@@ -1,9 +1,10 @@
 import "server-only";
 import { cache } from "react";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { workflowRowSchema, type WorkflowRow } from "@/lib/contracts";
+import { workflowRowSchema, watchRe, type WorkflowRow } from "@/lib/contracts";
 import { dbRead } from "@/lib/db";
 import { getReadClient } from "@/lib/db/server";
+import { validateStoredDiagram } from "@/components/diagram/lesson-diagram";
 import { getNow, manilaDate } from "@/lib/time/now";
 import { freshnessOf, sortWorkflows, type WorkflowCardData } from "./filter";
 
@@ -75,9 +76,18 @@ export const getWorkflowPage = cache(async (slug: string): Promise<WorkflowPageD
     getNow(),
   ]);
   if (raw === null) return null;
-  const parsed = workflowRowSchema.safeParse(raw);
+  // A stored diagram or watch that no longer validates must never 404 or crash the page (PRD §17 DG-9): it is parsed
+  // separately, skipped and logged, and the rest of the row is validated as before.
+  const { diagram: storedDiagram, watch: storedWatch, ...rest } = raw as Record<string, unknown>;
+  const parsed = workflowRowSchema.safeParse({ ...rest, diagram: null, watch: null });
   if (!parsed.success) return null;
-  return { workflow: parsed.data, today: manilaDate(now) };
+  const context = `workflow ${slug}`;
+  const diagram = validateStoredDiagram(storedDiagram, context);
+  const watch = typeof storedWatch === "string" && watchRe.test(storedWatch) ? storedWatch : null;
+  if (storedWatch !== null && storedWatch !== undefined && watch === null) {
+    console.warn(`[diagram] skipped watch on ${context}: not <lesson-slug>/<media-id>`);
+  }
+  return { workflow: { ...parsed.data, diagram, watch }, today: manilaDate(now) };
 });
 
 export type LessonWorkflows = { items: WorkflowCardData[]; total: number };

@@ -1,10 +1,13 @@
 import type { ReactNode } from "react";
+import { DiagramFigure } from "@/components/diagram/diagram-figure";
+import { WatchLine } from "@/components/diagram/watch-line";
 import { InlineText } from "@/components/lesson/inline-text";
 import { Markdown } from "@/components/lesson/markdown";
 import { TOOL_LABEL, type Tool } from "@/components/lesson/tool";
 import { Badge, Card } from "@/components/ui";
 import { CodeBlock } from "@/components/ui/code-block";
 import type { WorkflowPrompt, WorkflowSetupBlock } from "@/lib/contracts";
+import type { Diagram } from "@/lib/contracts/diagram";
 import { kindLabel } from "@/lib/workflows/labels";
 
 const H2 = "mb-3 scroll-mt-24 text-2xl font-bold text-fg-strong";
@@ -107,12 +110,27 @@ export function StepsSection({ steps }: { steps: readonly string[] }) {
 }
 
 /** "Why it works" as a callout, like a lesson's Key differences. Markdown, so `<script>` shows as text (L-7). */
-export function WhySection({ why }: { why: string }) {
+export function WhySection({
+  why,
+  diagram = null,
+  watch = null,
+  slug = "",
+}: {
+  why: string;
+  /** Validated at read (src/lib/workflows/queries.ts); null when absent or invalid. Renders first (PRD §17.5, DG-10). */
+  diagram?: Diagram | null;
+  /** `<lesson-slug>/<media-id>`; renders the Watch line after the diagram (DG-11). */
+  watch?: string | null;
+  /** For the log line when a `watch` no longer resolves. */
+  slug?: string;
+}) {
   return (
     <section aria-labelledby="why-it-works" className="mt-10 rounded-card border-l-4 border-link bg-accent-soft p-5">
       <h2 id="why-it-works" className="scroll-mt-24 text-xl font-bold text-fg-strong">
         Why it works
       </h2>
+      {diagram && <DiagramFigure diagram={diagram} frame="band" />}
+      {watch && <WatchLine watch={watch} context={`workflow ${slug}`} />}
       <Markdown source={why} />
     </section>
   );
