@@ -643,3 +643,429 @@ Tooling prerequisites, documented in `media/README.md` (V1 writes the Remotion p
 | The VHS or Remotion toolchain breaks on a macOS update. | The output is committed, so the app never depends on the toolchain at runtime. |
 
 **Q-MD2 (non-blocking):** who sends the 2-week survey. This falls under Q4 (measurement owner), which is still open.
+
+---
+
+## 16. Shared workflows (inner-source, phases 0–1)
+
+| | |
+|---|---|
+| Status | v1.0 addendum: gates the workflows build. Nothing in it is built yet. |
+| Date | 2026-10-01 |
+| Owner | Stakeholder (decisions); PM agent (this section) |
+| Relationship to §1–§15 | Additive. Where this section changes an earlier rule, it says so in §16.12 and the earlier text is read as amended. §15 (lesson media) is a separate addendum; neither depends on the other. |
+
+**Fixed decisions (stakeholder, 2026-10-01; do not reopen):**
+1. Engineers share **Workflows**: one markdown file each at `content/workflows/<slug>.md`.
+2. Workflows live in their own area (`/workflows`, `/workflows/[slug]`). They are **never mixed into lessons**. The only link between the two is a "Workflows that use this" row on lessons and a "Builds on Lesson X.Y" link on workflows.
+3. Contribution goes through a committed `/share-workflow` skill that ends in `gh pr create`. There is no in-app form.
+4. **Workflow PRs merge with no AI gates ("Just PR. No need for gates.").** The owner or a steward reviews and merges; no approval is required (a personal repo cannot self-approve). App code still needs all three gates (§12). CI on workflow PRs runs only schema validation, the gitleaks secret scan and the required `client_safe` field.
+5. The repo stays on the personal GitHub account. No org transfer.
+6. This section covers phases 0–1 only. Phase 2 (§16.5) is out of scope.
+7. "Worked for me" and in-app "Report outdated" need a server write and wait for phase 2. Phases 0–1 use a prefilled GitHub issue link.
+8. **No client-name denylist** (stakeholder, 2026-10-01: "It'll get caught in review"). **Human review at merge is the confidentiality control.** Automated checks catch secrets and schema problems only.
+
+### 16.1 Problem, goal, non-goals
+
+**Problem.** The curriculum (§7) teaches the tools in general. What engineers actually need on a client repo is the specific setup that worked for someone else: a hook, a subagent, a gate script, the prompt that made it go. Today that knowledge stays in one person's terminal and chat history. The build of this app produced a dozen such patterns (§16.11) and none of them are reusable by anyone else.
+
+**Goal (G5, new).** Make a working setup shareable in under 10 minutes and findable in under 1 minute, with zero client-confidential leakage.
+
+**Non-goals.** Replacing lessons; a public marketplace; rating or ranking engineers; hosting the app; accepting workflows from outside First Mate; executing anything from a workflow in the app (the app still makes no LLM calls and runs nothing).
+
+### 16.2 Target users
+
+| Role | Context | Needs |
+|---|---|---|
+| **Contributor** (any engineer, any persona from §3) | Just got a setup working on a client repo or on this one. Has 10 minutes, not an hour. | A path that drafts the file for them, strips client detail, and opens the PR. |
+| **Reader** (any engineer) | About to set up agents on a new client repo, or stuck on a specific problem. | Find a workflow by tool, use case and stack; copy the setup files; know whether it is still current. |
+| **Steward** (2–3 engineers, rotating quarterly) | Reviews workflow PRs alongside client work. | A small review checklist, a merge command that refuses the wrong lane, a runbook for leaks. |
+| **Stakeholder** | Owns the steward roster. | Leak metrics and a takedown path that works. |
+
+### 16.3 Success metrics
+
+Measured outside the app (the app has no telemetry, §2). "Engineers" excludes stewards' seed authorship (§16.11).
+
+| # | Metric | Target | Source / cadence |
+|---|---|---|---|
+| WF-M1 | Engineers with at least one merged workflow | **≥ 25% within 90 days** of phase 1 launch | Distinct git author names of commits on `main` that **add** a file under `content/workflows/` (excluding the `First Mate Stewards` seed author), divided by engineer headcount (§14 Q4). Monthly. |
+| WF-M2 | Median time from PR opened to merged, content-lane PRs | **≤ 3 business days** (Mon–Fri, Asia/Manila) | `gh pr list --state merged --label workflow --json createdAt,mergedAt`. Monthly. |
+| WF-M3 | Confidentiality incidents | **0** | Count of takedown-runbook invocations (§16.10.4) that were true positives: a client-identifying detail or secret reached any branch pushed to GitHub. Logged in the runbook's incident log. |
+| WF-M4 | First steward response within SLA | ≥ 90% of workflow PRs get a first steward comment, review or merge within 3 business days | Same `gh` query with the first steward activity timestamp. Monthly. |
+| WF-M5 | Freshness (guardrail) | ≥ 70% of non-archived workflows are within 60 days of `verified_on` at day 90 | `npm run content:stale` output (WF-41). |
+
+Leading indicator, not a target: the number of CI runs where the gitleaks job failed. A rising count means the skill's local scan is missing something.
+
+**Definition of done (phases 0–1):**
+- Every P0 WF acceptance criterion passes as an automated test (Vitest, Playwright, a temp-repo integration test, or a CI-job test against fixture files), except bullets marked *(manual)*, which are recorded with evidence (a session transcript or screenshots) on the W3 PR and the pilot PR.
+- The 10 seed workflows (§16.11) are merged to `main` **through the content lane**: each PR shows the content checks green, was merged by the owner or a steward with `gate:merge`, and has no `gate/*` statuses.
+- One non-steward engineer has run `/share-workflow` end to end and opened a real PR (the pilot), and the run is recorded on that PR.
+- `gate:merge` has merged one real content-lane PR and has refused one mixed PR (code plus a workflow) for missing gates, with both outputs pasted on the W0 PR or the pilot PR.
+- `AGENTS.md`, `CONTRIBUTING.md`, `CODEOWNERS` and the takedown runbook are on `main`.
+
+### 16.4 Phases
+
+| Phase | What ships | Standalone value |
+|---|---|---|
+| **Phase 0: the lane** | W0 (contracts, migration, CI, `gate:merge` content lane, templates), W1's validator and scanner, W3 (skill, CONTRIBUTING, CODEOWNERS, runbook), W4 (10 seed workflows). | Workflows exist as reviewed markdown in the repo and are readable on GitHub. Contribution works end to end. |
+| **Phase 1: the app** | W1's seed ingest and `content:stale` extension, W2 (`/workflows`, `/workflows/[slug]`, nav, lesson row). | Workflows are searchable and filterable in the app, cross-linked to lessons, with freshness shown. |
+
+Phase 0 merges before phase 1 starts its UI gates, but W1 and W2 can be built in parallel with W3 and W4 (§16.14).
+
+### 16.5 Phase 2 (future, out of scope)
+
+Listed so nobody builds toward it by accident. Each item reverses an earlier decision and needs a stakeholder sign-off of its own.
+
+| Phase 2 item | Reverses |
+|---|---|
+| Hosted deployment (for example Vercel plus hosted Supabase) | §4 "Production or hosted deployment" out of scope; the fixed decision "**local** Supabase" in the PRD header. |
+| Google Workspace SSO, restricted to the First Mate domain | §4 "Auth, user accounts" out of scope; the fixed decision "no auth". |
+| Server-side progress | P-1 (localStorage as the only store and the inter-workstream contract); §6 "The browser never writes to the DB"; the anon key being read-only. |
+| News run by GitHub Actions (with an API key) | I-5 (launchd on the stakeholder Mac); §14 Q1 (the `news-snapshots` branch and `news:import`); the subscription-only cost model in §13. |
+| "Worked for me" and in-app "Report outdated" | §4 "Telemetry or analytics" out of scope; the no-writes rule above. |
+| Repo transfer to a GitHub organisation | Fixed decision 5 above. Also unlocks enforced branch protection and CODEOWNERS (R-WF4). |
+
+### 16.6 The workflow file (contract)
+
+One file per workflow at `content/workflows/<slug>.md`. Files in that folder whose name starts with `_` are configuration, not workflows: `_TEMPLATE.md`, `_taxonomy.yaml` and `_takedowns.txt`. Nothing else may live there: no subfolders, no symlinks, no non-`.md` files except those three.
+
+**Frontmatter**
+
+| Field | Rule |
+|---|---|
+| (slug) | Not a field. It is the filename without `.md`. Must match `^[a-z0-9]+(-[a-z0-9]+)*$`, ≤ 60 chars. |
+| `title` | 8–80 chars. |
+| `problem` | **One sentence**, 20–200 chars. Rejected if it contains a sentence break (`[.!?]` followed by whitespace and more text). |
+| `tools` | Non-empty, unique subset of `claude-code`, `codex`. |
+| `use_cases` | 1–3 values from `_taxonomy.yaml` (`use_cases`). |
+| `stacks` | 1–4 values from `_taxonomy.yaml` (`stacks`); `any` is allowed and must then be the only value. |
+| `related_lesson` | Optional. A lesson slug that exists in `content/lessons/` and is not archived. |
+| `tool_versions` | `{ claude_code?, codex_cli? }`, semver strings. A key is **required for each tool in `tools`** and forbidden for tools not in `tools`. |
+| `verified_on` | ISO date. Not later than today's Manila date at validation time. |
+| `client_safe` | Must be exactly `confirmed`. Any other value, or a missing field, fails. |
+| `author` | **Forbidden.** Attribution comes from git (§16.8). A file with an `author` field fails with "author comes from git; remove this field". |
+
+Initial taxonomy (stewards may extend it in a content-lane PR): use cases `planning`, `review`, `testing`, `refactoring`, `debugging`, `parallel-work`, `ci-and-gates`, `security`, `context`, `automation`; stacks `any`, `nextjs`, `react`, `typescript`, `node`, `supabase`, `postgres`, `python`, `github-actions`.
+
+**Body: these `##` sections, in this order, and no others**
+
+| Section | Rule |
+|---|---|
+| `## Result` | Contains `### Before` and `### After`, each 1–600 chars of prose. |
+| `## Setup` | 0–6 fenced code blocks. Each block's info string is `<lang> path=<path> kind=<kind>` with optional `tool=claude-code\|codex`. `kind` is one of `context-file`, `hook`, `skill`, `subagent`, `config`, `script`. `path` is relative or starts with `~/`; it may not contain `..` or start with `/Users/`, `/home/` or `C:\`. With 0 blocks the section must contain prose (for example "No setup files.") and the workflow shows a "Prompt only" badge. |
+| `## Prompt` | At least one fenced block. If `tools` has both tools and the prompts differ, use `### Claude Code` and `### Codex CLI` subsections. |
+| `## Steps` | One ordered list of **1–5 items**. |
+| `## Why it works` | 40–800 chars. |
+
+Whole file ≤ 20 KB. The setup block's `tool=` attribute decides which tab it appears in (WF-36); a block with no `tool=` appears in both.
+
+### 16.7 User stories and acceptance criteria
+
+Phase in brackets. Priorities as in §5.
+
+#### Epic WF-A: Format and validation
+
+**WF-1 (P0, phase 0)** As a contributor, I want my file checked before a human sees it, so that review is about substance.
+- `npm run workflows:validate` checks every file in `content/workflows/` against §16.6 without a database. It exits 0 when all are valid. Otherwise it exits 1 and prints one line per problem as `<path>: <field or section>: <reason>`.
+- Fixture files cover each rule in §16.6: one valid file, plus one invalid file per rule (missing `client_safe`, `client_safe: yes`, a two-sentence `problem`, 6 steps, an unknown `use_case`, a `tool_versions` key for a tool not in `tools`, a future `verified_on`, an `author` field, a `/Users/` setup path, an unknown `##` section, a nonexistent `related_lesson`, a symlink, a subfolder). Each invalid fixture fails with the expected field named.
+
+**WF-2 (P0, phase 0)** Validation and seed agree.
+- `workflows:validate` and `npm run seed` use the same parse function. A test feeds the invalid fixtures to both and asserts the same failures. (This matters because content-lane PRs do not run the full CI, WF-20.)
+
+**WF-3 (P1, phase 0)** Risky commands are called out.
+- If a Setup or Prompt block contains `--dangerously-skip-permissions`, `--yolo`, `danger-full-access`, or a `curl … | sh`/`| bash` pipe, validation fails unless `## Why it works` contains a line starting `Warning:` that explains the risk.
+
+#### Epic WF-B: Contribution (`/share-workflow`)
+
+**How this epic is tested.** Everything a test can assert lives in a deterministic CLI, `scripts/workflows/share.ts` (run as `npm run workflows:share -- <command>`). The skill (`SKILL.md`) is the conversation around it: it asks the questions, generalises the draft, and calls the CLI for every check, file write and git action. ACs about the CLI are automated (Vitest, plus a temp-repo integration test). ACs about what the model says or asks are marked *(manual)* and are proven by a recorded run on the W3 PR and the pilot PR. The CLI is the control; the skill cannot skip it, because the CLI is what writes `client_safe: confirmed` and opens the PR.
+
+**WF-16 (P0, phase 0)** The share CLI has these commands, each with tests.
+- `preflight`: exits 0 only if the working directory is this repo (the `origin` URL matches `REPO_URL`), `git status --porcelain` is empty, `gh auth status` succeeds and `git fetch origin main` succeeds. Otherwise it exits 1 and prints the exact fix command. Tested in a temp repo for each failure.
+- `read <path>...`: prints the file contents for allowed paths and refuses denied ones with exit 2 and the reason. Denied: `.env*`, anything under `~/.ssh/` or `~/.aws/`, `*.pem`, `*.key`, and any basename matching `*secret*` or `*credential*` (case-insensitive). Unit-tested as a pure `isDeniedPath()` function plus one CLI test. The skill reads setup files only through this command. *(manual: that the model used it, shown in the recorded run.)*
+- `draft --answers <file.json> [--dry-run]`: non-interactive. The answers file holds the three answers plus the model's proposed fields and body (problem, before, after, title, tools, use cases, stacks, related lesson, setup blocks, prompt, steps, why). The command applies the deterministic redaction functions (below), writes `content/workflows/<slug>.md` **without** `client_safe`, runs validation (with `client_safe` excused at this stage only) and the scan, and writes a JSON report (`findings`, `validation`, `redactions`) to stdout. With `--dry-run` it stops there: no branch, no commit, no network. Exit 1 if there are findings or validation errors.
+- `confirm <slug> --phrase <text>`: exits 0 and sets `client_safe: confirmed` only when `<text>` is exactly `client-safe`. For any other text (tests include `yes`, `y`, empty, `Client-Safe`, `client-safe ` with a trailing space) it deletes the draft file, exits 3 and runs no git command. In real use the skill passes the contributor's typed reply verbatim; run in a terminal with no `--phrase`, it prompts on stdin itself.
+- `open-pr <slug>`: refuses unless the file has `client_safe: confirmed`, passes validation and has a clean scan (re-run here, not trusted from earlier). It then runs the plan from a pure `buildGitPlan(slug, title)` function, executed with `execFile` (no shell): `git switch -c workflow/<slug> origin/main`, `git add -- content/workflows/<slug>.md`, `git commit -m "workflow: <title>"`, `git push -u origin workflow/<slug>`, `gh pr create --title "Workflow: <title>" --body-file .github/PULL_REQUEST_TEMPLATE/workflow.md --label workflow`. Unit tests assert the exact argv and that no step contains `-A`, `.` as a path, `--no-verify`, `--force`, `--force-with-lease`, `merge` or `review --approve`. An integration test runs it against a local bare remote with a stub `gh` on `PATH` and asserts the branch, the single-file commit and the recorded `gh` arguments. If push or `gh` fails, it exits 1, leaves the branch and commit, and prints the one command that finishes the job.
+- **Redaction and scan functions** are pure and unit-tested with fixture strings: emails outside `example.com` → `user@example.com`; hostnames other than allowlisted public ones (`github.com`, `npmjs.com`, `example.com`, the tool vendors' docs domains) → `example.com`; absolute home paths (`/Users/<name>/`, `/home/<name>/`) → `~/`; IPv4 addresses → `203.0.113.10`. Every replacement is listed in the report so the contributor sees what changed. Secret shapes (WF-11) are **reported, never auto-redacted**, so the contributor must remove them and rotate if real.
+
+**WF-10 (P0, phase 0)** As a contributor, I want a skill that drafts and files my workflow, so that sharing takes under 10 minutes.
+- The skill lives at `.claude/skills/share-workflow/SKILL.md` and is invoked as `/share-workflow` from a checkout of this repo.
+- It runs `workflows:share -- preflight` before asking anything, and stops with the CLI's fix command if it fails (automated via WF-16).
+- *(manual)* It asks **exactly three questions**, in this order: (1) "What problem did this solve? One sentence." (2) "What changed? Describe before and after." (3) "Which files make up the setup? Give paths; they can be outside this repo." Everything else (title, tools, use cases, stacks, related lesson, tool versions from `claude --version` / `codex --version`, `verified_on` = today) is proposed in the draft for the contributor to confirm or edit, not asked.
+- It reads setup files only via `workflows:share -- read` (denied paths automated via WF-16; *(manual)* that the model did not read them by other means).
+- *(manual)* The draft **generalises rather than copies**: client repo names, people, ticket IDs and internal URLs become neutral placeholders (`<app>`, `<TICKET>`). The deterministic redactions in WF-16 run on top of this. The draft is shown in full before anything is written.
+- **Time target (manual, pilot):** the pilot run, from invoking the skill to the PR URL, takes ≤ 10 minutes.
+
+**WF-11 (P0, phase 0)** The skill scans locally before anything leaves the machine.
+- `workflows:share -- draft` runs validation and `workflows:scan` on the written file (WF-16). `npm run workflows:scan -- <path>` also runs standalone for the manual path (WF-15).
+- `workflows:scan` reports, as `<line>: <rule-id>` (never echoing a matched secret in full): gitleaks findings (`gitleaks detect --no-git --source <path>` when gitleaks is installed; when it is not, a printed warning plus the built-in rules), email addresses outside `example.com`, IPv4 addresses, JWT and common API-key shapes (Anthropic, OpenAI, AWS, GitHub, Supabase service keys), and absolute home paths. It does not look for client names; that is the contributor's confirmation (WF-12) and the reviewer's job (§16.10.2).
+- Any finding makes `draft` exit 1 and `open-pr` refuse (automated). *(manual)* The skill shows the findings and offers to rewrite those lines; it never offers to skip the scan.
+- The scan rules are unit-tested per rule id with one positive and one negative fixture string each, and a test asserts that a report for a fixture key does not contain the key in full.
+
+**WF-12 (P0, phase 0)** The contributor confirms client safety in words.
+- The skill shows this checklist: no client or prospect names; no client code copied verbatim; no internal URLs, hostnames or ticket IDs; no secrets or tokens; no names of people outside First Mate. It then asks the contributor to **type `client-safe`**.
+- The skill passes the reply verbatim to `workflows:share -- confirm`. Any input other than exactly `client-safe` aborts: the draft file is deleted, no branch is created and no git command runs (automated via WF-16). Only `confirm` writes `client_safe: confirmed`. *(manual)* The skill shows the checklist before asking.
+
+**WF-13 (P0, phase 0)** The skill opens the PR and stops.
+- The skill calls `workflows:share -- open-pr <slug>`, which stages only that file, commits, pushes and opens the PR (exact commands and the forbidden flags are asserted in WF-16). It prints the PR URL.
+- *(manual)* The skill itself runs no other git or `gh` command, never merges and never approves.
+
+**WF-14 (P0, phase 0)** Codex has the same skill.
+- Verified for this PRD with `codex-cli 0.154.0`: `codex --help` has no `skills` subcommand, but `codex features list` shows `skill_search` as stable, and Lesson 4.4 (verified content) documents repo skills at `.agents/skills/<name>/SKILL.md`, invoked with `$<name>` or `/skills`. So: `.agents/skills/share-workflow/SKILL.md` is a **byte-identical copy** of the Claude Code skill (a copy, not a symlink, so neither tool depends on symlink handling). A CI step fails if the two differ.
+- The skill text tells Codex users that `git push` and `gh pr create` need network access, which the default `workspace-write` sandbox blocks, so Codex will ask for approval at that step. *(manual)* W3 runs the skill once in Codex 0.154.0 and records the session outcome on its PR. If the run fails for a reason the skill cannot fix, the Codex path falls back to WF-15 and CONTRIBUTING says so.
+
+**WF-15 (P0, phase 0)** A documented manual path exists.
+- `CONTRIBUTING.md#share-a-workflow` gives a 6-step path: copy `content/workflows/_TEMPLATE.md` to `<slug>.md`; fill it in; run `npm run workflows:validate` and `npm run workflows:scan -- <path>`; set `client_safe: confirmed` only after the checklist in WF-12; branch `workflow/<slug>`; open the PR with `gh pr create --template workflow.md --label workflow`. The template file passes validation except for its placeholder values, which validation names.
+
+#### Epic WF-C: The content lane
+
+**WF-20 (P0, phase 0)** CI on workflow PRs runs only the leak and schema checks.
+- A new GitHub Actions workflow, `workflows-content.yml`, runs on `pull_request` when any path under `content/workflows/**` changes, and on push to `main`. It has two jobs: `validate` (WF-1, which includes the `client_safe: confirmed` check) and `gitleaks`.
+- `ci.yml` gets `paths-ignore: ['content/workflows/**']` on `pull_request`. GitHub skips it only when **every** changed file matches, so a PR touching only workflows runs only `workflows-content.yml`, and a mixed PR runs both.
+- `gitleaks` runs the gitleaks CLI binary at a pinned version (not the gitleaks GitHub Action, which needs a paid licence for organisation accounts) over **every commit in the PR range**, not just the final diff, because PR branch history stays readable on GitHub after a squash merge.
+
+**WF-21 (P0, phase 0)** Client names are a human check, stated where the merger will see it.
+- There is **no** automated client-name scan. `CONTRIBUTING.md#share-a-workflow` and `.github/PULL_REQUEST_TEMPLATE/workflow.md` both state, in a callout above the checklist: "Human review at merge is the only check for client names, client code, internal URLs and people. CI checks secrets and format, nothing else."
+- The PR template's merger checklist (§16.10.2) starts with the confidentiality item. The merger ticks it before running `gate:merge`; the script does not check it (the stakeholder kept `gate:merge` to lane plus CI).
+
+**WF-22 (P0, phase 0)** `gate:merge` has a content lane.
+- `npm run gate:merge -- <pr#>` works on **one pinned commit**, in this order:
+  1. **Resolve the head SHA first:** `SHA = headRefOid` of the PR.
+  2. **Compute the changed files for that SHA**, not from the PR files API (which reports the current head and caps at 3000 files): fetch `refs/pull/<pr#>/head` and `origin/main`, confirm `SHA` is present, then run `git diff --name-status --find-renames --find-copies origin/main...<SHA>`.
+  3. **Classify the lane** with a pure function over the parsed entries (step 2's output). For `R` and `C` entries **both** the old and the new path count; for `A`, `M`, `D` and `T` the single path counts; any other status (for example `U` or `X`) refuses the merge. The content lane applies only if the list is non-empty and **every** counted path is a direct child of `content/workflows/` (no subfolders) with an allowlisted name: `*.md`, `_taxonomy.yaml` or `_takedowns.txt`. A delete, rename source or copy source outside that set puts the PR in the code lane. It prints `Lane: content (content/workflows/** only)` or `Lane: code`.
+  4. **Require every CI check run on `SHA` to be completed and successful** (paginated over all runs). `queued`, `in_progress`, `pending` or a missing run all refuse, as does any conclusion other than `success` or `skipped`. In the content lane, check runs named `validate` and `gitleaks` must exist. The code lane keeps all its existing rules (gate statuses, labels, up to date with `main`) on the same `SHA`.
+  5. **Re-read `headRefOid`.** If it is no longer `SHA`, refuse with "head moved from <old> to <new>; re-run".
+  6. Merge with `gh pr merge <pr#> --squash --delete-branch --match-head-commit <SHA>`.
+- Content lane: who may run it is a convention, not a check (the owner or a steward; GitHub already requires write access to merge). It does **not** require an approving review (a personal repo cannot self-approve, and the owner may merge their own PR), `gate/*` statuses, `gate:*-green` labels, or being up to date with `main` (`pull_request` CI already runs on the merge ref).
+- A mixed PR is in the code lane and also needs the content checks.
+- **Unit tests for the lane function** (input = `--name-status` lines): only workflows → content; a workflow plus `M src/x.ts` → code; `content/workflows/_taxonomy.yaml` → content; `content/workflows/sub/a.md` → code; `content/workflows/a.ts` → code; `content/workflowsX/a.md` → code; `content/lessons/l1/a.md` → code; **`R100 src/x.ts content/workflows/x.md` → code**; `R100 content/workflows/x.md src/x.md` → code; `C90 src/x.ts content/workflows/x.md` → code; `D src/x.ts` plus `A content/workflows/a.md` → code; `R100 content/workflows/a.md content/workflows/b.md` → content; an empty list → refuse; a `U` entry → refuse.
+- **Script tests with a stubbed `gh`**: a pending check run on `SHA` → refuse; `gitleaks` missing in the content lane → refuse; `headRefOid` changes between steps 1 and 5 → refuse; all green → the merge call carries `--match-head-commit <SHA>` with the SHA from step 1.
+- `gate:merge` remains the **only** merge path for both lanes (the `AGENTS.md` rule against `gh pr merge` and the merge button stands). Reason: the merge button cannot check the lane or that the content checks ran, so the script is the enforcement (R-WF4).
+
+**WF-23 (P0, phase 0)** Ownership and docs say the same thing.
+- `.github/CODEOWNERS` maps `/content/workflows/` to the active stewards and `/.github/` to the repo owner. Placeholder steward handles are **commented out** until real handles exist, because GitHub flags unknown owners as errors. Initially the only active steward is the repo owner, who can merge alone (Q-WF1, non-blocking).
+- `AGENTS.md` gains a "Content lane" paragraph under Merge gates: PRs touching only `content/workflows/**` merge when all CI checks are green, by the owner or a steward running `npm run gate:merge`, with no approval, gate statuses or labels. Human review at merge is the confidentiality control. It adds `workflow/<slug>` to the branch names and `w0`–`w4` to the test-ownership list.
+- `.github/PULL_REQUEST_TEMPLATE/workflow.md` has: the problem sentence, the contributor's own copy of the WF-12 checklist (all boxes), the WF-21 callout, and a "Merger review" checklist (§16.10.2) whose first box is the confidentiality check. It has no gate section.
+
+#### Epic WF-D: The index, `/workflows` (phase 1)
+
+**WF-30 (P0)** As a reader, I want to browse all workflows, so that I can find one that fits.
+- `/workflows` has one `h1` "Workflows", a search box, and a "Share ↗" link to `<REPO_URL>/blob/main/CONTRIBUTING.md#share-a-workflow` that opens in a new tab with `rel="noopener noreferrer"`. The document title is "Workflows · First Mate AI Playground".
+- It lists every workflow that is not removed (§16.8) and not Archived (WF-40), sorted by `verified_on` descending, then title ascending. The count shows as "N workflows".
+- Each card shows: the title (a link to the page); the problem, visually clamped to 2 lines with the full text still in the DOM; a text badge per tool ("Claude Code", "Codex CLI"); a badge per distinct setup `kind`, or "Prompt only"; stack chips; either "Verified <d MMM yyyy>" or a "May be outdated" badge; and "by <author>".
+
+**WF-31 (P0)** As a reader, I want to filter by tool, use case, level and stack, so that I see only what applies.
+- Filters are a `<form method="get" action="/workflows">` (the §6.6 archive pattern: works before hydration, explicit "Apply filters" button, a "Filters (N)" disclosure below lg, a left column at lg+). Params: `tool` (`claude` or `codex`, single), `use` (repeatable), `level` (1–5, single; the level of the related lesson), `stack` (repeatable), `q` (≤ 100 chars), and `lesson` (a lesson slug, set only by the lesson row's "See all" link).
+- Different params combine with AND; repeated values of one param combine with OR. `q` matches title or problem case-insensitively, with `%` and `_` treated as literal characters.
+- Unknown values are ignored, not errors. Active filters show as chips that link to the same URL minus that value, plus "Clear filters".
+- Given the fixture set, `/workflows?tool=codex&use=review` shows exactly the fixtures matching both, and removing the `use` chip restores the `tool=codex` result.
+- No match → EmptyState "No workflows match these filters" with "Clear filters". No workflows at all → "No workflows yet." with a link "Share the first one ↗".
+
+**WF-32 (P1)** "Show archived (N)" at the end of the list links to `?archived=1`, which includes Archived workflows with an "Archived" badge.
+
+#### Epic WF-E: The workflow page, `/workflows/[slug]` (phase 1)
+
+**WF-33 (P0)** As a reader, I want the result first and the setup next, so that I can decide fast and then copy.
+- Header: a breadcrumb `nav[aria-label=Breadcrumb]` ("Workflows / <title>"), an eyebrow "WORKFLOW", the `h1`, the problem sentence, and a meta line. The document title is "<title> · Workflow · First Mate AI Playground".
+- The `h2` sections render in this order: "Result" (Before and After as two cards, side by side at md+, stacked below), "Setup" (one CodeBlock per artifact, labelled with its `path`, with copy per L-4), "Prompt", "Steps" (an ordered list), and "Why it works" (a callout).
+- Markdown is rendered with the L-7 rules. A fixture workflow containing `<script>` in "Why it works" renders it as escaped text.
+- An unknown slug, or a removed one, returns the 404 variant with a link to `/workflows`.
+
+**WF-34 (P0)** "Reviewed" and "Verified" are never confused.
+- The meta line shows two separate elements. **Reviewed**: a badge with a check icon reading "Reviewed by stewards" plus the `reviewed_on` date (omitted if unknown); it states that a steward merged this file. **Verified**: plain meta text reading "Author-verified on Claude Code vX[, Codex CLI vY] · <verified_on>"; it is the author's claim.
+- Tests assert that both strings are present and that the Reviewed element does not contain the word "verified".
+
+**WF-35 (P0)** As a reader, I want a summary rail, so that I can judge fit without scrolling.
+- At lg+, a sticky right rail (`aside`, accessible name "At a glance") lists Tools, Setup type, Stack, "Builds on Lesson X.Y: <title> →" (X = level number, Y = the lesson's position in its level; hidden if `related_lesson` is empty, removed or archived), a "Report outdated ↗" link, and an "On this page" list linking to the five section ids.
+- Below lg, the same facts render as a block between the meta line and Result, without the "On this page" list.
+
+**WF-36 (P0)** Tool tabs appear only when both tools are covered.
+- If `tools` has both values, Setup and Prompt render inside the L-2 Tabs (same ARIA, the same `?tool=` param and `prefs.tool` state as lessons). Setup blocks with `tool=` appear only in that tab; blocks without it appear in both. Result, Steps and Why it works sit outside the tabs.
+- If `tools` has one value, there are no tabs and no tablist in the DOM.
+
+**WF-37 (P0)** "Report outdated" opens a prefilled issue.
+- The link is `<REPO_URL>/issues/new?template=workflow-outdated.yml&labels=workflow-outdated&title=Outdated%3A+<slug>&workflow=<slug>`, opening in a new tab. `REPO_URL` comes from the contract constant, not a hardcoded string in components, so a later org transfer is a one-line change.
+- `.github/ISSUE_TEMPLATE/workflow-outdated.yml` is an issue form with fields `workflow` (prefilled), "What broke?" (required), and tool versions (optional).
+
+**WF-38 (P1)** Archived workflows stay readable.
+- An Archived workflow (WF-40) still renders at its URL with a Notice at the top: "Archived: not verified since <verified_on>. Kept for reference; the setup may no longer work."
+
+#### Epic WF-F: Navigation and lesson cross-links (phase 1)
+
+**WF-39 (P0)** Nav.
+- "Workflows" is added to `NAV_ITEMS` between "Exercises" and "News", in both the desktop nav and the mobile menu. It is active (`aria-current="page"`) for `/workflows` and `/workflows/*`.
+- No horizontal scroll at 360, 768, 1024 or 1440 (D-3). At 768 the "AI Playground" label is already hidden below lg; the test asserts that the six links fit at 768 without wrapping.
+
+**WF-39a (P0)** Lessons show their workflows.
+- On `/lessons/[slug]`, **after** the previous/next navigation, a section with `h2` "Workflows that use this" lists up to 3 non-archived workflows whose `related_lesson` is this lesson, sorted by `verified_on` descending, each with its title and problem. If there are more than 3, a "See all N →" link goes to `/workflows?lesson=<slug>`.
+- With 0 matches the section is not rendered (no empty heading). The L-1 order of everything above it is unchanged.
+
+#### Epic WF-G: Freshness and lifecycle (phase 1)
+
+**WF-40 (P0)** Freshness is derived from `verified_on`, never stored.
+- Age = days between `verified_on` and `manilaDate(getNow())`. **0–60 days:** fresh (verified line). **61–180:** "May be outdated" badge on card and page. **181 or more:** Archived (hidden from the index and the lesson row, still reachable by URL, WF-38).
+- Boundary tests at ages 60, 61, 180 and 181, using `setServerNow`.
+- Re-verifying is a content-lane PR that bumps `verified_on` and `tool_versions`. It un-archives the workflow with no other action.
+
+**WF-41 (P1)** `content:stale` covers workflows.
+- `npm run content:stale` prints a separate "Workflows" group listing each workflow that is "May be outdated" or Archived, with its age, and each whose `tool_versions` are behind the latest release seen in the release feeds.
+- `--strict` still counts **lessons only**. Workflows decay by design, and failing a run on community content would punish the wrong people.
+
+**WF-42 (P0)** Ingest is idempotent and attributed.
+- `npm run seed` upserts workflows by slug. Running it twice gives no diff. **A bad workflow never blocks the seed:** because the content lane does not require being up to date with `main`, a file valid against an older validator or taxonomy can land. An invalid workflow file is skipped with a warning (`<path>: <reason>`), its existing row is left unchanged, and lessons and the other workflows still seed. The S-2 all-or-nothing rule still applies to lessons and exercises. `workflows-content.yml` also runs `validate` on push to `main`, so a red `main` badge shows the bad file.
+- `author_name` is the name on the earliest commit that added the file (`git log --diff-filter=A --follow --format=%an -- <path>`, run with `execFile` and an argv array, never through a shell, and only for paths that passed the slug check). `reviewed_on` is the date of the latest commit that touched the file on `main`. **Emails are never stored or shown.** In a shallow clone, where history is unavailable, the author is "Unknown", `reviewed_on` is null, and the seed prints one warning; it does not fail.
+- A file deleted from `content/workflows/` sets `removed_at` and the page 404s. The row is kept (never deleted), with one exception: WF-43.
+
+**WF-43 (P0)** Takedowns purge local copies.
+- `content/workflows/_takedowns.txt` holds one **SHA-256 of a full file version** per line: the `content_hash` that the seed already stores. It never holds the slug or a hash of the slug, because a slug like `acme-deploy` is short enough to recover from a dictionary of client names; a whole-file hash cannot be reversed without the file. The runbook lists the hash of **every version** of the file in history (computed before the history rewrite). On `npm run seed`, any row whose `content_hash` is listed is **hard-deleted**. This is the only hard delete in the system.
+- A test seeds a fixture workflow, adds its `content_hash`, re-seeds, and asserts the row is gone.
+
+### 16.8 Data model
+
+A new migration adds one table, mirroring `lessons`, with the same RLS pattern (anon and authenticated: select only; writes by the service-role seed).
+
+```
+workflows   id uuid pk, slug text unique, title, problem,
+            tools text[] (non-empty, ⊆ {claude-code, codex}),
+            setup jsonb [{ path, kind, lang, tool|null, code }],
+            setup_kinds text[]                -- distinct kinds, for filtering; empty = prompt only
+            prompt jsonb { shared?, claude?, codex? }   -- markdown
+            result_before text, result_after text,
+            steps text[] (1–5), why_md text,
+            use_cases text[], stacks text[],
+            related_lesson_slug text null,    -- validated at seed; no FK, so archiving a lesson never blocks a seed
+            level int null (1–5),             -- copied from the related lesson at seed time
+            tool_versions jsonb { claude_code?, codex_cli? },
+            verified_on date, author_name text, reviewed_on date null,
+            content_hash text, removed_at timestamptz null, created_at, updated_at
+```
+Indexes: `gin(tools)`, `gin(use_cases)`, `gin(stacks)`, `(related_lesson_slug)`, `(verified_on desc)`.
+
+There is no stored freshness column (WF-40 derives it) and no `client_safe` column (it is a merge-time property of the file; anything in the table has passed it). `db:reset:test` adds 6 fixture workflows: both tools; Claude Code only; Codex only and prompt only; aged 61 days; aged 181 days; and one with a `<script>` in its body. At least two link to a fixture lesson.
+
+**Bookmarks: deferred (decision).** Bookmarking workflows is **not** in phases 0–1. Reasons: P-1 is the frozen inter-workstream contract, and changing it touches export/import (P-6), `/bookmarks` and the migration chain for a library expected to hold about 10–30 items that search already covers. Revisit when there are more than 30 non-archived workflows. When it happens, it is an M0-owned PR with this exact shape, so it is not redesigned: `version: 2`, `bookmarks.workflows: Record<slug, ISO timestamp>`, a v1→v2 migration that adds `workflows: {}` (P-4 already provides the chain and a fixture), and the storage key string stays `fm-playground:v1` (the key name is not the version).
+
+### 16.9 Routes and states
+
+| Route | Data | Empty | Loading | Error |
+|---|---|---|---|---|
+| `/workflows` (`?tool=&use=&level=&stack=&q=&lesson=&archived=`) | DB | "No workflows yet." + "Share the first one ↗"; no matches: "No workflows match these filters" + "Clear filters" | Filter column renders at once, plus 6 card skeletons | Route boundary; DB down app-wide (§9) |
+| `/workflows/[slug]` (`?tool=claude\|codex` when both tools) | DB + localStorage (`prefs.tool`) | Unknown or removed slug → 404 linking to `/workflows` | Skeleton header, two result cards, 2 code blocks | Route boundary |
+| Lesson row | DB | Not rendered | Not rendered until data | Not rendered (the lesson must not fail because of the row) |
+
+Both routes render dynamically (`force-dynamic` or a dynamic read, per `AGENTS.md`) and wrap reads in `dbRead()`. The UI/UX agent adds DESIGN.md §6.11 (index) and §6.12 (page) and the §11 selector entries **before** W2 writes components, from the wireframe decisions above.
+
+### 16.10 Governance
+
+#### 16.10.1 Stewards
+- 2–3 stewards, named in `CODEOWNERS`, rotating each quarter. Placeholders until named: `@fm-steward-1`, `@fm-steward-2`, `@fm-steward-3` (commented out, WF-23).
+- **SLA:** first review within **3 business days** of the PR opening (Mon–Fri, Asia/Manila). If a steward cannot meet it, they re-request another steward on the PR.
+- No approval is required to merge. The owner or any steward reviews and merges, including their own PRs. When the merger is also the author, they still tick every box in §16.10.2 before running `gate:merge`.
+
+#### 16.10.2 What the merger checks (the PR template's "Merger review" list)
+**This review is the confidentiality control.** No automated check looks for client names.
+1. **Client-safe (required box):** no client or prospect names, code, URLs, ticket IDs or people, in the file, every commit message on the branch, the branch name and the PR body.
+2. **Real:** the setup was actually run. `verified_on` and `tool_versions` are plausible. Nothing reads as a generic tip with no concrete setup.
+3. **Specific:** a reader could reproduce it from Setup plus Steps without asking the author.
+4. **Not a duplicate:** an existing workflow is not already the same thing (if it is, suggest editing that one).
+5. **Safe to copy:** risky flags carry a `Warning:` (WF-3), and nothing turns off permissions without saying so.
+
+Do not merge until 1 to 3 hold; comment only for 4 and 5.
+
+#### 16.10.3 Lifecycle
+Fresh (0–60 days) → May be outdated (61–180) → Archived (181+, hidden from lists, still readable). Nothing is deleted except by takedown. "Report outdated" issues are triaged by the steward on rotation within the same 3-business-day SLA: the outcome is a re-verify PR from the author, a fix PR from anyone, or "won't fix" (the workflow then ages into Archived).
+
+#### 16.10.4 Takedown runbook (a leaked client detail or secret)
+Lives at `docs/runbooks/workflow-takedown.md`. In order:
+1. **Contain (target: within 1 hour of the report).** The owner or a steward opens a content-lane PR that deletes the file and adds the `content_hash` of every version of it to `_takedowns.txt` (computed from history before step 2), and merges it with `gate:merge` as soon as CI is green. If a secret leaked, **rotate the secret first**: removing it from git does not un-leak it.
+2. **Rewrite history.** On a fresh mirror clone, remove the file or the term from every commit (`git filter-repo --invert-paths --path <file>` or `--replace-text`) and force-push the affected refs. Announce a merge freeze first: every SHA after the leak changes, so open PRs, worktrees and per-SHA gate statuses must be redone.
+3. **Purge GitHub's copies.** PR refs and cached diffs survive a force-push. File a GitHub Support request to remove them (the account cannot do this itself).
+4. **Purge local copies.** Tell every engineer to re-clone (or hard-reset to the rewritten `main`), delete old worktrees and branches, and run `npm run seed`, which hard-deletes the row (WF-43).
+5. **Notify.** The engagement lead for the affected client decides on client notification under the client agreement, within 24 hours of the report.
+6. **Prevent.** If a secret leaked, add a gitleaks rule for its pattern. If a client detail leaked, add the specific miss to the §16.10.2 checklist wording and tell the stewards; there is no client-name list to update.
+7. **Record.** Add an entry to the incident log in the runbook (date, what class of detail, how it got past the checks), **without naming the client**. This entry is the WF-M3 source.
+
+### 16.11 Seed content (W4)
+
+The stewards (agents in this build) write 10 workflows drawn from what this project actually did. Rules: each must pass §16.6 and the CI scan; each describes something that was **run**, with real versions; each Setup artifact is taken from this repo and generalised (no `/Users/…` paths, no personal handles in commands); commits use the author `First Mate Stewards` so that cards do not credit one person for agent-drafted work. Each goes through the content lane as its own PR (this is also the lane's first real test).
+
+| Slug | Problem it solves | Tools | Builds on |
+|---|---|---|---|
+| `per-sha-gate-statuses` | An approval given on one commit silently covers a later push. | both | `l5-gated-merge-pipelines` |
+| `shared-db-lock-parallel-worktrees` | Parallel worktrees sharing one local database corrupt each other's test runs. | both | `l4-parallel-worktrees` |
+| `patch-id-rebase-reattest` | A pure rebase forces a full re-review even though the diff did not change. | both | `l5-gated-merge-pipelines` |
+| `node-version-agnostic-assertions` | Tests that pass on one Node version fail on another because of error-message and output details. | both | `l3-tdd-with-agents` |
+| `headless-untrusted-input` | Feeding untrusted text to `claude -p` can trigger tools or leak environment secrets. | claude-code | `l3-headless-agents` |
+| `opus-plan-sonnet-build` | One model for everything is either slow and costly or too weak at planning and review. | claude-code | `l5-model-routing` |
+| `prd-first-pm-agent` | Agents build the wrong thing when the spec is a chat message. | claude-code | `l3-plan-first` |
+| `uiux-gate-rubric` | UI review by an agent is vague without a pass/fail rubric. | claude-code | `l3-ai-code-review` |
+| `parallel-worktree-team-path-ownership` | Parallel agents collide on the same files. | both | `l5-multi-agent-teams` |
+| `db-reset-caveat-in-agents-md` | E2E resets wipe your working dev data, and agents forget to restore it. | both | `l2-feedback-loops` |
+
+Two seeds need a check before writing:
+- `shared-db-lock-parallel-worktrees`: this repo serialises DB-mutating runs by an `AGENTS.md` rule ("run `db:reset:test` and the gate E2E one at a time"), not by a committed lock script. ASSUMPTION: the workflow presents a lock (for example a `flock` wrapper) only if W4 actually runs it; otherwise it describes the rule-based version honestly.
+- `patch-id-rebase-reattest`: `AGENTS.md` says any push invalidates approvals and the gates re-run. The workflow must describe exactly what this repo allows (patch-id as evidence that speeds re-review, or as grounds to re-post a status), not a looser version. Q-WF4.
+
+A "Both" tool value is allowed only if W4 ran the Codex side too; otherwise that seed ships as `claude-code` only.
+
+### 16.12 Amendments to earlier sections
+
+| Section | Amendment |
+|---|---|
+| L-1 | The lesson page order gains a 7th item after previous/next: "Workflows that use this" (WF-39a), shown only when non-empty. |
+| §4 | In scope: shared workflows (this section). The out-of-scope rows for auth, hosting, telemetry and CMS **stand**. |
+| §6 | Adds the `workflows` table (§16.8). |
+| §8 | Adds `/workflows` and `/workflows/[slug]`, both P0 in phase 1. |
+| §10 | Must: WF P0s. Should: WF-3, WF-32, WF-38, WF-41. Could: personal install of the skill (`~/.claude/skills`) so it runs from a client repo; pagination when there are more than 60 workflows. Won't (phases 0–1): bookmarks for workflows, "Worked for me", in-app reporting, comments, ratings. |
+| §11 | New workstreams W0–W4 (§16.14). WS-B's paths pass to W1 and WS-C's lesson page gets one mount for W2, as recorded there. |
+| §12 | Content lane: PRs touching only `content/workflows/**` merge with all CI checks green, by the owner or a steward via `gate:merge`; no approval, gate statuses or labels (WF-22). The §12 "at least 1 approving review" rule does not apply to this lane. Every other PR is unchanged. |
+
+### 16.13 MoSCoW
+
+| Must (P0) | Should (P1) | Could (P2) | Won't (phases 0–1) |
+|---|---|---|---|
+| Format and validator (WF-1, 2); skill with scan, typed confirm, PR, and the share CLI (WF-10 to 13, WF-16); Codex copy and manual path (WF-14, 15); content CI (schema, gitleaks), human-review callout, `gate:merge` lane, CODEOWNERS/AGENTS (WF-20 to 23); index, filters, page, Reviewed/Verified split, rail, tabs rule, report link (WF-30, 31, 33 to 37); nav and lesson row (WF-39, 39a); freshness, ingest, takedown purge (WF-40, 42, 43); 10 seed workflows | Risky-command warnings (WF-3); show archived (WF-32); archived notice (WF-38); `content:stale` for workflows (WF-41) | Personal skill install; pagination; a `workflows:metrics` script for WF-M1/M2 | Bookmarks; "Worked for me"; in-app reporting; comments or ratings; hosting; SSO; org transfer |
+
+**Force-rank.** If only phase 0 shipped, the lane, the skill and 10 reviewed workflows readable on GitHub would still deliver G5's sharing half. That is why the lane and the leak checks come before any UI.
+
+### 16.14 Workstreams and path ownership
+
+Same rules as §11: one worktree per branch, edit only owned paths, rebase on `main` before gates. Tests go in `tests/unit/<w>/` and `tests/e2e/<w>/`.
+
+| WS | Scope | Owns (paths) | Lane | Depends on |
+|---|---|---|---|---|
+| **W0 (M0-owned, serial, first)** | Contract `src/lib/contracts/workflow.ts` (frontmatter zod schema, body-section types, setup `kind` enum, freshness thresholds 60/180, `REPO_URL`, issue template name), row types in `rows.ts`, migration `supabase/migrations/<ts>_workflows.sql`, `package.json` scripts `workflows:validate`, `workflows:scan` and `workflows:share` (stubs that exit 1 until W1 and W3), `.github/workflows/workflows-content.yml` (WF-20) plus the skill byte-identity step (WF-14), `ci.yml` `paths-ignore`, `scripts/gate-merge.sh` content lane (SHA-pinned, WF-22) plus the lane function and its tests, the `AGENTS.md` edits (WF-23) | `src/lib/contracts/`, `supabase/migrations/`, `package.json`, `.github/workflows/`, `scripts/gate-merge.sh`, `scripts/gate-lane.ts`, `AGENTS.md`, `tests/unit/w0/` | Code (3 gates) | Nothing |
+| **W1: validate, scan, ingest** | `workflows:validate`, `workflows:scan` (WF-1 to 3, WF-11's scanner), seed ingest with git attribution and takedown purge (WF-42, 43), `content:stale` extension (WF-41), the 6 E2E fixtures, `_taxonomy.yaml` (first version) | `scripts/workflows/` except `share*.ts`, `scripts/seed/` (inherited from WS-B) **except `scripts/seed/stale.ts` and `scripts/seed/lib/media-stale.ts`, which V4 owns (§15.5)**, the new `scripts/seed/lib/workflows-stale.ts`, `tests/fixtures/` (workflow fixtures), `content/workflows/_taxonomy.yaml`, `tests/unit/w1/` | Code (3 gates; UI/UX "N/A") | W0. The WF-41 import into `stale.ts` waits for V4 (see hand-off below). |
+| **W2: `/workflows` UI** | DESIGN.md §6.11–6.12 and §11 selectors (UI/UX agent, first), WF-30 to WF-40 (WF-39 is the nav), WF-39a lesson row | `src/app/workflows/`, `src/components/workflows/`, `src/lib/workflows/` (queries), `docs/design/DESIGN.md` (§6.11, §6.12, §11 additions only). **Granted single-line edits:** `src/components/ui/nav.ts` (one `NAV_ITEMS` entry plus its `isNavActive` case) and `src/app/lessons/[slug]/page.tsx` (one mount of the row component after prev/next). `tests/e2e/w2/`, `tests/unit/w2/` | Code (3 gates) | W0; W1's fixtures (merge W1's fixture commit first, or build against contract-typed local fixtures and switch) |
+| **W3: contribution** | The skill in both locations and the share CLI (WF-10 to 16), `CONTRIBUTING.md`, `content/workflows/_TEMPLATE.md`, the takedown runbook, and three `.github` files granted out of M0: `CODEOWNERS`, `PULL_REQUEST_TEMPLATE/workflow.md`, `ISSUE_TEMPLATE/workflow-outdated.yml` | `.claude/skills/share-workflow/`, `.agents/skills/share-workflow/`, `scripts/workflows/share*.ts` (the WF-16 CLI), `CONTRIBUTING.md`, `content/workflows/_TEMPLATE.md`, `content/workflows/_takedowns.txt` (created empty; later entries come only through the takedown runbook, merged in the content lane by the owner or a steward), `docs/runbooks/`, `.github/CODEOWNERS`, `.github/PULL_REQUEST_TEMPLATE/`, `.github/ISSUE_TEMPLATE/`, `tests/unit/w3/` | Code (3 gates; UI/UX "N/A") | W0 (script names), W1 (the scanner it calls) |
+| **W4: seed workflows** | The 10 workflows in §16.11 | `content/workflows/*.md` except `_` files | **Content lane** (green CI, merged by owner or steward, no gates) | W0 and W1's validator merged (so CI is real) |
+
+**Sequencing.** W0, then W1, W2 and W3 in parallel, then W4 (it can draft from day 1 but merges last). Then the pilot (one non-steward engineer runs `/share-workflow`). The critical path is W0 → W1 → W4 for phase 0, and W0 → W2 for phase 1. W0's PR is the only one that touches frozen paths; nobody else edits `package.json`, contracts or migrations.
+
+**Hand-offs with §15 (lesson media), which is being built in parallel:**
+- **`content:stale`:** W1 puts all workflow staleness logic in the new module `scripts/seed/lib/workflows-stale.ts` (its own pure functions and tests in `tests/unit/w1/`). V4 owns `scripts/seed/stale.ts`. **After V4 merges**, W1 rebases and adds exactly one import and one call in `stale.ts` that prints the "Workflows" group. That edit is the hand-off: V4's owner is a required reader of that PR's diff, and W1 changes nothing else in the file. If V4 has not merged when W1 is otherwise ready, W1 merges without the call and the call follows in a small W1 PR.
+- **Lesson page:** W2's one-line mount in `src/app/lessons/[slug]/page.tsx` merges **after** V3's one-line Watch-block mount. W2 rebases on `main` and keeps both lines; its E2E asserts that the Watch block (when present) and the "Workflows that use this" row both render, in that order.
+
+`.github/` stays M0-owned except for the three W3 files named above, which are template and ownership files with no CI effect.
+
+### 16.15 Risks
+
+| # | Risk | Impact | Mitigation |
+|---|---|---|---|
+| R-WF1 | A contributor pastes client detail (a name, a URL, verbatim code) | Breach of client confidentiality; WF-M3 fails | No automated client-name check (stakeholder decision). Layers: the skill generalises (WF-10), the typed confirmation (WF-12), and **human review at merge** (the required confidentiality box, WF-21, §16.10.2). gitleaks covers secrets only. The takedown runbook if all fail. Residual risk accepted: a self-merge has one pair of eyes. |
+| R-WF2 | History outlives the fix (PR refs, forks, existing clones) | A takedown is never complete | gitleaks scans every commit, not just the diff (WF-20); the merger checks commit messages and the branch name (§16.10.2); runbook steps 3–4; secrets are rotated, not just removed. |
+| R-WF3 | A mixed PR, a rename out of `src/`, or a push during the merge slips code through the content lane | Ungated code on `main` | The lane is computed from `git diff --name-status` for the pinned SHA, counting both sides of renames and copies; every check run must be complete and green; the head is re-checked before a `--match-head-commit` merge (WF-22). |
+| R-WF4 | On a private repo under a personal account, GitHub may not enforce branch protection or required CODEOWNERS review | Someone clicks Merge in the UI on a mixed PR or before CI finishes | `gate:merge` checks the lane and CI itself and is the only allowed merge path. Residual risk accepted until the org transfer (phase 2). Q-WF3. |
+| R-WF5 | Empty library: nobody contributes after the seeds | WF-M1 misses | 10 seeds set the bar; 3 questions keep it under 10 minutes; the pilot proves the path; stewards ask in the team channel after each notable client win. |
+| R-WF6 | Low-quality or generic workflows (an LLM-drafted "tip" with no real setup) | Readers lose trust | Steward checks 2 and 3; the `Verified` line is visibly the author's claim (WF-34). |
+| R-WF7 | A workflow tells readers to run something dangerous | A reader's machine or client repo is harmed | WF-3 warnings; steward check 5; the L-7 safe renderer for the content itself. |
+| R-WF8 | Staleness: tools ship weekly | Wrong setups | The 60/180 rule (WF-40), the report link (WF-37), `content:stale` (WF-41). |
+| R-WF9 | Codex sandbox blocks the skill's push | Codex users stall at the last step | WF-14 tells them to expect the approval prompt; the manual path (WF-15) is the fallback. |
+
+### 16.16 Open questions
+
+| # | Question | Blocks | Recommended default |
+|---|---|---|---|
+| Q-WF1 | Who are the 2–3 stewards (GitHub handles)? | Nothing (the owner can merge alone); WF-M4 is only meaningful once named | Name two engineers besides the repo owner within 30 days of phase 0. |
+| Q-WF2 | Engineer headcount, as the WF-M1 denominator | WF-M1 reporting only | Same answer as §14 Q4. |
+| Q-WF3 | Does this personal GitHub plan enforce branch protection and code-owner review on this private repo? | Nothing; it changes R-WF4 from accepted to mitigated | Check repo settings once; record the answer in `CONTRIBUTING.md`. |
+| Q-WF4 | For `patch-id-rebase-reattest`: may a patch-id match justify re-posting gate statuses without re-running them, or does it only speed up review? | That one seed workflow | Describe whatever the current `AGENTS.md` rule allows; if the rule should change, that is a separate code-lane PR. |
