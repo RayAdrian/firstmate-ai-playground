@@ -7,7 +7,7 @@ An internal playground for learning Claude Code and Codex CLI, from your first a
 
 ## Quick start (engineers)
 
-You need Node 20+, Docker and the [Supabase CLI](https://supabase.com/docs/guides/cli).
+You need Node 22.12+, Docker and the [Supabase CLI](https://supabase.com/docs/guides/cli).
 
 ```bash
 git clone https://github.com/RayAdrian/firstmate-ai-playground.git
@@ -36,4 +36,4 @@ One Mac runs the scoring job; everyone else imports its snapshots.
 
 Read `AGENTS.md` (also loaded as `CLAUDE.md`). Every change lands through a PR that needs three green gates on its exact head commit: browser e2e, code review and UI/UX review. The spec is [docs/PRD.md](docs/PRD.md) and the design system is [docs/design/DESIGN.md](docs/design/DESIGN.md).
 
-Note: `npm run e2e` and `npm run db:reset:test` reset your local DB to test fixtures. Run `npm run seed && npm run news:import` afterwards to get your real data back.
+Note: run `npm run db:reset:test` before `npm run e2e`. Both leave your local DB holding test fixtures, so run `npm run seed && npm run news:import` afterwards to get your real data back.
