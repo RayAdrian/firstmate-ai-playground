@@ -2,8 +2,9 @@
 # Re-records the VHS items (PRD 15, MD-5). Run from anywhere; it works from the repo root.
 #   npm run media:record                      records the no-model items (l1-first-session, l4-mcp-servers)
 #   npm run media:record -- <id>              records one item
-#   ANTHROPIC_API_KEY=... OPENAI_API_KEY=... npm run media:record -- l3-headless-agents
-#       the model tape: a maintainer-only manual step, never run in CI or without its id.
+#   npm run media:record -- l3-headless-agents
+#       the model tape: a maintainer-only manual step that uses your logged-in claude and codex
+#       (real HOME). Never run in CI or without its id.
 # Needs: vhs (brew install vhs, which brings ttyd), cwebp (brew install webp), ffmpeg, jq, node, and claude + codex on PATH.
 set -euo pipefail
 
@@ -32,18 +33,23 @@ for id in "${ITEMS[@]}"; do
   cleanup
   extra=()
   if [ "$id" = "$MODEL_TAPE" ]; then
-    if [ -z "${ANTHROPIC_API_KEY:-}" ] || [ -z "${OPENAI_API_KEY:-}" ]; then
-      echo "media:record: $id calls two models. Export ANTHROPIC_API_KEY and OPENAI_API_KEY in your own shell first." >&2
+    # The one tape that uses your real HOME, so claude and codex use their existing logins.
+    if ! PATH="$CLEAN_PATH" claude auth status 2>/dev/null | jq -e '.loggedIn == true' >/dev/null 2>&1; then
+      echo "media:record: log in to claude first (run: claude, then /login). $id calls a model with your own login." >&2
       exit 1
     fi
-    extra=(ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" OPENAI_API_KEY="$OPENAI_API_KEY")
+    if ! PATH="$CLEAN_PATH" codex login status >/dev/null 2>&1; then
+      echo "media:record: log in to codex first (run: codex login). $id calls a model with your own login." >&2
+      exit 1
+    fi
+    extra=(USER="${USER:-}" TMPDIR="${TMPDIR:-/tmp}")
   fi
   if [ "$id" = l4-mcp-servers ]; then
     (cd media/tapes/mcp-server && npm ci --ignore-scripts --no-audit --no-fund >/dev/null)
     extra+=(FM_MCP_SERVER_JS="$ROOT/media/tapes/mcp-server/node_modules/@modelcontextprotocol/server-filesystem/dist/index.js")
   fi
   echo "recording $id ..."
-  # env -i: nothing from the recorder's environment reaches the recording, except the keys above.
+  # env -i: nothing from the recorder's environment reaches the recording, except what a tape is explicitly given.
   # vhs keeps the real HOME only for its own browser cache.
   mkdir -p media/tapes/out
   # If VHS fails (for example a Wait times out on an unexpected reply), delete what it wrote.

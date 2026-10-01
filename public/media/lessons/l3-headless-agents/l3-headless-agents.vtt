@@ -1,0 +1,17 @@
+WEBVTT
+
+1
+00:00:00.500 --> 00:00:07.000
+Claude Code: claude -p with --output-format json and no tools, piped through jq.
+
+2
+00:00:07.000 --> 00:00:13.000
+The reply is one JSON object. jq keeps three stable fields: type, is_error and result.
+
+3
+00:00:13.000 --> 00:00:27.000
+Codex: codex exec --json in a read-only sandbox prints one JSON event per line.
+
+4
+00:00:27.000 --> 00:00:32.000
+jq selects the agent_message event. Its text is the answer.

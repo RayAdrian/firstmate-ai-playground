@@ -537,6 +537,8 @@ Each worktree authors 3–4 lessons and exercises. Every lesson is verified agai
 | Target users | All three personas (§3). Juniors gain most from 1.1 and 4.3, seniors from 4.2 and 5.3. |
 | Done (pilot) | The 5 items in §15.1 are committed and playable on their lesson pages. Every MD-* P0 AC has a passing test. `npm run media:render` and `npm run media:record` regenerate everything from source. |
 
+**Decision (2026-10-01, stakeholder):** no API keys; the team uses logged-in CLIs. The model tape (3.4) is recorded with the maintainer's logged-in Claude Code and Codex (MD-5).
+
 **Principle.** Media is added only where motion or real terminal output teaches something that text and code blocks cannot. It never replaces the lesson text, and it never gates "Mark complete".
 
 ### 15.1 Chosen media (5 items)
@@ -582,17 +584,17 @@ Each worktree authors 3–4 lessons and exercises. Every lesson is verified agai
 
 **MD-5 (P0)** As a content author, I want terminal recordings to be scripted and re-recordable.
 - Each recording is a VHS `.tape` in `media/tapes/<id>.tape`, with a sidecar `<id>.captions.json` (cue text and times) and `transcript.txt`. `npm run media:record` re-records every tape, and `npm run media:record -- <id>` records one.
-- **Every** tape, including 3.4, runs with a throwaway `HOME` and `CODEX_HOME` in a temp directory, a fixed prompt, a fixed terminal size and theme, and fixed typing speed. The recorder's real `~/.claude*` and `~/.codex` are never read or written.
+- Every tape except 3.4 runs with a throwaway `HOME` and `CODEX_HOME` in a temp directory, a fixed prompt, a fixed terminal size and theme, and fixed typing speed. The recorder's real `~/.claude*` and `~/.codex` are never read or written. Tape 3.4 is the one exception (see below). All tapes use a fixed terminal size, theme and typing speed.
 - Each tape also writes a VHS text golden (`Output media/tapes/out/<id>.golden.txt`) of the terminal's final screen. This golden, not the hand-written transcript, is what the determinism checks diff.
-- No real username, home path, account, email or key appears in any frame, golden, VTT or transcript. A test greps the text outputs for an email regex, the recorder's `$USER` and `$HOME` (passed in at record time), and the `sk-` / `sk-ant-` key prefixes. It does not grep for a bare `@`, because npm scopes and `--help` text contain it legitimately.
+- No real username, home path, account, email, id or token appears in any frame, golden, VTT or transcript. A test greps the text outputs for an email regex, the recorder's `$USER` and `$HOME` (passed in at record time), `/Users/` and `/home/` paths, UUID-style session/thread/account ids, bearer and JWT-style tokens, and the `sk-` / `sk-ant-` prefixes. It does not grep for a bare `@`, because npm scopes and `--help` text contain it legitimately.
 - Before a no-model tape is committed, V2 confirms that `claude --version`, `claude --help`, `claude mcp add/list` and the Codex equivalents print no first-run, onboarding or trust prompt in a fresh `HOME`. If one does, a hidden (`Hide`) setup step pre-seeds the minimal config that suppresses it, and the tape documents that step in a comment.
 - **No-model tapes (1.1, 4.3):** re-recording on the same CLI versions produces an identical golden and VTT, and the duration within ±1s. 4.3 uses a version-pinned, locally installed stdio MCP server, with no network at record time.
-- **Model tape (3.4): authentication by API key in env.**
-  - The maintainer exports `ANTHROPIC_API_KEY` and `OPENAI_API_KEY` in their own shell, then runs `npm run media:record -- l3-headless-agents`. This is a manual maintainer step, never run in CI or by `media:record` with no argument. The script exits non-zero with a message if either variable is unset.
-  - `claude -p` reads `ANTHROPIC_API_KEY` from the env. For Codex, a `Hide` setup step pipes `OPENAI_API_KEY` into `codex login --with-api-key` inside the temp `CODEX_HOME` (exact flag per the verified CLI version).
-  - The tape never types, echoes or `printenv`s a key. All credential steps sit inside `Hide`/`Show`. The key-prefix grep above, plus a check for the literal key values passed in at record time, fails the recording if a key leaks into any output.
-  - Claude runs with tools disabled (the verified CLI's empty-tool-list flag). Codex has no "no tools" switch, so it runs with `--sandbox read-only`, and the prompt tells it not to run commands.
-  - The prompt is one word. Output is filtered with `jq` to stable fields only (type, error flag, result text). Session ids, costs, token counts and timings are never shown.
+- **Model tape (3.4): the maintainer's logged-in CLIs. No API keys.** Decision 2026-10-01 (stakeholder): no API keys; the team uses logged-in Claude Code and Codex CLIs.
+  - The maintainer runs `npm run media:record -- l3-headless-agents`. This is a manual maintainer step, never run in CI or by `media:record` with no argument. The script exits non-zero with a clear "log in to claude first" or "log in to codex first" message if either CLI is not logged in.
+  - Only this tape runs with the maintainer's real `HOME`, so `claude` and `codex` use their existing logins (Keychain, `~/.claude`, `~/.codex`). It runs in an empty temp working directory, in a clean shell that keeps `HOME`, `USER` and `PATH` only. Nothing from the real home is read for display.
+  - Claude runs with `--safe-mode` and tools disabled (`--tools ""`), `--no-session-persistence` and `--output-format json`. Codex runs with `--sandbox read-only`, `--ephemeral`, `--ignore-user-config` and `--ignore-rules`, and the prompt tells it not to run commands.
+  - The prompt is one word. Output is filtered with `jq` to stable fields only (type, error flag, result text). Session ids, accounts, costs, token counts and timings are never shown.
+  - The leak guard is mandatory: `finalize.mjs` scans every frame's text, the VTT and the transcript for the leak classes above (usernames, `/Users/` paths, emails, ids, tokens) and writes nothing to `public/` on a hit.
   - The record script fails, and writes nothing to `public/`, if either reply is not the expected word.
 
 **MD-6 (P0)** Media stays small.
@@ -636,7 +638,7 @@ Tooling prerequisites, documented in `media/README.md` (V1 writes the Remotion p
 | Risk | Mitigation |
 |---|---|
 | **Remotion license.** Remotion is free only for individuals and companies of 3 or fewer people, so First Mate needs a paid Company License. | **Resolved: license confirmed 2026-10-01 by the stakeholder (Q-MD1 closed).** V1 is unblocked. Renew the license if the media scope grows past the pilot. |
-| A model-tape API key leaks into a committed recording. | 3.4 authenticates by env key only (MD-5): credential steps are hidden, the outputs are grepped for key prefixes and literal key values, and the tape is never run in CI. |
+| Personal data (username, home path, account or session id, token) leaks into the model-tape recording, which runs with the maintainer's real HOME. | 3.4 runs in an empty temp directory with `--safe-mode`, no tools and `jq`-filtered stable fields, every frame's text is scanned by a mandatory leak guard that writes nothing on a hit, frames are spot-checked, and the tape is never run in CI. |
 | Repo size growth: every re-render adds a new blob to history. | 20MB pilot cap (MD-6); re-render only when MD-7 flags an item; LFS reconsidered at 50MB (P2). |
 | CLI churn makes recordings wrong quickly, 3.4 fastest. | Versions captured at record time, MD-7 flags, and one-command re-record. 3.4 shows only stable fields. |
 | Model output drifts in 3.4. | The record script fails on any unexpected reply, so a wrong recording cannot be committed. |

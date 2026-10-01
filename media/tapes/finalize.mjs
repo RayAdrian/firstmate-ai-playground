@@ -5,7 +5,7 @@
 // every check passes. On any failure it exits non-zero and writes nothing to public/.
 import { execFileSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { tmpdir, userInfo } from "node:os";
 import { join } from "node:path";
 import { buildVtt, parseVersion, scanForLeaks, sha256File, validateCues } from "./lib.mjs";
 
@@ -63,11 +63,10 @@ try {
     }
   }
 
-  // 4. Leak check on every text output (golden, transcript, VTT). Key values come from the env.
+  // 4. Leak check on every text output (golden, transcript, VTT). 
   const vtt = buildVtt(cues);
   const transcript = readFileSync(`${dir}/${id}.transcript.txt`, "utf8");
-  const secrets = [process.env.ANTHROPIC_API_KEY, process.env.OPENAI_API_KEY, process.env.CODEX_API_KEY];
-  const opts = { user: process.env.USER, home: process.env.HOME, secrets };
+  const opts = { user: process.env.USER || userInfo().username, home: process.env.HOME };
   for (const [name, text] of [["golden", goldenText], ["vtt", vtt], ["transcript", transcript]]) {
     const findings = scanForLeaks(text, opts);
     if (findings.length) fail(`${name} contains ${findings.join(", ")}. Nothing written.`);

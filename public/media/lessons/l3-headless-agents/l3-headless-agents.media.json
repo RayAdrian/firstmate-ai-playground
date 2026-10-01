@@ -1,0 +1,16 @@
+{
+  "id": "l3-headless-agents",
+  "lesson_slug": "l3-headless-agents",
+  "kind": "recording",
+  "title": "Headless JSON output from both CLIs",
+  "duration_s": 35.8,
+  "width": 1280,
+  "height": 720,
+  "tool_versions": {
+    "claude_code": "2.1.286",
+    "codex_cli": "0.154.0"
+  },
+  "made_on": "2026-10-01",
+  "model_calls": true,
+  "source_hash": "3190d3a0617553e9811dfe6a5262e485d9a3614987a17667a660aee12554bdfc"
+}
