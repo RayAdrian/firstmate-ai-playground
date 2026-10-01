@@ -159,8 +159,8 @@ describe.skipIf(!available)("community database layer", () => {
       for (const fn of [...WRITE_FNS, ...READ_FNS]) expect(names).toContain(fn);
       for (const row of r.rows as { proname: string; prosecdef: boolean; proconfig: string[] | null; proacl: string[] | null; owner: string }[]) {
         expect(row.prosecdef, row.proname).toBe(true);
-        expect(row.owner, row.proname).toBe("postgres");
-        expect(row.proconfig ?? [], row.proname).toContain("search_path=\"\"");
+        expect(row.owner, row.proname).toBe("community_owner");
+        expect(row.proconfig ?? [], row.proname).toContain("search_path=pg_catalog, pg_temp");
         // proacl null means the built-in default, which grants EXECUTE to PUBLIC.
         expect(row.proacl, row.proname).not.toBeNull();
         expect((row.proacl ?? []).some((a) => a.startsWith("=")), `${row.proname} granted to PUBLIC`).toBe(false);
@@ -261,6 +261,126 @@ describe.skipIf(!available)("community database layer", () => {
         await c.end();
       }
       expect(await count("workflow_stars")).toBe(1);
+    });
+  });
+
+  describe("search_path hardening: pg_temp cannot hijack a SECURITY DEFINER function", () => {
+    it("every SECURITY DEFINER function pins search_path to pg_catalog first and pg_temp last", async () => {
+      const r = await db.query(
+        `select p.proname, p.proconfig from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+         where n.nspname = 'public' and p.prosecdef`,
+      );
+      expect(r.rows.length).toBeGreaterThanOrEqual(11);
+      for (const row of r.rows as { proname: string; proconfig: string[] | null }[]) {
+        const sp = (row.proconfig ?? []).find((c) => c.startsWith("search_path="));
+        expect(sp, row.proname).toBeDefined();
+        const parts = (sp ?? "").slice("search_path=".length).split(",").map((s) => s.trim());
+        expect(parts[0], row.proname).toBe("pg_catalog");
+        expect(parts[parts.length - 1], row.proname).toBe("pg_temp");
+        expect(parts.filter((p) => p === "pg_temp"), row.proname).toHaveLength(1);
+      }
+    });
+
+    it("TEMPORARY is revoked from PUBLIC, anon, authenticated and community_writer; Supabase's own roles keep it", async () => {
+      const r = await db.query(
+        `select
+           has_database_privilege('anon', current_database(), 'TEMP') as anon,
+           has_database_privilege('authenticated', current_database(), 'TEMP') as authenticated,
+           has_database_privilege('community_writer', current_database(), 'TEMP') as writer,
+           has_database_privilege('postgres', current_database(), 'TEMP') as postgres,
+           has_database_privilege('service_role', current_database(), 'TEMP') as service_role,
+           exists (select 1 from pg_database d, aclexplode(d.datacl) a
+                   where d.datname = current_database() and a.grantee = 0 and a.privilege_type = 'TEMPORARY') as public_temp`,
+      );
+      expect(r.rows[0]).toEqual({ anon: false, authenticated: false, writer: false, postgres: true, service_role: true, public_temp: false });
+    });
+
+    it("nobody but the owner and service_role can CREATE in schema public", async () => {
+      const r = await db.query(
+        `select has_schema_privilege('anon', 'public', 'CREATE') as anon,
+                has_schema_privilege('authenticated', 'public', 'CREATE') as authenticated,
+                has_schema_privilege('community_writer', 'public', 'CREATE') as writer`,
+      );
+      expect(r.rows[0]).toEqual({ anon: false, authenticated: false, writer: false });
+    });
+
+    it("community_writer cannot create a pg_temp domain, table or function", async () => {
+      for (const ddl of [
+        "create domain pg_temp.uuid as pg_catalog.text",
+        "create temp table pg_temp.t (a pg_catalog.int4)",
+        "create function pg_temp.now() returns pg_catalog.timestamptz language sql as 'select null::pg_catalog.timestamptz'",
+      ]) {
+        await rejects(as("community_writer", ddl), /permission denied/);
+      }
+    });
+
+    it("planted pg_temp types and functions never fire inside any function, read or write", async () => {
+      await db.query("begin");
+      try {
+        // A session that still holds TEMP (as an attacker with a surviving grant would) plants shadows.
+        await db.query(
+          `create function pg_temp.boom(anyelement) returns pg_catalog.bool language plpgsql as $$ begin raise exception 'PWNED'; end $$`,
+        );
+        for (const t of ["uuid", "text", "numeric", "interval", "date", "int4"]) {
+          await db.query(`create domain pg_temp.${t} as pg_catalog.text check (pg_temp.boom(value))`);
+        }
+        for (const f of ["btrim", "regexp_replace", "now", "char_length", "cardinality", "count", "array_agg"]) {
+          await db.query(`create function pg_temp.${f}(anyelement) returns pg_catalog.bool language plpgsql as $$ begin raise exception 'PWNED'; end $$`);
+        }
+        // The plant is live: a bare cast to the shadow type fires it.
+        await db.query("savepoint plant");
+        await rejects(db.query("select 'x'::pg_temp.uuid"), /PWNED/);
+        await db.query("rollback to savepoint plant");
+
+        await db.query("set local role community_writer");
+        await db.query("select public.community_set_star($1, $2, true)", [wf.fresh, uuid(1)]);
+        await db.query("select public.community_set_reaction($1, $2, 'worked', true, 'Ana  Maria')", [wf.fresh, uuid(1)]);
+        await db.query("select public.community_set_name($1, 'Ann')", [uuid(1)]);
+        await db.query("select public.community_set_reaction($1, $2, 'worked', false, null)", [wf.fresh, uuid(1)]);
+        await db.query("select public.community_set_star($1, $2, false)", [wf.fresh, uuid(1)]);
+        await db.query("select public.community_set_star($1, $2, true)", [wf.fresh, uuid(2)]);
+        await db.query("reset role");
+        await db.query("set local role anon");
+        await db.query("select * from public.community_summary($1)", [[wf.fresh]]);
+        await db.query("select * from public.community_mine($1, $2)", [uuid(2), [wf.fresh]]);
+        await db.query("select * from public.community_my_stars($1)", [uuid(2)]);
+        await db.query("reset role");
+        const stars = await db.query("select pg_catalog.count(*)::pg_catalog.int4 as n from public.workflow_stars");
+        expect(stars.rows[0]).toEqual({ n: 1 });
+        const reactions = await db.query("select pg_catalog.count(*)::pg_catalog.int4 as n from public.workflow_reactions");
+        expect(reactions.rows[0]).toEqual({ n: 0 });
+      } finally {
+        await db.query("rollback");
+      }
+    });
+
+    it("the functions and tables are owned by a dedicated NOLOGIN community_owner, not postgres", async () => {
+      const role = await db.query(
+        `select rolcanlogin, rolinherit, rolsuper, rolcreatedb, rolcreaterole, rolreplication, rolbypassrls from pg_roles where rolname = 'community_owner'`,
+      );
+      expect(role.rows[0]).toEqual({
+        rolcanlogin: false,
+        rolinherit: false,
+        rolsuper: false,
+        rolcreatedb: false,
+        rolcreaterole: false,
+        rolreplication: false,
+        rolbypassrls: false,
+      });
+      const owned = await db.query(
+        `select c.relname, pg_get_userbyid(c.relowner) as owner from pg_class c join pg_namespace n on n.oid = c.relnamespace
+         where n.nspname = 'public' and c.relname = any($1) order by c.relname`,
+        [TABLES],
+      );
+      expect(owned.rows.map((r) => (r as { owner: string }).owner)).toEqual(["community_owner", "community_owner", "community_owner", "community_owner"]);
+      const writable = await db.query(
+        `select has_table_privilege('community_owner', 'public.workflows', 'INSERT') as ins,
+                has_table_privilege('community_owner', 'public.workflows', 'UPDATE') as upd,
+                has_table_privilege('community_owner', 'public.workflows', 'DELETE') as del,
+                has_table_privilege('community_owner', 'public.workflows', 'SELECT') as sel,
+                has_table_privilege('community_owner', 'public.levels', 'SELECT') as levels`,
+      );
+      expect(writable.rows[0]).toEqual({ ins: false, upd: false, del: false, sel: true, levels: false });
     });
   });
 
