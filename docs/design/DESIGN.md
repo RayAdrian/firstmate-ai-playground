@@ -905,9 +905,10 @@ Transcript open:
 
 - **Wrapper:** a single `div` around all items, `mt-8 space-y-10`, with no background and no card. The video is already a framed object, so a surface card around it would be a frame inside a frame. Dropping the card also gives the video the full column width, which the captions need at 360.
 - **Item:** `section[aria-labelledby="watch-<id>"]` with `data-testid="media-block"`, which is a `region` named "Watch: \<title\>".
-- **Heading (`h3`, MD-1):** `<h3 id="watch-<id>"><span class="block text-sm font-bold uppercase tracking-eyebrow text-link">Watch</span><span class="sr-only">: </span><span class="mt-1 block text-lg md:text-xl font-bold text-fg-strong">{title}</span></h3>`.
+- **Heading (`h3`, MD-1):** `<h3 id="watch-<id>" aria-label="Watch: {title}"><span aria-hidden="true" class="block text-sm font-bold uppercase tracking-eyebrow text-link">Watch</span><span class="mt-1 block text-lg md:text-xl font-bold text-fg-strong">{title}</span></h3>`.
+  - **V3: use this exact markup.** The explicit `aria-label` is the source of the name. Do not build it from the spans: two block spans plus an sr-only ": " compute as "Watch : \<title\>" in Chrome, with a space before the colon (PR #27 review). The eyebrow is `aria-hidden`, so it is never read twice.
+  - The region (`section[aria-labelledby="watch-<id>"]`) and the video (`aria-labelledby="watch-<id>"`) both resolve to the h3's `aria-label`, so all three names are exactly `Watch: <title>`.
   - The eyebrow has the same look as "EXERCISE" and "LESSON 2.1".
-  - The heading's accessible name and text content are exactly `Watch: <title>`.
 - **Meta line:** `mt-1 flex flex-wrap items-center gap-x-2 text-sm text-fg-muted`. The kind word is always shown, so the kind is never carried by the icon alone:
   - Animation: a 14px `Clapperboard` icon (`aria-hidden`), then "Animation · `<time datetime="PT72S">1:12</time>` · No sound".
   - Recording: a 14px `SquareTerminal` icon, then "Terminal recording · 0:42 · No sound · Claude Code 2.1.277 / Codex 0.154.0 · Recorded 1 Oct 2026". The versions come from the manifest's `tool_versions` and the date from `made_on`, formatted "d MMM yyyy". Show only the tools the item has.
@@ -987,7 +988,7 @@ The meta line wraps at 360, which is allowed. There is no horizontal scroll at a
 
 **Deltas vs PR #26** (`media/v3-watch` at 46d7bec; V3 conforms to this section):
 1. Remove the per-item `bg-surface rounded-card p-4 md:p-5 my-8` card, and use one `mt-8 space-y-10` wrapper. The frame-in-frame goes, and the video gains 32px at 360.
-2. Make the `h3` the eyebrow "Watch" plus the title (`text-lg md:text-xl`), with an sr-only ": " so the name stays `Watch: <title>`. #26 has a single `text-lg` line.
+2. Make the `h3` an `aria-hidden` eyebrow "Watch" plus the title (`text-lg md:text-xl`), named by `aria-label="Watch: <title>"`. #26 has a single `text-lg` line.
 3. Add the meta line: the kind word plus icon, `<time>` duration, "No sound", and for recordings the versions and recorded date. #26 shows none.
 4. Change the frame to `rounded-xl border border-border bg-code-bg`, not `rounded-card bg-canvas` (that showed a white box before the poster). Add `aria-labelledby` to the video.
 5. Add the `::cue` font floor (15px below md) and the Satoshi family.
@@ -1478,7 +1479,7 @@ This is the authoritative list of **accessible roles and names** for every landm
 | Checklist | `group` | "Checklist" (a `fieldset` with legend "Checklist") containing `checkbox`es |
 | Compare disclosure | `button` | "Compare with reference solution" (`aria-expanded`) |
 | Watch block (§6.3.2, media lessons only) | `region` | "Watch: \<title\>" (`section[aria-labelledby]`, `data-testid="media-block"`); absent on lessons without media |
-| Watch heading | `heading` 3 | "Watch: \<title\>" (eyebrow "Watch" + sr-only ": " + title) |
+| Watch heading | `heading` 3 | Exactly "Watch: \<title\>", from the h3's `aria-label` (the visible eyebrow "Watch" is `aria-hidden`). The region and the video resolve to this name through `aria-labelledby` |
 | Watch video | `video` (no ARIA role; locate with `region.locator('video')`) | "Watch: \<title\>" via `aria-labelledby`; `track[kind=captions][default]` |
 | Transcript toggle | `summary` (not a `button` in Playwright; locate with `region.locator('summary')`) | Visible "Transcript"; accessible name "Transcript for \<title\>" |
 | Transcript panel | `region` (exposed only while open) | "Transcript for \<title\>" (`aria-labelledby` the summary) |
