@@ -220,6 +220,22 @@ Ratios were computed with the WCAG relative-luminance formula. The requirement i
 | focus `#9fa5ff` | canvas / surface / raised | 8.17 / 7.45 / 6.66 | 3.0 | Focus ring |
 | progress-fill `#9fa5ff` | progress-track `#2d2f45` | 5.80 | 3.0 | Progress fill |
 
+**Diagrams (§6.3.3, PRD DG-5).** Strokes need 3:1 and 12–14px text needs 4.5:1. Light / dark:
+
+| Foreground | Background | Light | Dark | Need | Used for |
+|---|---|---|---|---|---|
+| fg `#282943` / `#ededf3` | surface-raised `#ffffff` / `#242538` | 14.11 | 12.89 | 4.5 | Node label, badge numeral |
+| fg-muted `#5f606c` / `#a4a6ba` | surface-raised | 6.22 | 6.26 | 4.5 | Node sub-line, lane eyebrow |
+| fg-muted | surface `#f9f9f9` / `#1b1c2b` | 5.91 | 7.01 | 4.5 (text), 3.0 (stroke) | Edge, axis and legend labels, zone and lane captions; edges, arrowheads, axis, rail, badge rings |
+| fg | accent-soft `#ecedfa` / `#1d1f3d` | 12.13 | 13.69 | 4.5 | Emphasised node label (700) |
+| control-border `#8e8e8f` / `#7c7f96` | surface | 3.11 | 4.27 | 3.0 | Node and zone boundaries |
+| link `#424bd1` / `#9fa5ff` | surface / accent-soft | 6.31 / 5.72 | 7.45 / 7.07 | 3.0 | Emphasised node 2px boundary, against the ground outside and its own fill inside |
+| danger `#a93d17` / `#ff9a7a` | surface | 5.92 | 8.14 | 4.5 (text), 3.0 (stroke) | Risk lines, ✕ caps, risk labels, risk badge rings |
+| danger | surface-raised | 6.24 | 7.27 | 3.0 | Dashed risk exit-box boundary (its own fill inside) |
+| link | accent-soft | 5.72 | 7.07 | 4.5 | Workflow `watch` line inside the "Why it works" callout |
+
+**Rejected pair:** control-border on accent-soft is 2.81 in light, which fails 3:1. That is why a diagram inside the workflow callout keeps its own `bg-surface` band (§6.3.3) and is never drawn straight on `accent-soft`.
+
 **Syntax colours** (GitHub Dark theme with the comment override) on `code-bg`, light / dark: keyword `#f97583` 6.72 / 7.19, string `#9ecbff` 10.59 / 11.32, function `#b392f0` 7.05 / 7.54, constant `#79b8ff` 8.61 / 9.20, text `#e1e4e8` 14.01 / 14.98, parameter `#ffab70` 9.63 / 10.29, tag `#85e89d` 11.94 / 12.76, comment **`#9aa4b2`** 7.09 / 7.57.
 
 > **Recommendation for WS-A:** add a Vitest test that parses `tokens.css` and asserts every pair in this ledger. That turns the ledger into a regression gate.
@@ -932,7 +948,7 @@ Transcript open:
   - The panel is `<div role="region" aria-labelledby="watch-<id>-transcript-toggle" class="mt-2 rounded-lg bg-surface p-4 text-base text-fg whitespace-pre-line dark:border dark:border-border">`.
     - It renders the `.txt` as plain text and never as markdown or HTML (L-7). Line breaks are kept and runs of spaces collapse.
     - The transcript describes what is on screen (WCAG 1.2.1). The design doesn't truncate it.
-- **The `<details>` exception:** §11's rule that disclosures are always `button[aria-expanded]` has one exception, and this is it.
+- **The `<details>` exception:** §11's rule that disclosures are always `button[aria-expanded]` has two named exceptions: this transcript and "Diagram as text" (§6.3.3, PRD §17).
   - MD-2 names the element.
   - The block ships no JS.
   - `<details>` opens on find-in-page, which helps a transcript.
@@ -994,6 +1010,355 @@ The meta line wraps at 360, which is allowed. There is no horizontal scroll at a
 5. Add the `::cue` font floor (15px below md) and the Satoshi family.
 6. Make the summary match the Compare disclosure: `h-11`, `font-medium` at body size, a rotating chevron and a hidden marker, with the sr-only " for \<title\>". #26 has 14px text, a 24px target and no open/closed indicator.
 7. Put the transcript in a `role=region` panel labelled by the summary (`bg-surface rounded-lg p-4`, `whitespace-pre-line`). #26 has a bare paragraph.
+
+#### 6.3.3 Diagram (PRD §17, DG-1 to DG-11)
+
+**Purpose.** A diagram is a static, server-rendered drawing that makes one claim about a structure the prose is describing: a loop, a ladder, what sits inside what, or who does what when. It adds to the text and never replaces it. It has no client JS and nothing in it moves. There are four templates (`flow`, `stack`, `boundary`, `lanes`). Their geometry is fixed by this section, so an author can change only words and counts.
+
+**This section is the source of truth for every number G1's layout module uses.** `checkLabelsFit` (PRD §17.3) measures the label boxes defined here with `estimateTextWidth(text, px)` (about 0.55em per character plus 15% slack, so 8.855px per character at 14px and 7.59px at 12px). If the drawing and the check ever disagree, the drawing is wrong.
+
+##### Deltas vs PRD §17 (the coordinator applies these to the PRD and to G0)
+
+The PRD's numbers came from the audit's first pass. Measuring the real columns changed four of them.
+
+1. **Horizontal viewBox width: 576, not 640.** PRD §17.5 assumes "at md+ the column is at least 672px". At 1024 that is false. The lesson column is `lg:col-span-8` of 960px, which is **629px**. Less the 1px figure border and `md:p-6`, that leaves 579. In a workflow's "Why it works" callout the figure band is 625px wide, which leaves 577 (see Workflow placement below). 640 would scale every label to 0.91 there, so 12px text would render at 10.9px. At 576 the horizontal SVG never scales below 1.0 anywhere from 768 up. DG-2's "at 768px the horizontal SVG renders at least 640px wide" becomes "at 768 **and 1024**, at least 576".
+2. **Vertical viewBox width: 280, not 296.** At 360 the lesson column is 328. Less the 2px border and `p-4` (32), that leaves 294. The workflow band leaves 292 (324 − 32). 280 fits both with no downscale. The container cap becomes **`max-w-[336px]`, not 420**, which is 1.2×. At 420 the labels would render at 21px on a tablet, larger than the 17px prose they summarise.
+3. **The flow exit `text` is one line of at most 20 characters, not the 2×24 `label` (G0 contract change).** In the vertical layout an exit box is indented 32px from the spine (below). With two loop lanes the box is 216 wide, and its 196px label box can't hold a 24-character line (213px estimated). 20 characters is 177px.
+4. **DG-3's cap-maximum fixture asserts no *width* issues, in both orientations.** Height is a budget, not a guarantee. Six steps at 2 lines plus a sub-line (78px each), with every gap labelled, is about 780px tall vertically, which no 560 cap allows. The geometry guarantees that every label fits its box at any valid length, through the fit-or-stack rule below. Height is checked by two more fixtures: one that sits exactly at 560 and returns no issues, and one 1px over that returns exactly one height issue.
+5. **Name vs description (clarifies DG-4).** The SVG's accessible **name** is the title (`aria-labelledby` → `<title>`), and its **description** is the summary (`aria-describedby` → `<desc>`). Putting both ids in `aria-labelledby` would make the name "<title> <summary>". That breaks `getByRole('img', { name: '<title>' })` in DG-2 and makes the screen reader repeat the figcaption.
+
+##### Frame and anatomy
+
+```
+360 (lesson column 328)                      1440 (lesson column ≈ 733)
+┌ figure  rounded-card border bg-surface ┐   ┌ figure ────────────────────────────────────────────┐
+│ p-4                                    │   │ p-6                                                │
+│ The edit, approve, verify loop  (title)│   │ The edit, approve, verify loop              (title)│
+│ Give the agent a check it can run, and │   │ Give the agent a check it can run, and it loops    │
+│ it loops on its own failures. (summary)│   │ on its own failures.                      (summary)│
+│                              ↕ mt-4    │   │                                     ↕ mt-4         │
+│   ┌ vertical SVG, 280 → ≤336 wide ┐    │   │    ┌ horizontal SVG, 576 wide, mx-auto ────────┐   │
+│   │ …                             │    │   │    │ …                                         │   │
+│   └───────────────────────────────┘    │   │    └───────────────────────────────────────────┘   │
+│                              ↕ mt-4    │   │                                     ↕ mt-4         │
+│ › Diagram as text             (h-11)   │   │ › Diagram as text                                  │
+└────────────────────────────────────────┘   └────────────────────────────────────────────────────┘
+```
+
+- **Figure:** `<figure data-testid="diagram" class="my-8 rounded-card border border-border bg-surface p-4 md:p-6">`, the full lesson column wide. Code blocks use the full column too, while prose is held to the 700px measure. The figure's own `bg-surface` frame is right here, unlike the frameless Watch block: the drawing is a set of shapes on a ground, and the ground has to be a known token so that every pair in the ledger holds.
+- **Figcaption, first child:** the claim comes before the picture, so the drawing reads as evidence for it.
+  - `<figcaption class="min-w-0">`
+  - title: `<span class="block text-base font-bold text-fg-strong">`
+  - summary: `<span class="mt-1 block text-sm text-fg-muted">`
+  - The figcaption is not a heading, so it adds no `h3` (L-1 and the right rail don't change). The figure's accessible name is the figcaption text.
+- **Drawings:**
+  - `<div class="mt-4">` holds two SVGs:
+    - `<svg … class="hidden md:block print:block mx-auto h-auto w-full max-w-[576px]">` (horizontal)
+    - `<svg … class="md:hidden print:hidden mx-auto h-auto w-full max-w-[336px]">` (vertical)
+  - Each SVG carries the `viewBox`, `width` and `height` attributes from the layout, so the box is reserved and CLS is 0.
+  - `display:none` takes the hidden one out of the accessibility tree.
+  - Print always gets the horizontal one.
+  - The horizontal SVG sits on a 576px track, so it never upscales. The vertical one may grow to 1.2× (labels up to 16.8px).
+- **"Diagram as text":** a `<details class="group mt-4">`. Its summary and panel are specified below.
+- **Spacing:** prose → figure `my-8`; figcaption → drawing `mt-4`; drawing → summary `mt-4`; summary → open panel `mt-2`.
+
+##### Shared geometry (user units = CSS px at scale 1)
+
+| Constant | Value | Notes |
+|---|---|---|
+| `H_W` / `V_W` | 576 / 280 | viewBox widths (Deltas 1 and 2) |
+| `MAX_H` | 560 | viewBox height cap, in each orientation |
+| Label type | 14px, 500 (700 when emphasised), line box 20, baseline at line top + 15 | `fill-fg`. Measured at 14. Bold is about 4% wider than Medium and sits inside the 15% slack. The DG-3 browser cross-check must put `emphasis` on a 24-character label. |
+| Small type | 12px, line box 16, baseline at line top + 12 | `sub` (400, `fill-fg-muted`), edge/axis/legend labels (500, `fill-fg-muted`), zone and lane captions and the lane eyebrow (700, `fill-fg-muted`). Measured at 12. Sentence case only: no `uppercase` and no tracking, because the estimate doesn't model caps. |
+| Node | `padX 10`, `padY 10`, `rx 12`, min width 96 | `fill-surface-raised stroke-control-border`, 1px |
+| Node height | `20 + 20·lines + (sub ? 18 : 0)` | 1 line 40; 2 lines 60; 1 line + sub 58; 2 lines + sub 78 (the sub-line is a 2px gap plus 16) |
+| Label box | node width − 20 | Every label line (at 14) and the `sub` (at 12) must fit. The text is left-aligned at node x + 10. |
+| Content width | `max(96, ceil(max line estimate) + 20)` | Used wherever a template sizes nodes to their content |
+| Edge | 1.5px `stroke-fg-muted`, orthogonal segments only, corners `stroke-linejoin="round"` | No diagonals and no curves |
+| Arrowhead | `<marker id="diagram-<id>-<h\|v>-arrow">`, path `M0 0 L8 4 L0 8 Z`, `refX 8 refY 4`, `markerUnits="userSpaceOnUse"`, 8×8, `fill-fg-muted` | One definition per colour per SVG. Ids are suffixed, so the two SVGs never collide. |
+| ✕ end-cap | `<marker …-x>`, two 1.5px lines `M0 0 L8 8 M8 0 L0 8`, `stroke-danger`, centred on the path end | Drawn as a path. The "✕" glyph is never used, because Satoshi has none. The risk path stops 6px short of its target. |
+| Edge-label halo | `paint-order="stroke"`, `stroke-surface`, `stroke-width 4`, `stroke-linejoin round` | Applied wherever a label could cross a line |
+| Badge | circle `r 9`, `fill-surface-raised stroke-fg-muted` 1px; numeral 12/700 `fill-fg`, `text-anchor middle`, baseline at cy + 4 | Numbers crossings and handoffs (below) |
+| Legend | Starts 16 below the body. Each entry is a badge, then 6px, then text (12/500 `fill-fg-muted`). | Horizontal: entries flow inline with a 16 gap, wrapped greedily into rows of height 20. Vertical: one entry per row, with the text word-wrapped to `W − 24` (rows of 16). The legend wraps rather than truncating, so it can never fail fit. |
+
+**The fit-or-stack rule.**
+- `flow`, `boundary` and `lanes` each have a preferred horizontal arrangement: a row, columns, or a grid.
+- The layout tries that arrangement at 576. If any label box is too small, if the row is too wide, or if exit boxes or badges can't be placed without overlapping, the **horizontal SVG uses the stacked (vertical) geometry instead**. Its viewBox is then 280 wide, and its class keeps `max-w-[336px]`.
+- So a label that fits its cap always fits a box. That is what Delta 4 relies on.
+- The layout returns `mode: "row" | "stacked"` for the horizontal SVG. The lesson seed and `workflows:validate` print a non-failing note ("<path>: diagram <id>: horizontal stacked, labels too wide for a row") so the author knows that shortening a label buys the row form.
+- `stack` has one arrangement, used at both widths.
+
+**Connectors that carry labels (crossings and handoffs).**
+- Routing a line plus a label between arbitrary boxes is where general layouters spend their complexity, so these connectors use **numbered badge pairs and a legend** instead.
+- Each crossing or handoff gets the next number (1–4, in authored order):
+  - A badge **straddles the top border of each end** (cy = node top), right-aligned at x = node right − 16. Several badges on one node step left by 22.
+  - A legend entry reads `{label}: {from} → {to}`. The `from` and `to` are the node or zone labels, with `\n` read as a space. A handoff with no `label` reads `{from} → {to}`.
+- In a horizontal row or grid layout, the connector is **also drawn as a line** when a path with at most one elbow runs only through gaps (never across a node or a caption). Otherwise it is badge-only.
+- In the stacked layout, it is always badge-only.
+- This is the one place where meaning lives in the legend rather than the picture. The legend is in the SVG, so it is visible. The "Diagram as text" list repeats it.
+
+##### Emphasis and risk (never colour alone, DG-5)
+
+| Element | Default | Emphasis (`emphasis: true`, ≤ 1 per diagram) | Risk (`style: risk`) |
+|---|---|---|---|
+| Node | `fill-surface-raised stroke-control-border`, 1px, label 500 | `fill-accent-soft stroke-link`, **2px**, label **700** | (only exits and markers carry `risk`) |
+| Exit box | as a node | — | `stroke-danger` 1.5px, **dashed `6 4`**, label 500 `fill-fg` |
+| Edge, exit connector, crossing, handoff line | 1.5px `stroke-fg-muted`, solid, arrowhead | — | 1.5px `stroke-danger`, **dashed `6 4`**, **✕ end-cap** instead of the arrowhead, label `fill-danger` |
+| Badge | `stroke-fg-muted` 1px, solid | — | `stroke-danger` 1.5px, **dashed `3 2`** |
+| Legend entry | badge + text | — | badge, then a 10×10 ✕ path, 4px, then text in `fill-danger` |
+| Lanes marker | 1.5px `stroke-fg-muted`, solid, label `fill-fg-muted` | — | dashed `6 4` `stroke-danger`, a ✕ at the start, label `fill-danger` |
+
+- Emphasis has three cues: stroke weight (1 → 2), type weight (500 → 700) and fill. Risk has three: the dash, the ✕ shape and the label's words. **Authoring rule (PRD §17.4): a risk label names the risk in words** ("injected instructions", not "path 2").
+- Colour is the third cue in both cases, never the first.
+- The text alternative adds the spoken "(key)" and "(risk)".
+
+##### `flow`
+
+```
+Horizontal, row form (fits 576)                                   Vertical / stacked (280)
+                ┌ Full re-gate ┐  exit box, h 40                   ┌ Ask ─────────────────────┐
+                └──────┬───────┘                                  └┬─────────────────────────┘ ┆
+             ✕ "no" ┆  ↕ 40 (label at connector x + 6)              │ spine x = 24           ┆ loop
+┌ Ask ┐ 40 ┌ Edit ─┐ "if green" ┌ Approve ┐ ──→ ┌▣ Verify ┐          ▼                        ┆ lanes,
+│     │ ─→ │       │ ─────────→ │         │     │ (2px)   │        ┌ Edit ────────────────────┐ ┆ 16 each
+└─────┘    └───▲───┘            └─────────┘     └────┬────┘        └┬─────────────────────────┘ ┆
+               │   16                                │              │ "if green"   (x = 36)   ┆
+               └────────────── fails ────────────────┘  lane 36     ▼                         ┆
+```
+
+**Row form (horizontal).**
+- **Nodes.** One row, content-width, vertically centred on the row's centre line. The row height is the tallest node's height.
+- **Gaps.** `gap_i = 40`, or `est(next_i, 12) + 16` when step *i* has `next`.
+- **Arrows.** Each arrow runs at the row centre line from node *i*'s right edge to node *i+1*'s left edge. The `next` label is centred over the arrow, with its baseline 6 above the line. Its label box is `gap_i − 16`.
+- **Fits when** `Σ widths + Σ gaps ≤ 576`.
+- **Loops (≤ 2), below the row.**
+  - Loop *k* runs in lane `y_k = row bottom + 16 + 36k`.
+  - Path: `M (src.cx + 6k, src.bottom) V y_k H (tgt.cx − 6k) V tgt.bottom`, with the arrowhead pointing up into the target.
+  - A self-loop (`to == from`) leaves at `cx + 16` and returns at `cx − 16`.
+  - The label is centred on the lane's horizontal span, with its baseline at `y_k + 16`, clamped to [0, 576]. Its label box is the full 576.
+  - Loop band height: `16 + 36·loops`.
+- **Exits (≤ 2), above the row.**
+  - Exit box: content-width, height 40, centred over its source's `cx`, then pushed right to keep a 16px gap and clamped to [0, 576 − w]. If they still overlap, use the stacked form.
+  - The connector runs from `src.top` up to `box.bottom`, with an elbow at mid-gap if the box moved. The gap is 40.
+  - The exit label is left-aligned at connector x + 6, with its baseline at `box.bottom + 24`. Its label box runs from there to the next exit's connector, or to 576.
+  - Exit band height: `40 + 40`.
+- **Height.** Exit band + row + loop band.
+
+**Stacked form (vertical, and the horizontal fallback).**
+- **Nodes.** Full width `W_node = 280 − 16·loops`. Each node's label box is `W_node − 20`, so 228 even with two loops.
+- **Spine.** Arrows run down the spine at `x = 24`. Each arrow goes from a node's bottom to the next node's top, with the arrowhead touching the top.
+- **The gap below step *i*.**
+  - Height: `max(32, 16 + 16·n)`, where *n* is the number of label lines in the gap.
+  - Line order: the `next` label (left-aligned at x = 36), then any loop labels for loops leaving step *i* (right-aligned to `W_node`). Each label box is `W_node − 36`.
+- **Exits from step *i*.**
+  - They follow that gap. The exit label sits on its own gap line at x = 40.
+  - The exit box is at `x = 32` and `W_node − 32` wide, with height 40 (label box `W_node − 52`, at least 196 → Delta 3).
+  - A branch leaves the spine at the box's mid-y and runs right to the box (arrowhead or ✕).
+  - The spine continues down past the box by 16 to the next step.
+- **Loops (≤ 2), on the right.**
+  - Loop *k* runs in lane `x_k = W_node + 8 + 16k`.
+  - It leaves the source's right edge at `top + 20`, runs right to `x_k`, then vertically to the target's `top + 20` (+6 per extra loop on the same node), then left with the arrowhead into the target's right edge.
+  - A self-loop leaves at `top + 14` and returns at `bottom − 14`.
+
+##### `stack`
+
+```
+Same arrangement at 576 and 280 (layers full width)
+  Strongest            axis.high (12/500, x 0)
+↑ ┌ Hooks ─────────────── (key, 2px) ┐
+│ │ run every time the event fires  │   gap 8
+│ ├ Skills ─────────────────────────┤
+│ ├ Instructions ───────────────────┤
+│ └─────────────────────────────────┘
+  Advisory             axis.low
+```
+
+- **Axis.** The axis line is `x = 10`, from the bottom of the lowest layer to the top of the highest, 1.5px `stroke-fg-muted`, with the arrowhead pointing up.
+- **Axis labels.** `axis.high` sits in a 20-high band above, left-aligned at x 0, baseline 12. `axis.low` sits in a 20-high band below. Each label box is `W`.
+- **Layers.** They run from x 24 to W, so they are 552 / 256 wide (label boxes 532 / 236). They are stacked bottom-up in authored order (the first layer at the bottom) with an 8px gap.
+- **Height.** `40 + Σh + 8(n − 1)`. Five 78-high layers make 462.
+
+##### `boundary`
+
+```
+Horizontal, columns form (t top-level zones)                 Vertical / stacked
+┌ Your machine ──────────────┐ 40 ┌ Remote ────────┐          ┌ Your machine ──────────┐
+│ ┌ Agent ─────────────①┐    │    │ ┌ MCP server ─②┐│          │ ┌ Agent ───────── ①② ┐ │
+│ └─────────────────────┘    │ ←①─┤ └──────────────┘│          │ └────────────────────┘ │
+│ ┌ stdio server ───────┐    │ ┆② │ ┌ Web page ─①┐  │          └────────────────────────┘  gap 16
+│ └─────────────────────┘    │ ┆✕ │ └────────────┘  │          ┌ Remote ────────────────┐
+└────────────────────────────┘    └─────────────────┘          │ ┌ Web page ────── ① ─┐ │
+① Tool results: Web page → Agent    ② ✕ Injected instructions… └────────────────────────┘
+                                                                ① Tool results: Web page → Agent
+```
+
+- **Zones.** A zone is a rect with `rx 12`, no fill (the figure ground shows through) and a 1px solid `stroke-control-border`. Its caption is 12/700 `fill-fg-muted` at x + 10, with its baseline at y + 22, and has a 16 + 12 band, so a badge straddling the first item's top border clears the caption. Zone padding is 10.
+- **Items.** Items are nodes stacked inside a zone with a **12px** gap (badges straddle the top edge by 9), each the zone's inner width.
+- **Zone captions** must fit `zone width − 20`.
+- **Columns form.**
+  - The *t* top-level zones become equal-width, equal-height columns with a 40px gap: `w = (576 − 40(t − 1)) / t`, so 576, 268 or 165.
+  - A nested zone (one level) sits inside its parent, below the parent's items, inset 10.
+  - When `t == 1` and the parent has a nested zone, the parent's items and the nested zone become two sub-columns, 258 each with a 40px gap.
+  - Fits when every caption and label box fits. In practice three columns stack unless the labels are about 14 characters or fewer.
+  - Crossing lines run across the 40px gaps. Their vertical segments sit at the gap centre, offset −12, −4, +4 or +12 per crossing in that gap.
+- **Stacked form.**
+  - Top-level zones are stacked full width with a 16px gap.
+  - A nested zone sits below its parent's items, inset 10. With W 280 its items are 240 wide (label box 220).
+  - Crossings are badge-only.
+- **Crossing badges** follow the connector rule. A crossing to a zone puts its badge on the zone's top border, right − 16.
+- **Height.** The sum of zone heights and gaps, plus the legend.
+
+##### `lanes`
+
+```
+Horizontal, grid form                                        Vertical / stacked: timeline
+ Push B   (marker, risk: ✕ dashed)                            ①─┬ Author ───────────────┐
+Author    ┌ Commit A ┐       ┆ ┌ Push B ┐                       │ │ Commit A              │
+          └──────────┘       ┆ └────────┘                       │ └───────────────────────┘
+Reviewer        ┌ Review A ┐ ┆        ┌ Success ┐               ②─┬ Reviewer ─────────────┐
+                └──────────┘ ┆        │ refused │               │ │ Review A              │
+                             ┆        └─────────┘               │ └───────────────────────┘
+Head      ┌ A ┐              ┆ ┌ B: no ┐                       ┄┄✕┄ Push B ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄ (marker)
+          └───┘              ┆ └───────┘                        ③─┬ Author … Push B …
+ col pitch = (576 + 24)/c                                        ▼ time
+```
+
+- **Grid form (horizontal).**
+  - Columns: *c* is the highest `col` used. Pitch is `(576 + 24) / c`, the box width is `pitch − 24`, and the box x is `(col − 1)·pitch`.
+  - Lane rows are stacked in authored order. Each lane has a 28-high caption band above it (12/700 `fill-fg-muted`, x 0, baseline 14, box `576`; the free lower part takes the straddling badges), and the row height is the tallest step in that lane. Rows are 12 apart.
+  - Fits when every label box (`box − 20`) fits. With c = 4 that is about 12 characters per line, so the grid form needs short step labels.
+  - Each lane is a `g[data-part=lane]` holding its caption and its step nodes.
+- **Marker (one at most), in the grid.**
+  - A vertical line at `x = (col − 1)·pitch − 12` (the gap before its column), running from the top of the first caption to the bottom of the last row.
+  - Its label goes in a 20-high band above everything, left-aligned at line x + 6, or right-aligned ending at line x − 6 if it doesn't fit to the right.
+- **Timeline (stacked).**
+  - A 28px rail on the left holds one time circle per column used (`r 10` at cx 14, the column number as the numeral, styled like a badge), joined by a 1.5px `stroke-fg-muted` line that ends in an arrowhead pointing down.
+  - Step boxes run from x 36 to 280, so they are 244 wide (label box 224).
+  - Each box starts with its **lane eyebrow** (the lane label, 12/700 `fill-fg-muted`, then 2px), so its height is node height + 18.
+  - Steps that share a column stack 12 apart, in lane order (badges straddle the top border by 9). Column groups are 16 apart. A column's circle lines up with the eyebrow baseline of its first box.
+  - Each lane is a `g[data-part=lane]` holding its step nodes, so lanes count the same in both SVGs (DG-1).
+- **Marker in the timeline.** A horizontal line across the full width just above its column group, with its label on a 20-high band above it at x 0 (x 14 after a risk ✕).
+- **Handoffs.** They follow the connector rule. In the grid form, the line goes from source right edge → gap centre → target left edge, or straight down or up within a column if no box is in the way.
+
+##### Groups and parts (DG-1)
+
+Every drawn element sits in a `g[data-part]`:
+
+| `data-part` | Contains |
+|---|---|
+| `node` | a step, layer, item or exit box |
+| `edge` | a flow arrow |
+| `loop` | a loop path and its label |
+| `exit` | an exit box, its connector and its label |
+| `zone` | a zone rect, its caption and its children |
+| `crossing` | its line (if drawn) and both badges |
+| `lane` | a lane |
+| `handoff` | its line (if drawn) and both badges |
+| `marker` | a lanes marker |
+| `axis` | the stack axis |
+| `legend` | the legend |
+
+- Exits contain their box as a `node`.
+- `data-state="key"` goes on the emphasised node's group, and `data-state="risk"` on each risk group. Tests and forced-colours CSS use these hooks. Nothing in the drawing needs the CSS hook to be readable.
+
+##### Token mapping
+
+All colour is token utilities on SVG elements: `fill-*` and `stroke-*`, from the §2 tokens. Dark mode needs nothing further. There is no hex, `rgb()`, `hsl()` or named colour in the markup (DG-5).
+
+| Part | Light / dark via token |
+|---|---|
+| Figure ground | `bg-surface` |
+| Node | `fill-surface-raised stroke-control-border` |
+| Emphasised node | `fill-accent-soft stroke-link`, 2px |
+| Zone | `fill-none stroke-control-border` |
+| Labels | `fill-fg` |
+| Sub, edge and axis labels, captions, legend, eyebrow | `fill-fg-muted` |
+| Edges, arrowheads, axis, rail, badge rings | `stroke-fg-muted` / `fill-fg-muted` |
+| Risk lines, caps, rings and labels | `stroke-danger` / `fill-danger` |
+| Halo | `stroke-surface` |
+
+**Forced colours.** Under `@media (forced-colors: active)`, WS-A's `globals.css` adds the rules below, so the result doesn't depend on whether a browser forces SVG paint:
+- `[data-testid="diagram"] svg { forced-color-adjust: none }`
+- Inside it:
+  - `.fill-surface-raised, .fill-accent-soft { fill: Canvas }`
+  - `.stroke-control-border, .stroke-fg-muted, .stroke-danger { stroke: CanvasText }`
+  - `.fill-fg, .fill-fg-muted, .fill-danger { fill: CanvasText }`
+  - `.stroke-link { stroke: Highlight }`
+  - `.stroke-surface { stroke: Canvas }`
+- Dashes, ✕ caps, stroke widths and bold labels survive, so emphasis and risk stay distinguishable without colour.
+
+##### "Diagram as text" (DG-4)
+
+- **Summary:** the same pattern as the Watch transcript (§6.3.2).
+  - `<summary id="diagram-<id>-text-toggle" class="inline-flex h-11 cursor-pointer list-none items-center gap-2 rounded-md font-medium text-link hover:underline [&::-webkit-details-marker]:hidden focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-focus focus-visible:outline-offset-2">`
+  - Inside it: a 16px `ChevronRight` (`aria-hidden`, `group-open:rotate-90`, static under reduced motion), then "Diagram as text", then `<span class="sr-only"> for {title}</span>`.
+- **Panel:** `<div role="region" aria-labelledby="diagram-<id>-text-toggle" class="mt-2 rounded-lg bg-surface-raised p-4 text-base text-fg dark:border dark:border-border">`. It is closed by default and opens on find-in-page.
+- **Content:** every string is generated from the YAML, never authored separately. It is plain React text with no markdown, and `\n` in a label becomes a space. "(key)" and "(risk)" are always spelled out.
+
+| Type | Structure and exact sentence templates |
+|---|---|
+| flow | `<ol>` of steps: `{label}{sub ? ": " + sub}{key ? " (key)"}`, plus ` Arrow to step {i+1}: {next}.` when `next` is set. Then `<p>` per loop: `From step {i} ({from}) back to step {j} ({to}): {label}.` Then `<p>` per exit: `From step {i} ({from}), exit "{label}": {text}{risk ? " (risk)"}.` |
+| stack | `<p>` `Ordered from {axis.low} to {axis.high}.`, then `<ol>` of layers from low to high: `{label}{: sub}{ (key)}` |
+| boundary | `<ul>` of zones: `{zone}` with a nested `<ul>` of items (`{label}{: sub}{ (key)}`) and nested zones the same way. Then `<p>` "Crossings:" and an `<ol>` in badge order: `{from} to {to}: {label}{ (risk)}.` |
+| lanes | `<p>` `Lanes: {a}, {b}{, c}.`, then `<ol>` in column order, then lane order: `Time {col}, {lane}: {label}{: sub}{ (key)}`. The marker becomes a list item before its column: `Time {col}, event: {label}{ (risk)}`. Then "Handoffs:" and an `<ol>` in badge order: `{from} to {to}{: label}{ (risk)}.` |
+
+##### Accessibility
+
+- **SVG markup:** `<svg role="img" aria-labelledby="diagram-<id>-title-<h|v>" aria-describedby="diagram-<id>-desc-<h|v>" focusable="false">`, with `<title>` = title and `<desc>` = summary as the first children (Delta 5).
+- **SVG children:** nothing is focusable. There are no links, no `tabindex`, no `<a>` and no `<foreignObject>`. Children of `role="img"` are presentational.
+- **Tab order:** content before the figure → the "Diagram as text" summary → content after. Nothing moves focus.
+- **Motion:** none. Only the chevron rotates (`--fm-duration-base`, 0 under reduced motion).
+- **Zoom:** labels are real `<text>`, so they scale with page zoom and stay selectable and findable.
+- **The `<details>` exception** (§11) now has two named cases: the Watch transcript and "Diagram as text". The kit ships no JS, so a button disclosure isn't available.
+
+##### Workflow placement (DG-10, DG-11; resolves Q-DG1)
+
+```
+│ ┃ Why it works                              (h2, inside the §6.12 callout)       │
+│ ┃──────────────────────────────────────────────────────────────── band ──────────│
+│ ┃ Patch-id re-attest                                                              │
+│ ┃ A rebase that changes nothing re-uses its gates; anything else re-gates.        │
+│ ┃            [ horizontal SVG, 576 ]                                              │
+│ ┃ › Diagram as text                                                               │
+│ ┃─────────────────────────────────────────────────────────────────────────────────│
+│ ┃ ▣ Watch: Gated merge pipelines (Lesson 5.3) →                     (watch line)  │
+│ ┃ prose…                                                                          │
+```
+
+- **Order inside "Why it works":** `h2` → diagram → `watch` line → prose. All of it sits outside the tool tabs.
+- **The figure is a band, not a card in a card.** Inside the `bg-accent-soft border-l-4 p-5` callout, the figure is `-mx-5 my-4 border-y border-border bg-surface px-4 py-4 md:px-6 md:py-6`, with no radius and no side borders. It runs edge to edge between the callout's link border and its right edge.
+  - **Why not inline on the callout:** `control-border` on `accent-soft` is 2.81:1 in light, which fails the 3:1 node-boundary rule.
+  - **Why not a nested card:** a nested card would leave 551px at 1024 and 250px at 360.
+  - **What the band gives:** 577 at 1024, 668 at 768 and 292 at 360, all with no downscale.
+  - Everything else (figcaption, two SVGs, details) is the same as in a lesson.
+- **The `watch` line goes in "Why it works", not the "At a glance" rail.**
+  - The rail answers "does this fit me" with facts. The video shows *why* the mechanism works, so it belongs next to the mechanism.
+  - Below lg the rail renders above Result, far from the explanation it supports.
+  - It is one line: `<p class="mt-4"><a href="/lessons/<slug>#watch-<media-id>" class="inline-flex min-h-11 items-center gap-2 font-medium text-link hover:underline">` + a 16px `Clapperboard` (animation) or `SquareTerminal` (recording) icon, `aria-hidden` + "Watch: {manifest title} (Lesson X.Y)" + `<span aria-hidden="true"> →</span></a></p>`.
+  - The visible text is "Watch: <title> (Lesson X.Y) →". The accessible name drops the arrow.
+  - It is a same-tab internal link.
+  - Ledger: `link` on `accent-soft` is 5.72 / 7.07.
+- **States.** No `diagram` and no `watch`: "Why it works" renders exactly as §6.12. A `diagram` that is invalid at render, or a `watch` that is unresolved at render, is skipped and logged with no residue (DG-9).
+
+##### States (both surfaces)
+
+- **No diagram:** nothing is rendered. There's no placeholder and no spacing artefact.
+- **Invalid at render (DG-9):** that figure is skipped and the rest of the page renders.
+- **Loading:** the diagram arrives with the page HTML, so the lesson and workflow skeletons don't change.
+- **Dark:** token-driven, nothing extra.
+- **Print:** the horizontal SVG only.
+
+##### Review checklist (gate/uiux on G1 and G2)
+
+Check at 360, 768, **1024** and 1440, in light, dark and forced-colours:
+1. Exactly one drawing is visible.
+2. No label is clipped and no label crosses a line without its halo.
+3. The emphasised node reads as emphasised in greyscale.
+4. Every risk element has its dash, its ✕ and a word.
+5. The figcaption's claim matches the drawing and the prose.
+6. "Diagram as text" lists everything in the drawing.
+7. There is no horizontal scroll.
+8. A stacked horizontal form is intended, or the author was told how to shorten labels to get the row form.
 
 ### 6.4 `/exercises` (P1, E-5)
 
@@ -1469,7 +1834,7 @@ This is the authoritative list of **accessible roles and names** for every landm
 - A name comes from visible text wherever possible. `aria-label` is used only for icon-only controls and the listed landmarks, and it always contains the visible text (WCAG 2.5.3).
 - Hidden tab panels, collapsed disclosure panels and the closed mobile menu use the `hidden` attribute, so they are out of the accessibility tree.
 - **Announcements**: `#fm-live` has `role="status"`. Because Notices can also be `status`, tests locate announcements with `page.locator('#fm-live')` or `getByRole('status').filter({ hasText: '<text>' })`, never with a bare `getByRole('status')`.
-- **Disclosures** are always `button[aria-expanded][aria-controls]`. `<details>`/`<summary>` is not used anywhere, with **one exception**: the Watch block transcript (§6.3.2, PRD MD-2). Locate it with `region.locator('summary')`, not `getByRole('button')`.
+- **Disclosures** are always `button[aria-expanded][aria-controls]`. `<details>`/`<summary>` is not used anywhere, with **two named exceptions**: the Watch block transcript (§6.3.2, PRD MD-2) and "Diagram as text" (§6.3.3, PRD §17). Locate them with `region.locator('summary')` / `figure.locator('summary')`, not `getByRole('button')`.
 
 ### 11.1 Shell (every page)
 
@@ -1511,6 +1876,12 @@ This is the authoritative list of **accessible roles and names** for every landm
 | | tags | `list` | "Tags"; `listitem` per tag |
 | | remove (unavailable variant) | `button` | "Remove bookmark" |
 | Skeletons | container | (none) | `data-testid`: `curriculum-skeleton`, `lesson-skeleton`, `news-skeleton`, `archive-skeleton`, `home-skeleton`, `bookmarks-skeleton`, `workflows-skeleton`, `workflow-skeleton`, `progress-placeholder` (pre-hydration progress). Each has `aria-busy="true"` |
+| Diagram (§6.3.3) | wrapper | `figure` | Its `figcaption` text: the title, then the summary. Use `getByRole('figure', { name: /^<title>/ })` or `[data-testid="diagram"]` |
+| | drawing | `img` | `<title>` (via `aria-labelledby`); description = the summary (via `aria-describedby`). Exactly one is visible at each width (vertical below md, horizontal from md); ids `diagram-<id>-title-h` / `-v` |
+| | text toggle | (`summary` of `<details>`) | Visible "Diagram as text"; accessible name "Diagram as text for \<title\>". Locate with `figure.locator('summary')` |
+| | text panel | `region` | "Diagram as text for \<title\>" (via `aria-labelledby` on the summary id) |
+| | parts | (none) | `g[data-part]`: `node`, `edge`, `loop`, `exit`, `zone`, `crossing`, `lane`, `handoff`, `marker`, `axis`, `legend`; `data-state="key"` / `"risk"` |
+| Workflow watch line (§6.3.3) | link | `link` | "Watch: \<manifest title\> (Lesson X.Y)". The visible text ends " →", which is `aria-hidden`. `href` `/lessons/<slug>#watch-<media-id>` |
 
 ### 11.3 Pages
 
