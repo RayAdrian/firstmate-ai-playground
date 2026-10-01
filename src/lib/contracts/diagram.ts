@@ -182,6 +182,8 @@ const lanes = z
         node.extend({
           lane: nodeId,
           col: z.number().int().min(DIAGRAM_LANE_COLS.min).max(DIAGRAM_LANE_COLS.max),
+          /** `risk`: a dashed danger boundary; with `emphasis` it is the key risk step (lanes v2, DESIGN §6.3.3). */
+          style: z.enum(["normal", "risk"]).default("normal"),
         }),
       )
       .min(2),

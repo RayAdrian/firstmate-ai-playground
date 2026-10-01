@@ -29,6 +29,13 @@ export const DIAGRAM_GEOMETRY = {
   nodeMinWidth: 96,
   /** The sub-line adds a 2px gap plus a 16px line. */
   subExtra: 18,
+  /**
+   * Lanes grid time axis (DESIGN §6.3.3 lanes v2): a 12px gap then a 44px band after the last lane row, so the grid is
+   * 56px taller than v1. The axis word and numerals are fixed text and need no label box; the height check reads
+   * the layout's `height`, which includes these.
+   */
+  lanesAxisGap: 12,
+  lanesAxisBand: 44,
 } as const;
 
 /** Node height = 20 + 20 per label line + 18 with a sub. 1 line 40; 2 lines 60; 1 + sub 58; 2 + sub 78. */

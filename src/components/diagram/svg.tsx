@@ -14,6 +14,8 @@ const RECT = {
   node: { className: "fill-surface-raised stroke-control-border", sw: 1, dash: undefined },
   key: { className: "fill-accent-soft stroke-link", sw: 2, dash: undefined },
   risk: { className: "fill-surface-raised stroke-danger", sw: 1.5, dash: "6 4" },
+  // The key risk step: a 2px dashed danger boundary on the raised fill (never the accent fill, which would say "good path").
+  "key-risk": { className: "fill-surface-raised stroke-danger", sw: 2, dash: "6 4" },
   zone: { className: "fill-none stroke-control-border", sw: 1, dash: undefined },
 } as const;
 
@@ -68,6 +70,9 @@ function renderPrim(p: Prim, key: number, ids: { arrow: string; x: string }): Re
       );
     case "path": {
       const risk = p.variant === "risk";
+      if (p.variant === "underlay") {
+        return <path key={key} d={p.d} strokeWidth={6} className="fill-none stroke-surface" />;
+      }
       return (
         <path
           key={key}

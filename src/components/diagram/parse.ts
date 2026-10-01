@@ -24,6 +24,15 @@ export function formatPath(path: readonly PropertyKey[]): string {
   );
 }
 
+/** Non-failing authoring notes (DESIGN §6.3.3): printed by the lesson seed and `workflows:validate`, same channel as the stacked note. */
+export function diagramAuthoringNotes(d: Diagram): string[] {
+  if (d.type !== "lanes" || d.handoffs.length > 0) return [];
+  const cols = Math.max(...d.steps.map((s) => s.col), d.marker?.col ?? 0);
+  return cols >= 3
+    ? [`diagram ${d.id}: lanes with no handoffs reads as unconnected boxes; add the handoff that carries the story`]
+    : [];
+}
+
 /** Schema check, then the label-fit and height check. */
 export function validateDiagramValue(value: unknown): DiagramParseResult {
   const parsed = diagramSchema.safeParse(value);
@@ -32,7 +41,7 @@ export function validateDiagramValue(value: unknown): DiagramParseResult {
   }
   const issues = checkLabelsFit(parsed.data, diagramLayout);
   if (issues.length > 0) return { ok: false, issues };
-  return { ok: true, diagram: parsed.data, notes: diagramFitNotes(parsed.data, diagramLayout) };
+  return { ok: true, diagram: parsed.data, notes: [...diagramFitNotes(parsed.data, diagramLayout), ...diagramAuthoringNotes(parsed.data)] };
 }
 
 /**

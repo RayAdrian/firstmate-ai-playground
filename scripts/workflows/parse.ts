@@ -18,7 +18,7 @@ import {
   type WorkflowValidationContext,
 } from "../../src/lib/contracts";
 import { diagramLayout } from "../../src/components/diagram/layout";
-import { diagramSubtreeIssues } from "../../src/components/diagram/parse";
+import { diagramAuthoringNotes, diagramSubtreeIssues } from "../../src/components/diagram/parse";
 import type { Diagram } from "../../src/lib/contracts/diagram";
 import { checkLabelsFit, diagramFitNotes } from "../../src/lib/diagram/fit";
 import type { SeedIssue } from "../seed/lib/issues";
@@ -387,7 +387,7 @@ export function parseWorkflowFile(raw: string, file: string, ctx: WorkflowValida
     for (const i of checkLabelsFit(fm.diagram, diagramLayout)) {
       issues.push({ file, line: yaml.lineOf(["diagram"]), field: `diagram.${i.path}`, reason: i.reason });
     }
-    for (const note of diagramFitNotes(fm.diagram, diagramLayout)) {
+    for (const note of [...diagramFitNotes(fm.diagram, diagramLayout), ...diagramAuthoringNotes(fm.diagram)]) {
       warnings.push({ file, line: yaml.lineOf(["diagram"]), field: "diagram", reason: note.replace(/^diagram [^:]+: /, "") });
     }
   }
