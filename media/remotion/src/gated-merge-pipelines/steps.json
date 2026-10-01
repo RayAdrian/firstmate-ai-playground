@@ -30,7 +30,12 @@
   },
   "terminal": {
     "command": "npm run gate:merge -- 24",
-    "refuse": "Refusing: gate/browser is not success on e4f5a6b",
-    "done": "Merged #24 (squash) at e4f5a6b"
+    "refuse": [
+      "Refusing to merge PR #24 at e4f5a6b:",
+      "  - status gate/browser is not success on e4f5a6b",
+      "  - status gate/review is not success on e4f5a6b",
+      "  - status gate/uiux is not success on e4f5a6b"
+    ],
+    "done": ["All gates green for PR #24 at e4f5a6b. Merging (squash)."]
   }
 }

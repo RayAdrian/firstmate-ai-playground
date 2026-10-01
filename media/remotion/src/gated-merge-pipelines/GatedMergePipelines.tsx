@@ -9,12 +9,12 @@ type Data = StepsFile & {
   pr: { number: number; title: string; headLabel: string; oldSha: string; newSha: string };
   gates: { name: string; label: string }[];
   ui: { pending: string; success: string; none: string; labelStays: string };
-  terminal: { command: string; refuse: string; done: string };
+  terminal: { command: string; refuse: string[]; done: string[] };
 };
 export const gatedMergeData = raw as Data;
 
-const ROW_H = 92;
-const ROW_GAP = 12;
+const ROW_H = 76;
+const ROW_GAP = 8;
 const TOP = 182;
 
 const Check = ({ size = 28, color = c.success }: { size?: number; color?: string }) => (
@@ -65,8 +65,7 @@ export const GatedMergePipelines = () => {
   const cmdText = d.terminal.command.slice(0, typed(cmdStart));
   const cmdDone = typed(cmdStart) >= d.terminal.command.length;
   const resultAt = cmdStart + d.terminal.command.length / 26 + 0.6;
-  const resultText = inMerge ? d.terminal.done : d.terminal.refuse;
-  const resultOpacity = fade(resultAt, 0.3);
+  const resultLines = inMerge ? d.terminal.done : d.terminal.refuse;
 
   const labelsStay = interpolate(t, [reset.start_s + 2, reset.start_s + 2.6, rerun.start_s - 0.5, rerun.start_s], [0, 1, 1, 0], clampOpts);
 
@@ -88,16 +87,16 @@ export const GatedMergePipelines = () => {
           opacity: fade(0.2, 0.6),
         }}
       >
-        <div style={{ position: "absolute", left: 24, top: 22, fontSize: 36, fontWeight: 700, color: c.fgStrong }}>{d.pr.title}</div>
-        <div style={{ position: "absolute", left: 24, top: 74, fontSize: 28, fontWeight: 500, color: c.fgMuted }}>{d.pr.headLabel}</div>
+        <div style={{ position: "absolute", left: 24, top: 14, fontSize: 36, fontWeight: 700, color: c.fgStrong }}>{d.pr.title}</div>
+        <div style={{ position: "absolute", left: 24, top: 56, fontSize: 28, fontWeight: 500, color: c.fgMuted }}>{d.pr.headLabel}</div>
         <div
           style={{
             ...mono,
             position: "absolute",
             left: 24,
             right: 24,
-            top: 116,
-            height: 92,
+            top: 94,
+            height: 88,
             boxSizing: "border-box",
             borderRadius: 12,
             display: "flex",
@@ -113,7 +112,7 @@ export const GatedMergePipelines = () => {
         >
           {headSha}
         </div>
-        <div style={{ position: "absolute", left: 24, right: 24, top: 218, fontSize: 30, fontWeight: 700, color: c.success, opacity: labelsStay }}>{d.ui.labelStays}</div>
+        <div style={{ position: "absolute", left: 24, right: 24, top: 196, fontSize: 30, fontWeight: 700, color: c.success, opacity: labelsStay }}>{d.ui.labelStays}</div>
       </div>
 
       {/* gate rows */}
@@ -145,8 +144,8 @@ export const GatedMergePipelines = () => {
               opacity: appear,
             }}
           >
-            <div style={{ ...mono, position: "absolute", left: 24, top: 10, fontSize: 36, fontWeight: 700, color: c.fgStrong }}>{g.name}</div>
-            <div style={{ ...mono, position: "absolute", left: 24, top: 56, display: "flex", alignItems: "center", gap: 8, fontSize: 24, color: labelOn ? c.success : c.fgMuted }}>
+            <div style={{ ...mono, position: "absolute", left: 24, top: 6, fontSize: 34, fontWeight: 700, color: c.fgStrong }}>{g.name}</div>
+            <div style={{ ...mono, position: "absolute", left: 24, top: 44, display: "flex", alignItems: "center", gap: 8, fontSize: 22, color: labelOn ? c.success : c.fgMuted }}>
               {labelOn ? <Check size={20} /> : null}
               {g.label}
             </div>
@@ -154,15 +153,15 @@ export const GatedMergePipelines = () => {
               style={{
                 position: "absolute",
                 right: 16,
-                top: 14,
-                height: 58,
+                top: 11,
+                height: 54,
                 boxSizing: "border-box",
                 padding: "0 16px",
                 borderRadius: 999,
                 display: "flex",
                 alignItems: "center",
                 gap: 10,
-                fontSize: 32,
+                fontSize: 30,
                 fontWeight: 700,
                 whiteSpace: "nowrap",
                 ...pill,
@@ -170,7 +169,7 @@ export const GatedMergePipelines = () => {
             >
               {status === "success" ? <Check size={26} /> : null}
               <span>{statusText}</span>
-              {status === "success" ? <span style={{ ...mono, fontSize: 26, fontWeight: 500, color: c.fgMuted }}>{sha}</span> : null}
+              {status === "success" ? <span style={{ ...mono, fontSize: 30, fontWeight: 500, color: c.fgStrong }}>{sha}</span> : null}
             </div>
           </div>
         );
@@ -182,15 +181,15 @@ export const GatedMergePipelines = () => {
           position: "absolute",
           left: 60,
           width: 1160,
-          top: 496,
-          height: 114,
+          top: 436,
+          height: 176,
           boxSizing: "border-box",
           borderRadius: 14,
           backgroundColor: c.codeBg,
           opacity: termOpacity,
-          padding: "14px 28px",
+          padding: "10px 24px",
           ...mono,
-          fontSize: 34,
+          fontSize: 26,
           color: c.codeFg,
         }}
       >
@@ -201,14 +200,18 @@ export const GatedMergePipelines = () => {
         </div>
         <div
           style={{
-            marginTop: 14,
-            paddingLeft: 16,
+            marginTop: 8,
+            paddingLeft: 14,
             borderLeft: `6px solid ${inMerge ? c.success : c.accent2}`,
-            opacity: resultOpacity,
             whiteSpace: "pre",
+            lineHeight: 1.25,
           }}
         >
-          {resultText}
+          {resultLines.map((line, i) => (
+            <div key={line} style={{ opacity: fade(resultAt + i * 0.25, 0.2) }}>
+              {line}
+            </div>
+          ))}
         </div>
       </div>
     </Frame>

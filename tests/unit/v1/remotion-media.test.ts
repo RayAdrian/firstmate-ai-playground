@@ -97,7 +97,7 @@ describe.each(ids)("%s", (id) => {
     const mp4 = fs.readFileSync(path.join(dir, `${id}.mp4`));
     expect(mp4.length).toBeLessThanOrEqual(MEDIA_CAPS.mp4);
     expect(mp4.includes("avc1")).toBe(true);
-    expect(mp4.includes("soun"), "audio track present").toBe(false);
+    expect(mp4.includes(Buffer.from("hdlr\0\0\0\0\0\0\0\0soun", "latin1")), "audio track present").toBe(false);
     expect(fs.statSync(path.join(dir, `${id}.webp`)).size).toBeLessThanOrEqual(MEDIA_CAPS.poster);
     const head = fs.readFileSync(path.join(dir, `${id}.webp`)).subarray(0, 12).toString("latin1");
     expect(head.startsWith("RIFF") && head.endsWith("WEBP")).toBe(true);

@@ -19,6 +19,7 @@ const repoRoot = path.resolve(here, "../..");
 const srcDir = path.join(here, "src");
 const outRoot = path.join(repoRoot, "public/media/lessons");
 
+// Caps from src/lib/contracts/media.ts (MD-6); tests/unit/v1 enforces the real MEDIA_CAPS, so drift is caught there.
 // Caps from src/lib/contracts/media.ts (MD-6). Duplicated here because Node cannot import that extensionless TS.
 const CAPS = { mp4: 4 * 1024 * 1024, poster: 60 * 1024 };
 
