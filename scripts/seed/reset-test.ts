@@ -5,6 +5,8 @@ import { getServiceClient } from "../../src/lib/db/service";
 import { VARIANTS, buildVariant, type VariantData } from "../../tests/fixtures/news";
 import { applyContent } from "./lib/apply";
 import { requireServiceEnv } from "./lib/env";
+import { workflowsClient } from "./lib/workflows-db";
+import { seedFixtureWorkflows } from "./lib/workflows-fixtures";
 import { formatIssues } from "./lib/issues";
 import { loadContent } from "./lib/load";
 import { assertLocalSupabase } from "./lib/local-guard";
@@ -45,11 +47,15 @@ async function main(): Promise<number> {
     return 1;
   }
 
+  let workflowCount = 0;
+
   // Wipe in FK order. news_sources baseline rows go too: fixtures own the table.
   for (const table of ["news_items", "ingest_runs", "exercises", "lessons", "levels", "news_sources"] as const) {
     const { error } = await db.from(table).delete().not("id", "is", null);
     if (error) throw new Error(`could not clear ${table}: ${error.message}`);
   }
+  const { error: wfClearError } = await workflowsClient(db).from("workflows").delete().not("id", "is", null);
+  if (wfClearError) throw new Error(`could not clear workflows: ${wfClearError.message}`);
 
   if (content) {
     await applyContent(db, content, FM_TEST_NOW);
@@ -73,6 +79,7 @@ async function main(): Promise<number> {
       updated_at: "2026-09-01T00:00:00+08:00",
     });
     if (retiredError) throw new Error(`could not insert l2-retired: ${retiredError.message}`);
+    workflowCount = await seedFixtureWorkflows(db, { fixtureContent: path.join(FIXTURE_CONTENT, "content"), now: FM_TEST_NOW });
   }
 
   if (variant.sources.length > 0) {
@@ -101,7 +108,7 @@ async function main(): Promise<number> {
 
   console.log(
     `db:reset:test: loaded ${name} (${content?.levels.length ?? 0} levels, ${content ? content.lessons.length + 1 : 0} lessons incl. 1 archived, ` +
-      `${content?.exercises.length ?? 0} exercises, ${variant.sources.length} sources, ${variant.news.length} news items, ${variant.runs.length} runs).`,
+      `${content?.exercises.length ?? 0} exercises, ${workflowCount} workflows, ${variant.sources.length} sources, ${variant.news.length} news items, ${variant.runs.length} runs).`,
   );
   return 0;
 }

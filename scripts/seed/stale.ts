@@ -5,6 +5,7 @@ import { getServiceClient } from "../../src/lib/db/service";
 import { loadLocalEnv, requireServiceEnv } from "./lib/env";
 import { describeMediaReason, findStaleMedia, hashSourceFromDisk, loadManifests, type LessonInfo } from "./lib/media-stale";
 import { RELEASE_SOURCE_SLUGS, describeReason, findStale, latestVersionsFromReleases, type StaleLessonInput } from "./lib/stale";
+import { reportWorkflowStale } from "./lib/workflows-stale";
 
 async function main(): Promise<number> {
   const strict = process.argv.includes("--strict");
@@ -71,6 +72,7 @@ async function main(): Promise<number> {
     console.log(`content:stale: ${staleMedia.length} of ${manifests.length} media item(s) need re-rendering:`);
     for (const m of staleMedia) console.log(`  ${m.label}: ${m.reasons.map(describeMediaReason).join("; ")}`);
   }
+  await reportWorkflowStale(db, now, latest); // PRD §16 WF-41: reports only, never affects the exit code
   return strict && (stale.length > 0 || staleMedia.length > 0) ? 1 : 0;
 }
 

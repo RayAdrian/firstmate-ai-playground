@@ -33,3 +33,22 @@ Environment: `CONTENT_DIR` (default `content`), `EXERCISES_DIR` (default `exerci
 - A missing `content/` directory is a no-op (exit 0). A missing `exercises/` counts as empty (existing exercises are archived).
 - Writes go through PostgREST (no multi-statement transactions), so atomicity is "validate everything, then write". A database
   failure mid-write stops with an error; re-running converges because every step is idempotent.
+
+## Workflows (PRD §16, W1)
+
+| Command | What |
+|---|---|
+| `npm run workflows:validate [-- <file>...]` | Check every `content/workflows/*.md` against §16.6, no database. Prints `<path>: <field>: <reason>` per problem, exits 1 if any. |
+| `npm run workflows:scan [-- <file>...]` | Secret and PII scan (gitleaks when installed, plus built-in rules). Prints `<line>: <rule-id>` per finding, never the matched text, exits 1 if any. |
+| `npm run seed` | Also upserts workflows by slug (author and `reviewed_on` from git, `level` from the related lesson). |
+| `npm run content:stale` | Workflow staleness is in `scripts/seed/lib/workflows-stale.ts` and prints its own "Workflows" group; `--strict` counts lessons only. |
+
+- `workflows:validate` and `seed` share one parser (`scripts/workflows/parse.ts` via `load.ts`), so they cannot disagree (WF-2).
+- A bad workflow never blocks the seed: it is skipped with a warning, its existing row is left unchanged, and everything else still seeds.
+- A deleted file sets `removed_at` (the row is kept); a returning file clears it. Unchanged rows are not written.
+- `content/workflows/_takedowns.txt` lists `content_hash` values (SHA-256 of the LF-normalised file text, equal to
+  `git show <rev>:<path> | shasum -a 256`). The seed hard-deletes any row with a listed hash and refuses to re-seed a file with one (WF-43).
+- Authors come from `git log --diff-filter=A --follow --format=%an`, run with an argv array. Emails are never read. In a shallow clone the
+  author is "Unknown", `reviewed_on` is null and the seed prints one warning.
+- Pure functions for W3's share CLI: `redactText` (`scripts/workflows/redact.ts`), `scanText` and `parseGitleaksReport` (`scan-rules.ts`),
+  `scanFile` (`scan-file.ts`), `parseWorkflowFile` (`parse.ts`, with `excuseClientSafe` for the draft stage).
