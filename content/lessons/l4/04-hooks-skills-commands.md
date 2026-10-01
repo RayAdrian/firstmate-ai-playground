@@ -62,6 +62,40 @@ A hook is a command that receives a JSON description of the event on stdin. It c
 - When a turn ends (`Stop`): run the test suite and tell the agent to keep going if it fails.
 - On session start or user prompt: inject context.
 
+```diagram
+type: flow
+id: hook-events
+title: Where hooks fire in the agent loop
+summary: Hooks run around each tool call and at the end of a turn. A before-tool hook can block a call, and the agent is told why and carries on; a stop hook can send it back to work.
+steps:
+  - id: call
+    label: Tool call
+    sub: PreToolUse
+    emphasis: true
+  - id: result
+    label: Tool result
+    sub: PostToolUse
+  - id: end
+    label: Turn ends
+    sub: Stop
+loops:
+  - from: result
+    to: call
+    label: next call
+  - from: end
+    to: call
+    label: keep going
+exits:
+  - from: call
+    label: hook blocks
+    text: Agent told why
+    style: ok
+  - from: end
+    label: allowed
+    text: Reply to you
+    style: ok
+```
+
 Hook rules that save you pain:
 
 1. Keep them fast. They sit in the agent's loop.
