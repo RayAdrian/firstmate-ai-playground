@@ -26,6 +26,37 @@ The context window is the agent's working memory: your prompts, every file it re
 1. **Quality drops as it fills.** Long sessions pile up dead ends, big file dumps and failed attempts. The agent starts to forget early instructions or repeat mistakes. Cost and latency rise too.
 2. **A new session starts blank.** Nothing in chat carries over. Only files on disk do: your instruction file, memory notes, the code and git history.
 
+```diagram
+type: boundary
+id: window-vs-disk
+title: What survives a new session
+summary: The context window is wiped when a session ends or resets. Only what is on disk is still there when the next session starts.
+zones:
+  - id: window
+    label: Context window (lost)
+    items:
+      - id: prompts
+        label: Your prompts
+      - id: files-read
+        label: Files and output
+      - id: attempts
+        label: Failed attempts
+  - id: disk
+    label: Disk (survives)
+    items:
+      - id: instructions
+        label: "Instruction and\nmemory files"
+      - id: code
+        label: Code and git history
+      - id: handoff
+        label: Handoff file
+        sub: you write it
+crossings:
+  - from: disk
+    to: window
+    label: read at start
+```
+
 So you have four levers, cheapest first:
 
 | Lever | What it does | Use when |

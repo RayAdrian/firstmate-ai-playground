@@ -37,6 +37,27 @@ An agent starts every session knowing nothing about your repo except what it can
 
 **Scope and hierarchy.** Both tools stack files from the repo root down to the directory you started in, so put repo-wide rules at the root and package-specific rules next to the package. Personal preferences go in your home directory or a gitignored local file, never in the committed file.
 
+```diagram
+type: stack
+id: instruction-hierarchy
+title: How instruction files stack
+summary: Instruction files stack from your home folder down to the package you work in. Files closer to your work are read later and win ties.
+layers:
+  - id: home
+    label: Home folder
+    sub: your personal defaults
+  - id: repo
+    label: Repo root
+    sub: shared by the whole repo
+  - id: package
+    label: Package folder
+    sub: rules for one package
+    emphasis: true
+axis:
+  low: read first
+  high: read last, wins
+```
+
 **Instructions are advice, not enforcement.** The model reads them and usually follows them. Anything that must happen every time (block a command, run a formatter) belongs in a permission rule or a hook, not a sentence. Lesson 4.4 covers hooks.
 
 **Two tools, one repo.** Every First Mate engineer has both CLIs, and a client repo will be opened with either. Two files that drift apart are worse than one. Pick `AGENTS.md` as the single source of truth (Codex reads it natively), and give Claude Code a thin `CLAUDE.md` that imports it. Details are in the tabs.

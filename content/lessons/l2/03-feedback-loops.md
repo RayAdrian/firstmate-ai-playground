@@ -24,6 +24,39 @@ codex_no_equivalent: false
 
 An agent stops when the work *looks* done. If the only check it has is its own judgement, "looks done" is the only signal, and you become the verification loop: every mistake waits for you to spot it. Give the agent a check it can run, and the loop closes without you: it works, runs the check, reads the result, fixes, and repeats until it passes.
 
+```diagram
+type: flow
+id: self-check-loop
+title: The loop that ends at exit 0
+summary: The agent works, runs the checks, and fixes until every one exits 0. A check it can silence gives a false green, so forbid that in the file.
+steps:
+  - id: work
+    label: Work
+    sub: agent edits
+    next: run
+  - id: check
+    label: Check
+    sub: types, lint, tests
+    emphasis: true
+    next: fails
+  - id: fix
+    label: Fix
+    sub: read the output
+loops:
+  - from: fix
+    to: check
+    label: run again
+exits:
+  - from: check
+    label: exit 0
+    text: Done
+    style: ok
+  - from: fix
+    label: hides error
+    text: False green
+    style: risk
+```
+
 **The failure to design against.** Tests are green, so the agent reports success. But the repo also has a typecheck and a linter, nobody told the agent, and they fail. You find out in CI, or in review. This is the normal state of most codebases, and the fix is one paragraph in the context file.
 
 **What to encode.**
