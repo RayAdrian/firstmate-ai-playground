@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import Link from "next/link";
+import { InlineText } from "@/components/lesson/inline-text";
 import { Button, CommandLine, Notice } from "@/components/ui";
 import {
   DB_UNAVAILABLE_COMMAND,
@@ -27,8 +28,9 @@ export default function ErrorPage({ error, reset, retry }: ErrorPageProps) {
   // reset() alone re-renders the boundary without refetching server data, so prefer retry() when present.
   const tryAgain = () => startTransition(() => (retry ?? reset)());
 
+  // No `disabled` while pending: a disabled button drops keyboard focus. `loading` already ignores clicks.
   const tryAgainButton = (
-    <Button variant="secondary" onClick={tryAgain} loading={pending} disabled={pending}>
+    <Button variant="secondary" onClick={tryAgain} loading={pending}>
       Try again
     </Button>
   );
@@ -37,7 +39,9 @@ export default function ErrorPage({ error, reset, retry }: ErrorPageProps) {
     return (
       <div className="max-w-[var(--fm-measure)]">
         <h1 className="text-3xl font-bold text-fg-strong md:text-4xl">Database unavailable</h1>
-        <p className="mt-4 text-prose text-fg">{DB_UNAVAILABLE_MESSAGE}</p>
+        <p className="mt-4 text-prose text-fg">
+          <InlineText text={DB_UNAVAILABLE_MESSAGE} />
+        </p>
         <CommandLine command={DB_UNAVAILABLE_COMMAND} label="Terminal" className="mt-6" />
         <div className="mt-6">{tryAgainButton}</div>
       </div>

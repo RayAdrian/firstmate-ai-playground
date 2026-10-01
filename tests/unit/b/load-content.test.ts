@@ -29,7 +29,7 @@ describe("loadContent: happy path (TC-B-01, TC-B-04)", () => {
       lessonSlug: "l1-first-session",
       verify_cmd: "npm test",
       repo_path: "exercises/ex-fx-auto/starter",
-      setup_cmd: "cp -r exercises/ex-fx-auto/starter ~/fm-ex/ex-fx-auto && cd ~/fm-ex/ex-fx-auto && npm i",
+      setup_cmd: "mkdir -p ~/fm-ex && cp -R exercises/ex-fx-auto/starter ~/fm-ex/ex-fx-auto && cd ~/fm-ex/ex-fx-auto && git init -q && git add -A && git -c user.name=learner -c user.email=learner@example.com commit -qm start && npm install",
       checklist: [
         { id: "c1", text: "Test is green" },
         { id: "c2", text: "No test files edited" },

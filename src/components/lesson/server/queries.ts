@@ -23,7 +23,6 @@ const LESSON_LIST_COLUMNS =
 
 /** Active levels with their active lessons, in reading order. Archived rows never appear (C-1.3). */
 export const getCurriculum = cache(async (): Promise<Curriculum> => {
-  await applyRouteHooks("curriculum");
   const db = getReadClient();
   const [levelRows, lessonRows, now] = await Promise.all([
     dbRead(db.from("levels").select("id, number, slug, title, summary").is("archived_at", null)),
@@ -52,6 +51,23 @@ export const getCurriculum = cache(async (): Promise<Curriculum> => {
         .map((l) => ({ ...l, number: numberBySlug.get(l.slug) ?? "" })),
     })),
   };
+});
+
+/**
+ * Cheap existence check for the lesson layout: one indexed row, no body. It runs above the loading.tsx
+ * boundary (a real 404 needs it), so it must stay light or the skeleton never gets a chance to show.
+ */
+export const lessonExists = cache(async (slug: string): Promise<boolean> => {
+  const db = getReadClient();
+  const lesson = await dbRead<{ level_id: string } | null>(
+    db.from("lessons").select("level_id").eq("slug", slug).is("archived_at", null).maybeSingle(),
+  );
+  if (!lesson) return false;
+  // A lesson under an archived level is not in the curriculum either (getCurriculum drops it), so it must 404 too.
+  const level = await dbRead<{ id: string } | null>(
+    db.from("levels").select("id").eq("id", lesson.level_id).is("archived_at", null).maybeSingle(),
+  );
+  return level !== null;
 });
 
 export type LessonPageData = {

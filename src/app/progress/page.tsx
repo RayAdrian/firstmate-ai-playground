@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { dbRead } from "@/lib/db";
 import { getReadClient } from "@/lib/db/server";
-import { ProgressNotices } from "@/lib/progress";
 import { ProgressPanel } from "./progress-panel";
 
 export const metadata: Metadata = { title: "Progress · First Mate AI Playground" };
@@ -26,9 +25,8 @@ export default async function ProgressPage() {
   const lessonSlugs = await loadLessonSlugs();
   return (
     <div className="max-w-[700px] space-y-8">
-      <ProgressNotices fallback />
       <header className="space-y-2">
-        <h1 className="text-3xl font-bold md:text-4xl">Progress</h1>
+        <h1 className="text-3xl font-bold text-fg-strong md:text-4xl">Progress</h1>
         <p className="text-fg-muted">Your progress is saved in this browser only.</p>
       </header>
       <ProgressPanel lessonSlugs={lessonSlugs} />

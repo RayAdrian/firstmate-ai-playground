@@ -84,7 +84,7 @@ function Summary({
       : `${counts.lessons} of ${lessonSlugs.length} lessons complete`;
   return (
     <Card>
-      <h2 className="text-lg font-bold">Summary</h2>
+      <h2 className="text-2xl font-bold text-fg-strong">Summary</h2>
       <p>{lessons}</p>
       <p className="text-fg-muted">
         {pluralize(counts.checklistItems, "checklist item")} · {pluralize(counts.bookmarks, "bookmark")}
@@ -118,7 +118,7 @@ function ExportSection({ hydrated }: { hydrated: boolean }) {
 
   return (
     <section aria-labelledby="export-heading" id="export" className="space-y-3">
-      <h2 id="export-heading" className="text-2xl font-bold">
+      <h2 id="export-heading" className="text-2xl font-bold text-fg-strong">
         Export
       </h2>
       <p className="text-fg-muted">Download a JSON backup, or share it for the team report.</p>
@@ -208,7 +208,7 @@ function ImportSection() {
 
   return (
     <section aria-labelledby="import-heading" className="space-y-3">
-      <h2 id="import-heading" className="text-2xl font-bold">
+      <h2 id="import-heading" className="text-2xl font-bold text-fg-strong">
         Import
       </h2>
       <div className="space-y-1">
@@ -291,7 +291,7 @@ function ResetSection() {
       aria-labelledby="reset-heading"
       className="space-y-3 rounded-lg border border-danger p-5 md:p-6"
     >
-      <h2 id="reset-heading" className="text-2xl font-bold">
+      <h2 id="reset-heading" className="text-2xl font-bold text-fg-strong">
         Reset all progress
       </h2>
       <p>

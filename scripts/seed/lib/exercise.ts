@@ -25,6 +25,17 @@ export interface ParsedExercise {
   required_tool_features: string[];
 }
 
+/**
+ * Default setup when exercise.json has none: safe on a fresh machine. It creates ~/fm-ex, copies the starter, and makes
+ * the copy a repo with one commit (an identity is passed inline, so no global config is needed).
+ */
+export function defaultSetupCmd(folder: string): string {
+  return (
+    `mkdir -p ~/fm-ex && cp -R exercises/${folder}/starter ~/fm-ex/${folder} && cd ~/fm-ex/${folder} && ` +
+    `git init -q && git add -A && git -c user.name=learner -c user.email=learner@example.com commit -qm start && npm install`
+  );
+}
+
 function isDir(p: string): boolean {
   return existsSync(p) && statSync(p).isDirectory();
 }
@@ -121,7 +132,7 @@ export function parseExerciseDir(dirAbs: string, dirRel: string): { value?: Pars
       title,
       goal: json.goal ?? summary.goal ?? "",
       repo_path: `exercises/${folder}/starter`,
-      setup_cmd: json.setup_cmd ?? `cp -r exercises/${folder}/starter ~/fm-ex/${folder} && cd ~/fm-ex/${folder} && npm i`,
+      setup_cmd: json.setup_cmd ?? defaultSetupCmd(folder),
       verify_cmd: json.verify === "manual" ? null : json.verify,
       starter_prompts: json.starter_prompts ?? {},
       checklist,

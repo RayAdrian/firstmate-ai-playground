@@ -19,15 +19,19 @@ async function hook(name: string): Promise<string | null> {
 }
 
 /** Apply the delay and failure hooks for a route. A no-op in production. */
-export async function applyRouteHooks(route: "curriculum" | "lesson" | "exercises"): Promise<void> {
+export async function applyRouteHooks(
+  route: "curriculum" | "lesson" | "exercises" | "home",
+): Promise<void> {
+  // The home route may also be addressed by its path: fm_test_delay=/:1500
+  const names: string[] = route === "home" ? ["home", "/"] : [route];
   const delay = await hook("fm_test_delay");
   if (delay) {
     const [r, ms] = decodeURIComponent(delay).split(":");
     const n = Number(ms);
-    if (r === route && Number.isFinite(n) && n > 0) {
+    if (names.includes(r) && Number.isFinite(n) && n > 0) {
       await new Promise((res) => setTimeout(res, Math.min(n, 10_000)));
     }
   }
   const fail = await hook("fm_test_fail");
-  if (fail === route) throw new Error("Injected test failure");
+  if (fail !== null && names.includes(fail)) throw new Error("Injected test failure");
 }

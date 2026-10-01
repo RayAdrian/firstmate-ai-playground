@@ -36,7 +36,7 @@ function run(script: string, opts: { withNode?: boolean; withClaude?: boolean; a
   fs.writeFileSync(path.join(npmDir, "npm"), "#!/bin/bash\necho fake\n", { mode: 0o755 });
   dirs.push(stubs, npmDir, "/usr/bin", "/bin", "/usr/sbin", "/sbin");
   return spawnSync("/bin/bash", [path.join(OPS, script), ...args], {
-    env: { HOME: home, PATH: dirs.join(":"), FM_LAUNCHCTL: path.join(bin, "launchctl"), TMPDIR: os.tmpdir(), NODE_ENV: "test" },
+    env: { HOME: home, PATH: dirs.join(":"), FM_LAUNCHCTL: path.join(bin, "launchctl"), TMPDIR: os.tmpdir(), NODE_ENV: "test", FM_ALLOW_TEMP_BIN: "1" },
     encoding: "utf8",
   });
 }

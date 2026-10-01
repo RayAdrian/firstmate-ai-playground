@@ -29,7 +29,7 @@ Every hook returns `hydrated`. Until it is `true`, render a neutral placeholder 
 
 Mount `<ProgressNotices />` once in the shell's GlobalNotices slot (under the header, above `<main>`).
 It renders the P-3 storage banner and the dismissible P-2 corruption notice, client-only.
-`<ProgressNotices fallback />` (used on `/progress` and `/bookmarks`) renders only when the global
+`<ProgressNotices fallback />` (no page uses it since M2: the shell mounts the global one) renders only when the global
 instance is absent, so both can coexist without duplicates.
 
 `announce(text)` writes to the `#fm-live` polite region (creates a hidden one if the shell has none).

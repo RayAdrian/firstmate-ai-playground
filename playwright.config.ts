@@ -26,6 +26,16 @@ const excluded = [
   !PROD && "@prod",
 ].filter((t): t is string => Boolean(t));
 
+// Specs that mutate fixture data (service-role writes or db:reset variants). Each gets its own project, chained
+// through `dependencies`, because workers are shared across projects and Playwright has no per-project worker cap.
+const MUTATORS = [
+  "**/e2e/b/content-pipeline.spec.ts",
+  "**/e2e/c/long-token.spec.ts",
+  "**/e2e/d/bookmarks.spec.ts",
+  "**/e2e/m2/archived-level.spec.ts",
+  "**/e2e/f/news.spec.ts",
+];
+
 export default defineConfig({
   // E2E specs live in tests/e2e/<ws>/ (ws = m0, a-f, m2, content). Shared helpers: tests/support/.
   testDir: "./tests/e2e",
@@ -33,6 +43,8 @@ export default defineConfig({
   grep: PROD ? /@prod/ : undefined,
   grepInvert: excluded.length ? new RegExp(excluded.join("|")) : undefined,
   fullyParallel: true,
+  // Capped: the specs share one dev server and one Supabase stack, and 12 workers produced flakes (TC-C-08, TC-F-52, TC-B-34).
+  workers: process.env.CI ? 2 : 4,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["github"], ["html", { open: "never" }]] : "list",
@@ -40,7 +52,23 @@ export default defineConfig({
     baseURL: `http://localhost:${PORT}`,
     trace: "on-first-retry",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    // Read-only specs run in parallel first.
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+      testIgnore: MUTATORS,
+    },
+    // Specs that change shared fixture rows (patch news items, insert lessons, reseed variants) run one file at a
+    // time, after every reader has finished, so no test ever sees another test's temporary rows.
+    ...MUTATORS.map((file, i) => ({
+      name: `mutating-${i + 1}`,
+      use: { ...devices["Desktop Chrome"] },
+      testMatch: file,
+      fullyParallel: false,
+      dependencies: [i === 0 ? "chromium" : `mutating-${i}`],
+    })),
+  ],
   webServer: {
     command: PROD
       ? `npm run build && npm run start -- --port ${PORT}`

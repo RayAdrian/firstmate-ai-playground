@@ -9,6 +9,10 @@ import {
 } from "@/lib/db";
 import { getReadClient } from "@/lib/db/server";
 
+// M2: the commands in the message render as <code> (no literal backticks), so match on the paragraph's text.
+const MESSAGE_TEXT = DB_UNAVAILABLE_MESSAGE.replaceAll("`", "");
+const isMessageParagraph = (_: string, el: Element | null) => el?.tagName === "P" && el.textContent === MESSAGE_TEXT;
+
 describe("DB unavailable seam", () => {
   it("uses the exact PRD section 9 message", () => {
     expect(DB_UNAVAILABLE_MESSAGE).toBe(
@@ -38,7 +42,7 @@ describe("DB unavailable seam", () => {
 
   it("error boundary shows the message and a copyable command for this error", () => {
     render(<ErrorPage error={new DbUnavailableError()} reset={() => {}} />);
-    expect(screen.getByText(DB_UNAVAILABLE_MESSAGE)).toBeVisible();
+    expect(screen.getByText(isMessageParagraph)).toBeVisible();
     expect(screen.getByText("supabase start && npm run seed")).toBeVisible();
     expect(screen.getByRole("button", { name: "Copy code: Terminal" })).toBeVisible();
   });
@@ -46,6 +50,6 @@ describe("DB unavailable seam", () => {
   it("error boundary stays generic for other errors", () => {
     render(<ErrorPage error={new Error("boom")} reset={() => {}} />);
     expect(screen.getByRole("heading", { name: "Something went wrong" })).toBeVisible();
-    expect(screen.queryByText(DB_UNAVAILABLE_MESSAGE)).toBeNull();
+    expect(screen.queryByText(isMessageParagraph)).toBeNull();
   });
 });

@@ -1,7 +1,7 @@
 import type { Env } from "./env";
-import { isConnectionFailure } from "@/lib/db/errors";
 import type { ClaudeRunner } from "./claude";
 import { FetchError } from "./http";
+import { isConnectionFailure } from "./store-supabase";
 import { FeedParseError, type RawFeedItem } from "./feed";
 import { matchesKeywords } from "./prefilter";
 import { normalizeItems, type Candidate } from "./normalize";

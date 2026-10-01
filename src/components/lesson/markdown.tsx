@@ -93,11 +93,14 @@ function isExternal(href: string): boolean {
   return /^https?:\/\//i.test(href);
 }
 
-/** Headings inside lesson markdown start at h3 (the page owns h1/h2). */
-function heading(level: number) {
-  const Tag = `h${Math.min(level + 2, 6)}` as "h3" | "h4" | "h5" | "h6";
+/**
+ * Headings inside lesson markdown start at h3 (the page owns h1/h2). The shift is relative to the shallowest heading in
+ * the source, so a body written with `###` (the authoring convention) lands on h3 and never skips a level.
+ */
+function heading(level: number, shift: number) {
+  const Tag = `h${Math.min(Math.max(level + shift, 3), 6)}` as "h3" | "h4" | "h5" | "h6";
   const cls =
-    level === 1
+    level + shift <= 3
       ? "mt-8 mb-3 text-xl font-bold text-fg-strong"
       : "mt-6 mb-2 text-lg font-bold text-fg-strong";
   return function Heading({ children }: { children?: ReactNode }) {
@@ -105,13 +108,30 @@ function heading(level: number) {
   };
 }
 
+/** Shallowest ATX heading level outside code fences, or null when the source has none. */
+export function shallowestHeading(source: string): number | null {
+  let min: number | null = null;
+  let fence: { char: string; length: number } | null = null;
+  for (const line of source.split("\n")) {
+    const f = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(line);
+    if (fence === null) {
+      // CommonMark: a backtick fence's info string cannot contain a backtick (that would be inline code).
+      if (f && !(f[1][0] === "`" && f[2].includes("`"))) {
+        fence = { char: f[1][0], length: f[1].length };
+        continue;
+      }
+    } else {
+      // The closing fence uses the same character, is at least as long as the opening one, and has nothing after it.
+      if (f && f[1][0] === fence.char && f[1].length >= fence.length && f[2].trim() === "") fence = null;
+      continue;
+    }
+    const h = /^ {0,3}(#{1,6})(?:\s|$)/.exec(line);
+    if (h && (min === null || h[1].length < min)) min = h[1].length;
+  }
+  return min;
+}
+
 const components: Components = {
-  h1: heading(1),
-  h2: heading(2),
-  h3: heading(3),
-  h4: heading(4),
-  h5: heading(5),
-  h6: heading(6),
   p: ({ children }) => (
     <p className="my-4 max-w-[var(--fm-measure)] text-prose text-fg [overflow-wrap:anywhere]">{children}</p>
   ),
@@ -193,8 +213,18 @@ const remarkPlugins: Options["remarkPlugins"] = [remarkGfm, remarkHtmlAsText];
 const rehypePlugins: Options["rehypePlugins"] = [rehypeFenceMeta, [rehypeSanitize, schema]];
 
 export function Markdown({ source }: { source: string }) {
+  const shift = 3 - (shallowestHeading(source) ?? 3);
+  const withHeadings: Components = {
+    ...components,
+    h1: heading(1, shift),
+    h2: heading(2, shift),
+    h3: heading(3, shift),
+    h4: heading(4, shift),
+    h5: heading(5, shift),
+    h6: heading(6, shift),
+  };
   return (
-    <ReactMarkdown remarkPlugins={remarkPlugins} rehypePlugins={rehypePlugins} components={components}>
+    <ReactMarkdown remarkPlugins={remarkPlugins} rehypePlugins={rehypePlugins} components={withHeadings}>
       {source}
     </ReactMarkdown>
   );

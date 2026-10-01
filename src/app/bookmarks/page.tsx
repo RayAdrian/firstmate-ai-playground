@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { dbRead } from "@/lib/db";
 import { getReadClient } from "@/lib/db/server";
-import { ProgressNotices } from "@/lib/progress";
 import { BookmarksView, type BookmarkLesson } from "./bookmarks-view";
 
 export const metadata: Metadata = { title: "Bookmarks · First Mate AI Playground" };
@@ -33,9 +32,8 @@ export default async function BookmarksPage() {
   const lessons = await loadLessons();
   return (
     <div className="space-y-8">
-      <ProgressNotices fallback />
       <header className="space-y-2">
-        <h1 className="text-3xl font-bold md:text-4xl">Bookmarks</h1>
+        <h1 className="text-3xl font-bold text-fg-strong md:text-4xl">Bookmarks</h1>
         <p className="text-fg-muted">Saved in this browser only.</p>
       </header>
       <BookmarksView lessons={lessons} />
