@@ -55,7 +55,7 @@ describe("WF-30 index", () => {
     expect(within(promptOnly).getByText("Codex CLI")).toBeInTheDocument();
     expect(within(promptOnly).queryByText("Claude Code")).toBeNull();
     expect(within(promptOnly).getByText("Prompt only")).toBeInTheDocument();
-    expect(within(promptOnly).getByText("Any stack")).toBeInTheDocument();
+    expect(within(promptOnly).getByText("General (no specific stack)")).toBeInTheDocument();
     expect(within(promptOnly).getByText("Verified 20 Sep 2026")).toBeInTheDocument();
     expect(within(promptOnly).getByText("by Ada Lovelace")).toBeInTheDocument();
 

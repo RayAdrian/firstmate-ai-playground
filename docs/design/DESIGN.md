@@ -1629,7 +1629,7 @@ This is the authoritative list of **accessible roles and names** for every landm
 | Tool | `combobox` (select) | "Tool"; options "Any tool", "Claude Code", "Codex CLI" |
 | Use case | `group` | "Use case"; `checkbox`es "Planning", "Review", "Testing", "Refactoring", "Debugging", "Parallel work", "CI and gates", "Security", "Context", "Automation" (plus any the data adds) |
 | Level | `combobox` (select) | "Level"; options "Any level", "Level 1" to "Level 5" |
-| Stack | `group` | "Stack"; `checkbox`es "Any stack", "Next.js", "React", "TypeScript", "Node.js", "Supabase", "Postgres", "Python", "GitHub Actions" (plus any the data adds) |
+| Stack | `group` | "Stack"; `checkbox`es "General (no specific stack)" (value `any`; ticking it narrows to stack-agnostic workflows, while an unticked group means no stack filter), "Next.js", "React", "TypeScript", "Node.js", "Supabase", "Postgres", "Python", "GitHub Actions" (plus any the data adds) |
 | Apply | `button` | "Apply filters" |
 | Filter chips | `link` | `/^Remove filter: /` ("Remove filter: Codex CLI", "Remove filter: Review", "Remove filter: Level 2", "Remove filter: Lesson <slug>", "Remove filter: Search: <q>") |
 | Clear | `link` | "Clear filters" (exactly one on the page) |
