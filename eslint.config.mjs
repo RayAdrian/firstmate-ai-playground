@@ -33,6 +33,8 @@ const eslintConfig = defineConfig([
     ".claude/**",
     // Exercise starters are deliberately broken standalone projects.
     "exercises/**",
+    // Media tooling (Remotion, VHS) has its own deps and checks.
+    "media/**",
     "playwright-report/**",
     "test-results/**",
   ]),

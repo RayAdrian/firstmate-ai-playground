@@ -32,9 +32,15 @@ Next.js App Router, TypeScript strict, Tailwind, npm, local Supabase (ports 544x
 - `scripts/gate-status.sh <pr#> <browser|review|uiux> <success|failure> <sha> "<desc>"`: a gate agent posts its verdict as commit status `gate/<gate>` on `<sha>`, the commit it reviewed. `success` is refused if the PR head has moved past `<sha>`.
 - `npm run gate:merge -- <pr#>`: merges (squash, pinned to the head SHA with `--match-head-commit`) only if `gate/browser`, `gate/review` and `gate/uiux` are all `success` on that SHA, every CI check run succeeded, the branch is not behind `main` (rebase first), and the three `gate:*-green` labels are present. Run it from the primary checkout.
 
+## Lesson media (PRD §15)
+- Sources live in `media/` (excluded from root tsconfig, ESLint and vitest; its tools run their own checks): Remotion in `media/remotion/` (V1, own `package.json`), VHS tapes in `media/tapes/` (V2). Output is committed to `public/media/lessons/<lesson-slug>/<id>.{mp4,webp,vtt,txt,media.json}`. Never hand-edit `public/media/`; manifests are generated (schema: `src/lib/contracts/media.ts`).
+- `npm run media:render` runs the `render` script of `media/remotion` (all items). `npm run media:record [-- <id>]` runs `media/tapes/record.sh`. The model tape `l3-headless-agents` is recorded manually by a maintainer with API keys in env, never in CI.
+- Rendering and recording need an engineer's Mac (`brew install vhs`). CI only validates committed output through `tests/unit/m0/media-assets.test.ts` (MD-6: manifests match the contract, referenced files exist, MP4 <= 4MB, poster <= 60KB, total <= 20MB), which runs in `npm test`.
+- Ownership: V1 owns `media/remotion/**` and the 4.2/5.3 folders; V2 owns `media/tapes/**` and the 1.1/3.4/4.3 folders. Don't touch another workstream's folder.
+
 ## Rules
 - **Path ownership (PRD §11):** edit only the paths your workstream owns. `package.json`, contracts (`src/lib/contracts/`), migrations, `src/lib/db/` and `tests/support/` are frozen after M0; change them only in a dedicated M0-owned PR.
-- **Test ownership:** each workstream owns `tests/e2e/<ws>/` and `tests/unit/<ws>/`, where `<ws>` is one of `a b c d e f m2 content` (M0 owns `m0`). Shared test helpers live in `tests/support/` (M0, frozen). Fixtures: `tests/fixtures/` (WS-B).
+- **Test ownership:** each workstream owns `tests/e2e/<ws>/` and `tests/unit/<ws>/`, where `<ws>` is one of `a b c d e f m2 content v1 v2 v3 v4` (M0 owns `m0`). Shared test helpers live in `tests/support/` (M0, frozen). Fixtures: `tests/fixtures/` (WS-B).
 - Never import `src/lib/db/service.ts` (service-role) from `src/`; ESLint enforces it. The app uses the read-only anon client (`src/lib/db/server.ts`). Wrap reads in `dbRead()` so a down database surfaces as `DbUnavailableError` (PRD §9 message).
 - Content routes must render dynamically (`export const dynamic = "force-dynamic"` or a dynamic read) so content edits show without a rebuild.
 - Test-first: each P0 AC has its test in the same PR.
