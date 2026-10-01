@@ -1,6 +1,6 @@
 [
-  { "start": 0.5, "end": 4.5, "text": "Claude Code: claude --version prints the installed version." },
-  { "start": 4.5, "end": 12.5, "text": "claude --help opens with the usage line. Run it any time you need a flag." },
-  { "start": 12.5, "end": 17.5, "text": "Codex CLI: codex --version prints its version." },
-  { "start": 17.5, "end": 24, "text": "codex --help lists the subcommands, including exec for scripts." }
+  { "start": 0.5, "end": 5, "text": "Claude Code: claude --version prints the installed version." },
+  { "start": 5, "end": 12, "text": "claude --help opens with the usage line. Run it any time you need a flag." },
+  { "start": 12, "end": 16.5, "text": "Codex CLI: codex --version prints its version." },
+  { "start": 16.5, "end": 22.5, "text": "codex --help lists the subcommands, including exec for scripts." }
 ]

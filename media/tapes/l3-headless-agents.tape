@@ -13,6 +13,9 @@
 # the maintainer's first recording confirms it (the Wait line fails if it is wrong).
 Source media/tapes/common.tape
 Set TypingSpeed 35ms
+# The two commands below are long by nature (flags + jq filter), so this tape uses a slightly
+# smaller font than common.tape and lets them wrap.
+Set FontSize 26
 Output media/tapes/out/l3-headless-agents.mp4
 Output media/tapes/out/l3-headless-agents.golden.txt
 

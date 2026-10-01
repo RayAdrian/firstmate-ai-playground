@@ -22,11 +22,21 @@ Show
 Sleep 1s
 Type "claude --version"
 Enter
+Wait+Screen@20s /Claude Code/
+Wait /^\$\s*$/
 Sleep 3s
+
+Hide
+Type "clear"
+Enter
+Show
+Sleep 500ms
 
 Type `claude --help | head -4`
 Enter
-Sleep 6s
+Wait+Screen@20s /non-interactive output/
+Wait /^\$\s*$/
+Sleep 5s
 
 Hide
 Type "clear"
@@ -36,8 +46,18 @@ Sleep 500ms
 
 Type "codex --version"
 Enter
+Wait+Screen@20s /codex-cli/
+Wait /^\$\s*$/
 Sleep 3s
 
-Type "codex --help | head -14"
+Hide
+Type "clear"
 Enter
-Sleep 7s
+Show
+Sleep 500ms
+
+Type "codex --help | sed -n 9,13p"
+Enter
+Wait+Screen@20s /exec/
+Wait /^\$\s*$/
+Sleep 6s

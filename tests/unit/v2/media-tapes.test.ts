@@ -111,6 +111,39 @@ describe("helpers", () => {
   });
 });
 
+describe("every media/tapes artifact is clean (MD-5)", () => {
+  const sources = fs
+    .readdirSync(tapes)
+    .filter((f) => /\.(tape|captions\.json|transcript\.txt)$/.test(f) || f === "items.json");
+  const outDir = path.join(tapes, "out");
+  const leftovers = fs.existsSync(outDir) ? fs.readdirSync(outDir).filter((f) => f.endsWith(".txt")) : [];
+
+  it("scans sources, plus any golden present on disk, for personal data and keys", () => {
+    const opts = { user: process.env.USER, home: process.env.HOME };
+    expect(sources.length).toBeGreaterThan(8);
+    for (const f of sources) expect(scanForLeaks(read(path.join(tapes, f)), opts), f).toEqual([]);
+    for (const f of leftovers) expect(scanForLeaks(read(path.join(outDir, f)), opts), `out/${f}`).toEqual([]);
+  });
+
+  it("keeps out/ untracked, so a rejected golden can never be committed", () => {
+    const ignore = read(path.join(tapes, ".gitignore"));
+    expect(ignore).toMatch(/^out\/\*$/m);
+    expect(ignore).not.toMatch(/^!out\//m);
+  });
+
+  it("no tape waits with a fixed Sleep after a command: every Enter in a visible step is followed by a Wait", () => {
+    for (const id of ids) {
+      const lines = read(path.join(tapes, `${id}.tape`)).split("\n").filter((l) => !l.startsWith("#"));
+      let hidden = false;
+      lines.forEach((l, i) => {
+        if (/^Hide\b/.test(l)) hidden = true;
+        if (/^Show\b/.test(l)) hidden = false;
+        if (!hidden && /^Enter\b/.test(l)) expect(lines[i + 1], `${id}: line after Enter`).toMatch(/^Wait/);
+      });
+    }
+  });
+});
+
 describe("committed v2 outputs", () => {
   const committed = ids.filter((id) =>
     fs.existsSync(path.join(repo, "public/media/lessons", items[id].lesson_slug, `${id}.media.json`)),
@@ -141,7 +174,6 @@ describe("committed v2 outputs", () => {
       path.join(dir, `${id}.vtt`),
       path.join(dir, `${id}.txt`),
       path.join(dir, `${id}.media.json`),
-      path.join(tapes, "out", `${id}.golden.txt`),
     ]) {
       expect(scanForLeaks(read(f), opts), f).toEqual([]);
     }

@@ -3,7 +3,7 @@
   "lesson_slug": "l1-first-session",
   "kind": "recording",
   "title": "First session: a working install",
-  "duration_s": 24.6,
+  "duration_s": 23.5,
   "width": 1280,
   "height": 720,
   "tool_versions": {
@@ -12,5 +12,5 @@
   },
   "made_on": "2026-10-01",
   "model_calls": false,
-  "source_hash": "6add21f5604e2d76f4c5daa62b58a5679207ec7c77885c51af80b393d3fd592a"
+  "source_hash": "edfe7c103024a0657b689e1e00f0d9184907f5cf3a0092fab077fbf4fbf49cc4"
 }

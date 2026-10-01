@@ -27,6 +27,9 @@ for (const f of [tape, rendered, golden, `${dir}/${id}.captions.json`, `${dir}/$
 }
 
 function fail(msg) {
+  // The goldens and the render are untracked (out/ is gitignored), but a rejected output must
+  // not linger on disk either.
+  if (id) for (const ext of ["mp4", "golden.txt"]) rmSync(`media/tapes/out/${id}.${ext}`, { force: true });
   console.error(`media:record ${id ?? ""}: ${msg}`);
   process.exit(1);
 }
@@ -47,6 +50,12 @@ try {
 
   // 3. Model tape: both replies must be the expected word, or nothing is written.
   const goldenText = readFileSync(golden, "utf8");
+  // VHS writes a text snapshot of every captured frame, and frames caught mid-print differ from
+  // run to run. Only the final screen is deterministic (PRD 15: "the terminal's final screen"),
+  // so that is what the golden becomes. The checks below still scan every frame.
+  const frames = goldenText.split(/^─+$/m).map((f) => f.split("\n").map((l) => l.trimEnd()).join("\n").trim());
+  const finalFrame = [...frames].reverse().find((f) => f !== "") ?? "";
+  writeFileSync(golden, `${finalFrame}\n`);
   if (item.expect_word) {
     const w = item.expect_word;
     if (!goldenText.includes(`"result": "${w}"`) || !goldenText.includes(`"text":"${w}"`)) {
@@ -73,7 +82,7 @@ try {
   for (const q of [80, 70, 60, 50, 40, 30]) {
     // Homebrew's ffmpeg has no libwebp encoder, so cut a PNG and encode it with cwebp.
     const png = join(stage, "poster.png");
-    execFileSync("ffmpeg", ["-v", "error", "-y", "-ss", String(Math.max(0, duration - 1)), "-i", mp4, "-frames:v", "1", png]);
+    execFileSync("ffmpeg", ["-v", "error", "-y", "-ss", String(Math.max(0, item.poster_at_s ?? duration - 1)), "-i", mp4, "-frames:v", "1", png]);
     execFileSync("cwebp", ["-quiet", "-q", String(q), png, "-o", poster]);
     if (statSync(poster).size <= POSTER_CAP) { ok = true; break; }
   }

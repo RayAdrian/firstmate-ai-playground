@@ -1,8 +1,7 @@
 [
-  { "start": 0.5, "end": 4.5, "text": "Claude Code: add a local stdio MCP server with claude mcp add." },
-  { "start": 4.5, "end": 8, "text": "It saves the server in ~/.claude.json, scoped to this project." },
-  { "start": 8, "end": 12.5, "text": "claude mcp list starts the server and checks it. Status: Connected." },
-  { "start": 12.5, "end": 17.5, "text": "Codex: the same server with codex mcp add and codex mcp list." },
-  { "start": 17.5, "end": 23.5, "text": "Codex lists it as enabled. Auth is unsupported for a local stdio server." },
-  { "start": 23.5, "end": 30, "text": "Codex keeps it in ~/.codex/config.toml, in an [mcp_servers.docs] table." }
+  { "start": 0.5, "end": 9, "text": "Claude Code: add a local stdio MCP server with claude mcp add. It saves it in ~/.claude.json, scoped to this project." },
+  { "start": 9, "end": 15, "text": "claude mcp list starts the server and checks it. Status: Connected." },
+  { "start": 15, "end": 20, "text": "Codex: the same server with codex mcp add." },
+  { "start": 20, "end": 27, "text": "codex mcp list shows it as enabled. Auth is unsupported for a local stdio server." },
+  { "start": 27, "end": 31.5, "text": "Codex keeps it in ~/.codex/config.toml, in an [mcp_servers.docs] table." }
 ]

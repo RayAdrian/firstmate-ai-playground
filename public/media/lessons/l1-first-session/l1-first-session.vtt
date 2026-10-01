@@ -1,17 +1,17 @@
 WEBVTT
 
 1
-00:00:00.500 --> 00:00:04.500
+00:00:00.500 --> 00:00:05.000
 Claude Code: claude --version prints the installed version.
 
 2
-00:00:04.500 --> 00:00:12.500
+00:00:05.000 --> 00:00:12.000
 claude --help opens with the usage line. Run it any time you need a flag.
 
 3
-00:00:12.500 --> 00:00:17.500
+00:00:12.000 --> 00:00:16.500
 Codex CLI: codex --version prints its version.
 
 4
-00:00:17.500 --> 00:00:24.000
+00:00:16.500 --> 00:00:22.500
 codex --help lists the subcommands, including exec for scripts.

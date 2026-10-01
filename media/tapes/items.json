@@ -4,7 +4,8 @@
     "title": "First session: a working install",
     "model_calls": false,
     "tools": ["claude_code", "codex_cli"],
-    "max_duration_s": 45
+    "max_duration_s": 45,
+    "poster_at_s": 3
   },
   "l3-headless-agents": {
     "lesson_slug": "l3-headless-agents",

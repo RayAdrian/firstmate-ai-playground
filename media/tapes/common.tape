@@ -2,13 +2,22 @@
 # built from docs/design/tokens.css (the dark CodeBlock palette: --fm-code-bg #0f1729,
 # --fm-code-fg #e6edf3, --fm-code-muted #9aa4b2, --fm-code-focus #9fa5ff). No accent-2 for
 # text, so the red and yellow slots are soft tints.
+#
+# Rules for every tape:
+# - Legibility: the video plays about 328px wide on a phone, so text is 32px in the 1280px
+#   frame (about 9px on screen) and a line holds about 62 columns. Typed commands must not wrap.
+# - Safe area: keep terminal output in roughly the top 65% of the frame (about 10 rows at this
+#   size). The lower part sits under the caption and the native control bar. Trim long output
+#   with head/sed and clear the screen between steps.
+# - Never use a fixed Sleep to wait for a command. After Enter use `Wait /^\$\s*$/` (the prompt
+#   is back), then a Sleep only as a reading hold. This keeps the golden identical across runs.
 Set Shell "bash"
 Set Width 1280
 Set Height 720
 Set FontFamily "Menlo"
-Set FontSize 24
+Set FontSize 32
 Set LineHeight 1.3
-Set Padding 36
+Set Padding 28
 Set TypingSpeed 55ms
 Set CursorBlink false
 Set Framerate 24

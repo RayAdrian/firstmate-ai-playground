@@ -45,6 +45,9 @@ for id in "${ITEMS[@]}"; do
   echo "recording $id ..."
   # env -i: nothing from the recorder's environment reaches the recording, except the keys above.
   # vhs keeps the real HOME only for its own browser cache.
-  env -i HOME="$HOME" PATH="$CLEAN_PATH" TERM=xterm-256color LANG=en_US.UTF-8 ${extra[@]+"${extra[@]}"} vhs "$tape"
+  mkdir -p media/tapes/out
+  # If VHS fails (for example a Wait times out on an unexpected reply), delete what it wrote.
+  env -i HOME="$HOME" PATH="$CLEAN_PATH" TERM=xterm-256color LANG=en_US.UTF-8 ${extra[@]+"${extra[@]}"} vhs "$tape" \
+    || { rm -f "media/tapes/out/$id".*; echo "media:record: vhs failed for $id. Nothing written." >&2; exit 1; }
   node media/tapes/finalize.mjs "$id"
 done

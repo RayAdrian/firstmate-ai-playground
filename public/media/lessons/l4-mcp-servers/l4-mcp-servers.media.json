@@ -3,7 +3,7 @@
   "lesson_slug": "l4-mcp-servers",
   "kind": "recording",
   "title": "Add and list an MCP server in both CLIs",
-  "duration_s": 30.4,
+  "duration_s": 32,
   "width": 1280,
   "height": 720,
   "tool_versions": {
@@ -12,5 +12,5 @@
   },
   "made_on": "2026-10-01",
   "model_calls": false,
-  "source_hash": "65967ee61f9ebbfb7168c63954f106cc4c7e1873bb05ae06a7c3bbc2bc98843e"
+  "source_hash": "147e4d3e7df7b37c769db97dc1c1971e8982d3c530ce24310c3a01458fea9bf0"
 }

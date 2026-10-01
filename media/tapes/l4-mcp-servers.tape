@@ -5,12 +5,12 @@ Source media/tapes/common.tape
 Output media/tapes/out/l4-mcp-servers.mp4
 Output media/tapes/out/l4-mcp-servers.golden.txt
 
-# Setup, hidden: a clean shell on a throwaway HOME. `fs-server.js` is a symlink to the pinned
+# Setup, hidden: a clean shell on a throwaway HOME. `srv.js` is a symlink to the pinned
 # server's entry point (record.sh exports FM_MCP_SERVER_JS) so the typed command stays short.
 # Verified on claude 2.1.286 and codex 0.154.0: `mcp add` and `mcp list` print no first-run,
 # onboarding or trust prompt in a fresh HOME, so nothing needs pre-seeding.
 Hide
-Type "mkdir -p /tmp/fm/home/.codex /tmp/fm/work && cd /tmp/fm/work && ln -s $FM_MCP_SERVER_JS fs-server.js"
+Type "mkdir -p /tmp/fm/home/.codex /tmp/fm/work && cd /tmp/fm/work && ln -s $FM_MCP_SERVER_JS srv.js"
 Enter
 Type `exec env -i HOME=/tmp/fm/home CODEX_HOME=/tmp/fm/home/.codex PATH="$PATH" TERM=xterm-256color LANG=en_US.UTF-8 bash --noprofile --norc`
 Enter
@@ -22,12 +22,10 @@ Sleep 500ms
 Show
 
 Sleep 1s
-Type "claude mcp add docs -- node fs-server.js ."
+Type "claude mcp add docs -- node srv.js ."
 Enter
-Sleep 4s
-
-Type "claude mcp list"
-Enter
+Wait+Screen@20s /File modified/
+Wait /^\$\s*$/
 Sleep 5s
 
 Hide
@@ -36,13 +34,29 @@ Enter
 Show
 Sleep 500ms
 
-Type "codex mcp add docs -- node fs-server.js ."
+Type "claude mcp list"
 Enter
-Sleep 3s
+Wait+Screen@20s /Connected/
+Wait /^\$\s*$/
+Sleep 4s
+
+Hide
+Type "clear"
+Enter
+Show
+Sleep 500ms
+
+Type "codex mcp add docs -- node srv.js ."
+Enter
+Wait+Screen@20s /Added global/
+Wait /^\$\s*$/
+Sleep 2s
 
 Type "codex mcp list"
 Enter
-Sleep 4s
+Wait+Screen@20s /Unsupported/
+Wait /^\$\s*$/
+Sleep 6s
 
 Hide
 Type "clear"
@@ -52,4 +66,6 @@ Sleep 500ms
 
 Type "cat ~/.codex/config.toml"
 Enter
+Wait+Screen@20s /args =/
+Wait /^\$\s*$/
 Sleep 5s

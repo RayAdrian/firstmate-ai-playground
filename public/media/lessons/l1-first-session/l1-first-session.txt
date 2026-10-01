@@ -1,8 +1,8 @@
-A dark terminal, no audio. Four commands run one after another.
+A dark terminal, no audio. Four commands run one after another, and the screen is cleared between them.
 
 1. The command "claude --version" runs. The terminal prints "2.1.286 (Claude Code)", a version number followed by the product name.
 2. The command "claude --help | head -4" runs. It prints the first lines of the help text: the usage line "Usage: claude [options] [command] [prompt]" and a one-sentence description saying Claude Code starts an interactive session by default, and that -p or --print gives non-interactive output.
-3. The screen clears. The command "codex --version" runs and prints "codex-cli 0.154.0".
-4. The command "codex --help | head -14" runs. It prints the intro, the usage lines "codex [OPTIONS] [PROMPT]" and "codex [OPTIONS] <COMMAND> [ARGS]", and the start of the command list, including "agents" and "exec" (run Codex non-interactively).
+3. The command "codex --version" runs and prints "codex-cli 0.154.0".
+4. The command "codex --help | sed -n 9,13p" runs. It prints an excerpt of the help: the heading "Commands:" and two subcommands with their descriptions: "agents" (browse agent sessions on the shared local app-server daemon) and "exec" (run Codex non-interactively, alias e).
 
 If both version commands print a version, the install works. No model is called.

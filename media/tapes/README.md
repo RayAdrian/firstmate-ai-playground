@@ -26,7 +26,7 @@ npm run media:record -- l4-mcp-servers    # one item
 - MP4 at most 4MB and poster at most 60KB;
 - `source_hash` is the sha256 of the `.tape` file.
 
-`media/tapes/out/<id>.golden.txt` is VHS's text capture of the terminal. Re-recording a no-model tape on the same CLI versions gives an identical golden and VTT, and a duration within 1s. Diff it to check.
+`media/tapes/out/<id>.golden.txt` is the terminal's final screen, reduced from VHS's per-frame text capture (mid-print frames are not deterministic). `out/` is gitignored and cleared on any failure. Re-recording a no-model tape on the same CLI versions gives an identical golden and VTT (checked 3 times) and a duration within 1s. Diff it to check.
 
 `<id>.captions.json` (cue text and times) and `<id>.transcript.txt` (describes what is on screen) are hand-written. When you change a tape's timing, re-check the cue times against the new video.
 
