@@ -1,0 +1,16 @@
+{
+  "id": "gated-merge-pipelines",
+  "lesson_slug": "l5-gated-merge-pipelines",
+  "kind": "animation",
+  "title": "Gate approvals are pinned to one commit",
+  "duration_s": 80,
+  "width": 1280,
+  "height": 720,
+  "tool_versions": {
+    "claude_code": "2.1.284",
+    "codex_cli": "0.154.0"
+  },
+  "made_on": "2026-10-01",
+  "model_calls": false,
+  "source_hash": "9178b4687cd4d7a32a6a35ffe490f5421432eebca80d2815cf77a5c92f501a6c"
+}

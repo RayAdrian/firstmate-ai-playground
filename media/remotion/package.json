@@ -1,0 +1,28 @@
+{
+  "name": "firstmate-media-remotion",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Remotion concept animations for lesson media (PRD section 15). Own deps; not part of the app.",
+  "scripts": {
+    "studio": "remotion studio src/index.ts --public-dir=../../public/fonts",
+    "render": "node render.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.509",
+    "@remotion/cli": "4.0.509",
+    "@remotion/fonts": "4.0.509",
+    "@remotion/renderer": "4.0.509",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "remotion": "4.0.509",
+    "sharp": "0.35.5",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.3",
+    "@types/react": "19.3.0",
+    "typescript": "5.9.3"
+  }
+}

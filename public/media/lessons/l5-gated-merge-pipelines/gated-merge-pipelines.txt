@@ -1,0 +1,15 @@
+Gate approvals are pinned to one commit. A silent animation, about 80 seconds. Each step below is also a caption.
+
+0:00 One pull request, one commit: the head is a1b2c3d. A card on the left reads "PR #24", with the label "head" and the commit id a1b2c3d in a blue box. On the right, three rows list the gates: gate/browser, gate/review and gate/uiux. Each row has a grey "pending" status and a label name underneath: gate:browser-green, gate:review-green and gate:uiux-green.
+
+0:08 Each gate posts its verdict on that exact commit. One after another, the three rows turn to a green "success" badge that shows a1b2c3d, and the label under each name turns green with a check mark.
+
+0:22 Then a push moves the head to e4f5a6b. The commit id on the left card changes from a1b2c3d to e4f5a6b with a brief blue pulse. The three green badges on the right still show a1b2c3d.
+
+0:34 Statuses belong to a commit, so the new head has none. The three badges, one after another, become grey dashed "no status" badges. The labels stay green, and the text "labels stay" appears on the left card. The labels belong to the pull request, not to a commit.
+
+0:46 gate:merge refuses until all three are re-run. A dark terminal panel appears below. It types "npm run gate:merge -- 24" and prints "Refusing: gate/browser is not success on e4f5a6b" with an orange bar beside it.
+
+0:58 Each gate re-runs on e4f5a6b. The terminal clears. The three rows turn to green "success" badges again, one after another, this time showing e4f5a6b.
+
+1:10 All green on the new head: the merge is pinned to e4f5a6b. The terminal types "npm run gate:merge -- 24" again and prints "Merged #24 (squash) at e4f5a6b" with a green bar beside it.

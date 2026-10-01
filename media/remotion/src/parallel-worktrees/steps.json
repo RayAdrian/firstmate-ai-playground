@@ -1,0 +1,35 @@
+{
+  "id": "parallel-worktrees",
+  "lesson_slug": "l4-parallel-worktrees",
+  "title": "Three agents, three worktrees, one clean merge",
+  "fps": 30,
+  "width": 1280,
+  "height": 720,
+  "duration_s": 80,
+  "poster_s": 30,
+  "steps": [
+    { "id": "setup", "start_s": 0, "end_s": 8, "text": "One repo, three worktrees, three branches" },
+    { "id": "work", "start_s": 8, "end_s": 20, "text": "Three agents work at the same time, in separate folders" },
+    { "id": "collide", "start_s": 20, "end_s": 32, "text": "Two shared files are about to collide" },
+    { "id": "fence", "start_s": 32, "end_s": 44, "text": "Fix it before you start: one owner for each shared file" },
+    { "id": "merge-1", "start_s": 44, "end_s": 54, "text": "Merge one branch at a time. Settings goes first." },
+    { "id": "merge-2", "start_s": 54, "end_s": 64, "text": "Rebase export onto the result, run the tests, merge" },
+    { "id": "merge-3", "start_s": 64, "end_s": 74, "text": "Email last, then test the merged result" },
+    { "id": "cleanup", "start_s": 74, "end_s": 80, "text": "Remove the worktrees and delete the merged branches" }
+  ],
+  "ui": {
+    "main": "main",
+    "tests": "tests pass",
+    "prewired": "pre-wired on main",
+    "rebased": "rebased"
+  },
+  "shared": [
+    { "file": "router.ts", "resolution": "prewire" },
+    { "file": "package.json", "resolution": "owner", "owner": "feat/export" }
+  ],
+  "lanes": [
+    { "branch": "feat/settings", "dir": "../myapp-settings", "files": ["settings.tsx", "router.ts", ""] },
+    { "branch": "feat/export", "dir": "../myapp-export", "files": ["export.ts", "router.ts", "package.json"] },
+    { "branch": "feat/email", "dir": "../myapp-email", "files": ["email.tsx", "", "package.json"] }
+  ]
+}

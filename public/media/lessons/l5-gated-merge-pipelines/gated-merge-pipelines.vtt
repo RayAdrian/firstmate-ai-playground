@@ -1,0 +1,29 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:08.000
+One pull request, one commit: the head is a1b2c3d
+
+2
+00:00:08.000 --> 00:00:22.000
+Each gate posts its verdict on that exact commit
+
+3
+00:00:22.000 --> 00:00:34.000
+Then a push moves the head to e4f5a6b
+
+4
+00:00:34.000 --> 00:00:46.000
+Statuses belong to a commit, so the new head has none
+
+5
+00:00:46.000 --> 00:00:58.000
+gate:merge refuses until all three are re-run
+
+6
+00:00:58.000 --> 00:01:10.000
+Each gate re-runs on e4f5a6b
+
+7
+00:01:10.000 --> 00:01:20.000
+All green on the new head: the merge is pinned to e4f5a6b

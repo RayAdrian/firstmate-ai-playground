@@ -1,0 +1,16 @@
+{
+  "id": "parallel-worktrees",
+  "lesson_slug": "l4-parallel-worktrees",
+  "kind": "animation",
+  "title": "Three agents, three worktrees, one clean merge",
+  "duration_s": 80,
+  "width": 1280,
+  "height": 720,
+  "tool_versions": {
+    "claude_code": "2.1.284",
+    "codex_cli": "0.154.0"
+  },
+  "made_on": "2026-10-01",
+  "model_calls": false,
+  "source_hash": "9d1c7eabd198a9004de8e9e18bcfc21b1ab38379559fcd24163ccaef22db27d9"
+}
