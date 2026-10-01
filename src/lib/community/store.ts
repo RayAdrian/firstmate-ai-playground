@@ -191,11 +191,10 @@ export function press(slug: string, target: Target, trigger: HTMLElement | null)
   const next = !flag.desired;
   persistIdentity();
   patchFlag(slug, target, { desired: next });
-  if (next) maybePrompt(slug, target === "star" ? "star" : "react", trigger);
-  if (!flag.inflight) void send(slug, target);
+  if (!flag.inflight) void send(slug, target, trigger);
 }
 
-async function send(slug: string, target: Target): Promise<void> {
+async function send(slug: string, target: Target, trigger: HTMLElement | null): Promise<void> {
   patchFlag(slug, target, { inflight: true });
   for (;;) {
     const e = entries.get(slug);
@@ -218,6 +217,8 @@ async function send(slug: string, target: Target): Promise<void> {
     }
     patchFlag(slug, target, { confirmed: value });
     clearError(slug);
+    // The thank-you and the name prompt only follow a CONFIRMED "on"; a rolled-back action never consumes the one-time ask.
+    if (value) maybePrompt(slug, target === "star" ? "star" : "react", trigger);
     if (flagOf(entries.get(slug) ?? after, target).desired === value) {
       patchFlag(slug, target, { inflight: false });
       return;

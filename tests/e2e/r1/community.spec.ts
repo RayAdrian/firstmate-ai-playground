@@ -396,6 +396,8 @@ test.describe("CM-5 toggles never lie", () => {
     await expect(star(page)).toHaveAccessibleName("Star, 0 stars");
     await expect(live(page)).toHaveText("Couldn't save your star. Try again.");
     await expect(failureLine(page)).toHaveText("Couldn't save your star. Try again.");
+    await expect(prompt(page)).toHaveCount(0); // no thank-you after a rollback
+    expect(await page.evaluate(() => localStorage.getItem("fm-playground:v1")?.includes('"namePrompted":true') ?? false)).toBe(false);
 
     // the same for a reaction, and for a rate-limited reply
     const learned = reaction(page, "Learned something");
@@ -420,6 +422,9 @@ test.describe("CM-5 toggles never lie", () => {
     await act(page, learned, "react");
     await expect(learned).toHaveAttribute("aria-pressed", "true");
     await expect(failureLine(page)).toHaveCount(0); // cleared by the next successful action
+
+    // a rolled-back action never thanks or asks for a name, and does not spend the one-time ask
+    await expect(page.getByText("Thanks for the star.")).toHaveCount(0);
 
     // nothing was saved by the failed attempts
     await page.reload();

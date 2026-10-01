@@ -244,6 +244,22 @@ describe("CM-4 the optional name", () => {
     expect(getState().community.displayName).toBe("Rafael");
   });
 
+  it("a failed star shows the error, no thank-you and no name prompt, and leaves the one-time ask unspent", async () => {
+    await renderBlock();
+    handler = () => {
+      throw new TypeError("Failed to fetch"); // offline
+    };
+    fireEvent.click(screen.getByRole("button", { name: "Star, 12 stars" }));
+    await waitFor(() => expect(visibleLine("Couldn't save your star. Try again.")).toBeInTheDocument());
+    expect(screen.queryByRole("region", { name: "Add your name? Optional" })).toBeNull();
+    expect(screen.queryByText("Thanks for the star.")).toBeNull();
+    expect(getState().community.namePrompted).toBe(false);
+    // back online: the next confirmed star asks once
+    handler = (body) => (body.op === "mine" ? json({ ok: true, mine: [] }) : json({ ok: true }));
+    fireEvent.click(screen.getByRole("button", { name: "Star, 12 stars" }));
+    expect(await screen.findByText("Thanks for the star.")).toBeInTheDocument();
+  });
+
   it("Escape in the prompt equals Skip", async () => {
     await renderBlock();
     fireEvent.click(screen.getByRole("button", { name: "Worked for me 4" }));
