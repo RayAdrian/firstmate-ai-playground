@@ -119,7 +119,9 @@ export function parseFeed(xml: string): RawFeedItem[] {
   }
 
   return entries.map((e) => {
-    const body = text(e["content:encoded"] as XmlNode) ?? text(e["description"] as XmlNode) ?? text(e["summary"] as XmlNode) ?? text(e["content"] as XmlNode);
+    const body = text(e["content:encoded"] as XmlNode) ?? text(e["description"] as XmlNode) ?? text(e["summary"] as XmlNode) ?? text(e["content"] as XmlNode) ??
+      // YouTube Atom feeds keep the video description under media:group.
+      text((e["media:group"] as { "media:description"?: XmlNode } | undefined)?.["media:description"] ?? null);
     const guidNode = (e["guid"] ?? e["id"]) as XmlNode;
     return {
       guid: text(guidNode),

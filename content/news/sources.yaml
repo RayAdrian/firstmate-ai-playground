@@ -84,3 +84,135 @@
   url: https://github.blog/changelog/feed/
   type: rss
   enabled: true
+
+# --- Web sources added 2026-10-01 (owner-approved). Feed URLs verified by fetch + parse. ---
+
+- name: React blog
+  slug: react-blog
+  url: https://react.dev/rss.xml
+  type: rss
+  enabled: true
+
+- name: TypeScript releases
+  slug: typescript-releases
+  url: https://github.com/microsoft/TypeScript/releases.atom
+  type: atom
+  enabled: true
+
+- name: Node.js vulnerability reports
+  slug: nodejs-vulnerability
+  url: https://nodejs.org/en/feed/vulnerability.xml
+  type: rss
+  enabled: true
+
+- name: GitHub blog security
+  slug: github-security
+  url: https://github.blog/security/feed/
+  type: rss
+  enabled: true
+
+- name: Socket.dev blog
+  slug: socket-blog
+  url: https://socket.dev/api/blog/feed.atom
+  type: atom
+  enabled: true
+
+- name: StepSecurity blog
+  slug: stepsecurity-blog
+  url: https://www.stepsecurity.io/blog/rss.xml
+  type: rss
+  enabled: true
+
+- name: Latent Space
+  slug: latent-space
+  url: https://www.latent.space/feed
+  type: rss
+  enabled: true
+
+- name: MCP blog
+  slug: mcp-blog
+  url: https://blog.modelcontextprotocol.io/index.xml
+  type: rss
+  enabled: true
+
+- name: Cursor changelog
+  slug: cursor-changelog
+  url: https://cursor.com/changelog/rss.xml
+  type: rss
+  enabled: true
+
+# --- YouTube channels (Atom, 15 newest entries; Shorts are dropped in normalizeItems). ---
+# channel_id taken from each channel page's RSS <link>, then confirmed against the feed <title>.
+
+- name: Claude (YouTube)
+  slug: yt-claude
+  url: https://www.youtube.com/feeds/videos.xml?channel_id=UCV03SRZXJEz-hchIAogeJOg
+  type: atom
+  enabled: true
+
+- name: Anthropic (YouTube)
+  slug: yt-anthropic
+  url: https://www.youtube.com/feeds/videos.xml?channel_id=UCrDwWp7EBBv4NwvScIpBDOA
+  type: atom
+  enabled: true
+
+- name: Matt Pocock (YouTube)
+  slug: yt-matt-pocock
+  url: https://www.youtube.com/feeds/videos.xml?channel_id=UCswG6FSbgZjbWtdf_hMLaow
+  type: atom
+  enabled: true
+
+- name: IndyDevDan (YouTube)
+  slug: yt-indydevdan
+  url: https://www.youtube.com/feeds/videos.xml?channel_id=UC_x36zCEGilGpB1m-V4gmjg
+  type: atom
+  enabled: true
+
+- name: Latent Space (YouTube)
+  slug: yt-latent-space
+  url: https://www.youtube.com/feeds/videos.xml?channel_id=UCxBcwypKK-W3GHd_RZ9FZrQ
+  type: atom
+  enabled: true
+
+- name: Cole Medin (YouTube)
+  slug: yt-cole-medin
+  url: https://www.youtube.com/feeds/videos.xml?channel_id=UCMwVTLZIRRUyyVrkjDpn4pA
+  type: atom
+  enabled: true
+
+- name: Theo (t3.gg) (YouTube)
+  slug: yt-theo
+  url: https://www.youtube.com/feeds/videos.xml?channel_id=UCbRP3c757lWg9M-U7TyEkXA
+  type: atom
+  enabled: true
+
+# Fireship mixes AI/dev news with general tech drama (WordPress, Meta Connect, famous bugs). Bare "AI" is left out on
+# purpose: sponsor lines in the description ("the only AI code reviewer ...") would let everything through.
+- name: Fireship (YouTube)
+  slug: yt-fireship
+  url: https://www.youtube.com/feeds/videos.xml?channel_id=UCsBjURrPoezykLs9EqgamOA
+  type: atom
+  enabled: true
+  filters:
+    keywords:
+      - LLM
+      - Claude
+      - Codex
+      - OpenAI
+      - Anthropic
+      - Gemini
+      - GPT
+      - Opus
+      - Sonnet
+      - Cursor
+      - agent
+      - MCP
+      - Next.js
+      - React
+      - TypeScript
+      - Supabase
+      - Postgres
+      - Vercel
+      - security
+      - prompt injection
+      - token
