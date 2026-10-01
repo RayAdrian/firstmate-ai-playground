@@ -26,6 +26,37 @@ A **subagent** is a second agent that your main session starts for one job. It g
 
 That is the whole point. A long session fills up with test output, search results and dead ends, and the agent gets slower and vaguer as it fills. Delegation moves the noisy work out of the way.
 
+```diagram
+type: boundary
+id: subagent-context
+title: What crosses the subagent boundary
+summary: Only your brief goes in and only a summary comes back. The logs, search hits and dead ends stay in the subagent's context.
+zones:
+  - id: main
+    label: Your main session
+    items:
+      - id: lead
+        label: Main agent
+        sub: your long-lived context
+  - id: worker
+    label: Subagent context
+    items:
+      - id: sub
+        label: Subagent
+        sub: own prompt, limited tools
+      - id: noise
+        label: Logs and dead ends
+        sub: stay in here
+        emphasis: true
+crossings:
+  - from: lead
+    to: sub
+    label: brief
+  - from: sub
+    to: lead
+    label: summary
+```
+
 **Delegate when:**
 
 - The task produces a lot of output you will not reuse: running a test suite, reading logs, fetching docs.

@@ -42,6 +42,43 @@ One rule from git: a branch can be checked out in only one worktree at a time.
 6. **Merge one at a time.** Merge the first branch, rebase or merge the second onto the result, run the tests, then merge. Tests on the merged result are the only proof the features coexist.
 7. **Clean up.** Remove the worktree and delete the merged branch. Worktrees are full copies and add up.
 
+A worktree isolates files, not the machine. Two worktrees still share one database and one set of local ports, so a second dev server on the same port fails to start, and a second test run can reset the database under the first.
+
+```diagram
+type: boundary
+id: worktree-isolation
+title: What a worktree isolates and what it shares
+summary: Each worktree gets its own files and branch. The database and the local ports are shared, so two sessions can still collide there.
+zones:
+  - id: own
+    label: Separate per worktree
+    items:
+      - id: files
+        label: Files and branch
+        sub: own checkout
+      - id: app
+        label: Dev server and tests
+        sub: one per session
+  - id: shared
+    label: Shared by every worktree
+    items:
+      - id: db
+        label: Database
+        sub: one local instance
+      - id: ports
+        label: Local ports
+        sub: one :3000
+crossings:
+  - from: app
+    to: db
+    label: same data
+    style: risk
+  - from: app
+    to: ports
+    label: same port
+    style: risk
+```
+
 ### First Mate tip
 
 Client MVPs usually have a few independent slices at once, for example a settings screen, a CSV export and an email template. Those are ideal for parallel worktrees, and the collision points are predictable: the router, the DB migration order and the lockfile. Agree on those before you fan out. Decide who adds migrations (one branch, one number range) and let one branch own `package.json`. Two agents adding dependencies at the same time is the most common merge pain.
