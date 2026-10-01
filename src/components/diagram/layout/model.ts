@@ -26,13 +26,13 @@ export interface RectPrim {
   y: number;
   w: number;
   h: number;
-  variant: "node" | "key" | "risk" | "zone";
+  variant: "node" | "key" | "risk" | "key-risk" | "zone";
 }
 
 export interface PathPrim {
   k: "path";
   d: string;
-  variant: "edge" | "risk";
+  variant: "edge" | "risk" | "underlay";
   /** Arrowhead or the ✕ end-cap at the end of the path. */
   end?: "arrow" | "x";
   /** The ✕ cap at the start of the path (the lanes marker). */
@@ -71,8 +71,8 @@ export type DiagramPart =
 export interface GroupPrim {
   k: "g";
   part: DiagramPart;
-  /** `key` on the emphasised node, `risk` on each risk element. */
-  state?: "key" | "risk";
+  /** A `data-state` token list: `key`, `risk`, or `key risk` (select with `~=`). */
+  state?: "key" | "risk" | "key risk";
   /** The diagram data id, for tests. */
   ref?: string;
   children: Prim[];

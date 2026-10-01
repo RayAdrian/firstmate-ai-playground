@@ -64,9 +64,9 @@ describe("DG-1: every declared element renders, in both orientations", () => {
   it("marks the emphasised node and each risk element with data-state", () => {
     const { container } = render(<DiagramFigure diagram={parse(flowInput())} />);
     const h = container.querySelector('svg[aria-labelledby$="-title-h"]')!;
-    expect(h.querySelectorAll('[data-state="key"]')).toHaveLength(1);
+    expect(h.querySelectorAll('[data-state~="key"]')).toHaveLength(1);
     const b = render(<DiagramFigure diagram={parse(boundaryInput())} />).container;
-    expect(b.querySelectorAll('svg[aria-labelledby$="-title-h"] [data-part="crossing"][data-state="risk"]')).toHaveLength(1);
+    expect(b.querySelectorAll('svg[aria-labelledby$="-title-h"] [data-part="crossing"][data-state~="risk"]')).toHaveLength(1);
   });
 });
 
@@ -201,7 +201,7 @@ describe("DG-5: colour is never the only cue, and no colour literals", () => {
 
   it("the emphasised node has a 2px stroke, a bold label and the accent fill", () => {
     const { container } = render(<DiagramFigure diagram={parse(stackInput())} />);
-    const key = container.querySelector('svg[aria-labelledby$="-title-h"] [data-state="key"]')!;
+    const key = container.querySelector('svg[aria-labelledby$="-title-h"] [data-state~="key"]')!;
     const rect = key.querySelector("rect")!;
     expect(rect.getAttribute("stroke-width")).toBe("2");
     expect(rect.getAttribute("class")).toContain("fill-accent-soft");
@@ -212,7 +212,7 @@ describe("DG-5: colour is never the only cue, and no colour literals", () => {
   it("risk elements are dashed, end in the x cap, and have a label in words", () => {
     const { container } = render(<DiagramFigure diagram={parse(boundaryInput())} />);
     const svg = container.querySelector('svg[aria-labelledby$="-title-v"]')!;
-    const risk = svg.querySelector('[data-part="crossing"][data-state="risk"]')!;
+    const risk = svg.querySelector('[data-part="crossing"][data-state~="risk"]')!;
     expect(risk.querySelector("circle")!.getAttribute("stroke-dasharray")).toBeTruthy();
     const legend = svg.querySelector('[data-part="legend"]')!;
     expect(legend.querySelector("path.stroke-danger")).not.toBeNull();

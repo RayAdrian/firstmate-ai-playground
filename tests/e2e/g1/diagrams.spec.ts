@@ -11,6 +11,9 @@ const DIAGRAMS: Fixture[] = [
   { slug: "l2-context-files", id: "context-ladder", title: "Where context files are read from", type: "stack" },
   { slug: "l1-permissions", id: "trust-zones", title: "Who can reach the agent", type: "boundary" },
   { slug: "l1-permissions", id: "gate-race", title: "Review A, push B", type: "lanes" },
+  // Lanes v2: the grid with the numbered time axis and a handoff across the marker, and a six-column timeline.
+  { slug: "l2-memory", id: "pinned-approval", title: "An approval covers one commit", type: "lanes-grid" },
+  { slug: "l2-memory", id: "six-columns", title: "Six steps across three lanes", type: "lanes-six" },
 ];
 const WIDTHS = [360, 768, 1024, 1440] as const;
 const SCHEMES = ["light", "dark"] as const;
@@ -115,6 +118,11 @@ for (const d of DIAGRAMS) {
         expect(text).toContain("Crossings:");
         expect(text).toContain("MCP server to Agent: injected text (risk).");
       }
+      if (d.type === "lanes-grid") {
+        expect(text).toContain("Time 3, Reviewer: Post success on A: refused: A not head (key) (risk)");
+        expect(text).toContain("Review A to Post success on A: stale result.");
+      }
+      if (d.type === "lanes-six") expect(text).toContain("Time 6, Reviewer: Success refused (key) (risk)");
       if (d.type === "lanes") {
         expect(text).toContain("Time 3, event: Head moves (risk)");
         expect(text).toContain("Push B to Success refused: head moved (risk).");
@@ -174,6 +182,39 @@ for (const d of DIAGRAMS) {
     });
   });
 }
+
+test.describe("lanes v2", () => {
+  const grid = DIAGRAMS.find((x) => x.id === "pinned-approval")!;
+  const six = DIAGRAMS.find((x) => x.id === "six-columns")!;
+
+  test("the grid has a numbered, arrowed time axis; the timeline rail shows the same numbers", async ({ page }) => {
+    await open(page, grid, 1440);
+    const h = figure(page, grid).locator('svg[aria-labelledby$="-title-h"]');
+    const axis = h.locator('g[data-part="axis"]');
+    await expect(axis.locator("text")).toHaveText(["Time", "1", "2", "3"]);
+    await expect(axis.locator("circle")).toHaveCount(3);
+    await expect(axis.locator("path[marker-end]")).toHaveCount(1);
+    await open(page, grid, 360);
+    const v = figure(page, grid).locator('svg[aria-labelledby$="-title-v"]');
+    await expect(v.locator('g[data-part="axis"] text')).toHaveText(["1", "2", "3"]);
+  });
+
+  test("the handoff crosses the marker over an underlay, and the key risk step reads as key and risk", async ({ page }) => {
+    await open(page, grid, 1440);
+    const h = figure(page, grid).locator('svg[aria-labelledby$="-title-h"]');
+    await expect(h.locator('g[data-part="handoff"] path.stroke-surface')).toHaveCount(1);
+    await expect(h.locator('g[data-part="marker"]')).toHaveCount(1);
+    await expect(h.locator('[data-part="node"][data-state~="key"][data-state~="risk"]')).toHaveCount(1);
+    await expect(h.locator('[data-part="node"][data-state~="key"] rect')).toHaveAttribute("stroke-dasharray", "6 4");
+  });
+
+  test("six columns show the timeline at every width, with a numbered rail of six", async ({ page }) => {
+    await open(page, six, 1440);
+    const h = figure(page, six).locator('svg[aria-labelledby$="-title-h"]');
+    expect(await h.getAttribute("viewBox")).toBe("0 0 280 " + (await h.getAttribute("height")));
+    await expect(h.locator('g[data-part="axis"] circle')).toHaveCount(6);
+  });
+});
 
 test("DG-1: diagrams add no headings: a figure holds no h1 to h6 and the h2 ids are unchanged", async ({ page }) => {
   await page.goto("/lessons/l2-context-files");
