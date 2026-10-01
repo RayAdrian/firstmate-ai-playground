@@ -335,9 +335,14 @@ export function renderDraft(d: WorkflowDraft): string {
   return `${fm.join("\n")}\n\n${body[0]}\n\n${body[1]}\n\n${body[2]}\n\n${body.slice(3).join("\n\n")}\n`;
 }
 
+/** Newlines and other control characters (they would reach the PR title, commit message or frontmatter). */
+export const hasControlChars = (s: string) => /[\u0000-\u001f\u007f-\u009f\u2028\u2029]/.test(s);
+
 /** Cheap shape checks used before writing, so a bad answers file fails with a clear message. */
 export function answersProblems(d: WorkflowDraft): string[] {
   const out: string[] = [];
+  if (hasControlChars(d.title)) out.push("title: newlines and control characters are not allowed");
+  if (hasControlChars(d.problem)) out.push("problem: newlines and control characters are not allowed");
   if (hasSentenceBreak(d.problem)) out.push("problem: must be one sentence");
   d.setup.forEach((b, i) => {
     const res = setupPathSchema.safeParse(b.path);

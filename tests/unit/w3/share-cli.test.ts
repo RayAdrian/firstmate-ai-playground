@@ -152,6 +152,19 @@ describe("read (WF-16)", () => {
       expect(out.join("\n")).not.toContain("PRIVATE-KEY");
     }
   });
+  it("refuses a hard link in the repo to a private key, and a non-regular file (review B3)", async () => {
+    const home = path.join(tmp, "home2");
+    fs.mkdirSync(path.join(home, ".ssh"), { recursive: true });
+    fs.writeFileSync(path.join(home, ".ssh/id_ed25519"), "PRIVATE-KEY");
+    fs.linkSync(path.join(home, ".ssh/id_ed25519"), path.join(work, "notes.md"));
+    expect(await main(["read", "notes.md"], mkCtx({}, { HOME: home }))).toBe(2);
+    expect(out.join("\n")).not.toContain("PRIVATE-KEY");
+    expect(err.join("\n")).toContain("hard link");
+    err.length = 0;
+    fs.mkdirSync(path.join(work, "adir"));
+    expect(await main(["read", "adir"], mkCtx())).toBe(2);
+    expect(err.join("\n")).toContain("not a regular file");
+  });
   it("refuses a symlink that points at a denied file", async () => {
     fs.writeFileSync(path.join(work, "prod.pem"), "KEY");
     fs.symlinkSync(path.join(work, "prod.pem"), path.join(work, "innocent.txt"));
@@ -194,6 +207,19 @@ describe("draft --dry-run (WF-16)", () => {
     expect(await main(["draft", "--answers", writeAnswers()], mkCtx())).toBe(1);
     expect(err.join("\n")).toContain("already exists in git");
     expect(fs.readFileSync(wfFile(SLUG), "utf8")).toBe("existing");
+  });
+  it("rejects newlines and control characters in the title, and open-pr re-checks", async () => {
+    const a = writeAnswers({ title: "Serialise the db\nsecond line" });
+    expect(await main(["draft", "--answers", a, "--dry-run"], mkCtx())).toBe(1);
+    expect(JSON.parse(out.join("\n")).validation.join("\n")).toContain("title: newlines and control characters");
+    // A hand-edited file cannot sneak one past open-pr either.
+    const slug = "serialise-the-db-second-line";
+    const f = wfFile(slug);
+    fs.writeFileSync(f, fs.readFileSync(f, "utf8").replace(/^---\n/, "---\nclient_safe: confirmed\n"));
+    err.length = 0;
+    expect(await main(["open-pr", slug], mkCtx())).toBe(1);
+    expect(err.join("\n")).toContain("control characters");
+    expect(ghCalls()).toEqual([]);
   });
   it("catches a multi-sentence problem before writing validity claims", async () => {
     const a = writeAnswers({ problem: "First sentence here. Second one follows after it." });

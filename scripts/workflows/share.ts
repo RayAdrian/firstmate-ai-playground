@@ -20,6 +20,7 @@ import {
   buildCommitPlan,
   buildPublishPlan,
   checkReadable,
+  hasControlChars,
   hasClientSafeConfirmed,
   originMatches,
   readTitle,
@@ -144,8 +145,26 @@ async function readCmd(paths: string[], ctx: Ctx): Promise<number> {
       ctx.err(`DENIED ${p}: ${r.reason ?? "refused"}`);
       continue;
     }
+    // Open once, check the OPENED descriptor, read from that same descriptor (no check-then-read race).
+    // A hard link to a denied file keeps its own name, so the only tell is nlink > 1 (review B3).
+    let text: string | null = null;
+    let why = "";
+    const fd = fs.openSync(r.real, fs.constants.O_RDONLY | (fs.constants.O_NOFOLLOW ?? 0));
+    try {
+      const st = fs.fstatSync(fd);
+      if (!st.isFile()) why = "not a regular file";
+      else if (st.nlink > 1) why = "file has more than one hard link (it may alias a protected file)";
+      else text = fs.readFileSync(fd, "utf8");
+    } finally {
+      fs.closeSync(fd);
+    }
+    if (text === null) {
+      refused++;
+      ctx.err(`DENIED ${p}: ${why}`);
+      continue;
+    }
     ctx.out(`=== ${p} ===`);
-    ctx.out(fs.readFileSync(r.real, "utf8"));
+    ctx.out(text);
   }
   return refused ? 2 : 0;
 }
@@ -245,8 +264,8 @@ async function openPr(args: string[], ctx: Ctx): Promise<number> {
     return 1;
   }
   const title = readTitle(content);
-  if (!title) {
-    ctx.err(`${rel}: title: missing`);
+  if (!title || hasControlChars(title)) {
+    ctx.err(`${rel}: title: missing, or contains newlines or control characters`);
     return 1;
   }
   // Re-run here; never trust an earlier result.
