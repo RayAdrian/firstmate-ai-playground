@@ -1,11 +1,13 @@
 import { z } from "zod";
 import { newsTagSchema, scoringStatusSchema } from "./news";
 import { toolVersionsSchema } from "./lesson";
+import { diagramSchema } from "./diagram";
 import {
   WORKFLOW_TOOLS,
   workflowPromptSchema,
   workflowSetupBlockSchema,
   workflowSetupKindSchema,
+  watchRe,
 } from "./workflow";
 
 // guid (not uuid): zod v4 uuid() enforces RFC variant bits and rejects hand-written fixture ids.
@@ -141,6 +143,10 @@ export const workflowRowSchema = z.object({
   related_lesson_slug: z.string().nullable(),
   level: z.number().int().min(1).max(5).nullable(),
   tool_versions: z.object({ claude_code: z.string(), codex_cli: z.string() }).partial(),
+  /** Optional diagram (§17.3), stored parsed. Always present in a DB select; optional in the type so payload builders written before G1 still compile. */
+  diagram: diagramSchema.nullable().optional(),
+  /** Optional `<lesson-slug>/<media-id>` (§17.3). */
+  watch: z.string().regex(watchRe).nullable().optional(),
   verified_on: date,
   author_name: z.string(),
   reviewed_on: date.nullable(),

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { diagramSchema } from "./diagram";
 
 /**
  * Shared workflows (PRD §16). One markdown file per workflow at content/workflows/<slug>.md.
@@ -84,6 +85,9 @@ export const workflowSlugSchema = z
   .max(60)
   .regex(slugRe, "expected kebab-case slug");
 
+/** `<lesson-slug>/<media-id>`; both halves are kebab-case slugs. */
+export const watchRe = /^[a-z0-9]+(?:-[a-z0-9]+)*\/[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "expected YYYY-MM-DD");
 const semver = z.string().regex(/^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/, "expected a semver string");
 
@@ -98,6 +102,8 @@ export interface WorkflowValidationContext {
   stacks?: readonly string[];
   /** Slugs of non-archived lessons in content/lessons/. */
   lessonSlugs?: readonly string[];
+  /** `<lesson-slug>/<media-id>` of every valid media manifest on a non-archived lesson (§17.3), for `watch`. */
+  mediaIds?: readonly string[];
   /** Today's Manila date (YYYY-MM-DD); verified_on may not be later. */
   today?: string;
 }
@@ -125,6 +131,10 @@ export function buildWorkflowFrontmatterSchema(ctx: WorkflowValidationContext = 
         .partial()
         .strict(),
       verified_on: isoDate,
+      /** Optional diagram (§17.3). A fenced `diagram` block in the body is invalid (checked by W1/G1 on the body). */
+      diagram: diagramSchema.optional(),
+      /** Optional `<lesson-slug>/<media-id>` link to existing lesson media (§17.3). Never derived from related_lesson. */
+      watch: z.string().regex(watchRe, "expected <lesson-slug>/<media-id>").optional(),
       client_safe: z.literal("confirmed", { error: "must be exactly `confirmed`" }),
       /** Forbidden: attribution comes from git (§16.8). */
       author: z
@@ -175,6 +185,13 @@ export function buildWorkflowFrontmatterSchema(ctx: WorkflowValidationContext = 
         if (!fm.tools.includes(tool) && has) {
           c.addIssue({ code: "custom", path: ["tool_versions", key], message: `not allowed because tools does not include ${tool}` });
         }
+      }
+      if (fm.watch !== undefined && ctx.mediaIds && watchRe.test(fm.watch) && !ctx.mediaIds.includes(fm.watch)) {
+        c.addIssue({
+          code: "custom",
+          path: ["watch"],
+          message: `"${fm.watch}" matches no valid media manifest on an existing lesson`,
+        });
       }
       if (ctx.today && fm.verified_on > ctx.today) {
         c.addIssue({ code: "custom", path: ["verified_on"], message: `is in the future (today is ${ctx.today})` });

@@ -41,7 +41,7 @@ Next.js App Router, TypeScript strict, Tailwind, npm, local Supabase (ports 544x
 
 ## Rules
 - **Path ownership (PRD §11):** edit only the paths your workstream owns. `package.json`, contracts (`src/lib/contracts/`), migrations, `src/lib/db/` and `tests/support/` are frozen after M0; change them only in a dedicated M0-owned PR.
-- **Test ownership:** each workstream owns `tests/e2e/<ws>/` and `tests/unit/<ws>/`, where `<ws>` is one of `a b c d e f m2 content v1 v2 v3 v4 w0 w1 w2 w3 w4` (M0 owns `m0`). Shared test helpers live in `tests/support/` (M0, frozen). Fixtures: `tests/fixtures/` (WS-B).
+- **Test ownership:** each workstream owns `tests/e2e/<ws>/` and `tests/unit/<ws>/`, where `<ws>` is one of `a b c d e f m2 content v1 v2 v3 v4 w0 w1 w2 w3 w4 g0 g1 g2 g3` (M0 owns `m0`). Shared test helpers live in `tests/support/` (M0, frozen). Fixtures: `tests/fixtures/` (WS-B).
 - Never import `src/lib/db/service.ts` (service-role) from `src/`; ESLint enforces it. The app uses the read-only anon client (`src/lib/db/server.ts`). Wrap reads in `dbRead()` so a down database surfaces as `DbUnavailableError` (PRD §9 message).
 - Content routes must render dynamically (`export const dynamic = "force-dynamic"` or a dynamic read) so content edits show without a rebuild.
 - Test-first: each P0 AC has its test in the same PR.
