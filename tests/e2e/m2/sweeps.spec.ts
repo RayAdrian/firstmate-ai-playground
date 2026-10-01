@@ -41,8 +41,8 @@ async function axeBlocking(page: Page, label: string) {
 async function landmarks(page: Page, label: string) {
   expect(await page.getByRole("heading", { level: 1 }).count(), `${label} h1`).toBe(1);
   expect(await page.getByRole("main").count(), `${label} main`).toBe(1);
-  // One exposed "Main" navigation: the desktop one from 768px; below that the menu is a closed disclosure.
-  const wide = (page.viewportSize()?.width ?? 0) >= 768;
+  // One exposed "Main" navigation: the desktop one from 1024px; below that the menu is a closed disclosure.
+  const wide = (page.viewportSize()?.width ?? 0) >= 1024;
   expect(await page.getByRole("navigation", { name: "Main" }).count(), `${label} nav`).toBe(wide ? 1 : 0);
 }
 
@@ -93,13 +93,13 @@ for (const scheme of SCHEMES) {
           await page.waitForTimeout(500);
           await axeBlocking(page, `unscored open ${scheme} ${width}`);
         }
-        if (width < 768) {
+        if (width < 1024) {
           await page.getByRole("button", { name: "Menu" }).click();
           await expect(page.getByRole("button", { name: "Menu" })).toHaveAttribute("aria-expanded", "true");
           await axeBlocking(page, `menu open ${scheme} ${width}`);
         } else {
           await expect(page.getByRole("button", { name: "Menu" })).toHaveCount(0);
-          await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link")).toHaveCount(5);
+          await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link")).toHaveText(["Curriculum", "Exercises", "Workflows", "News", "Bookmarks", "Progress"]);
         }
       });
     });

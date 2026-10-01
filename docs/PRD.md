@@ -893,7 +893,7 @@ Phase in brackets. Priorities as in §5.
 
 **WF-39 (P0)** Nav.
 - "Workflows" is added to `NAV_ITEMS` between "Exercises" and "News", in both the desktop nav and the mobile menu. It is active (`aria-current="page"`) for `/workflows` and `/workflows/*`.
-- No horizontal scroll at 360, 768, 1024 or 1440 (D-3). At 768 the "AI Playground" label is already hidden below lg; the test asserts that the six links fit at 768 without wrapping.
+- No horizontal scroll at 360, 768, 1024 or 1440 (D-3). Six links do not fit inline at 768 in every font (they overflowed on Linux), so the nav collapses into the Menu button below 1024px (the "AI Playground" label stays visible there) and shows the six links inline at 1024px and wider. The test asserts both: six links in one row with no page overflow at 1024, and the Menu button with no overflow at 768, each also under a wide-font stress style.
 
 **WF-39a (P0)** Lessons show their workflows.
 - On `/lessons/[slug]`, **after** the previous/next navigation, a section with `h2` "Workflows that use this" lists up to 3 non-archived workflows whose `related_lesson` is this lesson, sorted by `verified_on` descending, each with its title and problem. If there are more than 3, a "See all N →" link goes to `/workflows?lesson=<slug>`.
