@@ -44,7 +44,7 @@ Use all three. The first two prevent the problem cheaply. The third catches what
 type: flow
 id: tdd-lock-loop
 title: Keeping the tests as the spec
-summary: Lock the tests before the agent starts, then verify outside the agent. If the agent edits a test to get green, the stored hash no longer matches.
+summary: Lock the tests before the agent starts, then verify outside the agent. If the agent edits a test to get green, the stored hash no longer matches and the run is rejected.
 steps:
   - id: red
     label: Tests fail
@@ -60,9 +60,9 @@ steps:
     sub: tests, hash
     emphasis: true
 exits:
-  - from: impl
-    label: edits a test
-    text: Fake green
+  - from: verify
+    label: edited
+    text: Test edit caught
     style: risk
 ```
 
