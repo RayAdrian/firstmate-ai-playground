@@ -3,7 +3,7 @@
   "lesson_slug": "l3-headless-agents",
   "kind": "recording",
   "title": "Headless JSON output from both CLIs",
-  "duration_s": 35.8,
+  "duration_s": 41,
   "width": 1280,
   "height": 720,
   "tool_versions": {
@@ -12,5 +12,5 @@
   },
   "made_on": "2026-10-01",
   "model_calls": true,
-  "source_hash": "3190d3a0617553e9811dfe6a5262e485d9a3614987a17667a660aee12554bdfc"
+  "source_hash": "1cd5f443397cf45ed292c32af724fe4539d0e1568715c62011a9fa674f870956"
 }

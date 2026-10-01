@@ -15,9 +15,8 @@
 # `codex exec --json --sandbox read-only --skip-git-repo-check --ephemeral --ignore-user-config --ignore-rules`.
 Source media/tapes/common.tape
 Set TypingSpeed 35ms
-# The two commands below are long by nature (flags + jq filter), so this tape uses a slightly
-# smaller font than common.tape and lets them wrap.
-Set FontSize 26
+# The two commands below are long by nature (flags + jq filter), so they wrap onto 3 to 4 rows
+# at the shared font size. The JSON results are short and fit on one line each.
 Output media/tapes/out/l3-headless-agents.mp4
 Output media/tapes/out/l3-headless-agents.golden.txt
 
@@ -40,7 +39,7 @@ Type `claude -p "Reply with only the word pong." --safe-mode --output-format jso
 Enter
 Wait+Screen@90s /"result": "pong"/
 Wait@10s /^\$\s*$/
-Sleep 3s
+Sleep 7s
 
 Hide
 Type "clear"
@@ -52,4 +51,4 @@ Type `codex exec --json --sandbox read-only --skip-git-repo-check --ephemeral --
 Enter
 Wait+Screen@90s /"text":"pong"/
 Wait@10s /^\$\s*$/
-Sleep 4s
+Sleep 7s
