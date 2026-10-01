@@ -10,10 +10,10 @@ tool_versions:
   codex_cli: "0.154.0"
 last_verified_on: "2026-09-30"
 differences:
-  - "Scopes: Claude Code has three named scopes on claude mcp add: local (the default, private to you and this project), project (a committed .mcp.json) and user. Codex has your ~/.codex/config.toml and a project .codex/config.toml that loads for trusted projects only."
-  - "Config format: Claude Code stores JSON (.mcp.json, ~/.claude.json). Codex stores TOML tables named [mcp_servers.<name>] in config.toml."
-  - "Team-shared servers: a Claude Code server from .mcp.json stays 'Pending approval' until you approve it in an interactive session. Codex loads project MCP config only for trusted projects."
-  - "Fine-grained control: Claude Code uses permission rules and tool names like mcp__playwright__browser_navigate. Codex sets enabled_tools, disabled_tools and approval modes (default_tools_approval_mode, tools.<tool>.approval_mode) inside the server's config table."
+  - "Scopes: Claude Code has three named scopes on `claude mcp add`: `local` (the default, private to you and this project), `project` (a committed `.mcp.json`) and `user`. Codex has your `~/.codex/config.toml` and a project `.codex/config.toml` that loads for trusted projects only."
+  - "Config format: Claude Code stores JSON (`.mcp.json`, `~/.claude.json`). Codex stores TOML tables named `[mcp_servers.<name>]` in `config.toml`."
+  - "Team-shared servers: a Claude Code server from `.mcp.json` stays 'Pending approval' until you approve it in an interactive session. Codex loads project MCP config only for trusted projects."
+  - "Fine-grained control: Claude Code uses permission rules and tool names like `mcp__playwright__browser_navigate`. Codex sets `enabled_tools`, `disabled_tools` and approval modes (`default_tools_approval_mode`, `tools.<tool>.approval_mode`) inside the server's config table."
 exercise: ex-4-3-mcp-browser
 claude_no_equivalent: false
 codex_no_equivalent: false

@@ -10,11 +10,11 @@ tool_versions:
   codex_cli: "0.154.0"
 last_verified_on: "2026-09-30"
 differences:
-  - "Hook config: Claude Code reads hooks from .claude/settings.json (or ~/.claude/settings.json). Codex reads .codex/hooks.json or inline [hooks] tables in config.toml, and skips a new or changed hook until you review and trust it in /hooks."
-  - "Edit events: Claude Code's Edit and Write tools put the path in tool_input.file_path. Codex edits files with apply_patch, so tool_input.command is the patch text and your script must parse the file names out of it. The matcher accepts apply_patch, or the aliases Edit and Write."
-  - "Reusable prompts: Claude Code skills are invoked as /name (old .claude/commands/*.md files still work and behave the same). Codex skills are invoked as $name or picked from /skills, and Codex's file-based custom prompts were deprecated in favour of skills and are no longer loaded in 0.154.0."
-  - "Skill locations: .claude/skills/<name>/SKILL.md and ~/.claude/skills for Claude Code. .agents/skills/<name>/SKILL.md and ~/.agents/skills for Codex. The name and description frontmatter is shared."
-  - "Neither is a security boundary. Codex says tool hooks are a guardrail, not a complete enforcement boundary. Claude Code hooks on Edit|Write do not see files changed through Bash."
+  - "Hook config: Claude Code reads hooks from `.claude/settings.json` (or `~/.claude/settings.json`). Codex reads `.codex/hooks.json` or inline `[hooks]` tables in `config.toml`, and skips a new or changed hook until you review and trust it in `/hooks`."
+  - "Edit events: Claude Code's `Edit` and `Write` tools put the path in `tool_input.file_path`. Codex edits files with `apply_patch`, so `tool_input.command` is the patch text and your script must parse the file names out of it. The matcher accepts `apply_patch`, or the aliases `Edit` and `Write`."
+  - "Reusable prompts: Claude Code skills are invoked as `/name` (old `.claude/commands/*.md` files still work and behave the same). Codex skills are invoked as `$name` or picked from `/skills`, and Codex's file-based custom prompts were deprecated in favour of skills and are no longer loaded in 0.154.0."
+  - "Skill locations: `.claude/skills/<name>/SKILL.md` and `~/.claude/skills` for Claude Code. `.agents/skills/<name>/SKILL.md` and `~/.agents/skills` for Codex. The `name` and `description` frontmatter is shared."
+  - "Neither is a security boundary. Codex says tool hooks are a guardrail, not a complete enforcement boundary. Claude Code hooks on `Edit|Write` do not see files changed through `Bash`."
 exercise: ex-4-4-automation
 claude_no_equivalent: false
 codex_no_equivalent: false

@@ -4,7 +4,7 @@
   "required_tool_features": ["mcp", "browser-automation-mcp"],
   "title": "Reproduce a visual bug with a Playwright MCP, then fix it",
   "goal": "Add the Playwright MCP server to your tool, load the pricing page at a phone-width viewport and observe three layout bugs. Write down what you saw in REPRO.md, fix app/pricing.module.css, and confirm the fix in the browser.",
-  "setup_cmd": "cp -r exercises/ex-4-3-mcp-browser/starter ~/fm-ex/ex-4-3-mcp-browser && cd ~/fm-ex/ex-4-3-mcp-browser && npm i",
+  "setup_cmd": "D=~/fm-ex/ex-4-3-mcp-browser; if [ -e \"$D\" ]; then echo \"Already set up at $D. Run: cd $D (or delete it first to start over).\"; else mkdir -p ~/fm-ex && cp -r exercises/ex-4-3-mcp-browser/starter \"$D\" && cd \"$D\" && npm i; fi",
   "starter_prompts": {
     "claude": "The Playwright MCP server is connected (check with /mcp). Start the dev server with `npm run dev` (it listens on port 3474), open http://localhost:3474 in the browser, resize the viewport to 375x812 and inspect the pricing page. Report every layout problem you can measure (horizontal overflow, clipped text, small tap targets) and write them to REPRO.md. Then fix app/pricing.module.css and re-check at 375, 768 and 1440 wide. Do not edit anything under tests/.",
     "codex": "The Playwright MCP server is configured (check with /mcp). Start the dev server with `npm run dev` (it listens on port 3474), open http://localhost:3474 in the browser, resize the viewport to 375x812 and inspect the pricing page. Report every layout problem you can measure (horizontal overflow, clipped text, small tap targets) and write them to REPRO.md. Then fix app/pricing.module.css and re-check at 375, 768 and 1440 wide. Do not edit anything under tests/."

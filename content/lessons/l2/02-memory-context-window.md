@@ -10,10 +10,10 @@ tool_versions:
   codex_cli: "0.154.0"
 last_verified_on: "2026-09-30"
 differences:
-  - "Claude Code has /context (a usage grid with suggestions) and /memory (open CLAUDE.md files, toggle auto memory). Codex has no /context or /memory editor: /status shows configuration and token usage, and /memories only controls whether this chat uses and feeds Codex memories."
-  - "Claude Code auto memory is on by default and Claude writes notes to ~/.claude/projects/<project>/memory/. Codex memories are off unless you set [features] memories = true, and live under ~/.codex/memories/."
-  - "/compact takes focus instructions in Claude Code (/compact keep the test commands). The Codex /compact description lists no arguments, so put must-keep constraints in AGENTS.md or a handoff file instead."
-  - "Starting fresh: Claude Code /clear (aliases /reset, /new). Codex /new starts a new chat, and /clear also clears the terminal. Coming back: claude --continue / --resume, codex resume --last / codex resume <id or name>."
+  - "Claude Code has `/context` (a usage grid with suggestions) and `/memory` (open `CLAUDE.md` files, toggle auto memory). Codex has no `/context` or `/memory` editor: `/status` shows configuration and token usage, and `/memories` only controls whether this chat uses and feeds Codex memories."
+  - "Claude Code auto memory is on by default and Claude writes notes to `~/.claude/projects/<project>/memory/`. Codex memories are off unless you set `[features] memories = true`, and live under `~/.codex/memories/`."
+  - "`/compact` takes focus instructions in Claude Code (`/compact keep the test commands`). The Codex `/compact` description lists no arguments, so put must-keep constraints in `AGENTS.md` or a handoff file instead."
+  - "Starting fresh: Claude Code `/clear` (aliases `/reset`, `/new`). Codex `/new` starts a new chat, and `/clear` also clears the terminal. Coming back: `claude --continue` / `claude --resume`, `codex resume --last` / `codex resume <id or name>`."
 exercise: ex-2-2-long-task
 claude_no_equivalent: false
 codex_no_equivalent: false

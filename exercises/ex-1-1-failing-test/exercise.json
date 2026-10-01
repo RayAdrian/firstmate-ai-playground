@@ -19,5 +19,5 @@
     "The test file is unchanged. If an agent \"fixed\" the failure by editing the assertion, that is the wrong fix even though `npm test` goes green. This is why you read the diff.",
     "The verify command is the agent's feedback loop. Because the prompt names it, the agent can run it, read the failure and iterate without you."
   ],
-  "setup_cmd": "mkdir -p ~/fm-ex && cp -R exercises/ex-1-1-failing-test/starter ~/fm-ex/ex-1-1-failing-test && cd ~/fm-ex/ex-1-1-failing-test && git init -q && git add -A && git -c user.name=learner -c user.email=learner@example.com commit -qm start && npm install"
+  "setup_cmd": "D=~/fm-ex/ex-1-1-failing-test; if [ -e \"$D\" ]; then echo \"Already set up at $D. Run: cd $D (or delete it first to start over).\"; else mkdir -p ~/fm-ex && cp -r exercises/ex-1-1-failing-test/starter \"$D\" && cd \"$D\" && git init -q && git add -A && git -c user.name=learner -c user.email=learner@example.com commit -qm start && npm install; fi"
 }

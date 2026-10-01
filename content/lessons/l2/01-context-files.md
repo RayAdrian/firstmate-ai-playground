@@ -10,11 +10,11 @@ tool_versions:
   codex_cli: "0.154.0"
 last_verified_on: "2026-09-30"
 differences:
-  - "Claude Code reads CLAUDE.md. Codex reads AGENTS.md. Since Claude Code 2.1.277 it also reads a repo's AGENTS.md, but only when there is no CLAUDE.md in or above the working directory. The moment you add a CLAUDE.md (or a CLAUDE.local.md), AGENTS.md is ignored unless CLAUDE.md imports it or you change the Project instructions setting in /config to load both."
-  - "Claude Code CLAUDE.md files can import other files with @path (up to four hops deep). The Codex docs describe no import syntax: Codex concatenates one AGENTS.md per directory, root to working directory."
-  - "Claude Code has extra layers: CLAUDE.local.md (personal, gitignored), .claude/rules/ with path-scoped rules, and a managed-policy file. Codex has a global ~/.codex/AGENTS.md, AGENTS.override.md, and project_doc_fallback_filenames."
-  - "Size limits differ. Claude Code: aim for under 200 lines per file (it loads files up to 4 MiB, but adherence drops). Codex: project_doc_max_bytes defaults to 32 KiB for the project chain, and a file that crosses the limit is truncated."
-  - "Check what loaded: /context (or /memory) in Claude Code. Codex has no listing command; start a session and ask it to summarise its instructions."
+  - "Claude Code reads `CLAUDE.md`. Codex reads `AGENTS.md`. Since Claude Code 2.1.277 it also reads a repo's `AGENTS.md`, but only when there is no `CLAUDE.md` in or above the working directory. The moment you add a `CLAUDE.md` (or a `CLAUDE.local.md`), `AGENTS.md` is ignored unless `CLAUDE.md` imports it or you change the `Project instructions` setting in `/config` to load both."
+  - "Claude Code `CLAUDE.md` files can import other files with `@path` (up to four hops deep). The Codex docs describe no import syntax: Codex concatenates one `AGENTS.md` per directory, root to working directory."
+  - "Claude Code has extra layers: `CLAUDE.local.md` (personal, gitignored), `.claude/rules/` with path-scoped rules, and a managed-policy file. Codex has a global `~/.codex/AGENTS.md`, `AGENTS.override.md`, and `project_doc_fallback_filenames`."
+  - "Size limits differ. Claude Code: aim for under 200 lines per file (it loads files up to 4 MiB, but adherence drops). Codex: `project_doc_max_bytes` defaults to 32 KiB for the project chain, and a file that crosses the limit is truncated."
+  - "Check what loaded: `/context` (or `/memory`) in Claude Code. Codex has no listing command; start a session and ask it to summarise its instructions."
 exercise: ex-2-1-conventions
 claude_no_equivalent: false
 codex_no_equivalent: false

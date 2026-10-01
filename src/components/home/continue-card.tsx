@@ -72,11 +72,24 @@ export function ContinueCard({
         id="continue-title"
         className="mt-1 text-xl font-bold text-fg-strong md:text-2xl [overflow-wrap:anywhere]"
       >
-        {current.title}
+        {hydrated ? (
+          current.title
+        ) : (
+          <>
+            <span className="sr-only">Loading your progress…</span>
+            <span aria-hidden="true" className="block h-7 w-4/5 animate-pulse rounded-lg bg-skeleton md:h-8" />
+          </>
+        )}
       </h2>
-      <p className="mt-1 text-sm text-fg-muted">
-        L{current.level} · {current.levelTitle} · {current.minutes} min
-      </p>
+      {hydrated ? (
+        <p className="mt-1 text-sm text-fg-muted">
+          L{current.level} · {current.levelTitle} · {current.minutes} min
+        </p>
+      ) : (
+        <div aria-hidden="true" className="mt-1 flex h-5 items-center">
+          <div className="h-3 w-1/2 animate-pulse rounded-lg bg-skeleton" />
+        </div>
+      )}
       {/* Before hydration the target may still change (the stored last-viewed lesson is unknown), so the link is inert
           and says so: nobody can follow a wrong default. The href stays so the server HTML is still a real link. */}
       <Link
@@ -88,7 +101,7 @@ export function ContinueCard({
         }`}
       >
         <span className="min-w-0 truncate">{hydrated ? `Continue: ${current.title}` : "Loading your progress…"}</span>
-        <ArrowRight aria-hidden="true" className="size-4 shrink-0" />
+        {hydrated ? <ArrowRight aria-hidden="true" className="size-4 shrink-0" /> : null}
       </Link>
     </section>
   );

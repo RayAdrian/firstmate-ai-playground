@@ -2,7 +2,7 @@
   "slug": "ex-4-4-automation",
   "verify": "npm test",
   "required_tool_features": ["hooks", "skills"],
-  "setup_cmd": "cp -r exercises/ex-4-4-automation/starter ~/fm-ex/ex-4-4-automation && cd ~/fm-ex/ex-4-4-automation && git init -b main && git add -A && git commit -m starter",
+  "setup_cmd": "D=~/fm-ex/ex-4-4-automation; if [ -e \"$D\" ]; then echo \"Already set up at $D. Run: cd $D (or delete it first to start over).\"; else mkdir -p ~/fm-ex && cp -r exercises/ex-4-4-automation/starter \"$D\" && cd \"$D\" && git init -b main && git add -A && git -c user.name=fm -c user.email=fm@example.com commit -qm starter; fi",
   "title": "Add a format-on-edit hook and a route-scaffolding skill",
   "goal": "Write a hook script that formats every file the agent edits, wire it into your tool's hook config, then write a repo skill that scaffolds a new API route to the conventions in CONVENTIONS.md. Use the skill to add an orders route.",
   "starter_prompts": {

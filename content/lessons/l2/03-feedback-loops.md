@@ -10,10 +10,10 @@ tool_versions:
   codex_cli: "0.154.0"
 last_verified_on: "2026-09-30"
 differences:
-  - "Both tools learn your verification commands from the instruction file (CLAUDE.md or AGENTS.md), and in both it is advice the model can skip."
-  - "Both tools have a Stop hook: a command runs after every turn and, by exiting 2 or returning a block decision, sends the agent back to work. Claude Code configures it in .claude/settings.json; Codex in .codex/hooks.json or config.toml, and Codex asks you to review and trust a new hook with /hooks before it runs."
-  - "Claude Code also has /goal, where a small model judges a condition after every turn, plus prompt and agent hook types. Codex has a /goal command too, but its docs give little detail on evaluation, so use a Stop command hook for a hard gate."
-  - "Claude Code's /goal evaluator reads only what appears in the conversation, so make the agent print command output. It does not run the commands itself."
+  - "Both tools learn your verification commands from the instruction file (`CLAUDE.md` or `AGENTS.md`), and in both it is advice the model can skip."
+  - "Both tools have a `Stop` hook: a command runs after every turn and, by exiting 2 or returning a block decision, sends the agent back to work. Claude Code configures it in `.claude/settings.json`; Codex in `.codex/hooks.json` or `config.toml`, and Codex asks you to review and trust a new hook with `/hooks` before it runs."
+  - "Claude Code also has `/goal`, where a small model judges a condition after every turn, plus prompt and agent hook types. Codex has a `/goal` command too, but its docs give little detail on evaluation, so use a `Stop` command hook for a hard gate."
+  - "Claude Code's `/goal` evaluator reads only what appears in the conversation, so make the agent print command output. It does not run the commands itself."
   - "A verification command must exit non-zero on failure and print what failed. That is what both agents read."
 exercise: ex-2-3-feedback-loop
 claude_no_equivalent: false
