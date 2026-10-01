@@ -104,6 +104,7 @@ finish() {
   local rc=$?
   trap - EXIT
   release_db_lock
+  cd "$ROOT" || true   # the cwd may be the worktree, which is removed below
   if [[ -n "$WT" && -d "$WT" ]]; then
     git -C "$ROOT" worktree remove --force "$WT" >/dev/null 2>&1 || rm -rf "$WT"
   fi
