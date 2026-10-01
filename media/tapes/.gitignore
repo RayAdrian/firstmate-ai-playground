@@ -1,0 +1,4 @@
+node_modules/
+# Intermediate render output and the VHS goldens. Never committed: a golden the leak guard
+# rejected must not be committable. finalize.mjs deletes them on any failure.
+out/*

@@ -1,0 +1,6 @@
+[
+  { "start": 1, "end": 9, "text": "Claude Code: claude -p with --output-format json and no tools, piped through jq." },
+  { "start": 9, "end": 20, "text": "The reply is one JSON object. jq keeps three stable fields: type, is_error and result." },
+  { "start": 20, "end": 32, "text": "Codex: codex exec --json in a read-only sandbox prints one JSON event per line." },
+  { "start": 32, "end": 40, "text": "jq selects the agent_message event. Its text is the answer." }
+]
