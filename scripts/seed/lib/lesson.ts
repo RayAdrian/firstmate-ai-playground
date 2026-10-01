@@ -1,5 +1,6 @@
 import type { ZodError } from "zod";
 import { lessonFrontmatterSchema } from "../../../src/lib/contracts";
+import { validateLessonDiagrams } from "../../../src/components/diagram/fences";
 import type { SeedIssue } from "./issues";
 import { isRealDate, manilaDate, normalizeText, sha256 } from "./text";
 import { parseYamlSafe } from "./yaml";
@@ -200,6 +201,11 @@ export function parseLessonFile(raw: string, file: string, opts: { now: Date }):
   const { sections, issues: sectionIssues, warnings: sectionWarnings } = parseSections(parts.body, parts.bodyStartLine, file);
   issues.push(...sectionIssues);
   warnings.push(...sectionWarnings);
+
+  // Diagram fences (PRD §17, DG-7): YAML, schema, label fit, per-lesson caps, Concept only.
+  const diagrams = validateLessonDiagrams(parts.body, parts.bodyStartLine);
+  for (const i of diagrams.issues) issues.push({ file, line: i.line, field: i.field, reason: i.reason });
+  for (const i of diagrams.notes) warnings.push({ file, line: i.line, field: i.field, reason: i.reason });
 
   if (fm) {
     if (!sections.concept) {

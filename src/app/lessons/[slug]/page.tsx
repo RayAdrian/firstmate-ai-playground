@@ -66,7 +66,7 @@ export default async function LessonPage({ params, searchParams }: PageProps<"/l
             <h2 id="concept" className="text-2xl font-bold text-fg-strong">
               Concept
             </h2>
-            <Markdown source={lesson.concept_md} />
+            <Markdown source={lesson.concept_md} diagramContext={`lesson ${lesson.slug}`} />
             <MediaBlock items={media} />
           </section>
 
