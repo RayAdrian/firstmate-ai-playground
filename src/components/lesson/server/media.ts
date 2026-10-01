@@ -17,7 +17,7 @@ export type LessonMediaItem = {
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const URL_BASE = "/media/lessons";
 const PUBLIC_ROOT = path.join("public", "media", "lessons");
-const FIXTURE_ROOT = path.join("tests", "fixtures", "media", "lessons");
+const FIXTURE_ROOT = path.join("tests", "e2e", "v3", "fixtures", "media", "lessons");
 
 export const TEST_MEDIA_COOKIE = "fm_test_media";
 
@@ -76,7 +76,7 @@ export async function readLessonMedia(slug: string, root: string): Promise<Lesso
 
 /**
  * Media for a lesson. Reads public/media/lessons at request time. Under FM_TEST_MODE=1 (e2e only),
- * the `fm_test_media=fixtures` cookie reads tests/fixtures/media instead, so e2e never needs files in public/.
+ * the `fm_test_media=fixtures` cookie reads tests/e2e/v3/fixtures/media instead, so e2e never needs files in public/.
  */
 export async function getLessonMedia(slug: string): Promise<LessonMediaItem[]> {
   let root = PUBLIC_ROOT;

@@ -3,10 +3,10 @@ import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import { expectNoSeriousA11y } from "../../support";
 
-// V3 (PRD §15 MD-1/MD-2). Media comes from tests/fixtures/media, never public/:
+// V3 (PRD §15 MD-1/MD-2). Media comes from tests/e2e/v3/fixtures/media, never public/:
 //  - the server reads the fixture manifests when the fm_test_media=fixtures cookie is set (FM_TEST_MODE only),
 //  - the browser's /media/lessons/** requests are fulfilled from the same folder via page.route.
-const FIXTURES = path.resolve(__dirname, "../../fixtures/media");
+const FIXTURES = path.resolve(__dirname, "./fixtures/media");
 const WITH_MEDIA = "/lessons/l1-first-session";
 const WITHOUT_MEDIA = "/lessons/l1-permissions";
 
@@ -123,9 +123,10 @@ test.describe("design conformance (DESIGN §6.3.2)", () => {
     await expect(h3.locator("span").first()).toHaveAttribute("aria-hidden", "true");
     await expect(h3.locator("span").first()).toHaveText("Watch");
     await expect(alpha(page).locator("p").first()).toHaveText(
-      "Terminal recording · 0:03 · No sound · Claude Code 2.1.0 · Recorded 1 Oct 2026",
+      "Terminal recording · 0:03 · No sound · Claude Code 2.1.0 / Codex CLI 0.40.0 · Recorded 1 Oct 2026",
     );
-    await expect(alpha(page).locator("time")).toHaveAttribute("datetime", "PT3S");
+    await expect(alpha(page).locator("time").first()).toHaveAttribute("datetime", "PT3S");
+    await expect(alpha(page).locator("time").nth(1)).toHaveAttribute("datetime", "2026-10-01");
     await expect(page.getByRole("region", { name: "Watch: Beta fixture" }).locator("p").first()).toHaveText(
       "Animation · 0:03 · No sound",
     );

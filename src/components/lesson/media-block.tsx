@@ -18,13 +18,12 @@ function MetaLine({ manifest }: { manifest: LessonMediaItem["manifest"] }) {
   const parts: string[] = [];
   if (isRecording) {
     const v = manifest.tool_versions;
-    const versions = [v.claude_code ? `Claude Code ${v.claude_code}` : null, v.codex_cli ? `Codex ${v.codex_cli}` : null]
+    const versions = [v.claude_code ? `Claude Code ${v.claude_code}` : null, v.codex_cli ? `Codex CLI ${v.codex_cli}` : null]
       .filter((p): p is string => p !== null)
       .join(" / ");
     if (versions) parts.push(versions);
-    const made = formatVerifiedDate(manifest.made_on);
-    if (made) parts.push(`Recorded ${made}`);
   }
+  const made = isRecording ? formatVerifiedDate(manifest.made_on) : null;
   const seconds = Math.round(manifest.duration_s);
   return (
     <p className="mt-1 flex items-start gap-x-2 text-sm text-fg-muted">
@@ -33,6 +32,12 @@ function MetaLine({ manifest }: { manifest: LessonMediaItem["manifest"] }) {
         {isRecording ? "Terminal recording" : "Animation"} ·{" "}
         <time dateTime={`PT${seconds}S`}>{formatDuration(manifest.duration_s)}</time> · No sound
         {parts.map((p) => ` · ${p}`).join("")}
+        {made ? (
+          <>
+            {" · Recorded "}
+            <time dateTime={manifest.made_on}>{made}</time>
+          </>
+        ) : null}
       </span>
     </p>
   );

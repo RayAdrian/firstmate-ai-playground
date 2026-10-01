@@ -125,7 +125,8 @@ describe("MediaBlock (MD-1, MD-2)", () => {
     expect(panel).toHaveAttribute("aria-labelledby", "watch-a-first-transcript-toggle");
     expect(panel).toHaveTextContent("Transcript <b>x</b>");
     expect(panel.querySelector("b")).toBeNull();
-    expect(container.querySelector("time")).toHaveAttribute("datetime", "PT10S");
+    expect(container.querySelectorAll("time")[0]).toHaveAttribute("datetime", "PT10S");
+    expect(container.querySelectorAll("time")[1]).toHaveAttribute("datetime", "2026-10-01");
     expect(container).toHaveTextContent(
       "Terminal recording · 0:10 · No sound · Claude Code 2.1.0 · Recorded 1 Oct 2026",
     );
