@@ -1395,7 +1395,7 @@ Same rules as §11: one worktree per branch, edit only owned paths, rebase on `m
 
 **Non-goals.** Sign-in, accounts, profiles or avatars; verified or unique-per-person counts; comments; leaderboards, points or ranking people; notifications; syncing progress to a server; reactions on lessons or news.
 
-**Counts are best-effort and spoofable, and that is accepted.** Anyone who clears their browser data, opens a private window or calls the route with made-up ids becomes a "new person". Names are self-declared. The content is internal and not confidential, so a padded count has low impact, and the abuse controls (CM-9) bound how fast it can happen. The UI never presents counts as verified.
+**Counts are best-effort and spoofable, and that is accepted.** Anyone who clears their browser data, opens a private window or calls the route with made-up ids becomes a "new person". Names are self-declared. The content is internal and not confidential, so a padded count has low impact. The per-browser and per-IP limits (CM-9) only slow a casual user down, because a script can rotate ids. The **global** database caps are what put a hard ceiling on the total write rate and on table growth. The UI never presents counts as verified.
 
 ### 18.2 Target users
 
@@ -1407,29 +1407,42 @@ Same rules as §11: one worktree per branch, edit only owned paths, rebase on `m
 
 ### 18.3 Identity without accounts: the P-1 contract change
 
-This is an **additive change to the frozen P-1 contract**, so it ships in the M0-owned R0 PR (§18.9).
+This is an **additive change to the frozen P-1 contract**, so it ships in the M0-owned R0 PR (§18.9). It must not ship before the forward-compatibility guard below.
+
+**Prerequisite: forward compatibility (the R-H PR, which ships first).** Today `migrate()` throws on a version newer than the code, `parse` maps that to "invalid", and the store treats "invalid" as corrupt: it removes the key and writes an **empty** v1 doc. So the first v2 write would wipe progress for any v1 reader on the same origin: a tab still open on an old bundle (through the `storage` event), a Vercel rollback, or a second local worktree on `localhost:3000`. A tiny M0-owned PR, **R-H**, fixes this before anything writes v2:
+- A doc whose `version` is **greater** than the code's is never reset, rewritten or removed. The store enters **read-only mode**. It reads the fields it knows on a best-effort basis (any field that fails its own schema is treated as empty in memory) and renders them. Toggles still work **for the session, in memory only**. It never writes the key, including from `storage`-event handling.
+- A Notice at the top of `<main>` says: "This browser has progress from a newer version of the Playground. It's shown read-only here. Reload to get the latest version."
+- Corrupt and invalid docs (P-2) keep today's behaviour. Only "newer" is new.
+- **AC (R-H):** with a v2 doc (and separately a v3 doc with an unknown extra field) in storage, loading every route and clicking "Mark complete", a checklist item and a bookmark leaves the stored string **byte-identical** (E2E plus a unit test of the store), the Notice shows, and no error is logged. A `storage` event delivering a newer doc to an open tab also leaves it byte-identical.
+- **Order:** R-H merges and is **deployed to Vercel** before R0 merges. From then on, rolling the deployment back to a build older than R-H is forbidden (record this in R0's PR and in the runbook). Local worktrees older than R-H must rebase before they share an origin with a post-R0 build (`AGENTS.md` note).
 
 - **Shape:** P-1 goes to `version: 2` and gains one object: `community: { clientId: string (UUID v4), displayName: string | null, namePrompted: boolean }`. Every v1 field and the key string `fm-playground:v1` are unchanged (the key name is not the version, as §16.8 already decided).
-- **Migration:** P-4's chain gains a real v1→v2 step that adds `community` with a new `crypto.randomUUID()`, `displayName: null` and `namePrompted: false`. A fixture v1 doc migrates to v2 with a valid UUID v4 and every other field identical (unit test). An empty doc (first visit) is created directly as v2.
+- **Migration:** P-4's chain gains a real v1→v2 step that adds `community` with a new UUID v4, `displayName: null` and `namePrompted: false`. The UUID comes from `crypto.randomUUID()` where it exists. It is only available in secure contexts, so over http on a LAN IP (phone testing) the code builds a v4 UUID from `crypto.getRandomValues` (unit test with `randomUUID` removed). A fixture v1 doc migrates to v2 with a valid UUID v4 and every other field identical (unit test). An empty doc (first visit) is created directly as v2.
 - **P-2 (corrupted state):** the reset creates a new `clientId`. Stars and reactions made with the old id stay in the counts but are no longer shown as "mine". This is accepted.
 - **P-3 (storage unavailable):** a `clientId` is generated for the session only, so toggles work until the tab closes. The existing banner text stays true.
 - **P-5 (hydration):** the `clientId` and the user's own pressed states are client-only; nothing derived from them is in server HTML. Counts and names are not progress and are server-rendered (CM-6).
-- **P-6 (export/import):** `community` is included. Importing a file replaces it as P-6 replaces everything, which is also how someone carries their identity to another browser.
+- **P-6 (export/import): `community` is never exported and never imported.** Exports are posted to a team channel (§2 M1), and a `clientId` works like a bearer credential: whoever holds it can delete or rename that browser's stars and reactions. So the export omits `community` entirely (no `clientId`, no `displayName`). Import leaves the local `community` object untouched, and ignores a `community` key if a hand-edited file has one.
+  - **AC:** an exported file contains no `community` key, and neither the browser's `clientId` nor its display name appears anywhere in the file text. Importing a file that contains `community: { clientId: <other> }` leaves the local `clientId` and `displayName` unchanged (unit and E2E).
+  - Moving a reaction identity to another browser is not supported. A person who switches browsers is a new reactor; their name can be set again.
 - **P-7 (reset):** resets progress only and **keeps** `community`. The confirmation adds "Your stars, reactions and name are kept."
 - **Supersedes §16.8's plan.** §16.8 reserved a future v2 with `bookmarks.workflows`. Stars take that role (CM-10), so that shape is never built and v2 means the shape above.
 - The `clientId` is never shown in the UI, never logged by the app, and never returned by any read (CM-7).
 
-### 18.4 The write path (decision: SECURITY DEFINER functions, no table grants)
+### 18.4 The write path (decision: SECURITY DEFINER functions, callable only by a dedicated route role)
 
-**Decision.** Stars and reactions are written only through a few Postgres functions declared `SECURITY DEFINER`, called from a Next.js route handler with the existing anon client. The base tables have RLS enabled and **no grants at all** to `anon` or `authenticated`: no select, insert, update or delete.
+**Decision.** Stars and reactions are written only through a few Postgres functions declared `SECURITY DEFINER`. The write functions can be executed **only** by a dedicated login role, `community_writer`, which the Next.js route handler uses through a direct Postgres connection. The base tables have RLS enabled and **no grants at all** to `anon` or `authenticated`: no select, insert, update or delete. `anon` cannot execute the write functions.
 
 **Why this is the safer option than anon RLS policies.**
 - The only thing that stops one browser deleting another's reaction is that the other `clientId` is unknown. A delete policy for anon would need a select policy too (Postgres only deletes rows the caller can see), which would publish every `clientId` and so let anyone delete anyone's reactions. With functions, `clientId`s are write-only: no read returns them.
 - RLS has no caller identity to check here (no auth), so policies could not express "your own row" anyway. They would reduce to "any row whose id you name", which is what the functions do, but with validation in one place.
-- The functions validate everything in the database (slug, archived state, reaction key, name rules, rate limit), so calling the RPCs directly with the anon key gains nothing over the UI. The anon key is a publishable key; this design does not depend on hiding it.
+- **Why the writes are not anon-callable.** If `anon` could execute the write functions, anyone with the anon key could call them straight through PostgREST `/rpc` and skip the route's per-IP limit, payload cap and origin check. Only the route can call them, so every write passes through all of those.
+- **Why a dedicated role and not the service-role key** (decision). The service-role key bypasses RLS on every table. If it leaked from Vercel, someone could rewrite the curriculum, the news and the workflows. `community_writer` is a Postgres login role with `NOINHERIT`, no table grants, `USAGE` on the schema and `EXECUTE` on the three write functions only. If its credential leaks, the attacker gets exactly what the route already offers, still under the database's global caps. The cost is one direct-connection dependency (a Postgres client such as `pg`, added to `package.json` by R0) and one connection string. Locally, the role exists in the local stack with a fixed local-only password, created by the migration; the hosted password is set by the owner (DP-1).
+- **Why not a minted JWT for a custom role:** minting needs the project JWT secret, which can also mint `service_role` tokens. That is no better than the service-role key.
+- The functions still validate everything themselves (slug, archived state, reaction key, name rules, rate limits), so the role's credential grants nothing beyond the UI's behaviour.
+- `SUPABASE_URL`, the anon key and the `community_writer` connection string are **server-only**. None is ever prefixed `NEXT_PUBLIC_`, and the browser has no Supabase client. A test asserts no `NEXT_PUBLIC_SUPABASE*` or `NEXT_PUBLIC_*DATABASE*` variable is referenced in `src/`.
 - No service-role key is needed by the app, so Vercel never holds one (DP-3).
 
-**Functions (prose; R0 writes the SQL).** Each is `SECURITY DEFINER`, owned by `postgres`, declares `set search_path = ''`, and has `EXECUTE` revoked from `PUBLIC` and granted only to `anon`, `authenticated` and `service_role`.
+**Functions (prose; R0 writes the SQL).** Each is `SECURITY DEFINER`, owned by `postgres`, declares `set search_path = ''`, and has `EXECUTE` revoked from `PUBLIC`. The three **write** functions (`set_star`, `set_reaction`, `set_name`) are granted only to `community_writer` and `service_role`. The three **read** functions are granted to `anon` and `service_role`, and the route calls them with the existing server-side anon client. They return only counts, the most recent names and the caller's own booleans.
 
 | Function | Does |
 |---|---|
@@ -1441,10 +1454,10 @@ This is an **additive change to the frozen P-1 contract**, so it ships in the M0
 | `community_my_stars(client_id)` | Slugs this `client_id` starred, newest first (CM-10). |
 
 **Every write function:**
-- Resolves the slug to a workflow row that exists, has `removed_at is null` and is **not Archived** (verified at most 180 days before today's Asia/Manila date, matching WF-40). Otherwise it raises `workflow_unavailable`.
+- Resolves the slug to a workflow row that exists, has `removed_at is null` and is **not Archived** (verified at most 180 days before the database's current Asia/Manila date, matching WF-40). Otherwise it raises `workflow_unavailable`. The database ignores the app's test clock (`setServerNow`), so the 180/181-day boundary is tested **only** in the database tests (CM-7), never in E2E.
 - Rejects a `client_id` that is not a UUID, and a reaction outside the four keys (also a check constraint).
 - Applies the name rules (CM-4) and rejects a name that still breaks them (also a check constraint).
-- Takes one token from the `client_id`'s bucket (CM-9) or raises `rate_limited`.
+- Charges the rate limits in CM-9 in one transaction, in this order: the global budget, the workflow's budget (except `set_name`), then the `client_id`'s bucket. If any is empty it raises `rate_limited` and writes nothing.
 
 ### 18.5 User stories and acceptance criteria
 
@@ -1481,7 +1494,7 @@ The emoji is always `aria-hidden` and never stands alone: the label is always vi
 - The first time a browser with `namePrompted: false` stars or reacts, the action happens at once (it is not blocked) and an inline prompt appears next to the control: "Add your name? Optional", a text input (`maxlength=40`, label "Your name"), "Save" and "Skip". This is not a modal.
 - "Save" stores the name in `community.displayName` and calls `community_set_name`. "Skip" stores `null`. Both set `namePrompted: true`, so the prompt never returns in that browser.
 - A "Your name" control on the workflow page shows "Reacting as Rafael · Edit" or "Reacting anonymously · Add name". Editing updates localStorage and every reaction row of this `clientId`; clearing the field makes them anonymous.
-- **Name rules**, applied by one shared function in the app and again in the database: strip C0 and C1 control characters and the bidi override and isolate characters (U+202A–U+202E, U+2066–U+2069); collapse runs of whitespace; trim; at most 40 characters; empty becomes `null`.
+- **Name rules**, applied by one shared function in the app and again in the database: strip C0 and C1 control characters, the bidi override and isolate characters (U+202A–U+202E, U+2066–U+2069), and the zero-width and format characters (U+200B–U+200F, U+2060, U+FEFF); collapse runs of whitespace; trim; at most 40 characters; empty becomes `null`, so a name made only of invisible characters is anonymous. **One shared vector file** (plain, too long, control characters, bidi, zero-width only, zero-width inside a name, emoji, CJK, whitespace only) runs through both the JS rule and the SQL rule, and the test asserts identical output.
 - **Plain text only.** Names render as React text nodes, never through `dangerouslySetInnerHTML` or the markdown renderer. A test saves the name `<img src=x onerror=alert(1)>` and asserts it appears as literal text, no `img` element exists, and no dialog fires.
 - Stars carry no name. Names appear only on reactions.
 
@@ -1503,17 +1516,28 @@ The emoji is always `aria-hidden` and never stands alone: the label is always vi
   - An unknown slug, a removed workflow and a workflow aged 181 days are rejected with `workflow_unavailable`; one aged 180 days is accepted.
   - A reaction key outside the four, a non-UUID `client_id`, and a 41-character name are rejected.
   - No new function is executable by `PUBLIC`, and each has a fixed `search_path` (catalogue query).
+  - **`anon` and `authenticated` cannot execute** `community_set_star`, `community_set_reaction` or `community_set_name`: a PostgREST `/rpc` call with the anon key gets a permission error and writes nothing.
+  - `community_writer` can execute only those three functions: it cannot select, insert, update or delete any table directly, and cannot execute any other function in `public` (catalogue query plus one denied call per table).
 - A takedown hard-delete (WF-43) cascades to that workflow's stars and reactions.
 
 **CM-8 (P0)** The route is narrow.
-- One route handler, `POST /api/community`, accepts a JSON body of at most **2 KB** (larger → 413 before parsing), validated by a strict zod schema (unknown keys rejected → 400): `{ op: "star" | "react" | "name" | "mine" | "myStars", clientId, slug?, slugs? (≤ 100), reaction?, on?, displayName? }`. It calls exactly one function per request and returns only that function's result or an error code.
+- One route handler, `POST /api/community`, accepts a JSON body of at most **2 KB** (larger → 413 before parsing), validated by a strict zod schema (unknown keys rejected → 400): `{ op: "star" | "react" | "name" | "mine" | "myStars", clientId, slug?, slugs? (≤ 100), reaction?, on?, displayName? }`. It calls exactly one function per request: write ops through the `community_writer` connection (§18.4), read ops through the server-side anon client. It returns only that function's result or an error code.
 - It accepts only `Content-Type: application/json` and a same-origin `Origin` header (others → 403), so a cross-site form cannot post to it.
 - No response or error body echoes the input name or slug as HTML. All responses are JSON.
 
-**CM-9 (P0)** Basic abuse controls, sized for an internal tool.
-- **Per `clientId`, in the database** (works across Vercel instances): a token bucket of 30 writes, refilling 1 token every 2 seconds. The 31st write within one burst raises `rate_limited` (test). Reads (`summary`, `mine`, `myStars`) are not limited.
-- **Per IP, in the route:** at most 120 requests per minute per client IP (taken from Vercel's forwarded-for header), held in memory. On Vercel this is best-effort per instance, which is acceptable here.
-- These controls slow abuse; they do not prevent fake counts (§18.1). If spam ever needs cleaning up, the owner deletes rows by `created_at` range with the service role from a local script (runbook note in R0's PR). No moderation UI is built.
+**CM-9 (P0)** Abuse controls, sized for an internal tool. The database enforces three budgets; the route adds a fourth.
+
+| Limit | Where | Budget | What it bounds |
+|---|---|---|---|
+| **Global** | DB, one counter row | 300 writes per minute across all clients | Total write rate and table growth, whatever the attacker rotates. The hard ceiling. |
+| **Per workflow** | DB, one counter per workflow | 60 writes per minute per workflow | Flooding a single workflow's counts. |
+| Per `clientId` | DB, token bucket | 30 writes, refilling 1 every 2s | A casual user or a stuck client. A fresh id per call bypasses it, which is why the two above exist. |
+| Per IP | Route, in memory | 120 requests per minute | One machine's velocity. Best-effort per Vercel instance. |
+
+- All three DB budgets are charged in the same transaction as the write (§18.4). Tests: the 301st write within a minute across 301 **different** `client_id`s raises `rate_limited`; the 61st write to one workflow from 61 different ids does too; the 31st burst write from one id does too; after the window passes, writes succeed again. Reads (`summary`, `mine`, `myStars`) are not limited.
+- **The IP** comes only from a header the platform sets: `x-real-ip`, else the first entry of Vercel's `x-forwarded-for`. Never from the request body or any other client-supplied value. Locally (`NODE_ENV !== "production"`) the per-IP limit is skipped.
+- **Growth is bounded.** `community_rate` rows are deleted after 10 minutes of inactivity (a full bucket refills in 60s, so an older row carries no information), pruned by the write functions. With the global cap, worst-case new rows are 300 per minute, and each sits under the same cap.
+- These controls slow abuse and cap its total; they do not prevent fake counts (§18.1). If spam needs cleaning up, the owner deletes rows by `created_at` range with the service role from a local script (runbook note in R0's PR). No moderation UI is built.
 
 **CM-10 (P1)** Stars replace workflow bookmarks.
 - `/bookmarks` gains "Starred workflows" from `community_my_stars`, newest first. A starred workflow that was removed shows "Workflow no longer available" (the N-5 pattern).
@@ -1538,11 +1562,13 @@ workflow_reactions   workflow_id uuid → workflows(id) on delete cascade,
                      created_at timestamptz default now(),
                      pk (workflow_id, client_id, reaction)
 community_rate       client_id uuid pk, tokens numeric not null, refilled_at timestamptz not null
+community_budget     scope text pk ('global' or 'workflow:<id>'), window_start timestamptz, writes int not null
+role                 community_writer: LOGIN, NOINHERIT, no table grants, EXECUTE on the three write functions only
 ```
 
 - Indexes: `workflow_stars(client_id, created_at desc)` (my stars); `workflow_reactions(workflow_id, reaction, created_at desc)` (summary and recent names); `workflow_reactions(client_id)` (renames).
-- RLS is **enabled** on all three tables with **no policies** and no grants to `anon` or `authenticated`. `service_role` keeps all (fixtures, cleanup).
-- `community_rate` rows older than 1 day are deleted by the write function when it touches the table, so it does not grow without bound.
+- RLS is **enabled** on all four tables with **no policies** and no grants to `anon`, `authenticated` or `community_writer`. `service_role` keeps all (fixtures, cleanup).
+- `community_rate` rows idle for 10 minutes and `community_budget` workflow rows from past windows are deleted by the write functions (CM-9).
 - Fixtures (`db:reset:test`): stars from 3 client ids on one fixture workflow; reactions with names, without names, and 25 anonymous ones on another (the "and N others" case); nothing on the rest.
 
 ### 18.7 Routes and UX inventory
@@ -1561,13 +1587,15 @@ community_rate       client_id uuid pk, tokens numeric not null, refilled_at tim
 
 ### 18.8 Deployment prerequisites (hosted Supabase and Vercel)
 
-The stakeholder is deploying now. This is the checklist; DP-5 and DP-6 are code requirements, owned by R0.
+The stakeholder is deploying now. This is the checklist. DP-3a and DP-5 to DP-7 are code requirements, owned by R0.
 
-**DP-1 Hosted Supabase project.** Create the project, then `supabase link --project-ref <ref>` and `supabase db push` to apply every migration on `main`, in order (G0's before R0's). Each later migration is pushed after its PR merges. `db push` is a manual owner step, never run by CI.
+**DP-1 Hosted Supabase project.** Create the project, then `supabase link --project-ref <ref>` and `supabase db push` to apply every migration on `main`, in order (G0's before R0's). Each later migration is pushed after its PR merges. `db push` is a manual owner step, never run by CI. After R0's migration, the owner sets a strong password for `community_writer` on the hosted project (`alter role … password …` in the SQL editor, never committed) and builds its pooled connection string (Supavisor transaction mode, port 6543).
 
 **DP-2 Seed the hosted database.** Run `npm run seed` (content and workflows) and `npm run news:import` (to backfill the digest) with the hosted env profile (DP-5). Re-run `npm run seed` after content changes. That includes **every workflow takedown**: §16.10.4 step 4 now also means re-seeding the hosted database, so the hard delete (WF-43) reaches it.
 
-**DP-3 Vercel environment variables.** `SUPABASE_URL` and `SUPABASE_ANON_KEY` (Production and Preview). **The service-role key is not set on Vercel at all**, because nothing in the app uses it (§18.4). It never gets a `NEXT_PUBLIC_` prefix anywhere, and the existing ESLint rule (no `src/lib/db/service.ts` import from `src/`) stays. `FM_TEST_MODE`, `FM_E2E_PROBES` and any test flag are **never** set on Vercel; `/test-now` must 404 in production (the existing guard).
+**DP-3 Vercel environment variables.** `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `COMMUNITY_DATABASE_URL` (the `community_writer` connection string), for Production and Preview. All are server-only: none is ever prefixed `NEXT_PUBLIC_` (§18.4). **The service-role key is not set on Vercel at all**, because nothing in the app uses it. The existing ESLint rule (no `src/lib/db/service.ts` import from `src/`) stays. `FM_TEST_MODE`, `FM_E2E_PROBES` and any test flag are **never** set on Vercel; `/test-now` must 404 in production (the existing guard). If the Vercel plan allows it, turn on **Deployment Protection** for the production URL (Q-RX1).
+
+**DP-3a `noindex` (code, R0, P0).** Every response carries `X-Robots-Tag: noindex, nofollow` (set in `next.config`'s `headers()`, a root file R0 owns for this PR), and `/robots.txt` returns `User-agent: *` / `Disallow: /`. AC: an `@prod` E2E test asserts the header on `/`, `/workflows`, a lesson, `/api/community` and a static asset, and asserts the `robots.txt` body.
 
 **DP-4 The news job writes to the hosted database.** The launchd job (I-5) runs with the hosted env profile, so the daily digest lands where the team reads it. The `claude -p` scorer still runs on the stakeholder's Mac. Once hosted, the `news-snapshots` branch and `news:import` (§14 Q1) are only needed for local development databases.
 
@@ -1575,20 +1603,24 @@ The stakeholder is deploying now. This is the checklist; DP-5 and DP-6 are code 
 
 **DP-6 Destructive commands refuse the hosted database (code, R0).** `npm run db:reset:test` and the E2E fixture loaders exit 1 with a message when `SUPABASE_URL`'s host is not `127.0.0.1` or `localhost` (unit test).
 
+**DP-7 The scorer never sees the service-role key (code, R0).** The hosted profile puts the hosted service-role key into the launchd job's environment, and that job runs `claude -p` on untrusted feed text (I-3). The scorer subprocess gets an explicit allowlisted environment with `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`, `COMMUNITY_DATABASE_URL` and every `SUPABASE_*` variable removed (unit test on the env builder in `scripts/news/claude.ts`).
+
 ### 18.9 Workstreams and path ownership
 
-Same rules as §11: one worktree per branch, edit only owned paths, rebase on `main` before gates. Tests go in `tests/unit/<ws>/` and `tests/e2e/<ws>/`, with `<ws>` one of `r0 r1`.
+Same rules as §11: one worktree per branch, edit only owned paths, rebase on `main` before gates. Tests go in `tests/unit/<ws>/` and `tests/e2e/<ws>/`, with `<ws>` one of `rh r0 r1`.
 
 | WS | Scope | Owns (paths) | Depends on |
 |---|---|---|---|
-| **R0 (M0-owned, serial)** | The migration (§18.6 tables, the §18.4 functions, grants, the rate-limit table); the P-1 v2 contract (`community` object, the v1→v2 migration step and its fixture); the shared contracts (`REACTIONS`, the name-rule function, the `/api/community` request/response zod schemas, `formatReactors` if R1 prefers it shared); row types; the DB tests (CM-7, CM-9's bucket); DP-5 and DP-6; the `AGENTS.md` edit (test ownership `r0 r1`, the hosted env profile, "never point `.env.local` at hosted") | `supabase/migrations/<ts>_community.sql`, `src/lib/contracts/progress.ts`, `src/lib/contracts/community.ts` (new), `src/lib/contracts/rows.ts`, `src/lib/contracts/index.ts`, `scripts/lib/env-profile.ts` (new), `AGENTS.md`, `.env.example`, `tests/unit/r0/`. **Granted edits:** `src/lib/progress/migrate.ts` (the v1→v2 step only; WS-D is a required reader), `scripts/seed/lib/env.ts` (the `FM_ENV_FILE` hook only), the DP-6 guard line in `scripts/seed/reset-test.ts` (W1 is a required reader) | **G0 (PR #40) merged first** (see below) |
+| **R-H (M0-owned, tiny, ships first)** | The forward-compatibility guard (§18.3): newer-version docs are read-only and never reset; the Notice; the byte-identical AC | `src/lib/progress/migrate.ts`, `parse.ts`, `store.ts` (the "newer" path only; WS-D is a required reader), the Notice copy in `src/lib/progress/notices.tsx`, `tests/unit/rh/`, `tests/e2e/rh/` | Nothing. **Merged and deployed to Vercel before R0 merges.** |
+| **R0 (M0-owned, serial)** | The migration (§18.6 tables, the §18.4 functions, the `community_writer` role, grants, the rate-limit and budget tables); the Postgres client dependency in `package.json`; the P-1 v2 contract (`community` object, the v1→v2 migration step and its fixture); the shared contracts (`REACTIONS`, the name-rule function, the `/api/community` request/response zod schemas, `formatReactors` if R1 prefers it shared); row types; the DB tests (CM-7, all of CM-9's DB budgets); the P-6 export/import exclusion (§18.3 AC); DP-3a, DP-5, DP-6 and DP-7; the `AGENTS.md` edit (test ownership `rh r0 r1`, the hosted env profile, "never point `.env.local` at hosted") | `supabase/migrations/<ts>_community.sql`, `src/lib/contracts/progress.ts`, `src/lib/contracts/community.ts` (new), `src/lib/contracts/rows.ts`, `src/lib/contracts/index.ts`, `scripts/lib/env-profile.ts` (new), `package.json`, `next.config.ts` (the `headers()` entry only), `public/robots.txt` (new), `AGENTS.md`, `.env.example`, `tests/unit/r0/`, `tests/e2e/r0/`. **Granted edits:** `src/lib/progress/migrate.ts` (the v1→v2 step only; WS-D is a required reader), `scripts/seed/lib/env.ts` (the `FM_ENV_FILE` hook only), the DP-6 guard line in `scripts/seed/reset-test.ts` (W1 is a required reader), the subprocess env builder in `scripts/news/claude.ts` (DP-7; WS-E is a required reader), and the export and import functions in `src/lib/progress/io.ts` (the `community` exclusion only; WS-D is a required reader) | **G0 (PR #40) and R-H merged first** (see below) |
 | **D-R: DESIGN addendum** (docs PR; the UI/UX agent is the design owner) | DESIGN.md: the Star toggle, the reaction bar, the read-only card row, the reactor line, the inline name prompt, the "Your name" control, card and page placement next to D-G's diagram placements, and §11 selector entries for every accessible name in §18.5 | `docs/design/DESIGN.md` (new §4 component entries, §6.11/§6.12 additions, §11 additions only) | Nothing. Merges before R1's UI gate. |
 | **R1: reactions UI and the route** | CM-1 to CM-6, CM-8, the IP limit in CM-9, CM-10, CM-11 | `src/app/api/community/` (new), `src/components/community/` (new), `src/lib/community/` (new: queries, client store for pressed state, the route client), `tests/e2e/r1/`, `tests/unit/r1/`. **Granted single mounts:** the card and page components under `src/components/workflows/` (W2 is a required reader); one section in `src/app/bookmarks/page.tsx` (CM-10; WS-D is a required reader) | R0 and D-R merged, and **W2 (`/workflows` UI, PR #32) merged**, because R1 mounts into its components |
 
 **Sequencing (resolves review finding B2 on this PR).**
 - **G0 (PR #40) merges first, then R0.** Both are M0-owned and both edit `src/lib/contracts/rows.ts`, `src/lib/contracts/index.ts` and the `AGENTS.md` test-ownership list, and both add a migration that touches `workflows`. R0 rebases onto G0 and assigns its migration timestamp **at rebase**, after `20261002000000`, so no database (local or hosted) ever sees the migrations out of order. On the hosted project, push G0's migration before R0's (DP-1).
 - **R1 and G1 both mount into W2's workflow card and page components.** Whichever merges second rebases and keeps both mounts. On the page, R1's reaction bar sits under the meta line and G1's diagram sits in "Why it works", so they never share an insertion point.
-- Order: G0 → R0 (with D-R drafting alongside) → R1 (after W2). R0 is the only PR here that touches frozen paths.
+- **R-H before R0, deployed.** R-H can merge at any time (it is independent of G0), but it must be on `main` **and live on Vercel** before R0 merges. After R0, rolling the deployment back past R-H is forbidden (§18.3).
+- Order: R-H (any time, first) and G0 → R0 (with D-R drafting alongside) → R1 (after W2). R-H and R0 are the only PRs here that touch frozen paths.
 
 ### 18.10 Success metrics
 
@@ -1601,7 +1633,7 @@ Measured outside the app with SQL on the hosted database (the app adds no event 
 | CM-M3 | Name opt-in | Share of reacting `client_id`s with a name. No target; it shows whether the prompt works. | SQL. Monthly. |
 | CM-M4 | Guardrail | 0 spam clean-ups needed, and 0 rendering incidents from names | The owner's incident log. |
 
-**Definition of done:** every P0 CM acceptance criterion passes as an automated test; DP-5 and DP-6 are tested; G0, R0 and R1 are merged in that order through all three gates; R0's migration is pushed to the hosted project; and one reaction made on the Vercel deployment from one browser shows in another browser.
+**Definition of done:** every P0 CM acceptance criterion passes as an automated test; DP-3a and DP-5 to DP-7 are tested; R-H is live on Vercel before R0 merges; G0, R0 and R1 are merged in that order through all three gates; R0's migration is pushed to the hosted project; and one reaction made on the Vercel deployment from one browser shows in another browser.
 
 ### 18.11 Amendments to earlier sections
 
@@ -1612,10 +1644,11 @@ Measured outside the app with SQL on the hosted database (the app adds no event 
 | §4 out of scope | "Production or hosted deployment" | **Reversed** (stakeholder, 2026-10-01): Vercel plus hosted Supabase. |
 | §4 out of scope | "Telemetry or analytics" | **Stands.** The `clientId` is a random pseudonymous id stored only with stars and reactions; no events, page views or analytics. |
 | §4 out of scope | "Auth, user accounts, server-side progress" | **Stands.** |
-| §6 | "The anon key is read-only through RLS … The browser never writes to the DB." | The anon role may also **execute** the six community functions (§18.4), which write only stars, reactions and the rate-limit table. It still has no write grant on any table, and the browser still never talks to Supabase directly (writes go through `POST /api/community`). |
+| §6 | "The anon key is read-only through RLS … The browser never writes to the DB." | The anon role may also **execute** the three read-only community functions (§18.4). The three write functions are executable only by the dedicated `community_writer` role, used by the route. Neither role has any grant on any table, and the browser still never talks to Supabase directly (writes go through `POST /api/community`). |
 | P-1 | Frozen v1 shape | v2 adds `community` (§18.3). Same key string. |
 | P-4 | The v1→v2 migration fixture is a no-op | The step is real (§18.3). |
-| P-6, P-7 | Export/import all state; reset all state | `community` is exported and imported; reset keeps it (§18.3). |
+| P-2 | An unreadable doc resets to empty | Still true for corrupt docs. A doc from a **newer** version is never reset: it is read-only with a Notice (R-H, §18.3). |
+| P-6, P-7 | Export/import all state; reset all state | `community` is **never** exported or imported; reset keeps it (§18.3). |
 | §13 | "Local-only Supabase means the news DB exists only on the stakeholder's Mac" | Resolved by hosting (DP-4). |
 | §14 Q1 | Snapshots branch plus `news:import` | Still used to seed local development databases; the hosted database gets the digest directly (DP-4). |
 | §16, fixed decision 7 | "Worked for me" waits for phase 2 | **Reversed:** it ships now as a reaction. "Report outdated" stays a GitHub issue link (WF-37). |
@@ -1629,16 +1662,18 @@ Measured outside the app with SQL on the hosted database (the app adds no event 
 | # | Risk | Impact | Mitigation |
 |---|---|---|---|
 | R-RX1 | **The Vercel URL is public and has no sign-in.** Anyone who finds it can read the curriculum, the digest and the workflows, and add reactions. | Workflows were reviewed as "client-safe" for an internal audience (§16.10); a leak that slips review is now on the open web, not just in a private repo. | The stakeholder judged the content non-confidential. Recommended anyway: turn on Vercel Deployment Protection if the plan allows it, and send `X-Robots-Tag: noindex` on every page (Q-RX1). DP-2 makes takedowns reach the hosted database. |
-| R-RX2 | Counts are padded (new `clientId`s, scripted calls). | Misleading signal. | Accepted (§18.1). CM-9 bounds the rate; spam cleanup is one SQL statement. |
+| R-RX2 | Counts are padded (new `clientId`s, scripted calls). | Misleading signal. | Accepted (§18.1). CM-9's global and per-workflow caps bound the total write rate; spam cleanup is one SQL statement. |
 | R-RX3 | A name is offensive or impersonates a colleague. | Social harm on an internal tool. | Names are optional, plain text and short; the owner deletes rows by `client_id` with the service role. No moderation UI. |
-| R-RX4 | Clearing browser data orphans someone's stars ("Your stars" empties). | Mild confusion. | P-6 export/import carries the `clientId`; the "Your name" control's help text says "Saved in this browser." |
+| R-RX4 | Clearing browser data orphans someone's stars ("Your stars" empties). | Mild confusion. | Accepted: identity is per browser by design, and exports deliberately exclude it (§18.3). The "Your name" control's help text says "Saved in this browser." |
 | R-RX5 | Local tooling is accidentally pointed at the hosted database. | `db:reset:test` wipes production data. | DP-5 (separate profile, target host printed), DP-6 (refusal), and `AGENTS.md`. |
 | R-RX6 | Migration order differs between local and hosted. | A broken hosted schema. | Timestamps assigned at rebase; G0 then R0; `db push` after each merge (DP-1). |
+| R-RX7 | v1 code meets a v2 doc (an old open tab, a rollback, a second worktree on the same origin). | All of that browser's progress is wiped. | R-H ships and is deployed first; newer docs are read-only (§18.3); rollback below R-H is forbidden. Residual: a local worktree older than R-H on the same origin; `AGENTS.md` says to rebase. |
+| R-RX8 | The `community_writer` credential leaks from Vercel. | Scripted writes that skip the route's per-IP limit. | The role can only call the three write functions, which are still under the global and per-workflow caps (CM-9). Rotate its password; nothing else is exposed. |
 
 ### 18.13 Open questions
 
 | # | Question | Blocks | Recommended default |
 |---|---|---|---|
-| Q-RX1 | Turn on Vercel Deployment Protection (or another gate in front of the deployment) and `noindex`? | Nothing in the build | Yes to `noindex` (cheap, add it in R1). Protection depends on the Vercel plan; the stakeholder decides. |
+| Q-RX1 | Turn on Vercel Deployment Protection (or another gate in front of the deployment) and `noindex`? | Nothing in the build | `noindex` is now a P0 requirement (DP-3a, R0). Protection depends on the Vercel plan; the stakeholder decides. |
 | Q-RX2 | Reactions read-only on cards, toggled only on the workflow page (the Star toggles on both)? | R1 layout, D-R | As proposed: reacting should follow reading. |
 | Q-RX3 | Should "Worked for me" counts feed the `content:stale` workflow group (WF-41)? | Nothing | Later (P2): it needs a hosted read from a local script. |
