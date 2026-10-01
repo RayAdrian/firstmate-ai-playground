@@ -1069,3 +1069,281 @@ Same rules as §11: one worktree per branch, edit only owned paths, rebase on `m
 | Q-WF2 | Engineer headcount, as the WF-M1 denominator | WF-M1 reporting only | Same answer as §14 Q4. |
 | Q-WF3 | Does this personal GitHub plan enforce branch protection and code-owner review on this private repo? | Nothing; it changes R-WF4 from accepted to mitigated | Check repo settings once; record the answer in `CONTRIBUTING.md`. |
 | Q-WF4 | For `patch-id-rebase-reattest`: may a patch-id match justify re-posting gate statuses without re-running them, or does it only speed up review? | That one seed workflow | Describe whatever the current `AGENTS.md` rule allows; if the rule should change, that is a separate code-lane PR. |
+
+---
+
+## 17. Diagrams for lessons and workflows
+
+| | |
+|---|---|
+| Status | v1.0 addendum (2026-10-01). It gates the diagram build. Nothing in it is built yet. |
+| Source | The UI/UX agent's audit and kit spec (2026-10-01). Its decisions are adopted here as written. This section turns them into ACs, a contract and workstreams. |
+| Stakeholder motivation | "Most lessons are text-heavy and could benefit from diagrams" and "the workflows can benefit from remotions or diagrams". |
+| Target users | All three personas (§3), reading a lesson's Concept section or a workflow's "Why it works". Contributors and stewards authoring workflows (§16) are secondary users of the contract. |
+| Done (pilot) | The 4 pilot diagrams (§17.7) are on `main` and render on their lesson pages. Every DG P0 AC has a passing test. |
+| Done (full) | 17 diagrams on 16 lessons, 5 workflow diagrams and 2 workflow `watch` fields are on `main` (DG-M1). |
+| Relationship to §15 and §16 | Additive. §17.11 lists the amendments. §15's media stays the only motion; §17 adds static diagrams only. |
+
+**Fixed decisions (from the audit; do not reopen without a design review):**
+1. **Four fixed templates:** `flow`, `stack`, `boundary` and `lanes`. There is no general graph layouter. A 5th type needs a design review and an M0 contract change.
+2. "Side-by-side tool comparison" is **not** a diagram type. The Claude Code | Codex tabs and "Key differences" already do that job. `boundary` takes its place, because containment and trust zones are what prose explains worst.
+3. Diagrams are authored as **data** (YAML), validated by zod, and rendered **server-side as React SVG elements**. They are never SVG strings, images or client JS.
+4. Each diagram is emitted as **two SVGs**: a horizontal one shown at md+ and a vertical one shown below md, toggled by CSS. The server cannot see the viewport, so this is how we get zero JS and zero layout shift.
+5. **No Remotion or video for contributor workflows.** Video needs captions and transcripts (WCAG 1.2.1), the content lane has no UI/UX gate, workflows go stale in 60 days, and video is the most expensive format to re-verify. A workflow links to existing lesson media with `watch` instead.
+6. `/share-workflow` does **not** draft diagrams. Workflow steps are chores, and the content lane has no UI/UX gate. Stewards add diagrams in follow-up PRs.
+
+### 17.1 Problem and goal
+
+**Problem.** Lesson Concept sections explain loops, layers, trust zones and handoffs in prose. Those are spatial ideas, and in prose the reader has to hold the whole structure in their head. The §15 media covers only 5 lessons, and motion is the wrong tool for a static structure such as "what a worktree isolates and what it shares".
+
+**Goal (G6, new).** Every lesson whose core idea is a structure or a loop gets a static diagram that makes one claim, renders correctly at 360px, is fully readable as text, and costs no JS.
+
+**Non-goals.** Diagrams of tool comparisons, option tables, configs, prompts, First Mate tips, or anything the §15 animations already show; interactive or animated diagrams; author-drawn SVG or images; diagrams on `/curriculum`, `/news` or the `/workflows` index.
+
+### 17.2 Success metrics
+
+| # | Metric | Target |
+|---|---|---|
+| DG-M1 | Coverage | 17 diagrams on the 16 lessons in §17.7, 5 workflow diagrams and 2 `watch` fields (§17.8) on `main`. 0 diagrams on 1.2 and 5.1 and on the four "None" workflows. |
+| DG-M2 | Quality floor (every diagram on `main`) | Passes the label-fit and height check in both orientations; 0 serious or critical axe violations on its page; no layout shift caused by the figure; nothing focusable inside the SVG. |
+| DG-M3 | Comprehension (directional) | One question added to the §15.7 survey, for each diagram lesson the engineer completed: "The diagram helped me understand the concept" (1–5). Target: at least 60% of respondents rate it 4 or 5. A template type that falls below 40% gets a design review before more diagrams of that type are added. The team is small, so this is directional. Survey owner: Q4 (open). |
+
+### 17.3 The data contract
+
+A new file, `src/lib/contracts/diagram.ts` (M0-owned, G0), exports the schema below, the caps as named constants, the YAML parse options, and `estimateTextWidth(text, fontPx)` (about 0.55em per character plus 15% slack). The renderer and the label-fit check both use that function. Every cap is a zod hard fail.
+
+```ts
+// Shared text rules
+const line   = z.string().min(1).max(24);                        // one label line
+const label  = z.string().min(1).max(49)                         // at most 2 lines, split on "\n" only
+  .refine(s => s.split("\n").length <= 2 && s.split("\n").every(l => l.trim().length >= 1 && l.length <= 24));
+const sub    = z.string().min(1).max(28).refine(s => !s.includes("\n"));
+const edge   = z.string().min(1).max(16);                        // edge, crossing and handoff labels
+const nodeId = z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/).max(32);
+const node   = z.object({ id: nodeId, label, sub: sub.optional(), emphasis: z.literal(true).optional() }).strict();
+
+const common = {
+  id: nodeId,                                // unique per page; drives DOM ids (diagram-<id>-title-h / -v)
+  title: z.string().min(1).max(60),
+  summary: z.string().min(1).max(200),       // the one claim the diagram makes
+};
+
+const flow = z.object({ ...common, type: z.literal("flow"),
+  steps: z.array(node.extend({ next: edge.optional() })).min(2).max(6),     // `next` labels the arrow to the following step
+  loops: z.array(z.object({ from: nodeId, to: nodeId, label: edge }).strict()).max(2).default([]),   // back-edges
+  exits: z.array(z.object({ from: nodeId, label: edge, text: label, style: z.enum(["ok", "risk"]) }).strict()).max(2).default([]),
+}).strict();
+
+const stack = z.object({ ...common, type: z.literal("stack"),
+  layers: z.array(node).min(2).max(5),                                     // listed bottom (low) to top (high)
+  axis: z.object({ low: edge, high: edge }).strict(),
+}).strict();
+
+const zone = z.object({ id: nodeId, label: line, items: z.array(node).max(4).default([]) }).strict();
+const boundary = z.object({ ...common, type: z.literal("boundary"),
+  zones: z.array(zone.extend({ zones: z.array(zone).optional() })).min(1),   // at most 3 zones in total, nested one level deep
+  crossings: z.array(z.object({ from: nodeId, to: nodeId, label: edge,
+    style: z.enum(["normal", "risk"]).default("normal") }).strict()).max(4).default([]),
+}).strict();
+
+const lanes = z.object({ ...common, type: z.literal("lanes"),
+  lanes: z.array(z.object({ id: nodeId, label: line }).strict()).min(2).max(3),
+  steps: z.array(node.extend({ lane: nodeId, col: z.number().int().min(1).max(6) })).min(2),     // (lane, col) unique
+  handoffs: z.array(z.object({ from: nodeId, to: nodeId, label: edge.optional(),
+    style: z.enum(["normal", "risk"]).default("normal") }).strict()).max(4).default([]),
+  marker: z.object({ col: z.number().int().min(1).max(6), label: line, style: z.enum(["ok", "risk"]) }).strict().optional(),  // one at most
+}).strict();
+
+export const diagramSchema = z.discriminatedUnion("type", [flow, stack, boundary, lanes]);
+```
+
+Cross-field rules, in a `superRefine`, each a hard fail with a path: node ids are unique within a diagram; every `from`, `to` and `lane` reference resolves (a boundary crossing may reference an item or a zone); at most one `emphasis: true` per diagram; a flow loop's `to` is not after its `from`; boundary zones total at most 3 and a nested zone carries no `zones`; lanes `(lane, col)` pairs are unique.
+
+**Workflow fields (additive change to `src/lib/contracts/workflow.ts`, M0, G0).** Two optional frontmatter fields. Files without them stay valid.
+
+| Field | Rule |
+|---|---|
+| `diagram` | Optional. One object that passes `diagramSchema`. A fenced `diagram` block in a workflow **body** is invalid: it would break the §16.6 body rules (no extra `##`, Setup fences need `path` and `kind`, "Why it works" ≤ 800 chars). |
+| `watch` | Optional. `"<lesson-slug>/<media-id>"`. It must resolve to `public/media/lessons/<lesson-slug>/<media-id>.media.json`, that manifest must pass the §15.2 media contract, and its lesson must exist and not be archived. `WorkflowValidationContext` gains an optional `mediaIds` list (`<lesson-slug>/<id>`). As with the other context values, the check is skipped when the list is omitted. `watch` is never derived from `related_lesson`. |
+
+**Storage.** Lesson diagrams live in the lesson body markdown, which is already stored, so lessons need no migration. Workflows store parsed fields as columns (§16.8), so G0 adds an additive migration (`workflows.diagram jsonb null`, `workflows.watch text null`) and the row types in `rows.ts`.
+
+### 17.4 Authoring rules
+
+- **Lessons:** a fenced block with the info string `diagram`, whose body is YAML matching `diagramSchema`. It goes **inside `## Concept`**, after the prose it summarises. The lesson must read completely without it. At most **2** per lesson.
+- **Workflows:** the `diagram` frontmatter field only. It renders at the top of "Why it works".
+- One question per diagram, answered by its `summary`. Tool-neutral: nouns in nodes, verbs on edges. A risk is named in words (an exit, crossing or marker label), never by colour alone.
+
+### 17.5 Rendering requirements
+
+- **Pipeline.** `src/components/lesson/markdown.tsx` intercepts `code.language-diagram` fences and hands the text to the diagram kit. The kit parses it with `yaml` (already a dependency; no new dependencies) and `diagramSchema`, then emits React elements. Labels are React text nodes, so markup in a label renders as escaped text. The L-7 sanitize schema is unchanged.
+- **Two SVGs.** A horizontal SVG (viewBox width 640) inside `hidden md:block`, and a vertical SVG (viewBox width 296, container `max-w-[420px]`) inside `md:hidden`. `display:none` removes the hidden one from the accessibility tree. Both carry `width` and `height` attributes, and both are at most 560 high. At md+ the column is at least 672px, so the horizontal SVG never shrinks. `stack` is already vertical and uses the same layout in both. Below md, `flow` stacks vertically with loops routed on the right, and `lanes` turns lanes into columns with time running down.
+- **Frame.** A `<figure>` with `rounded-card border border-border bg-surface p-4 md:p-6`, full column width, and a `<figcaption>` (not a heading) holding the title and summary. Diagrams add no `h2` or `h3`, so the L-1 order, the `h2` ids and the right rail do not change.
+- **Visual language (token utilities only, so dark mode is free).** Nodes: `fill-surface-raised stroke-control-border` at 1px (at least 3:1 in both themes), radius 12. Labels: Satoshi 14/500 `fill-fg`; `sub` and edge labels 12 `fill-fg-muted`. Edges: 1.5px `stroke-fg-muted` with 8px filled arrowheads, one marker definition per colour. **Emphasis:** 2px `stroke-link`, `fill-accent-soft` and a bold label; colour is only the third cue. **Risk:** a dashed `stroke-danger`, an ✕ end-cap instead of an arrowhead, and the risk named in words. In forced-colours mode, strokes and text map to `CanvasText` and emphasis to `Highlight`. No hex, `rgb()` or named colours appear in the output.
+- **Accessibility.** Each SVG has `role="img"` and `aria-labelledby="<title-id> <desc-id>"`, with ids suffixed `-h` or `-v`. Nothing inside is focusable, and nothing animates. Below the drawing, a `<details>` with the summary "Diagram as text" is generated from the same YAML: an `<ol>` of steps or layers (low to high for `stack`), with loops and exits written out as sentences; zones as nested lists followed by the crossings; lanes as a list in column order with each step prefixed by its lane; and "(key)" and "(risk)" spelled out. This extends the `<details>` exception in DESIGN §6.3.2 (the Watch transcript) to a second named case.
+- **Placement.** Lessons: inline in Concept, where the fence is. The §15 Watch block stays after the whole Concept body. Workflows: the diagram first inside "Why it works", then the `watch` line, then the prose. ASSUMPTION: the `watch` line sits in "Why it works" rather than in the "At a glance" rail. D-G confirms or moves it (Q-DG1).
+- **`watch` line.** One line, "Watch: <manifest title> (Lesson X.Y) →", linking to `/lessons/<lesson-slug>#watch-<media-id>` (the Watch block's `h3` id, DESIGN §6.3.2). X.Y is computed as in WF-35.
+
+### 17.6 User stories and acceptance criteria
+
+#### Epic DG-A: The kit
+
+**DG-1 (P0)** As an engineer, I want a diagram next to the concept it summarises, so that I can see the structure instead of holding it in my head.
+- Given a fixture lesson with one `diagram` fence in Concept, the page renders one `figure[data-testid="diagram"]` at the fence's position, with a `figcaption` containing the title and the summary. The text before and after the fence renders in order around it.
+- The lesson's `h2` list and right rail are identical with and without the fence (asserted by comparing both renders).
+- A fixture for each of the 4 types renders every node, edge, loop, exit, zone, crossing, lane, handoff and marker it declares (unit test counting the rendered groups by `data-part`).
+
+**DG-2 (P0)** The diagram fits every screen without JS.
+- At 360px exactly one diagram `img` is visible, and it is the vertical SVG. At 768px and 1440px it is the horizontal SVG. `getByRole('img', { name })` resolves to one element at each width.
+- There is no horizontal page scroll at 360, 768 or 1440px. Both SVGs have `width` and `height` attributes, and neither viewBox is taller than 560.
+- Label text renders at 12px or more at 360px. At 768px the horizontal SVG renders at least 640px wide (never scaled down).
+- The kit ships no client JS: no module under the kit has `"use client"`, and adding a diagram does not change the lesson page's client bundle (unit test on the import graph).
+- `@nightly`: CLS on a diagram lesson stays under 0.05, and no layout-shift entry is attributed to the figure (same rig as D-4).
+
+**DG-3 (P0)** Labels never overflow.
+- `expectLabelsFit(diagram, layout)` (the G0 helper) passes for every diagram fixture and every diagram in `content/`, in both orientations: each label line, `sub` and edge label, measured with `estimateTextWidth`, fits its box, and the total height is at most 560.
+- A cap-maximum fixture per type (every label at 2 lines of 24 characters, every count at its cap) passes `expectLabelsFit`. Browser cross-check: in Playwright, with Satoshi loaded, no `text` element's `getBBox()` extends past its node rectangle in those fixtures, at 360px and 1440px.
+
+**DG-4 (P0)** The diagram is fully available as text.
+- Each SVG has `role="img"`. Its accessible name and description resolve to the title and summary through `aria-labelledby`, and the `-h` and `-v` ids are unique on the page.
+- The `figure` contains a `<details>`, closed by default, whose summary is "Diagram as text". Opened, it lists every node label, every loop, exit, crossing and handoff as a sentence, "(key)" on the emphasised node and "(risk)" on each risk element (unit test per type comparing the text with the YAML).
+- Nothing inside the SVG is focusable (no `tabindex`, `a` or `button`). Tab order goes from the content before the figure to the "Diagram as text" summary.
+- axe reports 0 serious or critical violations on a diagram lesson in the light and dark themes.
+- With `forcedColors: 'active'`, node strokes and label text have a computed colour that is not `transparent` or `none`.
+
+**DG-5 (P0)** Colour is never the only cue.
+- The emphasised node has a 2px stroke and a bold label as well as `fill-accent-soft`. Each risk element has a dashed stroke, an ✕ end-cap and a word label.
+- The server-rendered SVG markup contains no hex, `rgb(`, `hsl(` or named colour values; all colour comes from token classes (unit test).
+- The diagram colour pairs (node stroke and label on `surface-raised`, emphasis, risk) are added to the DESIGN §2.4 contrast ledger, with strokes at 3:1 or more and 12–14px text at 4.5:1 or more in both themes.
+
+**DG-6 (P0)** Diagram content renders safely.
+- A fixture label containing `<script>alert(1)</script>` and an `<img onerror>` renders as escaped text in both the SVG and "Diagram as text". The kit never uses `dangerouslySetInnerHTML`.
+- YAML anchors, aliases and custom tags are rejected (parse options in the contract), so a crafted fence cannot expand.
+
+#### Epic DG-B: Validation (seed and runtime)
+
+**DG-7 (P0)** A bad lesson diagram fails the seed (extends S-2).
+- `npm run seed` fails, writes nothing, and prints `<path>: diagram <id or #n>: <field>: <reason>` for each of: invalid YAML; a schema or cap failure; a cross-field failure; a label-fit or height failure; a duplicate diagram `id` in one lesson; more than 2 diagrams in a lesson; a `diagram` fence outside `## Concept`.
+- One unit test per rule, with a temp content folder, asserts the exit code, the message, and that no row changed.
+
+**DG-8 (P0)** A bad workflow diagram fails `workflows:validate` (extends WF-1 and WF-42).
+- `workflows:validate` exits 1 and names the field for: an invalid `diagram`; a label-fit or height failure; a `diagram` fence in the body; a malformed `watch`; a `watch` that resolves to no manifest, to an invalid manifest, or to a missing or archived lesson. One invalid fixture per rule.
+- These checks run **inside** `workflows:validate`, so they are part of the `validate` check run that the content lane requires (WF-20, WF-22). They are not a separate CI job that the lane could skip.
+- At `npm run seed`, a workflow that fails them is skipped with a warning and its existing row is left unchanged, as WF-42 requires. Valid files write `diagram` and `watch` to their columns, and running the seed twice gives no diff.
+
+**DG-9 (P0)** A bad diagram never breaks a page at runtime (as MD-3).
+- If a stored lesson fence or workflow `diagram` fails to parse or validate at render time, that diagram is skipped: no figure and no empty frame render, the server logs the lesson or workflow slug, the diagram id or index and the reason, and the rest of the page renders normally (unit test with invalid input).
+- If a workflow's `watch` manifest is missing or invalid at render time, the line is omitted and logged.
+
+#### Epic DG-C: Workflows
+
+**DG-10 (P0)** As a reader of a workflow, I want its mechanism drawn, so that I see why it works before I read the prose.
+- A fixture workflow with `diagram` renders the figure as the first child of the "Why it works" section, before its prose. A workflow without `diagram` renders "Why it works" exactly as before.
+- The diagram renders outside the tool tabs, the same for both tools (consistent with WF-36).
+
+**DG-11 (P0)** As a reader of a workflow, I want a link to the lesson video that shows the mechanism, so that I can watch it.
+- A fixture workflow with `watch: "l1-first-session/l1-first-session"` renders one link with the text "Watch: <manifest title> (Lesson 1.1) →" and the `href` `/lessons/l1-first-session#watch-l1-first-session`. Following it lands on the Watch block's `h3`.
+- A workflow without `watch` renders no link and no empty element.
+
+**DG-12 (P0)** `/share-workflow` never drafts a diagram.
+- `workflows:share draft --answers` output never contains a `diagram` or `watch` key, for any answer set (unit test over the existing share fixtures).
+
+**DG-13 (P1)** The merger is prompted to look at a diagram.
+- The workflow PR template's merger list gains one line: "If this PR adds or changes `diagram`: open the workflow at 360px and confirm the diagram matches the prose." A unit test asserts the line exists.
+
+### 17.7 Lesson pilot and rollout
+
+**Pilot (one diagram per type, one content PR).** It proves each template on real content before the rollout.
+
+| Lesson | Slug | Type | The one claim |
+|---|---|---|---|
+| 1.1 | `l1-first-session` | flow | Ask → Edit → Approve → Verify, with a "fails" loop back. (The §15 recording shows only the install.) |
+| 4.4 | `l4-hooks-skills-commands` | stack | The guarantee ladder: instructions < skills < hooks. |
+| 4.3 | `l4-mcp-servers` | boundary | Trust zones, with the injection path dashed as a risk. |
+| 5.3 | `l5-gated-merge-pipelines` | lanes | Review on A, push B, success refused: a static reference next to the §15 animation. |
+
+**Rollout (after the pilot merges; one content PR per level).**
+
+| Lesson | Type: concept |
+|---|---|
+| 1.3 `l1-permissions` | boundary: the sandbox is what it can reach; the approval gate on its edge is when it asks |
+| 2.1 `l2-context-files` | stack: home → repo root → package |
+| 2.2 `l2-memory-context` | boundary: context window vs disk; only disk survives a new session |
+| 2.3 `l2-feedback-loops` | flow: work → check → fix, until exit 0 |
+| 3.1 `l3-plan-first` | flow: draft → you attack → PLAN.md, with a send-back loop |
+| 3.2 `l3-tdd-with-agents` | flow: red → lock → implement → verify, plus a risk exit for "agent edits a test" |
+| 3.3 `l3-ai-code-review` | flow: triage; "can't reproduce" = unproven |
+| 3.4 `l3-headless-agents` | flow: input → `claude -p` → validate → retry (the recording shows the output; this shows the script) |
+| 4.1 `l4-subagents` | boundary: brief in, summary out, noise stays inside |
+| 4.2 `l4-parallel-worktrees` | boundary: what a worktree isolates vs what is shared (DB, ports); the animation does not show this |
+| 4.4 `l4-hooks-skills-commands` (2nd) | flow: where hooks fire |
+| 5.2 `l5-multi-agent-teams` | lanes: brief down to workers, report up |
+| 5.4 `l5-capstone` | flow: 4 phases, with a "gate red → new commit" loop |
+
+**No diagram:** 1.2 `l1-prompting-for-code` (the table and code already do it) and 5.1 `l5-model-routing` (the routing table is the diagram).
+
+### 17.8 Workflow diagrams and `watch`
+
+| Workflow | Field(s) |
+|---|---|
+| `patch-id-rebase-reattest` | `diagram` flow with risk exits: same patch-id? no overlap? CI green? Any "no" → full re-gate. The strongest candidate. Its wording must match the answer to Q-WF4. |
+| `headless-untrusted-input` | `diagram` stack: each layer removes one capability |
+| `opus-plan-sonnet-build` | `diagram` flow: a blocking finding goes to a FRESH implementer |
+| `parallel-worktree-team-path-ownership` | `diagram` boundary: owned paths per worktree vs frozen shared files; plus `watch: l4-parallel-worktrees/parallel-worktrees` |
+| `shared-db-lock-parallel-worktrees` | `diagram` lanes: A takes the lock, B waits, A dies, B breaks the stale lock. Only if the merged workflow describes a lock (the §16.11 ASSUMPTION); if it describes the rule-based version, the diagram shows that instead. |
+| `per-sha-gate-statuses` | `watch: l5-gated-merge-pipelines/gated-merge-pipelines` only (no new diagram) |
+| `db-reset-caveat-in-agents-md`, `node-version-agnostic-assertions`, `prd-first-pm-agent`, `uiux-gate-rubric` | None |
+
+### 17.9 Scope
+
+| Must (P0) | Should (P1) | Could (P2) | Won't |
+|---|---|---|---|
+| Contract, workflow fields, migration and fit helper (G0); the 4-template kit, two SVGs, tokens, "Diagram as text", markdown intercept, workflow placement and `watch` link (DG-1 to DG-6, DG-10, DG-11); seed, validate and runtime behaviour (DG-7 to DG-9); share never drafts (DG-12); the 4 pilot diagrams | The 13 rollout diagrams; the 5 workflow diagrams and 2 `watch` fields; the merger template line (DG-13) | A "has diagram" marker on `/curriculum`; diagrams in exercises; a `diagrams:preview` script that renders every content diagram on one local page | A 5th type without a design review; tool-comparison diagrams; animation or interactivity; author-supplied SVG or images; Remotion or video for workflows; `/share-workflow` drafting diagrams; diagrams on `/news` or the `/workflows` index |
+
+**Force-rank.** The kit plus the 4 pilot diagrams delivers standalone value: four of the most structural concepts become visible, and every later diagram is content only. The rollout is P1 because it is content, not because it is optional: G6 is met only when DG-M1 is.
+
+### 17.10 Workstreams and path ownership
+
+Same rules as §11: one worktree per branch, edit only owned paths, rebase on `main` before gates. Tests go in `tests/unit/<ws>/` and `tests/e2e/<ws>/`, with `<ws>` one of `g0 g1 g2 g3`. (These G names are the diagram workstreams. The §11 M1b content worktrees G1–G5 are finished and own nothing today.)
+
+| WS | Scope | Owns (paths) | Lane and gates | Depends on |
+|---|---|---|---|---|
+| **G0 (M0-owned, serial, first)** | `diagram.ts` (the §17.3 schema, caps, YAML parse options and `estimateTextWidth`); the additive `diagram` and `watch` fields and the `mediaIds` context in `workflow.ts`; the migration adding `workflows.diagram` and `workflows.watch`; the row types; the label-fit helper `expectLabelsFit(diagram, layout)`, which takes the renderer's layout function as an argument so G0 needs no geometry; the `AGENTS.md` test-ownership edit (`g0 g1 g2 g3`) | `src/lib/contracts/diagram.ts` (new), `src/lib/contracts/workflow.ts`, `src/lib/contracts/rows.ts`, `src/lib/contracts/index.ts`, `supabase/migrations/<ts>_workflow_diagrams.sql`, `tests/support/diagram-fit.ts`, `AGENTS.md`, `tests/unit/g0/` | Code (3 gates; UI/UX "N/A: no UI changes") | Nothing. Merges first. |
+| **D-G: DESIGN addendum** (docs PR; the UI/UX agent is the design owner) | DESIGN §6.3.3 "Diagram": the frame and figcaption, the 4 templates in both orientations at 360/768/1440, node and edge specs, emphasis and risk, forced colours, the "Diagram as text" summary styling, and the `watch` line with its final placement (Q-DG1). Also the §2.4 ledger rows (DG-5), the §6.3.2 `<details>` exception extended to "Diagram as text", and the §11 selector roles and names (`figure[data-testid="diagram"]`, the `data-part` values) | `docs/design/DESIGN.md` (§2.4 rows, the §6.3.2 exception sentence, a new §6.3.3, §11 additions only) | Docs PR | Nothing. Merges before G1. |
+| **G1: diagram kit** | The renderer: the 4 templates, a pure layout module with no React (so `scripts/` can import it), the two SVGs, the figure and "Diagram as text". The `language-diagram` intercept. The workflow "Why it works" placement and the `watch` link. The wiring of the diagram, fit and `watch` checks into the lesson seed, workflow ingest and `workflows:validate`. DG-1 to DG-13 | New: `src/components/diagram/**`, `tests/unit/g1/`, `tests/e2e/g1/`. **Granted edits:** `src/components/lesson/markdown.tsx` (the `language-diagram` branch only; the file stays WS-C's); one mount in W2's "Why it works" section component under `src/components/workflows/` and the `diagram`/`watch` select in `src/lib/workflows/queries.ts`; one call each in `scripts/seed/lib/lesson.ts`, `scripts/seed/lib/workflows.ts` and `scripts/workflows/validate.ts` (the W1 owner is a required reader of those diffs, as in the §16.14 hand-off); additive diagram fixtures in `tests/fixtures/` (existing fixture assertions stay green); the one line in `.github/PULL_REQUEST_TEMPLATE/workflow.md` (DG-13) | Code (3 gates) | G0 and D-G merged. The workflow mount needs W2 (`/workflows` UI, PR #32) on `main`. If W2 is late, the lesson half merges first and the workflow half follows in a second G1 PR. |
+| **G2: lesson diagrams** | The pilot PR (`content/diagrams-pilot`: 1.1, 4.4, 4.3, 5.3), then one PR per level (`content/l<n>-diagrams`) for the 13 rollout diagrams | The `## Concept` sections of the §17.7 lessons in `content/lessons/l<n>/` | **Code lane: all 3 gates.** `gate/uiux` reviews every diagram at 360/768/1440 against D-G, and `gate/browser` attaches screenshots of each. | G1 (lesson half) merged. The level PRs start after the pilot merges and run in parallel. |
+| **G3: workflow diagrams** | The 5 `diagram` and 2 `watch` additions in §17.8, one PR per workflow | `content/workflows/*.md` (the frontmatter `diagram` and `watch` fields only; no body edits) | **Content lane** (green `validate` and `gitleaks`, merged by the owner or a steward with `gate:merge`, no gate statuses), per the stakeholder rule for workflows | G1 (workflow half) merged, so `validate` enforces the diagram checks, and the seed workflows (W4, PR #30) on `main` |
+
+**Sequencing.** G0 and D-G in parallel, then G1, then G2's pilot and G3 in parallel, then G2's level PRs in parallel. The critical path is G0 → G1 → G2 pilot. G0 is the only PR that touches frozen paths. The pilot is also G1's acceptance test on real content: if a pilot diagram needs a template change, that change is a G1 PR, never a content workaround.
+
+### 17.11 Amendments to earlier sections
+
+| Section | Amendment |
+|---|---|
+| L-1 | Concept may contain diagram figures. They add no headings, so the order, `h2` ids and right rail are unchanged. |
+| L-7 | `diagram` fences render through the diagram kit as React elements, not as a CodeBlock. The no-raw-HTML rule holds (DG-6). |
+| S-2 | The all-or-nothing lesson validation includes DG-7. |
+| §16.6 | Two optional frontmatter fields, `diagram` and `watch` (§17.3). A `diagram` fence in a workflow body is invalid. |
+| §16.8 | `workflows` gains `diagram jsonb null` and `watch text null`. |
+| WF-33 | "Why it works" may open with a diagram and a `watch` line (DG-10, DG-11). |
+| WF-42 | The skip-on-invalid rule covers DG-8 failures. |
+| §10 | Must: the DG P0s and the pilot. Should: the rollout, the workflow additions and DG-13. Won't: as §17.9. |
+| §11 | New workstreams G0–G3 and D-G (§17.10). |
+| DESIGN §6.3.2 | The `<details>` exception names a second case, "Diagram as text" (D-G). |
+
+### 17.12 Risks
+
+| # | Risk | Impact | Mitigation |
+|---|---|---|---|
+| R-DG1 | **Workflow diagrams go through the content lane, which has no UI/UX gate**, so a diagram can reach `main` without a designer seeing it. | A cramped, overflowing or misleading diagram on a workflow page | The visual language lives in the gated renderer (G1, 3 gates); content can change only text and counts, within 4 fixed templates. Every cap is a zod hard fail, and the label-fit and height check runs **inside `workflows:validate`**, the check run the content lane requires (DG-8), so an overflowing diagram cannot merge. The merger line (DG-13) covers whether the diagram is true. Residual risk accepted: a workflow diagram's meaning gets one human look. |
+| R-DG2 | The width estimate (about 0.55em per character plus 15%) is wrong for Satoshi at some widths | Labels clip even though the unit test passed | The cap-maximum browser cross-check with the real font (DG-3), and the gate/browser screenshots at 360/768/1440 on G1 and G2 |
+| R-DG3 | Diagram creep: tool comparisons, configs, "one more type" | Visual noise and a growing renderer | A closed enum in an M0 contract; the §17.1 non-goals; at most 2 per lesson, enforced by the seed |
+| R-DG4 | A diagram goes stale while its prose is updated | The diagram contradicts its lesson | The diagram sits in the same file as the prose, so every prose PR shows it in the diff; workflow diagrams fall under the 60/180-day freshness rule with the rest of the file |
+| R-DG5 | §17 and §18 both append to this file in parallel | A merge conflict on the PRD | Docs-only conflict at the end of the file; the second PR to merge rebases and keeps both sections |
+
+### 17.13 Open questions
+
+| # | Question | Blocks | Recommended default |
+|---|---|---|---|
+| Q-DG1 | Where does the workflow `watch` line sit: at the top of "Why it works", or in the "At a glance" rail? | G1's workflow half only | D-G decides. This section assumes "Why it works". |
+| Q-DG2 | Who sends the DG-M3 survey question? | DG-M3 reporting only | Same answer as §14 Q4 and Q-MD2; send it with the §15.7 survey. |
