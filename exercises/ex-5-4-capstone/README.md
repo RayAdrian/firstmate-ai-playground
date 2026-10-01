@@ -19,8 +19,10 @@ npm test    # 3 passing tests: the baseline
 
 `gate-status.sh` and `gate-merge.sh` call GitHub, so gates and the gated merge need a real repo. Make it **private**, since First Mate client work never goes in a public repo, and needs `gh` authenticated (`gh auth login`):
 
+The first line keeps the bare repo as `local`. It only renames when an `origin` exists, so it is harmless if you used the panel's setup command, which creates no remote.
+
 ```bash
-git remote rename origin local
+git remote get-url origin >/dev/null 2>&1 && git remote rename origin local
 gh repo create fm-capstone --private --source . --remote origin --push
 for l in gate:browser-green gate:review-green gate:uiux-green; do gh label create "$l"; done
 ```
