@@ -1,0 +1,9 @@
+# Owners for review routing. Placeholder stewards are commented out until real GitHub handles exist
+# (GitHub flags unknown owners as errors). Initially the repo owner is the only active steward and
+# can merge alone (PRD §16.10.1, Q-WF1).
+
+/.github/ @RayAdrian
+
+# Workflow stewards (PRD §16.10.1). Rotate quarterly. Uncomment and replace the placeholders with real handles.
+/content/workflows/ @RayAdrian
+# /content/workflows/ @RayAdrian @fm-steward-1 @fm-steward-2 @fm-steward-3
