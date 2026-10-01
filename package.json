@@ -20,7 +20,9 @@
     "news:sources:check": "tsx scripts/news/check-sources.ts",
     "exercises:verify": "tsx scripts/exercises/verify.ts",
     "content:stale": "tsx scripts/seed/stale.ts",
-    "gate:merge": "bash scripts/gate-merge.sh"
+    "gate:merge": "bash scripts/gate-merge.sh",
+    "media:render": "npm --prefix media/remotion run render --",
+    "media:record": "bash media/tapes/record.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",
