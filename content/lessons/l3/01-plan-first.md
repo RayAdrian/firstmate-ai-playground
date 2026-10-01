@@ -37,6 +37,31 @@ Your job in the review is to attack the plan. Ask what it assumes, which file it
 
 Keep the approved plan in the repo as `PLAN.md`. It is a handoff note if the session dies, and reviewers can compare it with the diff.
 
+```diagram
+type: flow
+id: plan-review-loop
+title: From draft plan to PLAN.md
+summary: You attack the draft before any code exists. A weak plan goes back for another draft. Only a plan you accept becomes PLAN.md.
+steps:
+  - id: draft
+    label: Draft plan
+    sub: agent
+  - id: attack
+    label: Attack it
+    sub: assumptions
+    emphasis: true
+  - id: plan
+    label: PLAN.md
+    sub: committed
+  - id: code
+    label: Implement
+    sub: agent
+loops:
+  - from: attack
+    to: draft
+    label: send back
+```
+
 ### First Mate tip
 
 On client MVPs, the expensive mistakes are contract changes: an API response shape, a database column, an auth rule. Make "what breaks for existing callers" a required section of every plan. Paste the plan into the PR description so the client's tech contact can approve the approach before you spend days on it.
