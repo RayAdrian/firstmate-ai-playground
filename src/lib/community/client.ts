@@ -1,8 +1,8 @@
-import { z } from "zod";
 import {
   communityErrorSchema,
-  communityMineSchema,
-  communityMyStarSchema,
+  communityResponseSchema,
+  type CommunityMine,
+  type CommunityMyStar,
   type CommunityErrorCode,
   type CommunityRequest,
 } from "@/lib/contracts";
@@ -10,18 +10,8 @@ import {
 /** The route client (PRD 18.5 CM-8). Browser only: the one place the app talks to the community route. */
 
 export type CommunityFailure = CommunityErrorCode | "network";
-export type CommunityOk = {
-  mine: z.infer<typeof communityMineSchema>[];
-  stars: z.infer<typeof communityMyStarSchema>[];
-};
+export type CommunityOk = { mine: CommunityMine[]; stars: CommunityMyStar[] };
 export type CommunityResult = { ok: true; data: CommunityOk } | { ok: false; code: CommunityFailure };
-
-// Not `communityResponseSchema`: its first union member (`{ ok: true }`) strips `mine` and `stars` and always matches.
-const okSchema = z.object({
-  ok: z.literal(true),
-  mine: z.array(communityMineSchema).optional(),
-  stars: z.array(communityMyStarSchema).optional(),
-});
 
 const TIMEOUT_MS = 8_000;
 
@@ -46,9 +36,10 @@ export async function postCommunity(body: CommunityRequest): Promise<CommunityRe
       const err = communityErrorSchema.safeParse(json);
       return { ok: false, code: err.success ? err.data.error : "unavailable" };
     }
-    const parsed = okSchema.safeParse(json);
+    const parsed = communityResponseSchema.safeParse(json);
     if (!parsed.success) return { ok: false, code: "unavailable" };
-    return { ok: true, data: { mine: parsed.data.mine ?? [], stars: parsed.data.stars ?? [] } };
+    const data = parsed.data;
+    return { ok: true, data: { mine: "mine" in data ? data.mine : [], stars: "stars" in data ? data.stars : [] } };
   } catch {
     return { ok: false, code: "network" };
   } finally {

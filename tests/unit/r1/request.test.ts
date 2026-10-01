@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
+import { communityResponseSchema } from "@/lib/contracts";
 import { clientIp, createIpLimiter, isJsonContentType, isSameOrigin, readCappedText } from "@/lib/community/request";
 
 const h = (init: Record<string, string>) => new Headers(init);
@@ -55,5 +56,16 @@ describe("readCappedText", () => {
     expect(await readCappedText(ok, 10)).toBe("hello");
     const big = new Request("http://x.test", { method: "POST", body: "x".repeat(11) });
     expect(await readCappedText(big, 10)).toBeNull();
+  });
+});
+
+describe("communityResponseSchema (one source of truth for replies)", () => {
+  it("round-trips a full valid reply without stripping mine or stars", () => {
+    const mine = { ok: true, mine: [{ slug: "wf", starred: true, reactions: ["worked", "game_changer"] }] };
+    const stars = { ok: true, stars: [{ slug: "wf", removed: false }] };
+    expect(communityResponseSchema.parse(mine)).toEqual(mine);
+    expect(communityResponseSchema.parse(stars)).toEqual(stars);
+    expect(communityResponseSchema.parse({ ok: true })).toEqual({ ok: true });
+    expect(communityResponseSchema.safeParse({ ok: true, extra: 1 }).success).toBe(false);
   });
 });

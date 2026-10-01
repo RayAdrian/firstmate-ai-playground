@@ -116,9 +116,10 @@ export const communityMyStarSchema = z.object({
 });
 export type CommunityMyStar = z.infer<typeof communityMyStarSchema>;
 
+// Strict, so a reply carrying `mine` or `stars` can never match (and be stripped by) the bare `{ ok: true }` member.
 export const communityResponseSchema = z.union([
-  z.object({ ok: z.literal(true) }),
-  z.object({ ok: z.literal(true), mine: z.array(communityMineSchema) }),
-  z.object({ ok: z.literal(true), stars: z.array(communityMyStarSchema) }),
+  z.strictObject({ ok: z.literal(true) }),
+  z.strictObject({ ok: z.literal(true), mine: z.array(communityMineSchema) }),
+  z.strictObject({ ok: z.literal(true), stars: z.array(communityMyStarSchema) }),
 ]);
 export type CommunityResponse = z.infer<typeof communityResponseSchema>;
