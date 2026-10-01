@@ -12,7 +12,6 @@ export async function HomeContent() {
   const { levels } = await getCurriculum();
 
   const withLessons = levels.filter((l) => l.lessons.length > 0);
-  const lessonCount = withLessons.reduce((n, l) => n + l.lessons.length, 0);
   const continueLessons: ContinueLesson[] = withLessons.flatMap((level) =>
     level.lessons.map((lesson) => ({
       slug: lesson.slug,
@@ -26,12 +25,6 @@ export async function HomeContent() {
 
   return (
     <>
-      <p className="mt-2 text-base text-fg-muted md:text-lg">
-        {lessonCount > 0
-          ? `${lessonCount} hands-on ${lessonCount === 1 ? "lesson" : "lessons"}. Pick up where you left off.`
-          : "Hands-on lessons for Claude Code and Codex CLI."}
-      </p>
-
       <div className="mt-8 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-8">
         {first ? (
           <div className="lg:col-span-7">

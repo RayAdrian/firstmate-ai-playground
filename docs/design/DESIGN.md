@@ -676,8 +676,8 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 │ header                          [☰] │    │ header                                                                         │
 ├──────────────────────────────────────┤    ├────────────────────────────────────────────────────────────────────────────────┤
 │ Learn Claude Code and Codex CLI,     │    │ Learn Claude Code and Codex CLI, basics to orchestration          (h1, 36px)   │
-│ basics to orchestration      (h1 30) │    │ 18 hands-on lessons. Pick up where you left off.                  (fg-muted)   │
-│ 18 hands-on lessons…      (fg-muted) │    │                                                                                │
+│ basics to orchestration      (h1 30) │    │                                                                                │
+│                                      │    │                                                                                │
 │                                      │    │ ┌─ col-span-7 ─────────────────────────────┐ ┌─ col-span-5 ─────────────────┐ │
 │ ┌─ Continue card (accent-soft) ────┐ │    │ │ ┌─ Continue card (accent-soft) ────────┐ │ │ TODAY · Wed 30 Sep     eyebrow│ │
 │ │ CONTINUE                         │ │    │ │ │ CONTINUE                    eyebrow  │ │ │ ┌87┐ Anthropic ships Opus…  ↗ │ │
