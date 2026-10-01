@@ -141,6 +141,17 @@ describe("read (WF-16)", () => {
     expect(out.join("\n")).not.toContain("TOKEN=abc");
     expect(err.join("\n")).toMatch(/DENIED \.env\.local/);
   });
+  it("applies the allow rule and refuses case variants of ~/.ssh", async () => {
+    const home = path.join(tmp, "home");
+    fs.mkdirSync(path.join(home, ".ssh"), { recursive: true });
+    fs.writeFileSync(path.join(home, ".ssh/id_ed25519"), "PRIVATE-KEY");
+    fs.writeFileSync(path.join(home, "notes.md"), "notes");
+    for (const p of ["~/.ssh/id_ed25519", "~/.SSH/id_ed25519", "~/.Ssh/id_ed25519", "~/notes.md", "../home/.ssh/id_ed25519"]) {
+      out.length = 0;
+      expect(await main(["read", p], mkCtx({}, { HOME: home })), p).toBe(2);
+      expect(out.join("\n")).not.toContain("PRIVATE-KEY");
+    }
+  });
   it("refuses a symlink that points at a denied file", async () => {
     fs.writeFileSync(path.join(work, "prod.pem"), "KEY");
     fs.symlinkSync(path.join(work, "prod.pem"), path.join(work, "innocent.txt"));
@@ -252,30 +263,53 @@ describe("open-pr (WF-13/WF-16)", () => {
     expect(ghCalls()).toEqual([]);
     expect(git(work, "branch", "--list")).not.toContain("workflow/");
   });
-  it("makes a single-file commit on workflow/<slug>, pushes it and calls gh with the exact args", async () => {
+  it("commits exactly one file to workflow/<slug>, pushes it and calls gh with the exact args", async () => {
     await confirmed();
     fs.writeFileSync(path.join(work, "unrelated.txt"), "must not be staged");
     expect(await main(["open-pr", SLUG], mkCtx())).toBe(0);
     expect(out.join("\n")).toContain("https://github.com/example/repo/pull/999");
-    expect(git(work, "branch", "--show-current")).toBe(`workflow/${SLUG}`);
-    expect(git(work, "show", "--name-only", "--format=%s", "HEAD").split("\n")).toEqual([`workflow: Serialise the shared test database`, "", `content/workflows/${SLUG}.md`]);
+    expect(git(work, "show", "--name-status", "--format=%s", `workflow/${SLUG}`).split("\n")).toEqual([
+      "workflow: Serialise the shared test database",
+      "",
+      `A\tcontent/workflows/${SLUG}.md`,
+    ]);
+    expect(git(work, "rev-parse", `workflow/${SLUG}^`)).toBe(git(work, "rev-parse", "origin/main"));
     expect(git(remote, "branch", "--list").replace(/[* ]/g, "").split("\n")).toContain(`workflow/${SLUG}`);
     expect(ghCalls()).toEqual([
-      ["pr", "create", "--title", "Workflow: Serialise the shared test database", "--body-file", ".github/PULL_REQUEST_TEMPLATE/workflow.md", "--label", "workflow"],
+      ["pr", "create", "--head", `workflow/${SLUG}`, "--title", "Workflow: Serialise the shared test database", "--body-file", ".github/PULL_REQUEST_TEMPLATE/workflow.md", "--label", "workflow"],
     ]);
-    expect(git(work, "status", "--porcelain")).toBe("?? unrelated.txt");
+    // The user's checkout, index and untracked files are untouched.
+    expect(git(work, "branch", "--show-current")).toBe("main");
+    expect(git(work, "diff", "--cached", "--name-only")).toBe("");
+  });
+  it("never publishes what the user already staged (pre-staged .env.local, review B2)", async () => {
+    await confirmed();
+    fs.writeFileSync(path.join(work, ".env.local"), "SERVICE_ROLE_KEY=not-a-real-key");
+    git(work, "add", "-f", ".env.local");
+    git(work, "add", "-f", `content/workflows/${SLUG}.md`);
+    expect(await main(["open-pr", SLUG], mkCtx())).toBe(0);
+    const files = git(remote, "diff", "--name-only", "main", `workflow/${SLUG}`);
+    expect(files).toBe(`content/workflows/${SLUG}.md`);
+    expect(git(remote, "ls-tree", "-r", "--name-only", `workflow/${SLUG}`)).not.toContain(".env.local");
+  });
+  it("keeps the user's staged files staged afterwards", async () => {
+    await confirmed();
+    fs.writeFileSync(path.join(work, "staged.txt"), "mine");
+    git(work, "add", "staged.txt");
+    expect(await main(["open-pr", SLUG], mkCtx())).toBe(0);
+    expect(git(work, "diff", "--cached", "--name-only")).toBe("staged.txt");
   });
   it("on gh failure exits 1, keeps branch and commit, and prints the finishing command", async () => {
     await confirmed();
     expect(await main(["open-pr", SLUG], mkCtx({}, { GH_PR_FAIL: "1" }))).toBe(1);
     expect(git(work, "branch", "--list")).toContain(`workflow/${SLUG}`);
-    expect(git(work, "log", "-1", "--format=%s")).toContain("workflow:");
-    expect(err.join("\n")).toMatch(/To finish: gh pr create --title 'Workflow: Serialise the shared test database'/);
+    expect(git(work, "log", "-1", "--format=%s", `workflow/${SLUG}`)).toContain("workflow:");
+    expect(err.join("\n")).toMatch(/To finish: gh pr create --head workflow\/\S+ --title 'Workflow: Serialise the shared test database'/);
   });
   it("on push failure exits 1 and prints the push and gh commands", async () => {
     await confirmed();
     git(work, "remote", "set-url", "origin", path.join(tmp, "missing.git"));
-    // The switch needs origin/main, which still exists locally as a tracking ref.
+    // origin/main still exists locally as a tracking ref.
     expect(await main(["open-pr", SLUG], mkCtx())).toBe(1);
     expect(err.join("\n")).toContain(`To finish: git push -u origin workflow/${SLUG} && gh pr create`);
     expect(ghCalls()).toEqual([]);

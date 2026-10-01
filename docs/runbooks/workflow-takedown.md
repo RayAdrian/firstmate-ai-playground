@@ -8,9 +8,10 @@ PRD section 16.10.4. Use this when a file under `content/workflows/` (or its his
 2. Compute the `content_hash` (SHA-256 of the full file) of **every version** of the file in history, before any rewrite:
 
    ```bash
-   for c in $(git log --format=%H --follow -- content/workflows/<slug>.md); do
-     git show "$c:content/workflows/<slug>.md" 2>/dev/null | shasum -a 256 | cut -d' ' -f1
-   done
+   # --name-only prints the path the file had in each commit, so versions under an earlier name are hashed too
+   git log --follow --name-only --format='commit %H' -- content/workflows/<slug>.md |
+     awk '/^commit /{c=$2; next} NF{print c, $0}' |
+     while read -r c f; do git show "$c:$f" 2>/dev/null | shasum -a 256 | cut -d' ' -f1; done | sort -u
    ```
 
    If the seed stores a different hash than the one above, use the seed's definition (W1's `content_hash`) so the purge matches.

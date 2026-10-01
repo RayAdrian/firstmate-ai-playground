@@ -9,6 +9,7 @@
  */
 import { execFile } from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import readline from "node:readline";
 import { parseArgs } from "node:util";
@@ -16,14 +17,14 @@ import { REPO_URL, WORKFLOWS_DIR, workflowSlugSchema } from "../../src/lib/contr
 import {
   answersProblems,
   answersSchema,
-  buildGitPlan,
+  buildCommitPlan,
+  buildPublishPlan,
+  checkReadable,
   hasClientSafeConfirmed,
-  isDeniedPath,
   originMatches,
   readTitle,
   redactDraft,
   renderDraft,
-  resolveUserPath,
   slugify,
   withClientSafe,
   type PlanStep,
@@ -130,33 +131,23 @@ async function readCmd(paths: string[], ctx: Ctx): Promise<number> {
     ctx.err("usage: read <path>...");
     return 1;
   }
-  let denied = 0;
+  const home = ctx.env.HOME ?? os.homedir();
+  let repoRoot = ctx.cwd;
+  const top = await run("git", ["rev-parse", "--show-toplevel"], ctx.cwd, ctx.env);
+  if (top.code === 0 && top.stdout.trim()) repoRoot = top.stdout.trim();
+  let refused = 0;
   for (const p of paths) {
-    const d = isDeniedPath(p, { cwd: ctx.cwd });
-    if (d.denied) {
-      denied++;
-      ctx.err(`DENIED ${p}: ${d.reason}`);
-      continue;
-    }
-    const abs = resolveUserPath(p, ctx.cwd);
-    // A symlink must not smuggle a denied target past the name check.
-    let real = abs;
-    try {
-      real = fs.realpathSync(abs);
-    } catch {
-      ctx.err(`cannot read ${p}: not found`);
-      return 1;
-    }
-    const dr = isDeniedPath(real, { cwd: ctx.cwd });
-    if (dr.denied) {
-      denied++;
-      ctx.err(`DENIED ${p}: ${dr.reason} (via symlink)`);
+    // realpath first, deny list (case-insensitive) on the requested and resolved path, then the allow rule.
+    const r = checkReadable(p, { cwd: ctx.cwd, home, repoRoot });
+    if (r.denied || !r.real) {
+      refused++;
+      ctx.err(`DENIED ${p}: ${r.reason ?? "refused"}`);
       continue;
     }
     ctx.out(`=== ${p} ===`);
-    ctx.out(fs.readFileSync(real, "utf8"));
+    ctx.out(fs.readFileSync(r.real, "utf8"));
   }
-  return denied ? 2 : 0;
+  return refused ? 2 : 0;
 }
 
 async function draft(args: string[], ctx: Ctx): Promise<number> {
@@ -267,7 +258,42 @@ async function openPr(args: string[], ctx: Ctx): Promise<number> {
     ctx.err("open-pr refused: fix the problems above and run draft again");
     return 1;
   }
-  const plan = buildGitPlan(slug, title);
+
+  // Build the commit in a temporary index so the user's index and tree are never touched (review B2).
+  const base = await run("git", ["rev-parse", "--verify", "origin/main^{commit}"], ctx.cwd, ctx.env);
+  if (base.code !== 0) {
+    ctx.err("cannot resolve origin/main. Run: git fetch origin main");
+    return 1;
+  }
+  const baseSha = base.stdout.trim();
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "share-index-"));
+  const env = { ...ctx.env, GIT_INDEX_FILE: path.join(tmpDir, "index") };
+  let commit = "";
+  try {
+    let tree = "";
+    for (const step of buildCommitPlan(slug, title, baseSha)) {
+      const args2 = step.args[0] === "commit-tree" ? buildCommitPlan(slug, title, baseSha, tree)[3].args : step.args;
+      const r = await run(step.cmd, args2, ctx.cwd, env);
+      if (r.code !== 0) {
+        ctx.err(`${show(step)} failed (exit ${r.code}): ${lines(r.stderr)[0] ?? ""}`);
+        return 1;
+      }
+      if (step.args[0] === "write-tree") tree = r.stdout.trim();
+      if (step.args[0] === "commit-tree") commit = r.stdout.trim();
+    }
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+
+  // Verify before anything leaves the machine: the commit differs from origin/main by exactly this one added file.
+  const diff = await run("git", ["diff", "--name-status", "--no-renames", baseSha, commit], ctx.cwd, ctx.env);
+  const changed = lines(diff.stdout);
+  if (diff.code !== 0 || changed.length !== 1 || changed[0] !== `A\t${rel}`) {
+    ctx.err(`refusing to push: the commit must add exactly ${rel}, but it changes: ${changed.join("; ") || "(unknown)"}`);
+    return 1;
+  }
+
+  const plan = buildPublishPlan(slug, title, commit);
   let url = "";
   for (let i = 0; i < plan.length; i++) {
     const step = plan[i];
@@ -275,8 +301,8 @@ async function openPr(args: string[], ctx: Ctx): Promise<number> {
     if (r.code !== 0) {
       ctx.err(`${show(step)} failed (exit ${r.code}): ${lines(r.stderr)[0] ?? ""}`);
       ctx.err(
-        i >= 3
-          ? `The branch and commit are kept. To finish: ${i === 3 ? `${show(plan[3])} && ` : ""}${show(plan[4])}`
+        i >= 1
+          ? `The branch and commit are kept. To finish: ${i === 1 ? `${show(plan[1])} && ` : ""}${show(plan[2])}`
           : `Nothing was pushed. Fix the cause, then re-run: npm run workflows:share -- open-pr ${slug}`,
       );
       return 1;
