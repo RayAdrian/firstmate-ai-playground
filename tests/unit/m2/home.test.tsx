@@ -52,7 +52,7 @@ describe("HomeContent (DESIGN 6.1)", () => {
     expect(levelLinks.map((l) => l.getAttribute("href"))).toEqual(["/curriculum#level-1", "/curriculum#level-2"]);
     expect(levelLinks[1]).toHaveAccessibleName("Level 2 Context engineering");
     expect(screen.getByRole("link", { name: "View full curriculum" })).toHaveAttribute("href", "/curriculum");
-    expect(screen.getByText("4 hands-on lessons. Pick up where you left off.")).toBeInTheDocument();
+    expect(screen.queryByText(/Pick up where you left off/)).not.toBeInTheDocument();
   });
 
   it("server markup has no progress bars and no counts (P-5: no false 0)", async () => {
