@@ -569,7 +569,7 @@ Each worktree authors 3–4 lessons and exercises. Every lesson is verified agai
 **MD-2 (P0)** The player is native, quiet and accessible.
 - It uses `<video controls preload="none" playsinline>` with `poster`, `width` and `height`, plus one `<track kind="captions" srclang="en" default>`. There is no `autoplay` attribute and no JS-initiated `play()`, under any `prefers-reduced-motion` setting (asserted in both emulations).
 - The video encodes with no audio track. The transcript sits in a `<details>` element labelled "Transcript". It is rendered as plain text, never as markdown or HTML (L-7). It **describes what is shown on screen**, not just the caption text, because a video-only item needs a text alternative (WCAG 1.2.1).
-- The block reserves its box with `aspect-ratio` taken from the manifest's `width`/`height`. CLS on a media lesson stays under 0.05 (D-4), and LCP stays under 2.0s, within 100ms of the same lesson with its manifest removed.
+- The block reserves its box with `aspect-ratio` taken from the manifest's `width`/`height`. CLS on a media lesson stays under 0.05 (D-4). LCP stays under 2.0s, within 100ms of the same lesson with its manifest removed. This is a timing assertion, so its test is tagged `@nightly` like D-4.
 - axe reports 0 serious or critical violations on a media lesson. The player is reachable with the keyboard, and the `<details>` summary has a visible focus ring.
 
 **MD-3 (P0)** Bad or missing media never breaks a lesson.
@@ -582,9 +582,18 @@ Each worktree authors 3–4 lessons and exercises. Every lesson is verified agai
 
 **MD-5 (P0)** As a content author, I want terminal recordings to be scripted and re-recordable.
 - Each recording is a VHS `.tape` in `media/tapes/<id>.tape`, with a sidecar `<id>.captions.json` (cue text and times) and `transcript.txt`. `npm run media:record` re-records every tape, and `npm run media:record -- <id>` records one.
-- Tapes run with a throwaway `HOME` and `CODEX_HOME` in a temp directory, a fixed prompt, a fixed terminal size and theme, and fixed typing speed. No real username, path, account, email or token appears in any frame, VTT or transcript (a test greps the text outputs for `/Users/`, `@` and `sk-`).
-- **No-model tapes (1.1, 4.3):** re-recording on the same CLI versions produces an identical transcript and VTT, and the duration within ±1s. 4.3 uses a version-pinned, locally installed stdio MCP server, with no network at record time.
-- **Model tape (3.4):** one-word prompt, no tools enabled, and output filtered with `jq` to stable fields only (type, error flag, result text). Session ids, costs, token counts and timings are never shown. The record script fails, and writes nothing, if the model's reply is not the expected word. This tape needs a logged-in human (Q5 rule) and is never run in CI.
+- **Every** tape, including 3.4, runs with a throwaway `HOME` and `CODEX_HOME` in a temp directory, a fixed prompt, a fixed terminal size and theme, and fixed typing speed. The recorder's real `~/.claude*` and `~/.codex` are never read or written.
+- Each tape also writes a VHS text golden (`Output media/tapes/out/<id>.golden.txt`) of the terminal's final screen. This golden, not the hand-written transcript, is what the determinism checks diff.
+- No real username, home path, account, email or key appears in any frame, golden, VTT or transcript. A test greps the text outputs for an email regex, the recorder's `$USER` and `$HOME` (passed in at record time), and the `sk-` / `sk-ant-` key prefixes. It does not grep for a bare `@`, because npm scopes and `--help` text contain it legitimately.
+- Before a no-model tape is committed, V2 confirms that `claude --version`, `claude --help`, `claude mcp add/list` and the Codex equivalents print no first-run, onboarding or trust prompt in a fresh `HOME`. If one does, a hidden (`Hide`) setup step pre-seeds the minimal config that suppresses it, and the tape documents that step in a comment.
+- **No-model tapes (1.1, 4.3):** re-recording on the same CLI versions produces an identical golden and VTT, and the duration within ±1s. 4.3 uses a version-pinned, locally installed stdio MCP server, with no network at record time.
+- **Model tape (3.4): authentication by API key in env.**
+  - The maintainer exports `ANTHROPIC_API_KEY` and `OPENAI_API_KEY` in their own shell, then runs `npm run media:record -- l3-headless-agents`. This is a manual maintainer step, never run in CI or by `media:record` with no argument. The script exits non-zero with a message if either variable is unset.
+  - `claude -p` reads `ANTHROPIC_API_KEY` from the env. For Codex, a `Hide` setup step pipes `OPENAI_API_KEY` into `codex login --with-api-key` inside the temp `CODEX_HOME` (exact flag per the verified CLI version).
+  - The tape never types, echoes or `printenv`s a key. All credential steps sit inside `Hide`/`Show`. The key-prefix grep above, plus a check for the literal key values passed in at record time, fails the recording if a key leaks into any output.
+  - Claude runs with tools disabled (the verified CLI's empty-tool-list flag). Codex has no "no tools" switch, so it runs with `--sandbox read-only`, and the prompt tells it not to run commands.
+  - The prompt is one word. Output is filtered with `jq` to stable fields only (type, error flag, result text). Session ids, costs, token counts and timings are never shown.
+  - The record script fails, and writes nothing to `public/`, if either reply is not the expected word.
 
 **MD-6 (P0)** Media stays small.
 - Each MP4 is at most 4MB, each poster at most 60KB, and the pilot total under `public/media/` is at most 20MB. A Vitest test walks `public/media/lessons/**`, checks every manifest against the contract, checks that every referenced file exists, and enforces these caps. It runs in CI on every PR.
@@ -601,10 +610,11 @@ Each worktree authors 3–4 lessons and exercises. Every lesson is verified agai
 
 | WS | Owns (paths) | Delivers | Depends on |
 |---|---|---|---|
-| **V0 (M0-owned PR)** | `src/lib/contracts/media.ts` (new), `package.json` (`media:render`, `media:record` scripts only), `.gitattributes` (mp4/webp binary), `AGENTS.md` (adds `v1 v2 v3 v4` to the test-ownership list), `tests/unit/m0/media-*.test.ts` (MD-6 walker) | Contract and shared checks | Nothing. Merges first. |
-| **V1: Remotion** | `media/remotion/**` (its own `package.json` and lockfile, so Remotion stays out of the app's dependencies), `public/media/lessons/l4-parallel-worktrees/`, `public/media/lessons/l5-gated-merge-pipelines/`, `tests/unit/v1/` | MD-4 and the 4.2 and 5.3 items | V0, plus the **Remotion license decision (blocking)** |
-| **V2: VHS** | `media/tapes/**`, `public/media/lessons/{l1-first-session,l3-headless-agents,l4-mcp-servers}/`, `tests/unit/v2/` | MD-5 and the 1.1, 3.4 and 4.3 items | V0. **1.1 merges first**, because V3's E2E uses it. |
-| **V3: Watch block** | `src/components/lesson/` (block plus `server/media.ts` loader), `src/app/lessons/[slug]/page.tsx`, `tests/e2e/v3/`, `tests/unit/v3/` | MD-1, MD-2, MD-3 | V0. Build in parallel; merge after V2's 1.1 item is on `main`. |
+| **V0 (M0-owned PR)** | `src/lib/contracts/media.ts` (new), `package.json` (`media:render`, `media:record` scripts only), `.gitattributes` (mp4/webp binary), `AGENTS.md` (adds `v1 v2 v3 v4` to the test-ownership list), `tests/unit/m0/media-*.test.ts` (MD-6 walker), and **`media/**` exclusions in the root `tsconfig.json` `exclude`, the `eslint.config.mjs` ignores and the `vitest.config.mts` `exclude`** (the same pattern as `exercises/**`). With these exclusions, the Remotion project's own deps can never break the root `typecheck`, `lint` or `test`. V1 and V2 run their own checks inside `media/`. | Contract, shared checks and root-config isolation | Nothing. Merges first. |
+| **D-M: DESIGN addendum** (docs PR) | `docs/design/DESIGN.md` (a new §6.3.2 "Watch block": tokens, the frame, the `h3`, the "Transcript" summary, spacing at 360/768/1440, and the §11 selector roles and names) | The UI/UX gate's contract for V3 | Nothing. Merges before V3. |
+| **V1: Remotion** | `media/remotion/**` (its own `package.json` and lockfile, so Remotion stays out of the app's dependencies), `public/media/lessons/l4-parallel-worktrees/`, `public/media/lessons/l5-gated-merge-pipelines/`, `tests/unit/v1/` | MD-4 and the 4.2 and 5.3 items | V0 only. Company License confirmed 2026-10-01. |
+| **V2: VHS** | `media/tapes/**`, `public/media/lessons/{l1-first-session,l3-headless-agents,l4-mcp-servers}/`, `tests/unit/v2/` | MD-5 and the 1.1, 3.4 and 4.3 items. 3.4 is recorded manually by a maintainer (MD-5). | V0. **1.1 merges first**, because V3's E2E uses it. |
+| **V3: Watch block** | New files only: `src/components/lesson/media-block.tsx` and `src/components/lesson/server/media.ts`; the one-line insertion in `src/app/lessons/[slug]/page.tsx`; `tests/e2e/v3/` and `tests/unit/v3/`. All other files in `src/components/lesson/` stay WS-C's. | MD-1, MD-2, MD-3 | V0 and D-M. Build in parallel; merge after V2's 1.1 item is on `main`. |
 | **V4: Staleness** | `scripts/seed/stale.ts`, `scripts/seed/lib/media-stale.ts`, `tests/unit/v4/` | MD-7 | V0 |
 
 Tooling prerequisites, documented in `media/README.md` (V1 writes the Remotion part, V2 the VHS part): `brew install vhs` (brings ttyd and ffmpeg), and Node for Remotion's bundled Chrome. Rendering and recording happen on an engineer's Mac. CI only validates the committed output (MD-6).
@@ -613,7 +623,7 @@ Tooling prerequisites, documented in `media/README.md` (V1 writes the Remotion p
 
 1. **`gate/browser`:** the E2E suite plays `l1-first-session` (`currentTime` advances after a user-initiated play), checks that the captions track is `showing`, checks that no autoplay happens under either motion preference, and measures CLS under 0.05. At 360, 768 and 1440px there is no horizontal scroll and the reserved box matches the video. Screenshots of the block with the poster and with the transcript open.
 2. **`gate/uiux`:** the block's placement matches MD-1. The block frame, the `<details>` summary and any text inside rendered frames (Remotion titles, step labels, VHS theme) use DESIGN.md tokens: ink, accent and Satoshi in animations, and a theme close to the CodeBlock palette in recordings. No accent-2 for text. Captions are legible at 360px.
-3. **`gate/review`:** MD-6 caps hold. `source_hash` matches the committed sources. For no-model tapes, the reviewer re-records once and diffs the transcript and VTT. No personal data appears in the outputs. No edits outside owned paths, and in particular no other workstream's `public/media/lessons/<slug>/` folder.
+3. **`gate/review`:** MD-6 caps hold. `source_hash` matches the committed sources. For no-model tapes, the reviewer re-records once and diffs the VHS golden and the VTT. The hand-written transcript is not a determinism signal. No personal data appears in the outputs. No edits outside owned paths, and in particular no other workstream's `public/media/lessons/<slug>/` folder.
 
 ### 15.7 Pilot success metric and decision
 
@@ -625,7 +635,8 @@ Tooling prerequisites, documented in `media/README.md` (V1 writes the Remotion p
 
 | Risk | Mitigation |
 |---|---|
-| **Remotion license.** Remotion is free only for individuals and companies of 3 or fewer people. First Mate is probably larger, so it needs a paid Company License. | **Q-MD1 (stakeholder, blocks V1 only):** confirm headcount and buy the license before V1 starts. If it is declined, V1 is cut and 4.2 and 5.3 fall back to static diagrams in the lesson text. V2–V4 proceed either way. |
+| **Remotion license.** Remotion is free only for individuals and companies of 3 or fewer people, so First Mate needs a paid Company License. | **Resolved: license confirmed 2026-10-01 by the stakeholder (Q-MD1 closed).** V1 is unblocked. Renew the license if the media scope grows past the pilot. |
+| A model-tape API key leaks into a committed recording. | 3.4 authenticates by env key only (MD-5): credential steps are hidden, the outputs are grepped for key prefixes and literal key values, and the tape is never run in CI. |
 | Repo size growth: every re-render adds a new blob to history. | 20MB pilot cap (MD-6); re-render only when MD-7 flags an item; LFS reconsidered at 50MB (P2). |
 | CLI churn makes recordings wrong quickly, 3.4 fastest. | Versions captured at record time, MD-7 flags, and one-command re-record. 3.4 shows only stable fields. |
 | Model output drifts in 3.4. | The record script fails on any unexpected reply, so a wrong recording cannot be committed. |
