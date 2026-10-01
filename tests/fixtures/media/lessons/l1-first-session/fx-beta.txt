@@ -1,0 +1,3 @@
+Fixture transcript for beta.
+A solid blue rectangle is shown for three seconds.
+<b>not markup</b>

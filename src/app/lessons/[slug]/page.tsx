@@ -11,6 +11,8 @@ import {
 } from "@/components/lesson/lesson-sections";
 import { TITLE_SUFFIX } from "@/components/lesson/inline-text";
 import { Markdown } from "@/components/lesson/markdown";
+import { MediaBlock } from "@/components/lesson/media-block";
+import { getLessonMedia } from "@/components/lesson/server/media";
 import { computePrevNext } from "@/components/lesson/navigation";
 import { applyRouteHooks } from "@/components/lesson/server/test-hooks";
 import { getLessonPage } from "@/components/lesson/server/queries";
@@ -36,6 +38,7 @@ export default async function LessonPage({ params, searchParams }: PageProps<"/l
   if (!data) notFound();
 
   const { lesson, level, number, exercise, navLessons, today } = data;
+  const media = await getLessonMedia(lesson.slug);
   const urlTool = parseTool(query.tool);
   const prevNext = computePrevNext(navLessons, lesson.slug);
 
@@ -63,6 +66,7 @@ export default async function LessonPage({ params, searchParams }: PageProps<"/l
               Concept
             </h2>
             <Markdown source={lesson.concept_md} />
+            <MediaBlock items={media} />
           </section>
 
           <section aria-labelledby="tools" className="mt-10">
