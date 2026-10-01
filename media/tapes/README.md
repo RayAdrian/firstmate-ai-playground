@@ -6,7 +6,7 @@ Three terminal recordings, scripted with [VHS](https://github.com/charmbracelet/
 |---|---|---|
 | `l1-first-session` | `--version` and a `--help` excerpt for both CLIs | no |
 | `l4-mcp-servers` | `mcp add` and `mcp list` for both CLIs against a pinned local stdio server, and where each stores it | no |
-| `l3-headless-agents` | `claude -p --output-format json` and `codex exec --json` on a one-word prompt | **yes** (maintainer only) |
+| `l3-headless-agents` | `claude -p --output-format json` and `codex exec --json` on a one-word prompt | **yes** (maintainer only, logged-in CLIs) |
 
 ## Prerequisites
 
@@ -37,18 +37,18 @@ npm run media:record -- l4-mcp-servers    # one item
 ## Recording 3.4 (maintainer, manual)
 
 ```bash
-export ANTHROPIC_API_KEY=...   # your own shell, never in a file
-export OPENAI_API_KEY=...
 npm run media:record -- l3-headless-agents
 ```
 
-- Never run in CI, and never by `media:record` with no argument. The script exits non-zero if either key is unset.
-- Every credential step in the tape is inside `Hide`/`Show` and uses the variable name only. The Codex login (`codex login --with-api-key`, key on stdin) goes into the throwaway `CODEX_HOME`.
-- Claude runs with `--tools ""`. Codex runs with `--sandbox read-only`, and the prompt tells it not to run commands.
+No API keys. This tape uses your logged-in `claude` and `codex`, so it is the only tape that runs with your real `HOME`.
+
+- Log in first (`claude`, then `/login`; `codex login`). The script exits non-zero with a "log in to claude/codex first" message otherwise.
+- Never run in CI, and never by `media:record` with no argument.
+- It runs in an empty temp directory, in a clean shell that keeps only `HOME`, `USER` and `PATH`. Claude runs with `--safe-mode --tools "" --no-session-persistence`. Codex runs with `--sandbox read-only --ephemeral --ignore-user-config --ignore-rules`, and the prompt tells it not to run commands. `jq` keeps only stable fields.
 - The prompt asks for the word `pong`. `finalize.mjs` fails, and writes nothing to `public/`, unless both replies are exactly that.
-- The `jq` filter for the Codex event (`select(.item.type == "agent_message")`) is not verified without a key. If the first recording fails on it, fix the filter in the tape and the transcript.
-- Check the cue times in `l3-headless-agents.captions.json` against the new video: API latency changes the timing.
-- After recording, open the MP4 and check no frame shows a key or a home path.
+- The leak guard scans every frame's text, the VTT and the transcript for your username, home path, emails, ids and tokens. It is mandatory: a hit deletes the render and writes nothing.
+- Codex has no deterministic latency, so cue 3 and 4 times in `l3-headless-agents.captions.json` can drift by a few seconds. Check them against the new video.
+- After recording, open the MP4 and check no frame shows a home path, account or id.
 
 ## Files
 

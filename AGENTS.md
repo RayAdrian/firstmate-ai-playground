@@ -35,7 +35,7 @@ Next.js App Router, TypeScript strict, Tailwind, npm, local Supabase (ports 544x
 
 ## Lesson media (PRD §15)
 - Sources live in `media/` (excluded from root tsconfig, ESLint and vitest; its tools run their own checks): Remotion in `media/remotion/` (V1, own `package.json`), VHS tapes in `media/tapes/` (V2). Output is committed to `public/media/lessons/<lesson-slug>/<id>.{mp4,webp,vtt,txt,media.json}`. Never hand-edit `public/media/`; manifests are generated (schema: `src/lib/contracts/media.ts`).
-- `npm run media:render` runs the `render` script of `media/remotion` (all items). `npm run media:record [-- <id>]` runs `media/tapes/record.sh`. The model tape `l3-headless-agents` is recorded manually by a maintainer with API keys in env, never in CI.
+- `npm run media:render` runs the `render` script of `media/remotion` (all items). `npm run media:record [-- <id>]` runs `media/tapes/record.sh`. The model tape `l3-headless-agents` is recorded manually by a maintainer with their logged-in CLIs (real HOME, no API keys), never in CI.
 - Rendering and recording need an engineer's Mac (`brew install vhs`). CI only validates committed output through `tests/unit/m0/media-assets.test.ts` (MD-6: manifests match the contract, referenced files exist, MP4 <= 4MB, poster <= 60KB, total <= 20MB), which runs in `npm test`.
 - Ownership: V1 owns `media/remotion/**` and the 4.2/5.3 folders; V2 owns `media/tapes/**` and the 1.1/3.4/4.3 folders. Don't touch another workstream's folder.
 

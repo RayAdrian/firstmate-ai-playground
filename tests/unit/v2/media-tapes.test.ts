@@ -32,33 +32,34 @@ describe("tape sources (MD-5)", () => {
     expect(common).toMatch(/Set FontSize \d+/);
     expect(common).toContain("#0f1729"); // --fm-code-bg
     expect(common).toContain("#e6edf3"); // --fm-code-fg
-    // Every tape swaps to a clean shell on the throwaway HOME and CODEX_HOME.
+    // Every tape except the model tape swaps to a clean shell on the throwaway HOME and CODEX_HOME.
+    if (items[id].model_calls) return;
     expect(tape).toContain("HOME=/tmp/fm/home");
     expect(tape).toContain("CODEX_HOME=/tmp/fm/home/.codex");
   });
 
-  it("only the model tape sees API keys, and only by variable name inside Hide", () => {
+  it("only the model tape uses the real HOME (logged-in CLIs), restricted, with no API keys anywhere", () => {
     for (const id of ids) {
       const tape = read(path.join(tapes, `${id}.tape`));
-      const code = tape.split("\n").filter((l) => !l.trim().startsWith("#"));
-      const keyLines = code.filter((l) => /API_KEY/.test(l));
-      if (id !== "l3-headless-agents") {
-        expect(keyLines, id).toEqual([]);
-        continue;
-      }
-      expect(keyLines.length).toBeGreaterThan(0);
-      // Walk the tape: every key line must be inside a Hide ... Show span.
-      let hidden = false;
-      for (const l of code) {
-        if (/^Hide\b/.test(l)) hidden = true;
-        else if (/^Show\b/.test(l)) hidden = false;
-        else if (/API_KEY/.test(l)) expect(hidden, `key reference shown: ${l}`).toBe(true);
-      }
-      expect(code.join("\n")).not.toMatch(/sk-/);
-      expect(code.join("\n")).toContain('--tools ""');
-      expect(code.join("\n")).toContain("--sandbox read-only");
-      expect(code.join("\n")).toContain("--with-api-key");
+      const code = tape.split("\n").filter((l) => !l.trim().startsWith("#")).join("\n");
+      expect(code, id).not.toMatch(/API_KEY|--with-api-key|sk-/);
+      const realHome = /HOME="\$HOME"/.test(code);
+      expect(realHome, id).toBe(id === "l3-headless-agents");
     }
+    const code = read(path.join(tapes, "l3-headless-agents.tape"))
+      .split("\n")
+      .filter((l) => !l.trim().startsWith("#"))
+      .join("\n");
+    expect(code).toContain("--safe-mode");
+    expect(code).toContain('--tools ""');
+    expect(code).toContain("--sandbox read-only");
+    expect(code).toContain("--ignore-user-config");
+    expect(code).toContain("jq");
+    expect(code).toContain("cd /tmp/fm/work");
+    const rec = read(path.join(tapes, "record.sh"));
+    expect(rec).not.toMatch(/API_KEY/);
+    expect(rec).toMatch(/log in to claude first/);
+    expect(rec).toMatch(/log in to codex first/);
   });
 
   it("no-model tapes make no model call", () => {
@@ -102,7 +103,15 @@ describe("helpers", () => {
     expect(scanForLeaks("by someone", opts)).toHaveLength(1);
     expect(scanForLeaks("key sk-ant-xyz", opts).length).toBeGreaterThan(0);
     expect(scanForLeaks("key sk-proj123", opts)).toHaveLength(1);
-    expect(scanForLeaks("v abcd1234efgh5678", opts)).toEqual(["a literal API key value"]);
+    expect(scanForLeaks("v abcd1234efgh5678", opts)).toEqual(["a literal secret value"]);
+  });
+
+  it("scanForLeaks finds session ids, tokens and user home paths, but allows the throwaway home", () => {
+    expect(scanForLeaks('{"thread_id":"01a0f5f8-d8bb-7f91-8410-fd5d4cb5ed81"}')).toHaveLength(1);
+    expect(scanForLeaks("Bearer abcdefghijk")).toEqual(["a token"]);
+    expect(scanForLeaks("/Users/someone/repo")).toEqual(["a user home path"]);
+    expect(scanForLeaks("/home/someone/repo")).toEqual(["a user home path"]);
+    expect(scanForLeaks("File modified: /tmp/fm/home/.claude.json")).toEqual([]);
   });
 
   it("parses CLI versions", () => {

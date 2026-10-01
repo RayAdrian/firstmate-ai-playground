@@ -47,7 +47,7 @@ const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}
 
 /**
  * Looks for personal data in a text output. `user` and `home` are the recorder's $USER and
- * $HOME; `secrets` are literal key values. Never matches a bare "@" (npm scopes and --help
+ * $HOME; `secrets` are optional literal values to look for. Never matches a bare "@" (npm scopes and --help
  * text contain it legitimately). Returns human-readable findings that never include a secret.
  */
 export function scanForLeaks(text, { user, home, secrets = [] } = {}) {
@@ -55,10 +55,14 @@ export function scanForLeaks(text, { user, home, secrets = [] } = {}) {
   if (EMAIL.test(text)) findings.push("an email address");
   if (/\bsk-ant-/.test(text)) findings.push("an sk-ant- key prefix");
   if (/\bsk-[A-Za-z0-9_-]/.test(text)) findings.push("an sk- key prefix");
+  if (/\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/i.test(text)) findings.push("a session, thread or account id");
+  if (/\beyJ[A-Za-z0-9_-]{10,}/.test(text) || /\bBearer\s+\S{8,}/.test(text)) findings.push("a token");
+  // The throwaway recording home is /tmp/fm/home, which is fine to show.
+  if (/\/(?:Users|home)\/[^\s/]+/.test(text.replaceAll("/tmp/fm/home", ""))) findings.push("a user home path");
   if (user && user.length > 2 && text.includes(user)) findings.push("the recorder's $USER");
   if (home && home.length > 1 && home !== "/" && text.includes(home)) findings.push("the recorder's $HOME");
   for (const s of secrets) {
-    if (s && s.length >= 8 && text.includes(s)) findings.push("a literal API key value");
+    if (s && s.length >= 8 && text.includes(s)) findings.push("a literal secret value");
   }
   return findings;
 }
