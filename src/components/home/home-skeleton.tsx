@@ -1,13 +1,12 @@
 import { Skeleton } from "@/components/ui";
 
-/** Loading skeleton shaped like the home content: subtitle, Continue card, level cards, 3 news rows (DESIGN 6.1). */
+/** Loading skeleton shaped like the home content: Continue card, level cards, 3 news rows (DESIGN 6.1). */
 export function HomeSkeleton() {
   return (
     <div data-testid="home-skeleton" aria-busy="true">
       <span className="sr-only" role="status">
         Loading home…
       </span>
-      <Skeleton className="mt-2 h-12 w-2/3 md:h-7" />
       <div className="mt-8 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-8">
         <div className="lg:col-span-7">
           <Skeleton className="h-[172px] w-full rounded-card md:h-[188px]" />
