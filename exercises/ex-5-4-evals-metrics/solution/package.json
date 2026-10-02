@@ -1,0 +1,10 @@
+{
+  "name": "ex-5-4-evals-metrics",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"tests/*.test.js\"",
+    "evals": "node bin/run-evals.js"
+  }
+}

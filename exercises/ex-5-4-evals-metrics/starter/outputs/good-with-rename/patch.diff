@@ -1,0 +1,13 @@
+diff --git a/src/slugger.js b/src/slug.js
+similarity index 80%
+rename from src/slugger.js
+rename to src/slug.js
+--- a/src/slugger.js
++++ b/src/slug.js
+@@ -1,3 +1,7 @@
+-export const slugger = () => "";
++export function slugify(input) {
++  return String(input).toLowerCase().trim();
++}
++
++export const slugger = slugify;

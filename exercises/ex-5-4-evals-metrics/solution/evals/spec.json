@@ -1,0 +1,362 @@
+{
+  "task": "Add a slugify(input) function in src/slug.js with a test. Touch only src/, tests/ and docs/. Keep the change under 80 changed lines.",
+  "threshold": 0.8,
+  "cases": [
+    {
+      "id": "good-slugify",
+      "checks": [
+        {
+          "type": "file_exists",
+          "path": "src/slug.js"
+        },
+        {
+          "type": "file_contains",
+          "path": "src/slug.js",
+          "pattern": "export function slugify"
+        },
+        {
+          "type": "file_not_contains",
+          "path": "src/slug.js",
+          "pattern": "console\\.log"
+        },
+        {
+          "type": "diff_touches_only",
+          "diff": "patch.diff",
+          "allow": [
+            "src/**",
+            "tests/**",
+            "docs/**"
+          ]
+        },
+        {
+          "type": "max_diff_lines",
+          "diff": "patch.diff",
+          "max": 80
+        }
+      ]
+    },
+    {
+      "id": "good-with-rename",
+      "checks": [
+        {
+          "type": "file_exists",
+          "path": "src/slug.js"
+        },
+        {
+          "type": "file_contains",
+          "path": "src/slug.js",
+          "pattern": "export function slugify"
+        },
+        {
+          "type": "file_not_contains",
+          "path": "src/slug.js",
+          "pattern": "console\\.log"
+        },
+        {
+          "type": "diff_touches_only",
+          "diff": "patch.diff",
+          "allow": [
+            "src/**",
+            "tests/**",
+            "docs/**"
+          ]
+        },
+        {
+          "type": "max_diff_lines",
+          "diff": "patch.diff",
+          "max": 80
+        }
+      ]
+    },
+    {
+      "id": "good-small-docs",
+      "checks": [
+        {
+          "type": "file_exists",
+          "path": "src/slug.js"
+        },
+        {
+          "type": "file_contains",
+          "path": "src/slug.js",
+          "pattern": "export function slugify"
+        },
+        {
+          "type": "file_not_contains",
+          "path": "src/slug.js",
+          "pattern": "console\\.log"
+        },
+        {
+          "type": "diff_touches_only",
+          "diff": "patch.diff",
+          "allow": [
+            "src/**",
+            "tests/**",
+            "docs/**"
+          ]
+        },
+        {
+          "type": "max_diff_lines",
+          "diff": "patch.diff",
+          "max": 80
+        }
+      ]
+    },
+    {
+      "id": "mixed-rubric-and-checks",
+      "checks": [
+        {
+          "type": "file_exists",
+          "path": "src/slug.js"
+        },
+        {
+          "type": "file_contains",
+          "path": "src/slug.js",
+          "pattern": "export function slugify"
+        },
+        {
+          "type": "file_not_contains",
+          "path": "src/slug.js",
+          "pattern": "console\\.log"
+        },
+        {
+          "type": "diff_touches_only",
+          "diff": "patch.diff",
+          "allow": [
+            "src/**",
+            "tests/**",
+            "docs/**"
+          ]
+        },
+        {
+          "type": "max_diff_lines",
+          "diff": "patch.diff",
+          "max": 80
+        },
+        {
+          "type": "rubric",
+          "criteria": "The slugify function handles accents and empty input sensibly."
+        }
+      ]
+    },
+    {
+      "id": "missing-file",
+      "checks": [
+        {
+          "type": "file_exists",
+          "path": "src/slug.js"
+        },
+        {
+          "type": "file_contains",
+          "path": "src/slug.js",
+          "pattern": "export function slugify"
+        },
+        {
+          "type": "file_not_contains",
+          "path": "src/slug.js",
+          "pattern": "console\\.log"
+        },
+        {
+          "type": "diff_touches_only",
+          "diff": "patch.diff",
+          "allow": [
+            "src/**",
+            "tests/**",
+            "docs/**"
+          ]
+        },
+        {
+          "type": "max_diff_lines",
+          "diff": "patch.diff",
+          "max": 80
+        }
+      ]
+    },
+    {
+      "id": "out-of-scope-edit",
+      "checks": [
+        {
+          "type": "file_exists",
+          "path": "src/slug.js"
+        },
+        {
+          "type": "file_contains",
+          "path": "src/slug.js",
+          "pattern": "export function slugify"
+        },
+        {
+          "type": "file_not_contains",
+          "path": "src/slug.js",
+          "pattern": "console\\.log"
+        },
+        {
+          "type": "diff_touches_only",
+          "diff": "patch.diff",
+          "allow": [
+            "src/**",
+            "tests/**",
+            "docs/**"
+          ]
+        },
+        {
+          "type": "max_diff_lines",
+          "diff": "patch.diff",
+          "max": 80
+        }
+      ]
+    },
+    {
+      "id": "traversal-in-diff",
+      "checks": [
+        {
+          "type": "file_exists",
+          "path": "src/slug.js"
+        },
+        {
+          "type": "file_contains",
+          "path": "src/slug.js",
+          "pattern": "export function slugify"
+        },
+        {
+          "type": "file_not_contains",
+          "path": "src/slug.js",
+          "pattern": "console\\.log"
+        },
+        {
+          "type": "diff_touches_only",
+          "diff": "patch.diff",
+          "allow": [
+            "src/**",
+            "tests/**",
+            "docs/**"
+          ]
+        },
+        {
+          "type": "max_diff_lines",
+          "diff": "patch.diff",
+          "max": 80
+        }
+      ]
+    },
+    {
+      "id": "too-big",
+      "checks": [
+        {
+          "type": "file_exists",
+          "path": "src/slug.js"
+        },
+        {
+          "type": "file_contains",
+          "path": "src/slug.js",
+          "pattern": "export function slugify"
+        },
+        {
+          "type": "file_not_contains",
+          "path": "src/slug.js",
+          "pattern": "console\\.log"
+        },
+        {
+          "type": "diff_touches_only",
+          "diff": "patch.diff",
+          "allow": [
+            "src/**",
+            "tests/**",
+            "docs/**"
+          ]
+        },
+        {
+          "type": "max_diff_lines",
+          "diff": "patch.diff",
+          "max": 80
+        }
+      ]
+    },
+    {
+      "id": "leftover-debug",
+      "checks": [
+        {
+          "type": "file_exists",
+          "path": "src/slug.js"
+        },
+        {
+          "type": "file_contains",
+          "path": "src/slug.js",
+          "pattern": "export function slugify"
+        },
+        {
+          "type": "file_not_contains",
+          "path": "src/slug.js",
+          "pattern": "console\\.log"
+        },
+        {
+          "type": "diff_touches_only",
+          "diff": "patch.diff",
+          "allow": [
+            "src/**",
+            "tests/**",
+            "docs/**"
+          ]
+        },
+        {
+          "type": "max_diff_lines",
+          "diff": "patch.diff",
+          "max": 80
+        }
+      ]
+    },
+    {
+      "id": "empty-diff",
+      "checks": [
+        {
+          "type": "file_exists",
+          "path": "src/slug.js"
+        },
+        {
+          "type": "file_contains",
+          "path": "src/slug.js",
+          "pattern": "export function slugify"
+        },
+        {
+          "type": "file_not_contains",
+          "path": "src/slug.js",
+          "pattern": "console\\.log"
+        },
+        {
+          "type": "diff_touches_only",
+          "diff": "patch.diff",
+          "allow": [
+            "src/**",
+            "tests/**",
+            "docs/**"
+          ]
+        },
+        {
+          "type": "max_diff_lines",
+          "diff": "patch.diff",
+          "max": 80
+        }
+      ]
+    },
+    {
+      "id": "unknown-check",
+      "checks": [
+        {
+          "type": "file_exists",
+          "path": "src/slug.js"
+        },
+        {
+          "type": "tests_pass",
+          "command": "npm test"
+        }
+      ]
+    },
+    {
+      "id": "rubric-only",
+      "checks": [
+        {
+          "type": "rubric",
+          "criteria": "The slugify function handles accents and empty input sensibly."
+        }
+      ]
+    }
+  ]
+}
