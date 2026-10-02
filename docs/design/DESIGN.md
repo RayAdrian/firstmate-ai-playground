@@ -1916,7 +1916,10 @@ accent-2 is not used at all.
 | End-card code | 26 / 34 mono, max 5 lines | 400, code-fg | 6.7 (≥ 11.8 from md) | Recap |
 
 - **Legibility rule (TL-19 "legible at 360"):** everything the viewer needs *in the moment* (the title, the current point, the Try-this lead and code) renders at **≥ 12px at 360**. The other rows give context and are legible from md up. At 360 the cue repeats the orientation, and the card above repeats the content.
-- **Fit check:** `beats.ts`'s companion `layout.ts` measures with Remotion's `measureText` (the real Satoshi metrics, not an estimate) and picks 56 or 48 per point. A point that won't fit 3 lines at 48 is impossible under the 100-character cap. TL3 asserts it with a fixture of 100 "W"s, and if that fails, the cap is wrong, not the template.
+- **Fit check:** Fit is checked at render time on the real text: the TL;DR composition measures each bullet with `@remotion/layout-utils` `measureText` (Satoshi Medium, 48 px, the frame's text-box width) and fails the render, naming the lesson slug and bullet index, if a bullet needs more than 3 lines. `npm run seed -- --dry-run` still enforces the 100-character cap. Authors shorten a bullet that fails the render; the cap is not lowered.
+  - **The text-box width is 1080 px:** x 136 to 1216. That is the 1152px text-safe area (x 64–1216) less the 56px number badge and its 16px gap.
+  - The same measurement picks the size: 56 / 68 when the bullet fits 3 lines at 56 px, otherwise 48 / 60. The type scale is unchanged.
+  - The 100-character cap does not guarantee fit. Wide glyphs measure about 48 px each at 48 px, so 100 "W"s need 5 lines. That is why the check runs on the real text, not on a worst-case fixture.
 - **Inline code** in points: mono at 0.9em on an `accent-soft` pill (radius 10, padding 0 10px), text `fg`. Same rule as the card's `InlineText`: plain text plus code spans only.
 
 **Frames.**
