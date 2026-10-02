@@ -7,7 +7,7 @@
 | Date | 2026-09-29 |
 | Audience | Orchestrator agent (Opus), implementer agents (Sonnet), human reviewers |
 
-**Fixed decisions (do not reopen):** engineers-only audience; guided curriculum with hands-on exercises; the app makes no LLM calls for learners; 5 levels and 19 lessons; Claude Code and Codex CLI side by side in tabs; exercises live in `/exercises`; no auth; progress in localStorage; Next.js App Router + TypeScript + Tailwind + **local** Supabase; hybrid news pipeline (RSS, then `claude -p` scoring, then Supabase), run daily by launchd at ~07:00 Asia/Manila (changed from 08:00 by the owner on 2026-10-02); firstmate.tech brand; three-gate merge process.
+**Fixed decisions (do not reopen):** engineers-only audience; guided curriculum with hands-on exercises; the app makes no LLM calls for learners; 5 levels and 20 lessons; Claude Code and Codex CLI side by side in tabs; exercises live in `/exercises`; no auth; progress in localStorage; Next.js App Router + TypeScript + Tailwind + **local** Supabase; hybrid news pipeline (RSS, then `claude -p` scoring, then Supabase), run daily by launchd at ~07:00 Asia/Manila (changed from 08:00 by the owner on 2026-10-02); firstmate.tech brand; three-gate merge process.
 
 > **Amended 2026-10-01 by §18:** the app is deployed to Vercel with a hosted Supabase project (local Supabase remains the development and test database). "No auth" and "progress in localStorage" stand. See §18.11.
 
@@ -44,8 +44,8 @@ The app has no auth and no telemetry, so **the app cannot measure adoption by it
 
 **Definition of done (v1):**
 - Every P0 acceptance criterion passes as an automated Playwright or Vitest test.
-- All 19 lessons are seeded, and each has Claude Code and Codex CLI tabs, a differences callout and a `last_verified_on` date.
-- All 19 exercises have a starter, a reference solution and a checklist. `npm run exercises:verify` shows that each automated verify command fails on the starter and passes on the solution.
+- All 20 lessons are seeded, and each has Claude Code and Codex CLI tabs, a differences callout and a `last_verified_on` date.
+- All 20 exercises have a starter, a reference solution and a checklist. `npm run exercises:verify` shows that each automated verify command fails on the starter and passes on the solution.
 - The news pipeline has run on 5 consecutive scheduled mornings with no manual intervention.
 - Every merged PR has passed all three gates (§12).
 
@@ -66,7 +66,7 @@ The app has no auth and no telemetry, so **the app cannot measure adoption by it
 ### In scope
 - A curriculum browser, lesson pages with Claude Code / Codex CLI tabs, and exercise panels with interactive checklists.
 - localStorage progress: lessons completed, checklist state, bookmarks, tool-tab preference.
-- 19 lessons and 19 exercise projects under `/exercises`, each with a starter, a solution and a checklist.
+- 20 lessons and 20 exercise projects under `/exercises`, each with a starter, a solution and a checklist.
 - Repo-file content that is seeded to local Supabase by an idempotent seed command.
 - The news ingestion pipeline (fetch, dedupe, score with `claude -p`, upsert), a launchd schedule, a manual run command, the "Today's digest" view and a news archive with filters.
 - A design system that matches firstmate.tech; responsive and accessible.
@@ -163,7 +163,7 @@ Priorities are marked P0 (Must), P1 (Should) and P2 (Could). Every AC is written
 **E-4 (P0, repo-level)** Every exercise is valid.
 - Each `exercises/<slug>/` contains `README.md`, `CHECKLIST.md` (the source for the seeded checklist), `starter/`, `solution/` and `exercise.json` (slug, verify command or `"manual"`, required tool features).
 - `npm run exercises:verify` runs each automated verify command against `starter/`, where it must exit non-zero, and against `solution/`, where it must exit 0. This runs in CI.
-- At least 12 of the 19 exercises use an automated verify command.
+- At least 12 of the 20 exercises use an automated verify command.
 - No exercise needs a paid API key other than the learner's Claude or ChatGPT subscription. Setup with `npm i` completes in under 60s on a warm cache.
 
 **E-5 (P1)** `/exercises` index lists all exercises with level, lesson link, verify type and checklist progress.
@@ -347,7 +347,7 @@ Indexes: `news_items(digest_date, score desc)`, `news_items(scoring_status)`, `n
 
 ---
 
-## 7. Curriculum: 19 lessons
+## 7. Curriculum: 20 lessons
 
 Each lesson covers both tools. **Codex CLI capability notes marked (verify) must be checked against current Codex docs and release notes at authoring time.** If a feature is missing, the lesson uses the "no native equivalent" pattern (L-3). It never omits the tab.
 
@@ -372,6 +372,7 @@ Each lesson covers both tools. **Codex CLI capability notes marked (verify) must
 | 3.2 | TDD with agents | Write failing tests first, have the agent implement, and guard against the agent editing tests to pass. | `ex-3-2-tdd`: a pricing-rules module. Verify runs the tests, plus a check that the test files are unchanged from their committed hash. |
 | 3.3 | AI code review | Use Claude Code `/review` and `/security-review` against Codex `/review`. Write review instructions and triage findings. | `ex-3-3-review-seeded-bugs`: a diff with 5 seeded bugs, one of them a security issue. The checklist lists what a good review catches. |
 | 3.4 | Headless and scripted agents | `claude -p` and `codex exec`, structured (JSON) output, piping, and use in CI. This is the same mechanism the news pipeline uses. | `ex-3-4-headless-changelog`: a script that turns `git log` into a categorised changelog through headless mode in both tools. Verify checks the output schema. |
+| 3.5 | Long-running and unsupervised agents | Steer a multi-hour session (checkpoints, interrupting, `/rewind`, context health). Run work while you are away: background sessions, `/loop`, cloud routines, cron or launchd plus headless, Remote Control, and Codex cloud tasks. Decide what an unattended run must prove: tests the script runs itself, a diff summary, a command log and a stop condition. Choose permission modes for runs nobody watches, and never auto-merge. | `ex-3-5-verify-unattended-run`: a script that runs an agent task unattended but has no verification. Add a stop condition, a test gate, a failure for no change or edited tests, and evidence files, and remove the auto-merge. Verify runs against fake agents, with no model calls. |
 
 ### L4: Parallelism and extensibility
 | # | Lesson | Objective | Exercise |
@@ -429,7 +430,7 @@ Each lesson covers both tools. **Codex CLI capability notes marked (verify) must
 
 | Must (P0): v1 cannot ship without | Should (P1) | Could (P2) | Won't (v1) |
 |---|---|---|---|
-| Curriculum browse (C-1–3); lesson page with ARIA tabs, differences, copy, mark complete, safe markdown (L-1–7); exercise panel, checklist, compare, `exercises:verify` (E-1–4); localStorage contract with corruption, unavailable-storage and hydration safety (P-1–5); digest, unscored section, stale state, archive (N-1–4); fetch, dedupe, score, failure handling, launchd, manual run (I-1–5); idempotent validated seed, no-redeploy content, test fixtures (S-1–5); brand, a11y, responsive, performance (D-1–4); all 19 lessons and exercises | Continue CTA (C-4); verified badges (C-5); bookmarks (L-8, N-5); exercises index (E-5); export/import (P-6); reset (P-7); home digest (N-6); failure notifications (I-6); `content:stale` (S-6); dark mode (D-5) | Relevance feedback thumbs (I-7); lesson search; digest to Slack or email; per-lesson notes field | Auth; LLM sandbox; prod deploy; CMS; telemetry; grading or certificates; other AI tools; near-duplicate news detection |
+| Curriculum browse (C-1–3); lesson page with ARIA tabs, differences, copy, mark complete, safe markdown (L-1–7); exercise panel, checklist, compare, `exercises:verify` (E-1–4); localStorage contract with corruption, unavailable-storage and hydration safety (P-1–5); digest, unscored section, stale state, archive (N-1–4); fetch, dedupe, score, failure handling, launchd, manual run (I-1–5); idempotent validated seed, no-redeploy content, test fixtures (S-1–5); brand, a11y, responsive, performance (D-1–4); all 20 lessons and exercises | Continue CTA (C-4); verified badges (C-5); bookmarks (L-8, N-5); exercises index (E-5); export/import (P-6); reset (P-7); home digest (N-6); failure notifications (I-6); `content:stale` (S-6); dark mode (D-5) | Relevance feedback thumbs (I-7); lesson search; digest to Slack or email; per-lesson notes field | Auth; LLM sandbox; prod deploy; CMS; telemetry; grading or certificates; other AI tools; near-duplicate news detection |
 
 **Force-rank rationale.** The curriculum, tabs, exercises and localStorage progress deliver standalone value by themselves (G1). The news pipeline is P0 because it is a fixed stakeholder decision and it feeds G4 through the tool release feeds. Everything in P1 is convenience on top of a working loop.
 
@@ -480,7 +481,7 @@ Each worktree authors 3–4 lessons and exercises. Every lesson is verified agai
 **Exit:** all P0 ACs are green.
 
 ### M3: Content complete and burn-in
-- All 19 lessons are seeded from real content, and `exercises:verify` is green.
+- All 20 lessons are seeded from real content, and `exercises:verify` is green.
 - launchd is installed on the stakeholder Mac, followed by a **5-morning burn-in** in which M5 must hold.
 - The stakeholder reviews one digest (M6 baseline) and signs off.
 
@@ -515,7 +516,7 @@ Each worktree authors 3–4 lessons and exercises. Every lesson is verified agai
 | `claude -p` usage cost or quota on the stakeholder's subscription | Throttling | Batching, an 80-item cap, the HN prefilter and the 7-day backfill guard |
 | Local-only Supabase means the news DB exists only on the stakeholder's Mac | Other engineers see no daily news | **Q1** |
 | localStorage-only progress means no adoption data | M1/M2 unmeasurable | Export (P-6) plus the survey. The team accepts self-reporting. |
-| Content volume (19 lessons and 19 working exercises) is the long pole | Late M3 | M1b runs parallel from day 1, and `exercises:verify` catches broken exercises in CI |
+| Content volume (20 lessons and 20 working exercises) is the long pole | Late M3 | M1b runs parallel from day 1, and `exercises:verify` catches broken exercises in CI |
 | Brand contrast: accent-2 and the date gray fail AA | a11y gate failures | Restricted use (D-1) and a darker metadata token |
 
 ---
@@ -1286,6 +1287,7 @@ Cross-field rules, in a `superRefine`, each a hard fail with a path: node ids ar
 | 3.2 `l3-tdd-with-agents` | flow: red → lock → implement → verify, plus a risk exit for "agent edits a test" |
 | 3.3 `l3-ai-code-review` | flow: triage; "can't reproduce" = unproven |
 | 3.4 `l3-headless-agents` | flow: input → `claude -p` → validate → retry (the recording shows the output; this shows the script) |
+| 3.5 `l3-long-running-agents` | flow: agent run → script checks → morning review → you merge, with a risk exit when any check fails |
 | 4.1 `l4-subagents` | boundary: brief in, summary out, noise stays inside |
 | 4.2 `l4-parallel-worktrees` | boundary: what a worktree isolates vs what is shared (DB, ports); the animation does not show this |
 | 4.4 `l4-hooks-skills-commands` (2nd) | flow: where hooks fire |

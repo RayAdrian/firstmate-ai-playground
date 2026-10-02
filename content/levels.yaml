@@ -10,7 +10,7 @@ levels:
   - number: 3
     slug: l3
     title: Agentic workflows
-    summary: Plan first, drive work with tests, review with agents and script them headlessly.
+    summary: Plan first, drive work with tests, review with agents, script them headlessly and run them unattended.
   - number: 4
     slug: l4
     title: Parallelism and extensibility

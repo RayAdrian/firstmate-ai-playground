@@ -2,7 +2,7 @@
 
 An internal playground for learning Claude Code and Codex CLI, from your first agent session to gated multi-agent pipelines, plus a daily AI news digest scored for its relevance to First Mate.
 
-- **Curriculum:** 5 levels, 19 lessons and 19 hands-on exercises. Each lesson shows Claude Code and Codex CLI side by side.
+- **Curriculum:** 5 levels, 20 lessons and 20 hands-on exercises. Each lesson shows Claude Code and Codex CLI side by side.
 - **News:** a daily digest of model, tooling and framework news, each item with a "why it matters for First Mate" note.
 - **Workflows:** setups that worked for a First Mate engineer (a hook, a subagent, a gate script and the prompt behind it), written down so you can copy them. Readers can star a workflow and react to it.
 

@@ -1,0 +1,4 @@
+#!/bin/sh
+# Test shim: records every git call, then runs the real git.
+echo "$@" >> "$FM_GIT_LOG"
+exec "$FM_REAL_GIT" "$@"

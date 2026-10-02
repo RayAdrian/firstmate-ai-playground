@@ -1,0 +1,19 @@
+{
+  "slug": "ex-3-5-verify-unattended-run",
+  "title": "Verify an unattended run: stop condition and test gate",
+  "goal": "Finish a script that runs an agent task with nobody watching. Add a stop condition, a test gate the script runs itself, a failure for no change or edited tests, evidence files for the morning review, and remove the auto-merge. Verify runs offline against fake agents and checks each outcome.",
+  "verify": "npm test",
+  "required_tool_features": ["headless-exec", "permission-modes"],
+  "setup_cmd": "D=~/fm-ex/ex-3-5-verify-unattended-run; if [ -e \"$D\" ]; then echo \"Already set up at $D. Run: cd $D (or delete it first to start over).\"; else mkdir -p ~/fm-ex && cp -r exercises/ex-3-5-verify-unattended-run/starter \"$D\" && cd \"$D\" && git init -q -b main && git add -A && git -c user.name=fm -c user.email=fm@example.com commit -qm baseline; fi",
+  "starter_prompts": {
+    "claude": "Read run-unattended.sh and tests/run-unattended.test.js. Edit only run-unattended.sh so that npm test passes. Requirements: kill the agent after MAX_SECONDS (exit 2, no use of the timeout command); exit 3 if the agent exits non-zero; exit 4 if nothing changed; exit 5 if a file under a PROTECTED prefix changed; run TEST_CMD yourself after the agent and exit 1 if it fails; write run.log, agent.log, tests.log, diff.stat, diff.patch and verdict to RUN_DIR before judging; remove the merge so the work stays committed on the agent branch and nothing is pushed or merged. Do not edit anything under tests/. Run npm test and report the result.",
+    "codex": "Read run-unattended.sh and tests/run-unattended.test.js. Edit only run-unattended.sh so that npm test passes. Requirements: kill the agent after MAX_SECONDS (exit 2, no use of the timeout command); exit 3 if the agent exits non-zero; exit 4 if nothing changed; exit 5 if a file under a PROTECTED prefix changed; run TEST_CMD yourself after the agent and exit 1 if it fails; write run.log, agent.log, tests.log, diff.stat, diff.patch and verdict to RUN_DIR before judging; remove the merge so the work stays committed on the agent branch and nothing is pushed or merged. Do not edit anything under tests/. Run npm test and report the result."
+  },
+  "solution_notes": [
+    "The script, not the agent, decides the verdict. It runs TEST_CMD itself and records TEST_EXIT, so a lying agent (\"all tests pass, ready to merge\") gets a FAIL.",
+    "Failure has to be visible: a timeout, a non-zero agent exit, an empty diff and an edited protected path each have their own exit code and a one-line reason in the verdict file. Editing the tests is checked separately because it is the cheapest way for an agent to turn the gate green without fixing anything.",
+    "The stop condition is a polling loop with kill, not the timeout command, because macOS has none. Job control gives the agent its own process group, so a stop also kills what the agent started.",
+    "Evidence is written before the run is judged, and the work is committed to an agent/<run> branch. A failed run can still be reviewed, and a passing one waits for a person: the script never merges, pushes or opens a PR.",
+    "The tests use fake agents and git and gh shims, so verify is free and offline, and it also proves nothing was merged or pushed."
+  ]
+}
