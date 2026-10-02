@@ -24,7 +24,7 @@ tldr:
     - "Ban shortcuts there too: no `@ts-ignore`, and no editing tests to get green."
     - "Instructions can be skipped; a `Stop` hook that exits 2 blocks until checks pass."
   try_this:
-    all: { kind: prompt, text: "Run npm run typecheck, npm run lint and npm test. Report what fails. Do not edit files." }
+    all: { kind: prompt, text: "Run npm run typecheck, npm run lint and npm test; report failures." }
 ---
 
 ## Concept

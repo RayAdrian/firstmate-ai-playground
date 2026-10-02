@@ -24,8 +24,7 @@ tldr:
     - "Give every unattended run a stop condition and a cap on turns, time or spend."
     - "Decide what evidence a run must leave (log, diff, test output) before you trust it."
   try_this:
-    claude: { kind: command, text: "claude agents" }
-    codex: { kind: command, text: "codex cloud list" }
+    all: { kind: command, text: "git add -A && git commit -m \"checkpoint before agent run\"" }
 ---
 
 ## Concept

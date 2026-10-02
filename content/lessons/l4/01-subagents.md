@@ -24,8 +24,8 @@ tldr:
     - "Scope each subagent: a `tools` allowlist in Claude Code, `sandbox_mode` in Codex."
     - "Stay in one session for small tasks; delegate when output would flood your context."
   try_this:
-    claude: { kind: prompt, text: "Use the test-runner subagent to run the suite and tell me what is failing" }
-    codex: { kind: prompt, text: "Spawn the test-runner agent to run the suite and tell me what is failing." }
+    claude: { kind: prompt, text: "Use the test-runner subagent to run the suite" }
+    codex: { kind: prompt, text: "Spawn the test-runner agent to run the suite." }
 ---
 
 ## Concept

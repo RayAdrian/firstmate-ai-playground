@@ -23,7 +23,7 @@ tldr:
     - "Check outcomes in code first: tests pass, only expected files change, cost stays under a cap."
     - "Track lead time, review rounds, escaped defects and cost per merged PR."
   try_this:
-    all: { kind: command, text: "gh pr list --state merged --limit 100 --json number,createdAt,mergedAt,additions,deletions" }
+    all: { kind: command, text: "gh pr list --state merged --json number,createdAt,mergedAt" }
 ---
 
 ## Concept

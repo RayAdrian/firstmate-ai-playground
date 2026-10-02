@@ -25,7 +25,7 @@ tldr:
     - "Import with `@AGENTS.md` inside `CLAUDE.md` so both tools read one set of rules."
   try_this:
     claude: { kind: prompt, text: "/context" }
-    codex: { kind: prompt, text: "Summarize the project instructions you loaded, file by file." }
+    codex: { kind: prompt, text: "Summarize the project instructions you loaded." }
 ---
 
 ## Concept

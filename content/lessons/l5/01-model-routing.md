@@ -24,7 +24,7 @@ tldr:
     - "Time and cost one real task on each setup before you standardize on it."
   try_this:
     claude: { kind: command, text: "claude --model sonnet --effort medium" }
-    codex: { kind: command, text: "codex debug models | jq -r '.models[] | select(.visibility==\"list\") | .slug'" }
+    codex: { kind: prompt, text: "/model" }
 ---
 
 ## Concept
