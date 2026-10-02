@@ -129,6 +129,7 @@ export type ExerciseListItem = {
   lessonTitle: string;
   lessonNumber: string;
   automated: boolean;
+  repoPath: string;
   itemIds: string[];
 };
 
@@ -140,7 +141,7 @@ export const getExerciseList = cache(async (): Promise<ExerciseListItem[]> => {
     dbRead(
       getReadClient()
         .from("exercises")
-        .select("slug, title, lesson_id, verify_cmd, checklist")
+        .select("slug, title, lesson_id, verify_cmd, repo_path, checklist")
         .is("archived_at", null),
     ),
   ]);
@@ -156,6 +157,7 @@ export const getExerciseList = cache(async (): Promise<ExerciseListItem[]> => {
           lessonTitle: lesson.title,
           lessonNumber: lesson.number,
           automated: ex.verify_cmd !== null,
+          repoPath: ex.repo_path,
           itemIds: ex.checklist.map((c) => c.id),
         });
       }

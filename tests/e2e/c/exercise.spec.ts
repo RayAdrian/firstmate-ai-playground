@@ -151,11 +151,11 @@ test.describe("/exercises (E-5)", () => {
     await page.goto("/exercises");
     await waitProgressHydrated(page);
     const table = page.getByRole("table", { name: "Exercises" });
-    await expect(table.getByRole("columnheader")).toHaveText(["Level", "Exercise", "Lesson", "Verify", "Progress"]);
+    await expect(table.getByRole("columnheader")).toHaveText(["Level", "Exercise", "Lesson", "Verify", "Progress", "Repo"]);
     const rows = table.locator("tbody tr");
     await expect(rows).toHaveCount(2);
     await expect(rows.nth(0)).toContainText("L1");
-    await expect(rows.nth(0).getByRole("link")).toHaveAttribute("href", "/lessons/l1-first-session#exercise");
+    await expect(rows.nth(0).getByRole("link").first()).toHaveAttribute("href", "/lessons/l1-first-session#exercise");
     await expect(rows.nth(0)).toContainText("Auto");
     await expect(rows.nth(0)).toContainText("2 / 3");
     await expect(rows.nth(1)).toContainText("L2");
