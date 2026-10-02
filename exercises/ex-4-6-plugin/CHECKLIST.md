@@ -1,0 +1,9 @@
+- [ ] c1: `plugin/.claude-plugin/plugin.json` has `name` `fm-team-kit`, a pinned `version`, a description and an author, and nothing else is inside `.claude-plugin/`
+- [ ] c2: The skill is at `plugin/skills/pr-description/SKILL.md` with a single-line description that has a "Use when ..." clause
+- [ ] c3: The draft command was moved out of `.claude-plugin/` to `plugin/commands/changelog.md` and now has a `description` and uses `$ARGUMENTS`
+- [ ] c4: `npm run validate` passes (and `claude plugin validate ./plugin` passes if you use Claude Code)
+- [ ] c5: You loaded the plugin in a session (`claude --plugin-dir ./plugin`, or after installing it) and `/fm-team-kit:changelog 1.4.0` ran (Claude Code), or the plugin shows as installed and enabled (Codex: `codex plugin list`)
+- [ ] c6: You can explain why the draft in `.claude-plugin/commands/` would never have loaded, and how you would notice (`claude plugin details fm-team-kit` lists the components it found)
+- [ ] c7: You can say what happens to teammates when you push new commits but do not change `version`, and what happens if you leave `version` out
+- [ ] c8: Stretch: a `.claude-plugin/marketplace.json` lists the plugin, you installed it by name, then uninstalled it and removed the marketplace so your real setup is clean
+- [ ] c9: `npm test` passes and you did not edit anything under `tests/` or `scripts/`

@@ -915,7 +915,7 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
     ┌─ Continue card (accent-soft) ──────────────┐
     │ CONTINUE                          eyebrow  │
     │ You've completed the curriculum      (h2)  │
-    │ All 18 lessons are marked complete. …      │
+    │ All 22 lessons are marked complete. …      │
     │ [ Review the curriculum → ]                │
     └────────────────────────────────────────────┘
     ```
@@ -934,7 +934,7 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 360                                         1440
 ┌──────────────────────────────────────┐    ┌────────────────────────────────────────────────────────────────────────────────┐
 │ Curriculum                     (h1)  │    │ Curriculum                                                         (h1)        │
-│ 5 levels · 18 lessons · jump in      │    │ 5 levels · 18 lessons. No lesson is locked; start wherever fits.  (fg-muted)   │
+│ 5 levels · 22 lessons · jump in      │    │ 5 levels · 22 lessons. No lesson is locked; start wherever fits.  (fg-muted)   │
 │ anywhere                  (muted)    │    │                                                                                │
 │ [L1][L2][L3][L4][L5]  ← jump links   │    │ ┌─ lg:col-span-3 sticky ─┐ ┌─ lg:col-span-9 ───────────────────────────────────┐ │
 │                                      │    │ │ On this page           │ │ LEVEL 1                                eyebrow    │ │
@@ -1672,7 +1672,7 @@ Check at 360, 768, **1024** and 1440, in light, dark and forced-colours:
 360                                         1440
 ┌──────────────────────────────────────┐    ┌────────────────────────────────────────────────────────────────────────────────┐
 │ Exercises                      (h1)  │    │ Exercises                                                          (h1)        │
-│ 18 hands-on projects in /exercises   │    │ 18 hands-on projects in /exercises. Each has a starter, solution and checklist.│
+│ 22 hands-on projects in /exercises   │    │ 22 hands-on projects in /exercises. Each has a starter, solution and checklist.│
 │                                      │    │ ┌──────────────────────────────────────────────────────────────────────────────┐ │
 │ LEVEL 1                      eyebrow │    │ │ Level │ Exercise                    │ Lesson             │ Verify  │ Progress │ │
 │ ┌──────────────────────────────────┐ │    │ ├───────┼─────────────────────────────┼────────────────────┼─────────┼──────────┤ │
@@ -1802,7 +1802,7 @@ Check at 360, 768, **1024** and 1440, in light, dark and forced-colours:
 │ Progress                       (h1)  │    │ Progress                                              (h1)   │
 │ Saved in this browser (localStorage) │    │ Your progress is saved in this browser only.                 │
 │ ┌ Summary card ────────────────────┐ │    │ ┌ Summary ───────────────────────────────────────────────┐   │
-│ │ 5 of 18 lessons complete         │ │    │ │ 5 of 18 lessons · 12 checklist items · 4 bookmarks     │   │
+│ │ 5 of 22 lessons complete         │ │    │ │ 5 of 22 lessons · 12 checklist items · 4 bookmarks     │   │
 │ │ 12 checklist items · 4 bookmarks │ │    │ └────────────────────────────────────────────────────────┘   │
 │ └──────────────────────────────────┘ │    │ Export                                                (h2)   │
 │ Export                         (h2)  │    │ Download a JSON backup, or share it for the team report.     │

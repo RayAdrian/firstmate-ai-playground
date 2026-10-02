@@ -1,0 +1,11 @@
+{
+  "should_trigger": [
+    "Draft release notes for v1.4",
+    "What changed since the last tag? I need a changelog for the team",
+    "Write up what shipped this sprint"
+  ],
+  "should_not_trigger": [
+    "Fix the failing unit test in the auth module",
+    "Add a new API route for orders"
+  ]
+}

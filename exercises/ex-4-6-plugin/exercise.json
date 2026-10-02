@@ -1,0 +1,18 @@
+{
+  "slug": "ex-4-6-plugin",
+  "verify": "npm test",
+  "required_tool_features": ["plugins", "skills"],
+  "setup_cmd": "D=~/fm-ex/ex-4-6-plugin; if [ -e \"$D\" ]; then echo \"Already set up at $D. Run: cd $D (or delete it first to start over).\"; else mkdir -p ~/fm-ex && cp -r exercises/ex-4-6-plugin/starter \"$D\" && cd \"$D\" && git init -b main && git add -A && git -c user.name=fm -c user.email=fm@example.com commit -qm starter; fi",
+  "title": "Package a skill and a command as a plugin",
+  "goal": "Build fm-team-kit, a minimal plugin with a manifest, one skill (pr-description) and one command (changelog), following SPEC.md. Fix the draft command that was saved in the wrong folder. Validate it with the script and with the real validator, load it in a session, and run both parts. Stretch: list it in a team marketplace.json and install it by name.",
+  "starter_prompts": {
+    "claude": "Read SPEC.md. Build the plugin in plugin/ exactly as specified: the manifest at plugin/.claude-plugin/plugin.json, the skill at plugin/skills/pr-description/SKILL.md, and the command at plugin/commands/changelog.md. A draft of the command is already in the repo but in a folder where Claude Code will not load it: find it, move it, and give it the frontmatter the spec asks for. Run `npm run validate` and `claude plugin validate ./plugin` until both pass. Do not edit anything under tests/ or scripts/. Then tell me how to load it for one session with --plugin-dir and which command to run to try it.",
+    "codex": "Read SPEC.md. Build the plugin in plugin/ exactly as specified: the manifest at plugin/.claude-plugin/plugin.json, the skill at plugin/skills/pr-description/SKILL.md, and the command at plugin/commands/changelog.md (commands are a Claude Code feature and the Codex docs list no plugin commands, but the check still wants the file). A draft of the command is already in the repo but in a folder where it will not load: find it, move it, and give it the frontmatter the spec asks for. Run `npm run validate` until it passes. Do not edit anything under tests/ or scripts/. Then add a .claude-plugin/marketplace.json at the repo root that lists the plugin, and tell me the `codex plugin marketplace add` and `codex plugin add` commands to install it, and how to remove both afterwards."
+  },
+  "solution_notes": [
+    "A plugin is a folder with a manifest and component folders at its root. Only plugin.json belongs in .claude-plugin/. The draft command was inside .claude-plugin/commands/, so it would never have loaded, and nothing reports an error: Claude Code's own validator does not flag it, and the plugin simply loads with fewer components. `claude plugin details fm-team-kit` shows the count (Skills (0)). This repo's script flags it so you notice.",
+    "The manifest pins version 1.0.0. With a version set, people keep the copy they have until you bump it, so a release is an explicit act. Leave version out and every new commit reaches them. The team rule here is to pin.",
+    "The command and the skill are both just Markdown with frontmatter. In a plugin they are namespaced as /fm-team-kit:changelog and /fm-team-kit:pr-description, so two plugins can ship a skill with the same name without colliding.",
+    "The optional marketplace.json is what turns a folder into something teammates install by name: add the marketplace once, install fm-team-kit@first-mate-team, and enable it for the repo. The entry name must equal the plugin's own name, and a relative source starts with ./ and is written from the marketplace root."
+  ]
+}

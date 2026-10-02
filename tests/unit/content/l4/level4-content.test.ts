@@ -11,10 +11,12 @@ const lessonsDir = path.join(root, "content/lessons/l4");
 const exercisesDir = path.join(root, "exercises");
 
 const EXPECTED = [
-  { file: "01-subagents.md", slug: "l4-subagents", sort: 1, exercise: "ex-4-1-subagents" },
-  { file: "02-parallel-worktrees.md", slug: "l4-parallel-worktrees", sort: 2, exercise: "ex-4-2-worktrees" },
-  { file: "03-mcp-servers.md", slug: "l4-mcp-servers", sort: 3, exercise: "ex-4-3-mcp-browser" },
-  { file: "04-hooks-skills-commands.md", slug: "l4-hooks-skills-commands", sort: 4, exercise: "ex-4-4-automation" },
+  { file: "01-subagents.md", slug: "l4-subagents", sort: 1, exercise: "ex-4-1-subagents", claude: "2.1.284" },
+  { file: "02-parallel-worktrees.md", slug: "l4-parallel-worktrees", sort: 2, exercise: "ex-4-2-worktrees", claude: "2.1.284" },
+  { file: "03-mcp-servers.md", slug: "l4-mcp-servers", sort: 3, exercise: "ex-4-3-mcp-browser", claude: "2.1.284" },
+  { file: "04-hooks-skills-commands.md", slug: "l4-hooks-skills-commands", sort: 4, exercise: "ex-4-4-automation", claude: "2.1.284" },
+  { file: "05-skills.md", slug: "l4-skills", sort: 5, exercise: "ex-4-5-skill-triggers", claude: "2.1.287" },
+  { file: "06-plugins.md", slug: "l4-plugins", sort: 6, exercise: "ex-4-6-plugin", claude: "2.1.287" },
 ];
 
 /** Top-level `## ` headings, ignoring anything inside fenced code blocks. */
@@ -36,7 +38,7 @@ function sections(body: string): Map<string, string> {
 }
 
 describe("level 4 lessons", () => {
-  it("has exactly the four lessons from PRD 7", () => {
+  it("has exactly the six lessons from PRD 7", () => {
     expect(readdirSync(lessonsDir).sort()).toEqual(EXPECTED.map((e) => e.file));
   });
 
@@ -50,7 +52,7 @@ describe("level 4 lessons", () => {
         expect(fm.level).toBe(4);
         expect(fm.sort).toBe(expected.sort);
         expect(fm.exercise).toBe(expected.exercise);
-        expect(fm.tool_versions).toEqual({ claude_code: "2.1.284", codex_cli: "0.154.0" });
+        expect(fm.tool_versions).toEqual({ claude_code: expected.claude, codex_cli: "0.154.0" });
         expect(fm.differences.length).toBeGreaterThanOrEqual(1);
         expect(fm.differences.length).toBeLessThanOrEqual(5);
       });

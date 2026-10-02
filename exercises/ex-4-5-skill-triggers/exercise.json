@@ -1,0 +1,18 @@
+{
+  "slug": "ex-4-5-skill-triggers",
+  "verify": "npm test",
+  "required_tool_features": ["skills"],
+  "setup_cmd": "D=~/fm-ex/ex-4-5-skill-triggers; if [ -e \"$D\" ]; then echo \"Already set up at $D. Run: cd $D (or delete it first to start over).\"; else mkdir -p ~/fm-ex && cp -r exercises/ex-4-5-skill-triggers/starter \"$D\" && cd \"$D\" && git init -b main && git add -A && git -c user.name=fm -c user.email=fm@example.com commit -qm starter; fi",
+  "title": "Fix a skill that never triggers",
+  "goal": "A teammate wrote a release-notes skill, but the agent never picks it up when you ask for release notes. Find out why and fix it: put the skill where the tool looks, make the frontmatter parse, rewrite the description so it matches how people ask, and make sure nothing blocks automatic use. Then prove it triggers in a fresh session.",
+  "starter_prompts": {
+    "claude": "The release-notes skill in this repo never triggers when I ask for release notes. Do not guess. First run `npm run check` and read every problem it reports. Then debug it the way the Claude Code docs describe: confirm where project skills must live, whether the frontmatter parses, what the description says, and whether anything disables automatic invocation. Fix the skill (move it, do not copy it; keep template.md with it) and re-run `npm test` until it passes. Do not edit anything under tests/ or scripts/. When it passes, tell me which prompt to type in a fresh session to prove the skill loads.",
+    "codex": "The release-notes skill in this repo never triggers when I ask for release notes. Do not guess. First run `npm run check` and read every problem it reports. Then debug it the way the Codex skills docs describe: confirm where repo skills must live (.agents/skills), whether the SKILL.md frontmatter is valid, what the description says, and whether anything disables implicit invocation (agents/openai.yaml). Fix the skill (move it, do not copy it; keep template.md with it) and re-run `npm test` until it passes. Do not edit anything under tests/ or scripts/. When it passes, tell me which prompt to type in a fresh session to prove the skill loads."
+  },
+  "solution_notes": [
+    "Four independent faults made the skill invisible, and any one of them is enough: the folder sat in skills/ at the repo root (neither tool scans it), the description had a quote inside a quoted string (the YAML fails to parse, so Claude Code loads the skill with no metadata), the description said nothing about when to use it, and a flag blocked automatic use (disable-model-invocation: true for Claude Code, allow_implicit_invocation: false in agents/openai.yaml for Codex).",
+    "The description is the trigger. It now says what the skill produces and lists the requests that should load it in the words people type: release notes, changelog entry, what changed since the last tag, what shipped this sprint. It also stays specific enough that 'fix the failing test' does not match.",
+    "SKILL.md stays short and points at template.md with a relative link. The agent reads the template only when it fills it in, which is progressive disclosure: the description is always in context, the body loads when the skill runs, the template loads on demand.",
+    "The same folder works in both tools because it uses only name and description plus plain files. Claude Code reads .claude/skills/release-notes/, Codex reads .agents/skills/release-notes/, and the Codex-only agents/openai.yaml is harmless to Claude Code."
+  ]
+}
