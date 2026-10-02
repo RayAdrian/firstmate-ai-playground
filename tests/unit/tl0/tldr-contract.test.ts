@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import {
   TLDR_CAPS,
@@ -5,10 +6,10 @@ import {
   lessonRowSchema,
   lessonTldrSchema,
   mediaManifestSchema,
-  tldrSourceHash,
   type LessonTldr,
 } from "@/lib/contracts";
-import { parseLessonFile } from "../../../scripts/seed/lib/lesson";
+import { tldrSourceHash } from "@/lib/contracts/tldr-hash";
+import { hashLesson, lessonTldrColumns, parseLessonFile } from "../../../scripts/seed/lib/lesson";
 
 const all: LessonTldr = {
   points: [
@@ -215,5 +216,33 @@ describe("seed: tldr mapping (TL-2, before TL0b)", () => {
     const r = parse(tldrYaml.replace('    - "Point number three is here."\n', ""));
     expect(r.value).toBeUndefined();
     expect(r.issues.some((i) => i.field.startsWith("tldr.points"))).toBe(true);
+  });
+});
+
+describe("seed: backward compatibility without tldr", () => {
+  const body = "## Concept\n\nC\n\n## Claude Code\n\nCC\n\n## Codex CLI\n\nCX\n";
+  const raw =
+    '---\nslug: l1-demo\nlevel: 1\nsort: 1\ntitle: Demo\nobjective: Learn it.\nest_minutes: 20\ntool_versions:\n  claude_code: "2.1.0"\n  codex_cli: "0.40.0"\nlast_verified_on: 2026-09-20\ndifferences:\n  - one\n---\n\n' +
+    body;
+  const l = parseLessonFile(raw, "content/lessons/l1/01-demo.md", { now: new Date("2026-09-30T13:00:00+08:00") }).value!;
+
+  it("keeps the pre-TL0 content hash for a lesson without tldr", () => {
+    // The hash input exactly as it was before TL0 (no tldr element).
+    const legacy = createHash("sha256")
+      .update(
+        JSON.stringify([
+          l.slug, l.levelNumber, l.sort, l.title, l.objective, l.est_minutes, l.concept_md, l.claude_md, l.codex_md,
+          l.claude_no_equivalent, l.codex_no_equivalent, l.claude_workaround_md, l.codex_workaround_md, l.differences,
+          [l.tool_versions.claude_code, l.tool_versions.codex_cli], l.last_verified_on,
+        ]),
+      )
+      .digest("hex");
+    expect(l.tldr).toBeNull();
+    expect(hashLesson(l)).toBe(legacy);
+  });
+
+  it("omits the tldr key from the upsert payload when absent, includes it when present", () => {
+    expect("tldr" in lessonTldrColumns(l)).toBe(false);
+    expect(lessonTldrColumns({ tldr: all })).toEqual({ tldr: all });
   });
 });

@@ -4,7 +4,8 @@ import type { LessonTldr } from "./lesson";
 /**
  * The staleness hash of a lesson's TL;DR video (PRD §19.5). The one implementation: the MD-6 walker,
  * the lesson page's runtime check and media/remotion/render.ts all call this. It imports only node:crypto
- * (plus a type) so Node type stripping can load it.
+ * (plus a type) so Node type stripping can load it. Do NOT re-export it from index.ts: the barrel is imported by
+ * client components, and node:crypto would pull a crypto polyfill into every page (tests/unit/tl0/barrel.test.ts).
  */
 export function tldrSourceHash(input: { templateVersion: number; title: string; tldr: LessonTldr }): string {
   const { templateVersion, title, tldr } = input;

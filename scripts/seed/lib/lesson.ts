@@ -277,6 +277,11 @@ export function parseLessonFile(raw: string, file: string, opts: { now: Date }):
   return { value, issues, warnings };
 }
 
+/** The `tldr` column for the upsert payload. Omitted when the lesson has none, so seeding works against a database without the column until TL;DR content exists. */
+export function lessonTldrColumns(l: Pick<ParsedLesson, "tldr">): { tldr?: LessonTldr } {
+  return l.tldr ? { tldr: l.tldr } : {};
+}
+
 /** Hash of every seeded content field (not the file path, not the exercise link), so unchanged lessons are skipped. */
 export function hashLesson(l: ParsedLesson): string {
   return sha256(
@@ -297,7 +302,8 @@ export function hashLesson(l: ParsedLesson): string {
       l.differences,
       [l.tool_versions.claude_code, l.tool_versions.codex_cli],
       l.last_verified_on,
-      l.tldr,
+      // Appended only when present, so lessons without a TL;DR keep their pre-TL0 hash.
+      ...(l.tldr ? [l.tldr] : []),
     ]),
   );
 }

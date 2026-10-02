@@ -10,23 +10,23 @@ const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "expected YYYY-MM-DD");
  */
 export const mediaManifestSchema = z
   .object({
-  id: slug,
-  lesson_slug: slug,
-  kind: z.enum(["animation", "recording", "tldr"]),
-  title: z.string().min(1),
-  duration_s: z.number().positive(),
-  width: z.number().int().positive(),
-  height: z.number().int().positive(),
-  /** One key per tool the item depicts. */
-  tool_versions: toolVersionsSchema
-    .partial()
-    .refine((v) => Object.values(v).some(Boolean), "expected at least one tool version"),
-  made_on: isoDate,
-  model_calls: z.boolean(),
-  /** Hash of the steps.json or .tape that produced the item (MD-7). For kind "tldr" see tldrSourceHash (PRD §19.5). */
-  source_hash: z.string().min(1),
-  /** Template version the TL;DR video was rendered with. Required for kind "tldr", absent otherwise (PRD §19.5). */
-  template_version: z.number().int().positive().optional(),
+    id: slug,
+    lesson_slug: slug,
+    kind: z.enum(["animation", "recording", "tldr"]),
+    title: z.string().min(1),
+    duration_s: z.number().positive(),
+    width: z.number().int().positive(),
+    height: z.number().int().positive(),
+    /** One key per tool the item depicts. */
+    tool_versions: toolVersionsSchema
+      .partial()
+      .refine((v) => Object.values(v).some(Boolean), "expected at least one tool version"),
+    made_on: isoDate,
+    model_calls: z.boolean(),
+    /** Hash of the steps.json or .tape that produced the item (MD-7). For kind "tldr" see tldrSourceHash (PRD §19.5). */
+    source_hash: z.string().min(1),
+    /** Template version the TL;DR video was rendered with. Required for kind "tldr", absent otherwise (PRD §19.5). */
+    template_version: z.number().int().positive().optional(),
   })
   .refine((m) => (m.kind === "tldr") === (m.template_version !== undefined), {
     path: ["template_version"],

@@ -3,7 +3,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { tldrSourceHash, type LessonTldr } from "@/lib/contracts";
+import type { LessonTldr } from "@/lib/contracts";
+import { tldrSourceHash } from "@/lib/contracts/tldr-hash";
 import { checkTldrMedia } from "../m0/tldr-walker";
 
 const tldr: LessonTldr = {

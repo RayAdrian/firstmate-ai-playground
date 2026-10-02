@@ -3,7 +3,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { parse } from "yaml";
-import { TLDR_MEDIA_CAPS, lessonTldrSchema, mediaManifestSchema, tldrSourceHash } from "@/lib/contracts";
+import { TLDR_MEDIA_CAPS, lessonTldrSchema, mediaManifestSchema } from "@/lib/contracts";
+import { tldrSourceHash } from "@/lib/contracts/tldr-hash";
 
 function walk(dir: string): string[] {
   if (!fs.existsSync(dir)) return [];
