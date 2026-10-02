@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui";
-import { EYEBROW_CLASS } from "./inline-text";
+import { EYEBROW_CLASS, InlineText } from "./inline-text";
 import { isOutdated, verifiedLine, type ToolVersions } from "./format";
 import { LessonState, LevelProgress, RailCount } from "./curriculum-progress";
 
@@ -13,6 +13,8 @@ export type CurriculumListLesson = {
   est_minutes: number;
   tool_versions: ToolVersions;
   last_verified_on: string | null;
+  /** When present, its first point replaces the objective in the row (PRD §19, TL-7). */
+  tldr?: { points: readonly string[] } | null;
 };
 
 export type CurriculumListLevel = {
@@ -116,7 +118,9 @@ export function CurriculumList({
                         <LessonState slug={lesson.slug} />
                       </div>
                     </div>
-                    <p className="mt-1 text-base text-fg line-clamp-2 lg:line-clamp-none">{lesson.objective}</p>
+                    <p className="mt-1 text-base text-fg line-clamp-2 lg:line-clamp-none [overflow-wrap:anywhere]">
+                      {lesson.tldr ? <InlineText text={lesson.tldr.points[0] ?? lesson.objective} /> : lesson.objective}
+                    </p>
                     <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-fg-muted">
                       <span>{lesson.est_minutes} min{line ? " ·" : ""}</span>
                       {line && <span>{line}</span>}

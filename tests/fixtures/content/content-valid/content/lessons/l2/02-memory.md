@@ -12,6 +12,14 @@ last_verified_on: 2026-09-15
 differences:
   - Memory is stored differently in each tool.
   - Both can be edited by hand.
+tldr:
+  points:
+    - "Memory files are plain text: <b>x</b> and [a](b) stay literal."
+    - "Keep `CLAUDE.md` and `AGENTS.md` short and specific."
+    - "Commit before you start, so `git` can undo anything the agent did."
+  try_this:
+    claude: { kind: prompt, text: "Use a subagent to run the tests and report only the failures." }
+    codex: { kind: command, text: "codex exec \"Run the tests and report only the failures.\"" }
 ---
 
 ## Concept

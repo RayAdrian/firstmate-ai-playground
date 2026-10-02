@@ -12,7 +12,8 @@ import {
 import { TITLE_SUFFIX } from "@/components/lesson/inline-text";
 import { Markdown } from "@/components/lesson/markdown";
 import { MediaBlock } from "@/components/lesson/media-block";
-import { getLessonMedia } from "@/components/lesson/server/media";
+import { getLessonMedia, getTldrMedia } from "@/components/lesson/server/media";
+import { TldrCard } from "@/components/lesson/tldr-card";
 import { computePrevNext } from "@/components/lesson/navigation";
 import { applyRouteHooks } from "@/components/lesson/server/test-hooks";
 import { getLessonPage } from "@/components/lesson/server/queries";
@@ -38,8 +39,11 @@ export default async function LessonPage({ params, searchParams }: PageProps<"/l
   const data = await getLessonPage(slug);
   if (!data) notFound();
 
-  const { lesson, level, number, exercise, navLessons, today } = data;
-  const media = await getLessonMedia(lesson.slug);
+  const { lesson, level, number, tldr, exercise, navLessons, today } = data;
+  const [media, tldrVideo] = await Promise.all([
+    getLessonMedia(lesson.slug),
+    tldr ? getTldrMedia(lesson.slug, { title: lesson.title, tldr }) : Promise.resolve(null),
+  ]);
   const urlTool = parseTool(query.tool);
   const prevNext = computePrevNext(navLessons, lesson.slug);
 
@@ -60,9 +64,9 @@ export default async function LessonPage({ params, searchParams }: PageProps<"/l
             level={{ number: level.number, title: level.title }}
           />
 
-          <hr className="my-8 border-divider" />
+          {tldr ? <TldrCard title={lesson.title} tldr={tldr} video={tldrVideo} /> : <hr className="my-8 border-divider" />}
 
-          <section aria-labelledby="concept">
+          <section aria-labelledby="concept" className={tldr ? "mt-10" : undefined}>
             <h2 id="concept" className="text-2xl font-bold text-fg-strong">
               Concept
             </h2>
@@ -124,7 +128,7 @@ export default async function LessonPage({ params, searchParams }: PageProps<"/l
         </article>
 
         <div className="lg:col-span-4">
-          <LessonRail hasExercise={exercise !== null} />
+          <LessonRail hasExercise={exercise !== null} hasTldr={tldr !== null} />
         </div>
       </div>
     </ToolProvider>

@@ -91,7 +91,8 @@ export function readMediaIds(mediaRoot: string, lessonSlugs: ReadonlySet<string>
       if (!name.endsWith(".media.json")) continue;
       try {
         const m = mediaManifestSchema.parse(JSON.parse(readFileSync(path.join(dir, name), "utf8")));
-        if (m.lesson_slug === lesson && name === `${m.id}.media.json`) ids.push(`${lesson}/${m.id}`);
+        // kind "tldr" belongs to the lesson TL;DR card, never to a `watch` link (PRD §19, TL-16)
+        if (m.kind !== "tldr" && m.lesson_slug === lesson && name === `${m.id}.media.json`) ids.push(`${lesson}/${m.id}`);
       } catch {
         // an invalid manifest is not resolvable
       }

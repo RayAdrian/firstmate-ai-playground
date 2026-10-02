@@ -1,16 +1,28 @@
 import "server-only";
 import { cache } from "react";
-import type { ExerciseRow, LessonRow, LevelRow } from "@/lib/contracts";
+import { lessonTldrSchema, type ExerciseRow, type LessonRow, type LessonTldr, type LevelRow } from "@/lib/contracts";
 import { dbRead } from "@/lib/db";
 import { getReadClient } from "@/lib/db/server";
 import { getNow, manilaDate } from "@/lib/time/now";
 import { orderLessons } from "../navigation";
 import { applyRouteHooks } from "./test-hooks";
 
+/**
+ * A stored `tldr` that fails the contract is read as null and logged with the slug (PRD §19, TL-3), so a bad row
+ * costs one lesson its card and never its page.
+ */
+export function parseStoredTldr(slug: string, raw: unknown): LessonTldr | null {
+  if (raw === null || raw === undefined) return null;
+  const parsed = lessonTldrSchema.safeParse(raw);
+  if (parsed.success) return parsed.data;
+  console.error(`[lessons] ignoring invalid tldr for ${slug}: ${parsed.error.issues[0]?.message ?? "invalid"}`);
+  return null;
+}
+
 export type CurriculumLesson = Pick<
   LessonRow,
   "id" | "level_id" | "slug" | "sort" | "title" | "objective" | "est_minutes" | "tool_versions" | "last_verified_on"
-> & { number: string };
+> & { number: string; tldr: LessonTldr | null };
 
 export type CurriculumLevel = Pick<LevelRow, "id" | "number" | "slug" | "title" | "summary"> & {
   lessons: CurriculumLesson[];
@@ -19,7 +31,7 @@ export type CurriculumLevel = Pick<LevelRow, "id" | "number" | "slug" | "title" 
 export type Curriculum = { levels: CurriculumLevel[]; today: string };
 
 const LESSON_LIST_COLUMNS =
-  "id, level_id, slug, sort, title, objective, est_minutes, tool_versions, last_verified_on";
+  "id, level_id, slug, sort, title, objective, est_minutes, tool_versions, last_verified_on, tldr";
 
 /** Active levels with their active lessons, in reading order. Archived rows never appear (C-1.3). */
 export const getCurriculum = cache(async (): Promise<Curriculum> => {
@@ -48,7 +60,7 @@ export const getCurriculum = cache(async (): Promise<Curriculum> => {
       lessons: active
         .filter((l) => l.level_id === level.id)
         .sort((a, b) => a.sort - b.sort)
-        .map((l) => ({ ...l, number: numberBySlug.get(l.slug) ?? "" })),
+        .map((l) => ({ ...l, tldr: parseStoredTldr(l.slug, l.tldr), number: numberBySlug.get(l.slug) ?? "" })),
     })),
   };
 });
@@ -74,6 +86,8 @@ export type LessonPageData = {
   lesson: LessonRow;
   level: CurriculumLevel;
   number: string;
+  /** The lesson's TL;DR, or null when absent or invalid (TL-3). */
+  tldr: LessonTldr | null;
   exercise: ExerciseRow | null;
   navLessons: { slug: string; title: string; level: number; sort: number }[];
   today: string;
@@ -98,6 +112,7 @@ export const getLessonPage = cache(async (slug: string): Promise<LessonPageData 
     lesson,
     level,
     number: level.lessons.find((l) => l.slug === slug)?.number ?? "",
+    tldr: level.lessons.find((l) => l.slug === slug)?.tldr ?? null,
     exercise,
     navLessons: curriculum.levels.flatMap((lv) =>
       lv.lessons.map((l) => ({ slug: l.slug, title: l.title, level: lv.number, sort: l.sort })),

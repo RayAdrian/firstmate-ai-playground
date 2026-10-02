@@ -163,8 +163,9 @@ export function PrevNextNav({ prevNext }: { prevNext: PrevNext }) {
   );
 }
 
-export function LessonRail({ hasExercise }: { hasExercise: boolean }) {
+export function LessonRail({ hasExercise, hasTldr = false }: { hasExercise: boolean; hasTldr?: boolean }) {
   const links: [string, string][] = [
+    ...(hasTldr ? ([["#tldr", "TL;DR"]] as [string, string][]) : []),
     ["#concept", "Concept"],
     ["#tools", "Claude Code / Codex CLI"],
     ["#differences", "Key differences"],
