@@ -137,7 +137,7 @@ export default async function NewsPage({
         </h1>
         <p className="mt-1 text-base text-fg-muted">
           <time dateTime={digest.digestDate} className="sr-only">
-            {day}
+            {day}.{" "}
           </time>
           Updated {formatTime(digest.updatedAt)}
           <span className="hidden lg:inline">

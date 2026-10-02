@@ -30,7 +30,7 @@ export function ShowToggle({
             aria-current={show === "relevant" ? "page" : undefined}
             className={segment}
           >
-            Top {topCount}
+            {topCount > 0 ? `Top ${topCount}` : "Top"}
           </Link>
         </li>
         <li className="flex last:*:rounded-r-lg">
