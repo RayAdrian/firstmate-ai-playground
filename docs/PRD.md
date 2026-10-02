@@ -1703,6 +1703,7 @@ Measured outside the app with SQL on the hosted database (the app adds no event 
 | Done (pilot) | The contract, the 22 text TL;DRs and the card are on `main`. Two pilot videos (§19.9) are on `main`, with the owner's written approval on the pilot PR. |
 | Done (full) | All 22 lessons have a valid `tldr` and a fresh TL;DR video (its hash matches), and the completeness test (TL-18) is on and green. |
 | Relationship to §15 and §17 | Additive, with the amendments in §19.12. It reuses the §15 media pipeline (Remotion, the manifest contract, MD-2's player rules and MD-6's walker) and adds a third manifest kind. §17 diagrams are not affected. |
+| Design | DESIGN §6.3.4 "TL;DR card and video" (PR #66) is the visual source of truth. It resolves Q-TLD1 to Q-TLD7, and its six deltas are applied in this section (§19.5, §19.7, §19.8). |
 
 **Fixed decisions (stakeholder, 2026-10-02; do not reopen):**
 1. **Every lesson gets a TL;DR, as a text card and as a short video.** The owner's reason: "Engineers are visual", and First Mate engineers are busy with client work.
@@ -1814,21 +1815,24 @@ alter table public.lessons add column tldr jsonb;
 
 **One template, many renders.** V1 adds one Remotion composition, `tldr`, in `media/remotion/src/tldr/`. It takes a lesson's title and `tldr` as input props and renders these beats:
 
-| Beat | Shows | Dwell |
-|---|---|---|
-| Title | A "TL;DR" eyebrow and the lesson title | 3 s |
-| Points 1–3 | One point each, added to a list that stays on screen, so the last point's frame shows all three | `clamp(6, 2 + chars / 15, 10)` s each (about 180 words a minute) |
-| Try this | The `try_this` entries in the code-block style, labelled "Claude Code" and "Codex CLI" when they differ per tool | The same formula, on the combined text |
-| Hold | The full summary frame: title, the 3 points and Try this | 2 s, padded so that the total is at least 30 s |
+| Beat | Shows | Dwell | Caption cue (VTT) |
+|---|---|---|---|
+| Title | A "TL;DR" eyebrow, the lesson title and "Three takeaways and one thing to try". Frame 0 is fully composed, and it is the poster. | 3 s | "TL;DR: 3 points, 1 thing to try" |
+| Point *n* (1–3) | The current point large. Points already read shrink to one-line rows above it. | `clamp(6, 2 + chars / 15, 10)` s each (about 180 words a minute) | "Point *n* of 3" |
+| Try this, `all` | The single entry in the code-block style, with its kind line | The same formula as a point | "Try this" |
+| Try this, per tool | **Two panels in sequence**: Claude Code, then Codex CLI. Two 120-character entries cannot share one frame at a legible size. | `clamp(4, 2 + chars / 15, 7)` s **per panel** | "Try this in Claude Code", then "Try this in Codex CLI" |
+| Recap (end card) | Title strip, the 3 points in full and Try this. It is the last frame, which is shown after "ended". | 2 s, padded so that the total is at least 30 s | "Recap" |
 
-With the TL-1 caps, the total before padding is between 29 and 45 seconds, so every video lands in **30–45 s**. The beat and duration logic lives in a pure module, `media/remotion/src/tldr/beats.ts`, with no React or Remotion imports (the same pattern as `src/lib/vtt.ts`), so that root tests can import it (TL-10).
+With the TL-1 caps every video lands in **30–45 s**. The maximum is 3 + 3 × 8.67 + 2 × 7 + 2 = 45.0 s (per tool) or 41 s (`all`); the minimum is 29 s before padding (`all`) or 31 s (per tool). The beat, cue and duration logic lives in a pure module, `media/remotion/src/tldr/beats.ts`, with no React or Remotion imports (the same pattern as `src/lib/vtt.ts`), so that root tests can import it (TL-10). The exact frames, type scale and motion are in DESIGN §6.3.4 "Video template".
 
 **Template rules.**
-- The format is 1280×720 at 30 fps, H.264 `yuv420p` with `+faststart`, and **no audio track** (MD-2). The final encode reuses `render.ts`'s ffmpeg step, at whatever CRF meets TL-13. If a lesson's video is over the cap, the render fails. It never silently lowers the resolution.
-- It uses the brand tokens in `media/remotion/src/theme.ts` (light theme): ink on canvas, accent for the eyebrow and emphasis, Satoshi for text, and the CodeBlock palette for Try this. accent-2 is never used for text (§15.6). The bottom 110 px stay clear for the caption track (the `layout` constant).
-- **Motion:** fades, and slides of at most 24 px over at most 300 ms. There are no zooms, no parallax, no flashing and no looping motion, so the template stays within WCAG 2.3.3 even for viewers who have not turned on reduced motion.
-- **Poster:** the hold frame. It shows all three points and Try this, so the poster alone is a complete TL;DR. It is what reduced-motion users see (TL-14).
-- **Captions and transcript come from the same props** as the frames, as in MD-4, so they cannot drift apart. The VTT has one cue per beat. The transcript (`.txt`) describes the screen, for example "Title card: Your first agent session. Point 1 of 3: …. Try this in Claude Code (command): …". It is generated, not hand-written, because the screen shows only text, which the transcript can state exactly (WCAG 1.2.1).
+- **Format: 16:9, 1280×720** at 30 fps, H.264 `yuv420p` with `+faststart`, and **no audio track** (MD-2). The final encode reuses `render.ts`'s ffmpeg step, at whatever CRF meets TL-13. If a lesson's video is over the cap, the render fails. It never silently lowers the resolution. (1:1 was considered and rejected in DESIGN §6.3.4: it is three times taller in the desktop card and worse in fullscreen on a rotated phone.)
+- **Safe areas (source px):** text stays within x 64–1216. The header strip (beats 2–5) is y 48–96, and content is y 120–560. **Nothing but background sits below y 560**, so the caption cue and the native controls never cover content. The title frame and the end card are seen while paused, with the controls showing, so their content ends at **y 470** (the end card's worst case, two per-tool blocks, may reach 560).
+- **Legibility floor:** everything needed in the moment (the title, the current point, the Try-this lead and the code) is at least 48 source px, which renders at 12 px or more in the 328 px player at 360. A companion `layout.ts` measures with Remotion's `measureText` and the real Satoshi metrics, and steps a point from 56 to 48 px when needed. A 100-character fixture of "W"s must fit 3 lines at 48 px; if it doesn't, the cap is wrong, not the template.
+- It uses the brand tokens in `media/remotion/src/theme.ts` (light theme): ink on canvas, accent for the eyebrow and emphasis, Satoshi for text, and the CodeBlock palette for Try this. accent-2 is not used. No frame shows a lesson number (it is not in the hash, so a renumbering would leave a wrong number on screen without failing CI), a logo, a URL or a call to action.
+- **Motion:** fades, and rises of at most 24 px over at most 300 ms. There are no zooms, font-size tweens, parallax, flashing or looping motion, so the template stays within WCAG 2.3.3 even for viewers who have not turned on reduced motion.
+- **Poster: the title frame (frame 0),** not the end card. The card above the video is already the complete TL;DR at full legibility; a summary frame shrunk to 328 px would render its points at about 8 px. The title frame reads at every size, marks the video as this lesson's TL;DR, and matches the first frame of playback exactly. Reduced-motion users therefore see the poster thumbnail and the card's text (TL-14).
+- **Captions are signposts; the transcript is the full text.** Each beat has a `cue` (at most 32 characters, one line at 15 px in the 360 cue box, exact strings in the table above) and a `text`. The VTT uses `cue`; the transcript (`.txt`) uses `text` and describes the screen, for example "Title card: Your first agent session. Point 1 of 3: …. Try this in Claude Code (command): …". Full-text cues were rejected: a 100-character point as a 15 px cue wraps to 3 lines at 360, overflows the caption band and covers the point it repeats, which fails TL-19. Captions stay on by default (MD-2). The video has no audio, so WCAG 1.2.2 does not apply; the text alternative (1.2.1) is the transcript and the card. Both cue and text come from the same props as the frames (as in MD-4), so they cannot drift. The transcript is generated, not hand-written, because the screen shows only text that it can state exactly.
 
 **Template version.** `media/remotion/src/tldr/template.json` holds `{ "version": <int> }`. V1 bumps it **only** when a template change alters what some frame shows. A refactor that changes no pixels does not bump it. `gate/review` checks that every diff under `media/remotion/src/tldr/` either bumps the version or states "no visual change" in the PR. The version is a deliberate integer rather than a hash of the template source, because every bump re-renders all 22 videos and adds up to 9.32 MiB to git history (§19.6).
 
@@ -1837,10 +1841,10 @@ With the TL-1 caps, the total before padding is between 29 and 45 seconds, so ev
 | File | Content |
 |---|---|
 | `tldr.mp4` | The video |
-| `tldr.webp` | The poster (the hold frame) |
-| `tldr.vtt` | Captions |
-| `tldr.txt` | Transcript |
-| `tldr.media.json` | The manifest: `id: "tldr"`, `kind: "tldr"`, `title: "TL;DR: <lesson title>"`, `duration_s`, `width`, `height`, `tool_versions` (copied from the lesson), `made_on`, `model_calls: false` and `source_hash` |
+| `tldr.webp` | The poster (the title frame). The card also uses it as the video row's thumbnail. |
+| `tldr.vtt` | Captions (the signpost cues) |
+| `tldr.txt` | Transcript (the full text) |
+| `tldr.media.json` | The manifest: `id: "tldr"`, `kind: "tldr"`, `title: "TL;DR: <lesson title>"`, `duration_s`, `width`, `height`, `tool_versions` (copied from the lesson), `made_on`, `model_calls: false`, `source_hash`, and **`template_version`** (int; required when `kind` is `"tldr"` and absent otherwise, enforced by a refine in `media.ts`) |
 
 The media id `tldr` repeats across folders, which is safe. Media ids are already scoped to their lesson (`<lesson-slug>/<id>` in §17's `watch`), and DOM ids only need to be unique within a page. The §15 items keep their own ids, so no file names collide.
 
@@ -1854,6 +1858,7 @@ sha256_hex( UTF-8( JSON.stringify([ "fm-tldr", templateVersion, title, points, t
 - **The lesson title is included** as well as the TL;DR text and the template version, because the title is on screen. A retitled lesson must not keep a video showing the old title.
 - One function computes the hash: `tldrSourceHash({ templateVersion, title, tldr })`, in a new file `src/lib/contracts/tldr-hash.ts` (M0, TL0). It imports only `node:crypto`, so the root tests and `media/remotion/render.ts` (which runs under Node type stripping and imports relative `.ts` files) can both call it. Nothing else implements the hash.
 - **Consequence:** editing a lesson's `tldr` or `title`, or bumping the template version, makes that lesson's `tldr.media.json` stale. The MD-6 test then fails on the PR, naming the lesson and the command to run (`npm run media:render -- --tldr <slug>`), until the video is re-rendered **in the same PR**. So a TL;DR edit needs an engineer's Mac with the Remotion toolchain (`media/README.md`). That cost is accepted, because it is what keeps TL-M2 at zero.
+- **Runtime check (the hosted window).** CI keeps stale videos off `main`, but the hosted database is seeded separately from the deploy (§18.8), so the card's text can be newer or older than the deployed video. At request time the lesson page recomputes `tldrSourceHash` from the row's `title` and `tldr` and the manifest's own `template_version`. If it differs from `source_hash`, the page renders the card as text only and logs `tldr video stale: <slug>` on the server. A video whose words differ from the card above it is never shown. This is why the manifest carries `template_version`: the app never imports from `media/`, so it cannot read `template.json`. The runtime check catches text drift; template drift is CI's job (TL-12).
 - `tool_versions` is **not** part of the hash, and MD-7's "versions behind the lesson" rule does **not** apply to kind `tldr`. The template shows text, not CLI output. Otherwise every 60-day re-verification would force 22 re-renders.
 
 ### 19.6 Size budget (decision: per-item caps; the 20 MiB total stays)
@@ -1884,17 +1889,17 @@ sha256_hex( UTF-8( JSON.stringify([ "fm-tldr", templateVersion, title, points, t
 - Merging them into one player (with a playlist, tabs or chapters) would need a custom player and client JS, which MD-2 and §15.4 rule out. Dropping the TL;DR video on those 5 lessons would break fixed decision 1.
 - The Watch block must **exclude kind `tldr`** (TL-16). Otherwise `readLessonMedia` would list `tldr.media.json` as a second Watch item.
 
-The visual treatment is the UI/UX agent's decision, made in a DESIGN addendum (TL-D, §19.10). The open design questions are:
+The visual treatment is specified in DESIGN §6.3.4 (TL-D, PR #66). Its product-relevant decisions, adopted here:
 
-| # | Question | PM default (if TL-D does not decide otherwise) |
+| # | Question | Decision (DESIGN §6.3.4) |
 |---|---|---|
-| Q-TLD1 | Is the video **inside** the card or directly below it? At 360 px, is it a full 16:9 poster (about 185 px tall, which pushes Concept down) or a compact row ("▶ TL;DR · 0:42 · No sound") that reveals the player? | Inside the card, text first and then the player. A full poster at md and up, a compact row below md. |
-| Q-TLD2 | How do the card and its player differ visually from the Watch block and the Key differences callout, so that nobody confuses the two players? | A different eyebrow ("TL;DR" against "Watch"), and a card frame for the TL;DR, which the Watch block deliberately does not have. |
-| Q-TLD3 | For a per-tool `try_this`, are both labelled rows always shown, or does it follow the active tool tab? | Both rows, always. Following the tab would need client JS above the fold and risks a hydration flash, because `prefs.tool` lives in localStorage. |
-| Q-TLD4 | On a curriculum row, does the first point **replace** the objective line or sit under it? How is it truncated at 360 px? | It replaces the objective (which stays on the lesson header), with the existing `line-clamp-2` below lg. |
-| Q-TLD5 | Where does "Read instead" sit, and does the right rail get a "TL;DR" entry? | "Read instead" next to the player's meta line, jumping to the card's point list. No rail entry. |
-| Q-TLD6 | The captions repeat the text that is on screen. Is that acceptable at 360 px, or should the template leave more room above the caption band? | Accept the repetition, since captions on by default is the owner's rule, and keep the 110 px band clear. |
-| Q-TLD7 | The template's visual layout: the type scale, how the list builds, and the Try this block at 1280×720, legible when scaled down to 328 px wide. | TL-D specifies it, V1 builds it, and the pilot proves it. |
+| Q-TLD1 | Where is the video, and how is it offered? | **Inside the card, as a compact inline row at every width.** The card replaces the `<hr>` between the lesson header and Concept. Directly under the card's `h2` is a closed-on-load `<details>` row: an 80×45 poster thumbnail (96×54 from md), "TL;DR video" and "0:31 · No sound". Opening it shows the full-width player **inline** in the card (a 328 px edge-to-edge band at 360). There is no full poster at any width. The points and Try this follow the row. The row costs 61 px, so readers lose nothing, and people who prefer video are offered it before they read. |
+| Q-TLD2 | How are the two players told apart? | Different place, frame, vocabulary, icon and poster. The TL;DR row says "TL;DR video" and never "Watch" (that word belongs to §15); its poster is the TL;DR title frame; its captions are signposts. The Concept `h2` and prose always sit between the two. |
+| Q-TLD3 | Per-tool Try this? | **Both rows, always,** Claude Code then Codex CLI, whichever tab is active. The card never reacts to the tool tabs. "Follow the tab" is declined, not deferred (§19.11 Won't). |
+| Q-TLD4 | Curriculum row? | **The first point replaces the objective** in the same element, with no "TL;DR" prefix and the existing `line-clamp-2` below lg. The objective stays on the lesson header. |
+| Q-TLD5 | "Read instead" and the rail? | "Read instead" sits directly under the open player, above Transcript, and links to `#tldr-points`. **The rail gets a "TL;DR" entry,** first, only when the card renders. |
+| Q-TLD6 | Captions repeating the on-screen text? | **Captions are signposts** (§19.5). |
+| Q-TLD7 | The template? | **16:9 at 1280×720 with safe areas and a 48 px type floor** (§19.5). |
 
 ### 19.8 User stories and acceptance criteria
 
@@ -1919,19 +1924,22 @@ The visual treatment is the UI/UX agent's decision, made in a DESIGN addendum (T
 #### Epic TL-B: Text UI
 
 **TL-5 (P0)** As a busy engineer, I want the TL;DR at the top of the lesson, so that I get the takeaways before I commit 30 minutes.
-- On a fixture lesson with a `tldr`, the page renders `section[aria-labelledby="tldr"][data-testid="tldr-card"]` after the lesson header and **before** `section[aria-labelledby="concept"]`. It contains an `h2#tldr` "TL;DR", a `ul` with exactly 3 `li` in `points` order, and a "Try this" part. *Test: Playwright, `tests/e2e/tl2/`.*
+- On a fixture lesson with a `tldr`, the page renders `section[aria-labelledby="tldr"][data-testid="tldr-card"]` after the lesson header and **before** `section[aria-labelledby="concept"]`, in place of the `<hr>` that separates them today. In order, it contains an `h2#tldr` "TL;DR", the video row (only when a valid, fresh video exists, TL-8), `ul#tldr-points` with exactly 3 `li` in `points` order, and an `h3` "Try this" with its blocks. *Test: Playwright, `tests/e2e/tl2/`.*
+- The right rail lists "TL;DR" first, linking to `#tldr`, only when the card renders. *Test: Playwright at 1440.*
 - Points render as plain text plus code spans. A fixture point containing `<b>x</b>` and `[a](b)` shows those characters literally, and a backtick span renders as `code`. *Test: Playwright.*
 - After the card, the rest of the L-1 order is unchanged. *Test: Playwright, a DOM order assertion.*
 
 **TL-6 (P0)** As an engineer, I want to copy the thing to try, so that I can run it in my terminal in one action.
-- A `kind: command` entry renders in a CodeBlock with the L-4 copy button. A `kind: prompt` entry renders as a copyable block labelled "Prompt". With `all` there is one entry. With `claude` and `codex` there are two, labelled "Claude Code" and "Codex CLI" in that order, whichever tab is active. *Test: Playwright, checking the clipboard content of each entry.*
+- With `all` there is one block, labelled "Terminal" for a `command` and "Prompt" for a `prompt`. With `claude` and `codex` there are **always two blocks**, labelled "Claude Code" then "Codex CLI". Each block has the L-4 copy button. A one-line lead under the `h3` is generated from the kinds, never authored (DESIGN §6.3.4). *Test: Playwright, checking the clipboard content of each block.*
+- Switching the tool tab (or loading with `?tool=codex`) changes nothing inside the card. *Test: Playwright, comparing the card's HTML before and after the switch.*
 
 **TL-7 (P0)** As an engineer browsing `/curriculum`, I want each lesson's first takeaway, so that I can pick lessons by what they give me.
-- A lesson row whose lesson has a `tldr` shows `points[0]` (with code spans) in place of the objective line. A row whose `tldr` is null shows the objective as before (C-1). *Test: Playwright on fixtures, with one lesson that has a `tldr` and one that does not.*
+- A lesson row whose lesson has a `tldr` shows `points[0]` (with code spans) **in place of** the objective, in the same element, with no prefix and no second line. A row whose `tldr` is null shows the objective as before (C-1). *Test: Playwright on fixtures, with one lesson that has a `tldr` and one that does not.*
 - With a 100-character point, there is no horizontal scroll at 360, 768 or 1440 px. *Test: Playwright.*
 
 **TL-8 (P0)** A missing or broken TL;DR never breaks a lesson.
-- With `tldr` null, there is no card and no empty heading, and the page passes L-1. With a valid `tldr` but no valid `tldr.media.json`, the card renders text only, with no empty player box and no error text. An invalid `tldr.media.json` is skipped and logged (MD-3). *Test: Playwright, plus Vitest with a temporary directory.*
+- With `tldr` null, there is no card, no empty heading and no rail entry, the `<hr>` stays, and the page passes L-1. With a valid `tldr` but no valid `tldr.media.json` (missing, invalid, or a referenced `mp4`, `webp`, `vtt` or `txt` missing), the card renders text only, with no video row, no empty box and no error text. An invalid manifest is skipped and logged (MD-3). *Test: Playwright, plus Vitest with a temporary directory.*
+- **Runtime staleness:** when the `tldrSourceHash` recomputed from the row's `title` and `tldr` and the manifest's `template_version` differs from the manifest's `source_hash`, the card renders text only, exactly as with no video, and the server logs `tldr video stale: <slug>`. *Test: Vitest (a temporary manifest with a mismatched hash), plus Playwright on a fixture lesson whose seeded `tldr` differs from its fixture video.*
 
 **TL-9 (P0)** The card is accessible.
 - axe reports 0 serious or critical violations on a TL;DR lesson in both themes. The copy buttons and the player are reachable with the keyboard, in DOM order. *Test: Playwright + axe, `tests/e2e/tl2/`.*
@@ -1939,23 +1947,25 @@ The visual treatment is the UI/UX agent's decision, made in a DESIGN addendum (T
 #### Epic TL-C: The video
 
 **TL-10 (P0)** As a content owner, I want the video generated from the lesson's own text, so that a wording change means re-rendering, not re-animating.
-- The `tldr` composition takes `{ title, tldr }` as props and contains no per-lesson code. The duration function in `beats.ts` returns 30–45 s for the minimum-cap and maximum-cap fixtures and for each of the 22 real lessons. *Test: Vitest, `tests/unit/tl3/`, importing `beats.ts` the way `tests/unit/v1/` imports `vtt.ts`.*
-- The VTT cues and the transcript are built from the same beats as the frames. A test compares each cue's text with its beat's text. *Test: Vitest, `tests/unit/tl3/`.*
+- The `tldr` composition takes `{ title, tldr }` as props and contains no per-lesson code. The duration function in `beats.ts` returns 30–45 s for the minimum-cap and maximum-cap fixtures, in both the `all` and per-tool shapes, and for each of the 22 real lessons. A per-tool `try_this` produces two Try-this beats. *Test: Vitest, `tests/unit/tl3/`, importing `beats.ts` the way `tests/unit/v1/` imports `vtt.ts`.*
+- Each VTT cue equals its beat's `cue`, from the fixed set in §19.5, and is at most 32 characters. Each transcript line contains its beat's full `text`. *Test: Vitest, `tests/unit/tl3/`.*
+- The 100-"W" point fits 3 lines at 48 px in `layout.ts`. *Test: V1's own checks inside `media/remotion` (it needs Remotion's `measureText`).*
 
-**TL-11 (P0)** Each render writes the five §19.5 files. The manifest passes the contract, with `id: "tldr"`, `kind: "tldr"`, `model_calls: false`, 1280×720 and `duration_s` between 30 and 45. *Test: the MD-6 walker, extended by TL0.*
+**TL-11 (P0)** Each render writes the five §19.5 files. The manifest passes the contract, with `id: "tldr"`, `kind: "tldr"`, `model_calls: false`, 1280×720, `duration_s` between 30 and 45, and an integer `template_version` equal to the one in `template.json`. *Test: the MD-6 walker, extended by TL0.*
 
 **TL-12 (P0)** A stale TL;DR video cannot merge.
-- For every `tldr.media.json` under `public/media/lessons/`, the MD-6 walker finds the lesson with that slug in `content/lessons/**`, reads `template.json` and recomputes `tldrSourceHash`. It **fails** if the result differs from `source_hash`, and the failure names the lesson and the command `npm run media:render -- --tldr <slug>`. A `tldr.media.json` whose lesson has no `tldr` also fails. *Test: Vitest, `tests/unit/m0/media-assets.test.ts` (TL0), with temporary fixtures for a match, a text edit, a title edit and a version bump.*
+- For every `tldr.media.json` under `public/media/lessons/`, the MD-6 walker finds the lesson with that slug in `content/lessons/**`, reads `template.json` and recomputes `tldrSourceHash`. It **fails** if the result differs from `source_hash`, or if the manifest's `template_version` differs from `template.json`, and the failure names the lesson and the command `npm run media:render -- --tldr <slug>`. A `tldr.media.json` whose lesson has no `tldr` also fails. *Test: Vitest, `tests/unit/m0/media-assets.test.ts` (TL0), with temporary fixtures for a match, a text edit, a title edit and a version bump.*
 
 **TL-13 (P0)** TL;DR videos stay small. The MD-6 walker enforces `tldr.mp4` ≤ 409,600 B and `tldr.webp` ≤ 30,720 B, in addition to the unchanged generic caps (4 MiB and 60 KiB) and the 20 MiB total. `render.ts` refuses to write an item that is over a cap. *Test: Vitest (TL0), plus V1's check at render time.*
 
 **TL-14 (P0)** The TL;DR player is quiet and respects motion settings.
 - It follows MD-2 exactly: `<video controls preload="none" playsinline poster width height>` with one `<track kind="captions" srclang="en" default>`, and no `autoplay`, no `loop`, no muted-autoplay trick and no JS `play()`. No sound can ever play, because the file has no audio track.
-- Under both `prefers-reduced-motion: reduce` and `no-preference`, 3 s after load the video is paused at `currentTime === 0`, and the poster (the summary frame) and the card's text are visible. After a play started by the user, the captions track's `mode` is `"showing"`. *Test: Playwright in both emulations, `tests/e2e/tl2/`.*
+- Under both `prefers-reduced-motion: reduce` and `no-preference`: on load the video row is closed and its thumbnail (`tldr.webp`, the title frame) and the card's text are visible. After the row is opened, the video's poster is visible, and 3 s later the video is still paused at `currentTime === 0`. After a play started by the user, the captions track's `mode` is `"showing"`. *Test: Playwright in both emulations, `tests/e2e/tl2/`.*
+- The row and the transcript are `<details>` elements, so the video opens, plays and shows captions with JavaScript disabled. *Test: Playwright with `javaScriptEnabled: false`.*
 - The box is reserved with `aspect-ratio`. CLS on a TL;DR lesson stays under 0.05, and LCP under 2.0 s (D-4). *Test: Playwright, tagged `@nightly`.*
 
 **TL-15 (P0)** As an engineer who would rather read, I want a text alternative next to the video.
-- A visible "Read instead" link next to the player moves focus to the card's point list, which has `id="tldr-points"` and `tabindex="-1"`. *Test: Playwright, clicking the link and then checking `document.activeElement`.*
+- A visible "Read instead" link, directly under the open player and above Transcript, moves focus to the card's point list, which has `id="tldr-points"` and `tabindex="-1"`. *Test: Playwright, clicking the link and then checking `document.activeElement`.*
 - A `<details>` "Transcript" renders `tldr.txt` as plain text, with the same markup as the Watch transcript (MD-2's exception). *Test: Playwright.*
 
 **TL-16 (P0)** The Watch block never shows a TL;DR. `readLessonMedia` or its caller excludes `kind: "tldr"`. A fixture lesson with both a §15 item and a `tldr.media.json` renders exactly one Watch item and one TL;DR player. This must merge before any `tldr.media.json` reaches `main`. *Test: Vitest with a temporary directory, plus Playwright; `tests/unit/tl2/` and `tests/e2e/tl2/`.*
@@ -1964,16 +1974,16 @@ The visual treatment is the UI/UX agent's decision, made in a DESIGN addendum (T
 
 **TL-18 (P0, switched on in the last render PR)** Every non-archived lesson in `content/lessons/**` has a `tldr.media.json` that passes TL-11 and TL-12. *Test: Vitest, `tests/unit/tl3/tldr-complete.test.ts`, added in the rollout render PR, because it would fail before then.*
 
-**TL-19 (P0, process)** The owner approves the pilot before the rollout. The pilot PR (§19.9) attaches both MP4s, both posters and screenshots of the card at 360, 768 and 1440 px. The owner approves in a PR comment against this list: legible at 360 px; every point can be read before the next one appears; the captions do not cover the text; the brand matches; the sizes are within TL-13. The rollout render PR links that comment. *Test: manual, checked by `gate/review`.*
+**TL-19 (P0, process)** The owner approves the pilot before the rollout. The pilot PR (§19.9) attaches both MP4s, both posters and screenshots of the card at 360, 768 and 1440 px. The owner approves in a PR comment against this list: legible at 360 px (the current point and the code at 12 px or more, and nothing below y 560, as in DESIGN §6.3.4's checklist item 8); every point can be read before the next one appears; the captions do not cover the text; the brand matches; the sizes are within TL-13. The rollout render PR links that comment. *Test: manual, checked by `gate/review`.*
 
 ### 19.9 Rollout
 
 | Step | PR | Contents | Can start | Merges after |
 |---|---|---|---|---|
-| 1 | **TL0** (M0) | `lessonTldrSchema` (optional) and `TLDR_CAPS` in `lesson.ts`; `kind` gains `"tldr"` and the TL;DR caps in `media.ts`; `tldr-hash.ts`; the `lessons.tldr` migration; `rows.ts`; the MD-6 walker extension (TL-11 to TL-13); test ownership in `AGENTS.md` | Now | (nothing) |
+| 1 | **TL0** (M0) | `lessonTldrSchema` (optional) and `TLDR_CAPS` in `lesson.ts`; `kind` gains `"tldr"`, the `template_version` field (required for that kind only) and the TL;DR caps in `media.ts`; `tldr-hash.ts`; the `lessons.tldr` migration; `rows.ts`; the MD-6 walker extension (TL-11 to TL-13); test ownership in `AGENTS.md` | Now | (nothing) |
 | 2a | **TL1** (content) | `tldr` on the 18 existing lessons | Drafting now; the PR after TL0 | TL0 |
-| 2b | **TL-D** (design) | The DESIGN addendum answering Q-TLD1 to Q-TLD7 | Now | (nothing) |
-| 2c | **TL2** (UI) | The card, the curriculum row, the player, "Read instead", the Watch exclusion, the seed and query changes, and fixtures | After TL0 | TL0 and TL-D |
+| 2b | **TL-D** (design) | DESIGN §6.3.4, answering Q-TLD1 to Q-TLD7 (PR #66, open) | Done as a draft | (nothing) |
+| 2c | **TL2** (UI) | The card, the inline video row, the curriculum row, the rail entry, "Read instead", the runtime staleness check, the Watch exclusion, the seed and query changes, and fixtures | After TL0 | TL0 and TL-D |
 | 2d | **TL3 template** | The `tldr` composition, `beats.ts`, `template.json`, `--tldr` in `render.ts`, and the duration and VTT tests. **No rendered output yet.** | After TL0 | TL0 |
 | 3 | **TL3 pilot** | Renders for 2 lessons, and the owner's review (TL-19) | When 2a, 2c and 2d are merged | TL1, TL2 and the TL3 template |
 | 4 | **TL0b** (M0) | `tldr` becomes required | When all 22 lessons on `main` have one | TL1 and the 4 new lesson PRs |
@@ -1995,16 +2005,16 @@ The rules are the same as in §11 and §17.10: one worktree per branch, edit onl
 | WS | Owns (paths) | Lane and gates | Depends on |
 |---|---|---|---|
 | **TL0 (M0-owned)** | `src/lib/contracts/lesson.ts`, `src/lib/contracts/media.ts`, `src/lib/contracts/tldr-hash.ts` (new), `src/lib/contracts/rows.ts`, `src/lib/contracts/index.ts`, `supabase/migrations/<ts>_lesson_tldr.sql`, `tests/unit/m0/media-assets.test.ts`, `AGENTS.md` (adds `tl0 tl1 tl2 tl3`) and `tests/unit/tl0/`. **TL0b** is a second M0 PR that touches only `lesson.ts` and `tests/unit/tl0/`. | Code lane (3 gates; UI/UX "N/A: no UI changes") | Nothing |
-| **TL-D (design)** | `docs/design/DESIGN.md`: a new §6.3.4 "TL;DR card", the §11 selector roles (`tldr-card`, `tldr-points`), and the `<details>` exception extended to the TL;DR transcript | Docs PR. The UI/UX agent is the design owner. | Nothing |
+| **TL-D (design)** | `docs/design/DESIGN.md`: §6.3.4 "TL;DR card and video" (card, video row, template, captions, states), the curriculum-row and rail notes, the §11 selector roles (`tldr-card`, `tldr-points`, `#tldr-video-toggle`, `#tldr-transcript-toggle`), and the `<details>` exception extended to the TL;DR video toggle and transcript | Docs PR. The UI/UX agent is the design owner. | Nothing |
 | **TL1 (content)** | The `tldr` frontmatter field only, in `content/lessons/l<n>/*.md`, with no body edits | Code lane (lessons are not in the content lane), labelled `needs-human-tool-check` | TL0 |
-| **TL2 (UI)** | New: `src/components/lesson/tldr-card.tsx`, `tests/unit/tl2/` and `tests/e2e/tl2/`. **Sanctioned cross-ownership edits,** each limited to what is listed, with the named owner as a required reader of the diff:<br>• **WS-C:** the card mount in `src/app/lessons/[slug]/page.tsx`, the first-point line in `src/components/lesson/curriculum-list.tsx`, and selecting `tldr` in `src/components/lesson/server/queries.ts`.<br>• **V3:** the `kind !== "tldr"` filter for the Watch block, and the TL;DR lookup, in `src/components/lesson/server/media.ts`.<br>• **WS-B:** `scripts/seed/lib/lesson.ts` (write `tldr` and include it in `content_hash`), and additive `tldr` fixtures in `tests/fixtures/` (existing assertions stay green). | Code lane (3 gates) | TL0 and TL-D |
+| **TL2 (UI)** | New: `src/components/lesson/tldr-card.tsx`, `tests/unit/tl2/` and `tests/e2e/tl2/`. **Sanctioned cross-ownership edits,** each limited to what is listed, with the named owner as a required reader of the diff:<br>• **WS-C:** the card mount (replacing the `<hr>`) in `src/app/lessons/[slug]/page.tsx`, the first-point line in `src/components/lesson/curriculum-list.tsx`, the rail entry in `src/components/lesson/lesson-sections.tsx`, the card block in `src/components/lesson/skeletons.tsx` (only in a PR after which every lesson on `main` has a `tldr`), and selecting `tldr` in `src/components/lesson/server/queries.ts`.<br>• **V3:** the `kind !== "tldr"` filter for the Watch block, the TL;DR lookup and the runtime staleness check (it calls `tldrSourceHash`), in `src/components/lesson/server/media.ts`; reuse of `watch-block.module.css` for `::cue`.<br>• **WS-B:** `scripts/seed/lib/lesson.ts` (write `tldr` and include it in `content_hash`), and additive `tldr` fixtures in `tests/fixtures/` (existing assertions stay green). | Code lane (3 gates) | TL0 and TL-D |
 | **TL3 (V1 extension)** | `media/remotion/src/tldr/**` (new), `media/remotion/src/Root.tsx`, `media/remotion/render.ts`, `media/remotion/package.json` and its lockfile (`yaml`), `media/README.md` (the TL;DR section), `public/media/lessons/*/tldr.*` (TL;DR files only, never another item's files) and `tests/unit/tl3/`. **Sanctioned edit (V4):** `scripts/seed/lib/media-stale.ts`, for TL-17. | Code lane (3 gates). `gate/uiux` reviews the pilot videos and posters at 360, 768 and 1440 px, and `gate/browser` attaches screenshots. | TL0 for the template; TL1, TL2 and TL-19 for the renders |
 
 ### 19.11 MoSCoW
 
 | Must (P0) | Should (P1) | Could (P2) | Won't |
 |---|---|---|---|
-| The contract, column and hash (TL0, TL0b); the 22 text TL;DRs; the card, Try this copy, the curriculum first point, the missing-data states and a11y (TL-5 to TL-9); the template and renders for all 22 lessons, the staleness and size checks, the player rules, "Read instead" and the transcript, the Watch exclusion, completeness and pilot approval (TL-10 to TL-16, TL-18, TL-19) | `content:stale` for TL;DRs (TL-17); the TL-M5 and TL-M6 survey questions | A "has video" marker on `/curriculum`; Try this following the active tool tab; a dark-mode poster; TL;DRs for workflows; letting §17's `watch` field point at a TL;DR (today it targets §15 items only) | Voiceover or audio; any kind of autoplay; per-viewer analytics or play tracking; hand-animated or per-lesson templates; a custom player; merging the TL;DR and Watch players; captions in other languages; Git LFS before the §19.6 trigger |
+| The contract, column and hash (TL0, TL0b); the 22 text TL;DRs; the card, Try this copy, the curriculum first point, the missing-data states and a11y (TL-5 to TL-9); the template and renders for all 22 lessons, the staleness and size checks, the player rules, "Read instead" and the transcript, the Watch exclusion, completeness and pilot approval (TL-10 to TL-16, TL-18, TL-19) | `content:stale` for TL;DRs (TL-17); the TL-M5 and TL-M6 survey questions | A "has video" marker on `/curriculum`; a dark-mode render; TL;DRs for workflows; letting §17's `watch` field point at a TL;DR (today it targets §15 items only) | Voiceover or audio; any kind of autoplay; per-viewer analytics or play tracking; hand-animated or per-lesson templates; a custom player; merging the TL;DR and Watch players; Try this following the active tool tab (declined in DESIGN §6.3.4: a flash and layout shift above the fold); full-text captions; captions in other languages; Git LFS before the §19.6 trigger |
 
 **Force-rank.** The text card delivers standalone value on its own. It meets the reading half of G7 on all 22 lessons with no video toolchain at all, which is why TL1 and TL2 come before any render. The video is P0 because it is a fixed owner decision, and TL-M6 checks whether it earns its cost.
 
@@ -2017,14 +2027,15 @@ The rules are the same as in §11 and §17.10: one worktree per branch, edit onl
 | S-2 | After TL0b, the all-or-nothing lesson validation includes `lessonTldrSchema`. |
 | §6 | `lessons` gains `tldr jsonb` (nullable; the seed enforces presence). |
 | C-1 | A lesson row shows `tldr.points[0]` in place of the objective when it is present (TL-7). |
-| L-1 | The order becomes: header, **TL;DR card**, concept body, tool tabs, Key differences, exercise panel, previous/next. The card adds one `h2` (`#tldr`). The right rail is unchanged unless TL-D adds an entry (Q-TLD5). |
-| §15.2 | The manifest `kind` gains `"tldr"`. For that kind, `source_hash` is defined in §19.5, not as a file hash. |
+| L-1 | The order becomes: header, **TL;DR card** (replacing the `<hr>`), concept body, tool tabs, Key differences, exercise panel, previous/next. The card adds one `h2` (`#tldr`), and the right rail lists "TL;DR" first when the card renders. |
+| §15.2 | The manifest `kind` gains `"tldr"`, and that kind also carries `template_version`. For that kind, `source_hash` is defined in §19.5, not as a file hash. |
+| MD-2 | Holds for the TL;DR player, except that the player sits behind a closed `<details>` row and its captions are signposts (§19.5). |
 | MD-1 | The Watch block excludes kind `tldr` (TL-16). |
 | MD-6 | Adds the TL;DR caps (TL-13) and the hash check (TL-12). The 20 MiB total does not change. |
 | MD-7 | Skips the "versions behind" rule for kind `tldr`, and adds the TL-17 cases. |
 | §15.4 P2 | The 50 MB LFS trigger is measured on `public/media/` history in `main` (§19.6). |
 | §15.5 | V1's ownership extends to `media/remotion/src/tldr/**` and `public/media/lessons/*/tldr.*` (TL3). |
-| DESIGN §11 | The `<details>` exception names a third case, the TL;DR transcript (TL-D). |
+| DESIGN §11 | The `<details>` exception names two more cases, the TL;DR video toggle and the TL;DR transcript (four in all, TL-D). |
 | §10 | Must: the §19.11 P0s. Should: TL-17 and the survey questions. Won't: as listed in §19.11. |
 
 ### 19.13 Risks
@@ -2034,9 +2045,9 @@ The rules are the same as in §11 and §17.10: one worktree per branch, edit onl
 | R-TL1 | **A TL;DR edit needs the Remotion toolchain,** so a content author without a set-up Mac cannot fix a typo alone. | Slower TL;DR edits, and pressure to skip the re-render | TL-12 makes skipping impossible, the failure prints the exact command, and `media/README.md` covers setup. This is the accepted cost of TL-M2. |
 | R-TL2 | **Git history grows** with every re-render, especially template bumps (up to 9.32 MiB each). | Slow clones; the LFS trigger arrives early | An integer template version with a review rule (§19.5); batched bumps with the owner's OK; per-item caps; re-rendering only stale items; squash merges keep the pilot's iterations out of `main`. |
 | R-TL3 | **The 400 KiB cap is an estimate,** not a measurement: no TL;DR has been rendered yet. | Pilot videos come out over the cap | The pilot measures it. If a 45 s video cannot meet 400 KiB at legible quality, the cap is revised in a TL0-owned file using the measured numbers, and the §19.6 arithmetic is redone. Even at 600 KiB per video, the worst case is 16.1 MiB, still under 20 MiB. |
-| R-TL4 | **Deploy order on hosted:** the TL2 build selects `lessons.tldr` before the hosted migration has been pushed. | Every lesson page shows the database error | §19.4: run `supabase db push` before the TL2 production deploy. The TL2 PR description lists it as a release step. |
+| R-TL4 | **Deploy order on hosted:** the TL2 build selects `lessons.tldr` before the hosted migration has been pushed. | Every lesson page shows the database error | §19.4: run `supabase db push` before the TL2 production deploy. The TL2 PR description lists it as a release step. Once the column exists, a hosted seed that lags or leads the deploy only hides the video (the runtime check, TL-8); it never shows a video that disagrees with the card. |
 | R-TL5 | A `try_this` command is unsafe, or wrong, on a client repo. | The first thing an engineer tries does harm, or fails | The §19.3 safety rules, and `needs-human-tool-check` on every TL;DR PR (TL-4). |
-| R-TL6 | **Two players on 5 lessons** confuse readers. | Someone watches the wrong one, or thinks the content is duplicated | Different eyebrows and frames (Q-TLD2); the Concept prose always sits between them; the pilot includes 4.2 to test exactly this. |
+| R-TL6 | **Two players on 5 lessons** confuse readers. | Someone watches the wrong one, or thinks the content is duplicated | Different place, frame, vocabulary ("TL;DR video", never "Watch"), poster and captions (Q-TLD2); the Concept prose always sits between them; the pilot includes 4.2 to test exactly this. |
 | R-TL7 | The video repeats the text card, and few people watch it. | Render and repo cost for little value | The TL-M6 review point at 4 weeks. The text card stands alone, so dropping the videos later loses nothing else. |
 | R-TL8 | A TL;DR drifts from its lesson when the lesson body changes. | The summary misstates the lesson | The `tldr` is in the same file as the body, so every lesson diff shows it. Re-verifying a lesson (`last_verified_on`) includes reading its TL;DR. |
 
@@ -2048,4 +2059,4 @@ The rules are the same as in §11 and §17.10: one worktree per branch, edit onl
 | Q-TL2 | Who drafts and who verifies the 22 TL;DRs? | TL1 | As in §14 Q5: agents draft, and a senior engineer verifies with `needs-human-tool-check`. |
 | Q-TL3 | Does the Remotion Company License (§15.8) cover 22 more renders, and more engineers rendering on their own Macs? | TL3 renders | Check the license terms before the pilot, and add seats if needed. |
 | Q-TL4 | Who sends the TL-M5 and TL-M6 survey questions? | Reporting only | The same answer as §14 Q4 and Q-MD2: they go out with the §15.7 survey. |
-| Q-TLD1 to Q-TLD7 | The design questions in §19.7 | TL2 | TL-D decides; §19.7 lists the PM defaults. |
+| Q-TLD1 to Q-TLD7 | The design questions in §19.7 | Resolved | Resolved by DESIGN §6.3.4 (PR #66) and adopted in §19.7. |
