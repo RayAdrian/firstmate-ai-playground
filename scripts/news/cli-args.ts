@@ -6,7 +6,7 @@ export const USAGE = `Usage: npm run news:run -- [--dry-run] [--no-score] [--sou
   --source=<slug> fetch only that source (even if it is disabled)
   --rescore       score pending items only, no fetching (same as npm run news:rescore)
   --publish       after the run, commit and push the snapshot to the news-snapshots branch
-  --gate          scheduled mode: run only at/after 08:00 Asia/Manila and only once a day`;
+  --gate          scheduled mode: run only at/after 07:00 Asia/Manila and only once a day`;
 
 export interface RunArgs {
   dryRun: boolean;

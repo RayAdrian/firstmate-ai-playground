@@ -34,7 +34,7 @@ Exercises live in `exercises/`. Each lesson's exercise panel has a one-line setu
 One Mac runs the scoring job. Local development databases import its snapshots with `npm run news:import`. The owner points the job at the hosted project with the hosted profile (PRD §18.8, DP-4).
 
 - `npm run news:run`: fetch, dedupe and score now (uses `claude -p` with no tools).
-- `npm run news:schedule:install -- --dry-run`: preview the LaunchAgent. Drop `--dry-run` to install. It runs hourly and acts once a day after 08:00 Asia/Manila, then publishes to the `news-snapshots` branch.
+- `npm run news:schedule:install -- --dry-run`: preview the LaunchAgent. Drop `--dry-run` to install. It runs hourly and acts once a day after 07:00 Asia/Manila, then publishes to the `news-snapshots` branch.
 - `npm run news:schedule:uninstall`: remove it. Logs are in `~/Library/Logs/fm-playground/news.log`.
 
 ## Contributing

@@ -837,7 +837,7 @@ Successful toggles announce nothing, because `aria-pressed` already reports the 
 
 **Skip link**: `<a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 bg-canvas text-link px-4 py-2 rounded-lg">Skip to content</a>`. Activating it focuses `<main tabindex=-1>`.
 
-**Footer**: `py-8 text-sm text-fg-muted`: "First Mate AI Playground · internal, runs locally", and on the right, "Content verified per lesson · News updates daily ~08:00 Manila". There are no links except `/progress`.
+**Footer**: `py-8 text-sm text-fg-muted`: "First Mate AI Playground · internal, runs locally", and on the right, "Content verified per lesson · News updates daily ~07:00 Manila". There are no links except `/progress`.
 
 ### 5.2 Grid and breakpoints
 
@@ -1698,7 +1698,7 @@ Check at 360, 768, **1024** and 1440, in light, dark and forced-colours:
 │ Today's digest                 (h1)  │    │ ┌─ lg:col-span-8 ─────────────────────────────────────────┐ ┌─ col-span-4 ────┐ │
 │ Wed 30 Sep · updated 08:03 (muted)   │    │ │ Today's digest                                  (h1)    │ │ ABOUT THE DIGEST │ │
 │ [Browse archive →]                   │    │ │ Wed 30 Sep · updated 08:03 · 10 items ≥ 60              │ │ Scored daily at  │ │
-│                                      │    │ │                                                         │ │ ~08:00 Manila for│ │
+│                                      │    │ │                                                         │ │ ~07:00 Manila for│ │
 │ ┌ NewsCard ────────────────────────┐ │    │ │ ┌ NewsCard 87 ────────────────────────────────────────┐ │ │ relevance to     │ │
 │ │ ┌──┐ Anthropic news        [🔖]  │ │    │ │ └─────────────────────────────────────────────────────┘ │ │ First Mate work. │ │
 │ │ │87│ Wed 30 Sep, 06:10           │ │    │ │ ┌ NewsCard 74 ────────────────────────────────────────┐ │ │ Only items ≥ 60  │ │

@@ -7,7 +7,7 @@
 | Date | 2026-09-29 |
 | Audience | Orchestrator agent (Opus), implementer agents (Sonnet), human reviewers |
 
-**Fixed decisions (do not reopen):** engineers-only audience; guided curriculum with hands-on exercises; the app makes no LLM calls for learners; 5 levels and 18 lessons; Claude Code and Codex CLI side by side in tabs; exercises live in `/exercises`; no auth; progress in localStorage; Next.js App Router + TypeScript + Tailwind + **local** Supabase; hybrid news pipeline (RSS, then `claude -p` scoring, then Supabase), run daily by launchd at ~08:00 Asia/Manila; firstmate.tech brand; three-gate merge process.
+**Fixed decisions (do not reopen):** engineers-only audience; guided curriculum with hands-on exercises; the app makes no LLM calls for learners; 5 levels and 18 lessons; Claude Code and Codex CLI side by side in tabs; exercises live in `/exercises`; no auth; progress in localStorage; Next.js App Router + TypeScript + Tailwind + **local** Supabase; hybrid news pipeline (RSS, then `claude -p` scoring, then Supabase), run daily by launchd at ~07:00 Asia/Manila (changed from 08:00 by the owner on 2026-10-02); firstmate.tech brand; three-gate merge process.
 
 > **Amended 2026-10-01 by §18:** the app is deployed to Vercel with a hosted Supabase project (local Supabase remains the development and test database). "No auth" and "progress in localStorage" stand. See §18.11.
 
@@ -254,10 +254,10 @@ Priorities are marked P0 (Must), P1 (Should) and P2 (Could). Every AC is written
 - Every run writes an `ingest_runs` row with counts (fetched, new, scored, pending, failed, skipped), duration, status and an error summary.
 
 **I-5 (P0)** Schedule and manual run.
-- A launchd agent (`ops/launchd/tech.firstmate.playground.news.plist`) runs `npm run news:run` daily at 08:00 Asia/Manila. The install and uninstall scripts are `npm run news:schedule:install` and `npm run news:schedule:uninstall`.
+- A launchd agent (`ops/launchd/tech.firstmate.playground.news.plist`) runs `npm run news:run` daily at 07:00 Asia/Manila (changed from 08:00 by the owner on 2026-10-02). The install and uninstall scripts are `npm run news:schedule:install` and `npm run news:schedule:uninstall`.
 - Logs go to `~/Library/Logs/fm-playground/news.log`.
 - The plist sets an absolute `PATH` that includes the `claude` and `node` locations, found by the install script. The install script fails loudly if either is missing.
-- If the Mac is asleep at 08:00, the job runs on wake, which is launchd's default for `StartCalendarInterval`. The digest date is still today's Manila date.
+- If the Mac is asleep at 07:00, the job runs on wake, which is launchd's default for `StartCalendarInterval`. The digest date is still today's Manila date.
 - Manual commands: `npm run news:run` (full run), `--dry-run` (fetch, dedupe and print; no DB writes, no claude), `--no-score` (fetch and store as pending), `--source=<slug>`, and `npm run news:rescore` (score pending items only).
 
 **I-6 (P1)** macOS notification on a `failed` run, and when 3 consecutive runs end `partial`.
@@ -509,7 +509,7 @@ Each worktree authors 3–4 lessons and exercises. Every lesson is verified agai
 |---|---|---|
 | Tool churn: Claude Code and Codex ship weekly, so lessons go stale or tab claims become wrong | Incorrect teaching, loss of trust | `tool_versions` and `last_verified_on` per lesson, release feeds in the news pipeline, `content:stale` (S-6), M7 target, and the "(verify)" rule in §7 |
 | Codex lacks a native equivalent for some L3–L4 features, such as hooks or plan mode (verify) | Uneven tabs | The "No native equivalent" plus workaround pattern (L-3) is first-class, and the seed enforces it |
-| launchd environment: `claude` not on PATH, keychain or login unavailable to a background job, Mac off at 08:00 | Silent missed digests | Absolute PATH set by the install script, spool and retry, `ingest_runs` status, failure notification (I-6), burn-in in M3. If the Mac is powered off (not asleep), that day is simply missed and the stale state (N-3) shows it. |
+| launchd environment: `claude` not on PATH, keychain or login unavailable to a background job, Mac off at 07:00 | Silent missed digests | Absolute PATH set by the install script, spool and retry, `ingest_runs` status, failure notification (I-6), burn-in in M3. If the Mac is powered off (not asleep), that day is simply missed and the stale state (N-3) shows it. |
 | Prompt injection through feed content | Manipulated scores or text | No tools enabled for `claude -p`, schema validation, length caps, and an injection fixture test (I-3). The UI renders "why it matters" as plain text. |
 | `claude -p` usage cost or quota on the stakeholder's subscription | Throttling | Batching, an 80-item cap, the HN prefilter and the 7-day backfill guard |
 | Local-only Supabase means the news DB exists only on the stakeholder's Mac | Other engineers see no daily news | **Q1** |

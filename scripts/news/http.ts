@@ -17,6 +17,58 @@ export interface FetchOptions {
   timeoutMs?: number;
   /** Cap on the DECODED body, so a gzip bomb is stopped as it inflates. */
   maxBytes?: number;
+  /** Test seam: replaces the global fetch. */
+  fetchImpl?: typeof fetch;
+}
+
+export interface RetryDeps {
+  sleep?: (ms: number) => Promise<void>;
+  log?: { info: (msg: string) => void };
+}
+
+/** Attempts per fetch and the wait before attempts 2 and 3. Worst case is 3 x timeout + 4s per source. */
+export const MAX_ATTEMPTS = 3;
+export const RETRY_BACKOFF_MS: readonly number[] = [1000, 3000];
+
+function isYouTubeFeed(url: string): boolean {
+  try {
+    const u = new URL(url);
+    return (u.hostname === "youtube.com" || u.hostname.endsWith(".youtube.com")) && u.pathname.startsWith("/feeds/");
+  } catch {
+    return false;
+  }
+}
+
+/** 5xx is retried for any source. 404 is retried only for youtube.com feeds, where it is known to be transient. */
+export function isRetryable(url: string, err: unknown): boolean {
+  if (!(err instanceof FetchError)) return false;
+  if (/^http 5\d\d$/.test(err.reason)) return true;
+  return err.reason === "http 404" && isYouTubeFeed(url);
+}
+
+/** fetchBytes with up to MAX_ATTEMPTS attempts and short backoff on transient failures. */
+export async function fetchBytesWithRetry(
+  url: string,
+  options: FetchOptions = {},
+  deps: RetryDeps = {},
+): Promise<{ bytes: Uint8Array; contentType: string | undefined }> {
+  const sleep = deps.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await fetchBytes(url, options);
+    } catch (err) {
+      if (attempt >= MAX_ATTEMPTS || !isRetryable(url, err)) throw err;
+      const wait = RETRY_BACKOFF_MS[attempt - 1] ?? 3000;
+      let host = "source";
+      try {
+        host = new URL(url).host;
+      } catch {
+        // keep generic label
+      }
+      deps.log?.info(`fetch ${host} failed (${(err as FetchError).reason}), retry ${attempt}/${MAX_ATTEMPTS - 1} in ${wait}ms`);
+      await sleep(wait);
+    }
+  }
 }
 
 /** GET a URL with a total timeout, redirect limit and streaming size cap. Only http(s). */
@@ -33,7 +85,7 @@ export async function fetchBytes(url: string, options: FetchOptions = {}): Promi
 
   const signal = AbortSignal.timeout(timeoutMs);
   try {
-    const res = await fetch(parsed, {
+    const res = await (options.fetchImpl ?? fetch)(parsed, {
       signal,
       redirect: "follow",
       headers: {

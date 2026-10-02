@@ -5,7 +5,7 @@
   with absolute paths and writes the result to ~/Library/LaunchAgents/. Do not load this file directly.
 
   Schedule: fires at minute 0 of EVERY hour. The run is gated (the gate flag) so it is a no-op unless it is
-  at or after 08:00 Asia/Manila and no scheduled run has finished today. See ops/launchd/README.md for why.
+  at or after 07:00 Asia/Manila and no scheduled run has finished today. See ops/launchd/README.md for why.
 -->
 <plist version="1.0">
 <dict>
@@ -41,7 +41,7 @@
     <integer>0</integer>
   </dict>
 
-  <!-- Also evaluate the gate at login/boot: covers a Mac that was powered off (not just asleep) at 08:00. -->
+  <!-- Also evaluate the gate at login/boot: covers a Mac that was powered off (not just asleep) at 07:00. -->
   <key>RunAtLoad</key>
   <true/>
 
