@@ -17,6 +17,13 @@ differences:
 exercise: ex-1-1-failing-test
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Give the agent a check that returns pass or fail, then read the diff, not its summary."
+    - "Start from a clean `git status`, so `git diff` shows only what the agent did."
+    - "Keep one task per session; return later with `claude --continue` or `codex resume --last`."
+  try_this:
+    all: { kind: prompt, text: "what does this project do?" }
 ---
 
 ## Concept

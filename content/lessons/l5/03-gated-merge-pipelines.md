@@ -17,6 +17,14 @@ differences:
 exercise: ex-5-3-gates
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Merge only when tests and reviews pass on the exact commit that was reviewed."
+    - "Make the review agent return JSON with `reviewed_sha` and a verdict a script can check."
+    - "Run the local review before you push: `/code-review`, or `codex review --base main`."
+  try_this:
+    claude: { kind: prompt, text: "/code-review" }
+    codex: { kind: command, text: "codex review --base main" }
 ---
 
 ## Concept

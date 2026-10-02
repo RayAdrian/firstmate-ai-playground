@@ -17,6 +17,14 @@ differences:
 exercise: ex-5-4-capstone
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Run the loop in order: spec, plan, failing tests, workers, gates, gated merge."
+    - "Give each worker its own worktree and an owned file list; implement only after tests fail."
+    - "Post each gate status on the exact commit reviewed, and rebase before the merge."
+  try_this:
+    claude: { kind: prompt, text: "/code-review main...HEAD" }
+    codex: { kind: command, text: "codex review --base main" }
 ---
 
 ## Concept

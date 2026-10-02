@@ -16,6 +16,13 @@ differences:
 exercise: ex-3-2-tdd
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Write the failing tests yourself and commit them before the agent starts."
+    - "Tell the agent the tests are the contract: do not edit, delete, skip or rename them."
+    - "Check with `git diff --exit-code -- tests/`; a deny rule or an instruction is not airtight."
+  try_this:
+    all: { kind: command, text: "git diff --exit-code -- tests/ && echo \"tests untouched\"" }
 ---
 
 ## Concept

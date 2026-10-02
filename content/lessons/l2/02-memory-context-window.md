@@ -17,6 +17,14 @@ differences:
 exercise: ex-2-2-long-task
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Start a fresh session when the task changes; carry over context in a handoff file."
+    - "Before you stop, have the agent write `HANDOFF.md`: Done, Next and Constraints."
+    - "Resume with `claude --continue` or `codex resume --last` instead of re-explaining."
+  try_this:
+    claude: { kind: prompt, text: "/context" }
+    codex: { kind: prompt, text: "/status" }
 ---
 
 ## Concept

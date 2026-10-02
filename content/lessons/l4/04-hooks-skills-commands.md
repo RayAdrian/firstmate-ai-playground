@@ -18,6 +18,13 @@ differences:
 exercise: ex-4-4-automation
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Use a hook, not an instruction, for anything that must happen every single time."
+    - "Format after each edit with a `PostToolUse` hook; block risky shell commands before they run."
+    - "Turn a repeatable task into a skill, then run it as `/name` or `$name`."
+  try_this:
+    all: { kind: prompt, text: "/hooks" }
 ---
 
 ## Concept

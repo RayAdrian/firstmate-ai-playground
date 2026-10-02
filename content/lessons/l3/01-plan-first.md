@@ -17,6 +17,14 @@ differences:
 exercise: ex-3-1-plan-first
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Ask for a written plan first, and approve it before the agent edits any code."
+    - "Request files to change, steps, risks and verification commands, then edit the plan."
+    - "A read-only mode makes planning safe: plan mode in Claude Code, `-s read-only` in Codex."
+  try_this:
+    claude: { kind: command, text: "claude --permission-mode plan" }
+    codex: { kind: command, text: "codex -s read-only" }
 ---
 
 ## Concept

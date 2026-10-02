@@ -18,6 +18,14 @@ differences:
 exercise: ex-2-1-conventions
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Write commands, conventions and a definition of done in `CLAUDE.md` or `AGENTS.md`."
+    - "Keep the file short and specific; Claude Code follows it less past about 200 lines."
+    - "Import with `@AGENTS.md` inside `CLAUDE.md` so both tools read one set of rules."
+  try_this:
+    claude: { kind: prompt, text: "/context" }
+    codex: { kind: prompt, text: "Summarize the project instructions you loaded." }
 ---
 
 ## Concept

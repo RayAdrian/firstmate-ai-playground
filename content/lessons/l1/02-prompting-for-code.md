@@ -17,6 +17,14 @@ differences:
 exercise: ex-1-2-vague-vs-precise
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Put the goal, context, constraints and a done-when check in every prompt."
+    - "Point at files with `@path` instead of describing where the code lives."
+    - "Pipe logs into one-shot mode: `cat build.log | claude -p` or `| codex exec`."
+  try_this:
+    claude: { kind: prompt, text: "Explain the logic in @src/utils/auth.js" }
+    codex: { kind: prompt, text: "Explain the logic in @src/utils/auth.ts" }
 ---
 
 ## Concept

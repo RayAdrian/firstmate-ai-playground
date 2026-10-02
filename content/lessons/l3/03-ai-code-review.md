@@ -17,6 +17,14 @@ differences:
 exercise: ex-3-3-review-seeded-bugs
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Run a local review before you push, then check each finding against the code."
+    - "Tell the reviewer what counts as a bug and what to skip, such as formatting CI covers."
+    - "Run security as its own pass: `/security-review`, or a security-focused `codex review` prompt."
+  try_this:
+    claude: { kind: prompt, text: "/code-review high" }
+    codex: { kind: command, text: "codex review --uncommitted" }
 ---
 
 ## Concept

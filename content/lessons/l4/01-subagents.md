@@ -14,10 +14,18 @@ differences:
   - "Limiting power: Claude Code takes a `tools` allowlist (and `disallowedTools`) per subagent. Codex's documented lever is `sandbox_mode`, for example `read-only`, plus `mcp_servers`."
   - "Delegation: Claude Code can delegate on its own from a subagent's description, or you force it with an `@-mention`. In Codex you ask for it explicitly, for example 'spawn one agent per point'."
   - "Models: Claude Code sets `model` per subagent (sonnet, opus, haiku, `inherit`). Codex sets `model` and `model_reasoning_effort` per agent file, with defaults under `[agents]`."
-  - "Watching them: Claude Code shows a subagent panel below the prompt and lists them in `/tasks`. Codex uses `/agents` (or `/subagents`) to switch between active agent threads."
+  - "Watching them: Claude Code shows a subagent panel below the prompt and lists them in `/tasks`. Codex uses `/agent` (or `/subagents`) to switch between active agent threads."
 exercise: ex-4-1-subagents
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Hand noisy work, like test runs, to a subagent that returns a short summary."
+    - "Scope each subagent: a `tools` allowlist in Claude Code, `sandbox_mode` in Codex."
+    - "Stay in one session for small tasks; delegate when output would flood your context."
+  try_this:
+    claude: { kind: prompt, text: "Use the test-runner subagent to run the suite" }
+    codex: { kind: prompt, text: "Spawn the test-runner agent to run the suite." }
 ---
 
 ## Concept
@@ -200,7 +208,7 @@ Have the reviewer agent review my changes before I commit.
 ```
 
 - Built-in agents: `default` (general purpose), `worker` (implementation and fixes) and `explorer` (read-heavy exploration). A custom agent with the same name as a built-in wins.
-- In the CLI, `/agents` (or `/subagents`) switches between active agent threads so you can inspect one.
+- In the CLI, `/agent` (or `/subagents`) switches between active agent threads so you can inspect one.
 - Global settings live under `[agents]` in `config.toml`: `enabled`, `max_concurrent_threads_per_session` (`max_threads` still works as an alias), `default_subagent_model` and `default_subagent_reasoning_effort`.
 
 ```toml
