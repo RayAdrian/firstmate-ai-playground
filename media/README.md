@@ -31,3 +31,15 @@ Design rules for frames: tokens from `docs/design/tokens.css` (copied into `src/
 Adding an item: create `src/<id>/` with the three files, register the composition in `src/Root.tsx`, run `media:render -- <id>`.
 
 Gotchas: Remotion's bundler needs TypeScript 5.x (`typescript.sys`), so `media/remotion` pins 5.9 and not the native 7.x. `zod` is pinned to the version Remotion expects.
+
+## TL;DR videos (`media/remotion/src/tldr/`, PRD section 19)
+
+One `tldr` composition renders every lesson's TL;DR from its `tldr` frontmatter (no per-lesson code). `beats.ts` (pure) holds the beats, cues, durations, VTT and transcript; `wrap.ts` (pure) holds the text wrapping and the fit check; `calc.ts` measures the real text in the browser with `@remotion/layout-utils` inside `calculateMetadata`, so an over-long bullet fails the render before any frame is drawn, naming the lesson slug and bullet index. Bump `template.json` only when a change alters what some frame shows (every bump makes all TL;DR videos stale).
+
+```bash
+npm run media:render -- --tldr                    # every lesson with a tldr, only the stale ones
+npm run media:render -- --tldr <slug> ...         # named lessons (add --force to re-render a fresh one)
+npm run media:render -- --tldr <slug> --props draft.json --out /tmp/pilot   # draft props, own output folder (pilot; nothing committed)
+```
+
+Output per lesson: `tldr.mp4` (at most 400 KiB), `tldr.webp` (the title frame, at most 30 KiB), `tldr.vtt` (signpost cues), `tldr.txt` (full transcript), `tldr.media.json` (`kind: "tldr"`, `source_hash` from `src/lib/contracts/tldr-hash.ts`, `template_version`). The encoder picks the lowest CRF that meets the cap and fails rather than lowering the resolution.

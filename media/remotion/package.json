@@ -13,11 +13,13 @@
     "@remotion/bundler": "4.0.509",
     "@remotion/cli": "4.0.509",
     "@remotion/fonts": "4.0.509",
+    "@remotion/layout-utils": "4.0.509",
     "@remotion/renderer": "4.0.509",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "remotion": "4.0.509",
     "sharp": "0.35.5",
+    "yaml": "2.9.1",
     "zod": "4.4.3"
   },
   "devDependencies": {
