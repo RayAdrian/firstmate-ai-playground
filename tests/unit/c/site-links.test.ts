@@ -1,8 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { REPO_CLONE_CMD, REPO_URL, exerciseFolderUrl, exercisesTreeUrl } from "@/lib/site";
+import { REPO_URL } from "@/lib/contracts";
+import { REPO_CLONE_CMD, exerciseFolderUrl, exercisesTreeUrl } from "@/lib/site";
 
 describe("repo links", () => {
-  it("has one repo URL", () => {
+  it("derives every URL from the contract REPO_URL", () => {
+    expect(REPO_CLONE_CMD.startsWith(`git clone ${REPO_URL}`)).toBe(true);
+    expect(exercisesTreeUrl().startsWith(REPO_URL)).toBe(true);
+    expect(exerciseFolderUrl("exercises/x/starter").startsWith(REPO_URL)).toBe(true);
+  });
+
+  it("builds the expected values", () => {
     expect(REPO_URL).toBe("https://github.com/RayAdrian/firstmate-ai-playground");
     expect(REPO_CLONE_CMD).toBe("git clone https://github.com/RayAdrian/firstmate-ai-playground.git");
     expect(exercisesTreeUrl()).toBe(`${REPO_URL}/tree/main/exercises`);

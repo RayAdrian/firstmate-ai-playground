@@ -1,5 +1,6 @@
-/** The one place the repo URL lives. Components build every GitHub link from here. */
-export const REPO_URL = "https://github.com/RayAdrian/firstmate-ai-playground";
+import { REPO_URL } from "@/lib/contracts";
+
+/** The repo URL lives in the contracts (WF-37). Components build every GitHub link from the helpers here. */
 
 export const REPO_CLONE_CMD = `git clone ${REPO_URL}.git`;
 
