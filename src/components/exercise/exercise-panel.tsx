@@ -8,6 +8,7 @@ import { CommandLine, PlainCodeBlock } from "@/components/ui/command-line";
 import { ToolTabs } from "@/components/lesson/tool-tabs";
 import type { Tool } from "@/components/lesson/tool";
 import { announce, useChecklist } from "@/lib/progress";
+import { ExerciseGithubLink } from "./github-link";
 import { splitPromptSessions } from "./prompt-sessions";
 
 export type ExercisePanelData = {
@@ -84,6 +85,7 @@ export function ExercisePanel({ exercise }: { exercise: ExercisePanelData }) {
       <p className="mt-2 text-sm text-fg-muted">
         Repo <code className="font-mono">{exercise.repoPath}</code>
       </p>
+      <ExerciseGithubLink repoPath={exercise.repoPath} className="text-sm" />
 
       <StepHeading n={1}>Set up</StepHeading>
       <CommandLine label="Setup" command={exercise.setupCmd} />

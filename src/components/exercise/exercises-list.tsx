@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui";
 import { EYEBROW_CLASS } from "@/components/lesson/inline-text";
+import { ExerciseGithubLink } from "./github-link";
 import { ExerciseProgress } from "./exercise-progress";
 
 export type ExerciseListEntry = {
@@ -11,6 +12,7 @@ export type ExerciseListEntry = {
   lessonTitle: string;
   lessonNumber: string;
   automated: boolean;
+  repoPath: string;
   itemIds: string[];
 };
 
@@ -28,7 +30,7 @@ export function ExercisesList({ exercises }: { exercises: readonly ExerciseListE
           <caption className="sr-only">Exercises</caption>
           <thead>
             <tr className="border-b border-divider text-sm text-fg-muted">
-              {["Level", "Exercise", "Lesson", "Verify", "Progress"].map((h) => (
+              {["Level", "Exercise", "Lesson", "Verify", "Progress", "Repo"].map((h) => (
                 <th key={h} scope="col" className="px-3 py-2 font-medium">
                   {h}
                 </th>
@@ -55,6 +57,9 @@ export function ExercisesList({ exercises }: { exercises: readonly ExerciseListE
                 </td>
                 <td className="whitespace-nowrap px-3 py-3">
                   <ExerciseProgress slug={e.slug} itemIds={e.itemIds} />
+                </td>
+                <td className="whitespace-nowrap px-3 py-1">
+                  <ExerciseGithubLink repoPath={e.repoPath} />
                 </td>
               </tr>
             ))}
@@ -92,6 +97,7 @@ export function ExercisesList({ exercises }: { exercises: readonly ExerciseListE
                       <VerifyBadge automated={e.automated} />
                       <ExerciseProgress slug={e.slug} itemIds={e.itemIds} />
                     </div>
+                    <ExerciseGithubLink repoPath={e.repoPath} className="mt-1" />
                   </article>
                 ))}
             </div>
