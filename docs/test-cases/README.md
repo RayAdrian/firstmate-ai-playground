@@ -317,10 +317,10 @@ PRD stories hold several bullets; each bullet gets a sub-ID `<story>.<n>` in the
 | I-4.4 | P0 | Supabase unreachable → exit 2, cause logged, spool `.news-spool/<ts>.jsonl`, replayed first next run |
 | I-4.5 | P0 | Concurrent run → lock, second exits 0 "already running" |
 | I-4.6 | P0 | Every run writes `ingest_runs` row with counts, duration, status, error summary |
-| I-5.1 | P0 | launchd plist runs `npm run news:run` daily 08:00 Asia/Manila; install/uninstall scripts |
+| I-5.1 | P0 | launchd plist runs `npm run news:run` daily 07:00 Asia/Manila; install/uninstall scripts |
 | I-5.2 | P0 | Logs to `~/Library/Logs/fm-playground/news.log` |
 | I-5.3 | P0 | Absolute PATH with `claude` and `node`; install fails loudly if either missing |
-| I-5.4 | P0 | Asleep at 08:00 → runs on wake; digest date still today's Manila date |
+| I-5.4 | P0 | Asleep at 07:00 → runs on wake; digest date still today's Manila date |
 | I-5.5 | P0 | Manual: `news:run`, `--dry-run`, `--no-score`, `--source=<slug>`, `news:rescore` |
 | I-6.1 | P1 | macOS notification on `failed` run and on 3 consecutive `partial` runs |
 | I-7.1 | P2 | Thumbs up/down (P2, out of scope for this suite) |
@@ -357,7 +357,7 @@ File-local ambiguities are listed at the bottom of each workstream file as `AMB-
 | AMB-03 | No test hook for server "now", the claude path, timeouts or spool/lock/log dirs. | §4 hooks. |
 | AMB-04 | "Today" for N-3 and the header date and time: Manila or browser time zone? "Run time": `started_at` or `finished_at`? | Partly resolved: Manila, server-side (DESIGN §7, §8 row 6); header "Wed 30 Sep · updated 08:03" (DESIGN §6.5). Still open: `started_at` or `finished_at` for "updated". Cases assume `finished_at`. |
 | AMB-05 | P-4.2 requires a v1→v2 migration fixture, but not what the app does with a doc whose `version` is newer than the app knows, missing, or 0. | Unknown or newer version → P-2 reset + notice; a newer doc is never silently truncated and re-saved without the notice. Needs decision. |
-| AMB-06 | launchd `StartCalendarInterval` fires at 08:00 in the **Mac's** time zone, not Asia/Manila. If the Mac is set to another zone the job fires at the wrong Manila hour. | The install script must either assert the system zone is Asia/Manila (fail loudly otherwise) or compute the local hour equal to 08:00 Manila. Cases cover both; the decision picks one. |
+| AMB-06 | launchd `StartCalendarInterval` fires at 07:00 in the **Mac's** time zone, not Asia/Manila. If the Mac is set to another zone the job fires at the wrong Manila hour. | The install script must either assert the system zone is Asia/Manila (fail loudly otherwise) or compute the local hour equal to 07:00 Manila. Cases cover both; the decision picks one. |
 | AMB-07 | §14 Q1 snapshot contents are unspecified. If it carries only `news_items`, an importer has no `ingest_runs`, and N-1 ("latest digest_date that has a successful or partial run") shows nothing. Also unspecified: the effect of a push failure on run status, and how the commit happens without touching the user's checked-out branch or index. | **Resolved** by `newsSnapshotSchema`: a snapshot carries `runs` (all `ingest_runs` whose Manila date of `started_at` = `digest_date`) and `items`; upsert keys are run `id` and item `canonical_url`. Still open: the effect of a push failure on run status (cases assume `partial`) and committing without touching the user's checkout (cases assume a separate worktree or plumbing). |
 | AMB-08 | `news:import` conflict rules: same `canonical_url` with a different `id`, or a local item already scored differently. | Match by `canonical_url`; the snapshot wins for scoring fields only when the local row is not `scored`; ids are never rewritten (bookmarks key on `id`, N-5). |
 | AMB-09 | Archive "newest first": by `published_at`, `first_seen_at` or `digest_date`? The date range filters which field? Does the archive include pending/failed/skipped items, and does `min=0` include null scores? | Partly resolved by DESIGN §6.6: invalid `min` → 0; unscored items appear only at `min=0`; `from > to` → field error "End date is before start date." and no date filtering; submit resets `page`. Still open: the sort key and the date field. Cases assume `published_at` desc and `digest_date` inclusive. |

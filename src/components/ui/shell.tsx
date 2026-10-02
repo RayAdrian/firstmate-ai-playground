@@ -36,7 +36,7 @@ export function SiteFooter() {
         )}
       >
         <p>First Mate AI Playground · internal, runs locally</p>
-        <p>Content verified per lesson · News updates daily ~08:00 Manila</p>
+        <p>Content verified per lesson · News updates daily ~07:00 Manila</p>
       </div>
     </footer>
   );

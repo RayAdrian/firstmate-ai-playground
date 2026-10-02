@@ -46,20 +46,20 @@ describe("schedule gate", () => {
   });
   afterEach(() => fs.rmSync(tmp, { recursive: true, force: true }));
 
-  it("stays closed before 08:00 Manila", () => {
-    expect(gateDecision(marker, new Date("2026-09-30T07:59:00+08:00")).run).toBe(false);
+  it("stays closed before 07:00 Manila", () => {
+    expect(gateDecision(marker, new Date("2026-09-30T06:59:00+08:00")).run).toBe(false);
   });
-  it("opens at 08:00 Manila and later (late wake)", () => {
-    expect(gateDecision(marker, new Date("2026-09-30T08:00:00+08:00")).run).toBe(true);
+  it("opens at 07:00 Manila and later (late wake)", () => {
+    expect(gateDecision(marker, new Date("2026-09-30T07:00:00+08:00")).run).toBe(true);
     expect(gateDecision(marker, new Date("2026-09-30T19:45:00+08:00")).run).toBe(true);
   });
   it("closes once a scheduled run finished today, reopens tomorrow", () => {
-    recordScheduledRun(marker, "success", new Date("2026-09-30T08:05:00+08:00"));
+    recordScheduledRun(marker, "success", new Date("2026-09-30T07:05:00+08:00"));
     expect(gateDecision(marker, new Date("2026-09-30T09:00:00+08:00")).run).toBe(false);
-    expect(gateDecision(marker, new Date("2026-10-01T08:00:00+08:00")).run).toBe(true);
+    expect(gateDecision(marker, new Date("2026-10-01T07:00:00+08:00")).run).toBe(true);
   });
   it("keeps retrying after a failed run", () => {
-    recordScheduledRun(marker, "failed", new Date("2026-09-30T08:05:00+08:00"));
+    recordScheduledRun(marker, "failed", new Date("2026-09-30T07:05:00+08:00"));
     expect(gateDecision(marker, new Date("2026-09-30T09:00:00+08:00")).run).toBe(true);
   });
   it("ignores a corrupt marker", () => {

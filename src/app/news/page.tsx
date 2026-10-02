@@ -114,7 +114,7 @@ export default async function NewsPage() {
         <div className="rounded-card bg-surface p-6">
           <p className="text-xs font-bold uppercase tracking-eyebrow text-fg-muted">About the digest</p>
           <p className="mt-2 text-base text-fg">
-            Scored daily at about 08:00 Manila for relevance to First Mate work. Only items scoring{" "}
+            Scored daily at about 07:00 Manila for relevance to First Mate work. Only items scoring{" "}
             {RELEVANCE_BAR} or higher appear in the ranked list.
           </p>
           <div className="mt-2">{archiveLink}</div>

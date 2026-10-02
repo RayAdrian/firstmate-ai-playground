@@ -76,7 +76,7 @@ export async function main(argv: readonly string[], env: Env = process.env): Pro
       {
         store,
         sources,
-        fetchSource: (s) => fetchSource(s, { timeoutMs: fetchTimeout }),
+        fetchSource: (s) => fetchSource(s, { timeoutMs: fetchTimeout }, { log }),
         claude: (p) => runClaude(p, { env, timeoutMs: claudeTimeout }),
         profile,
         spoolDir: paths.spoolDir,

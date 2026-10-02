@@ -670,7 +670,7 @@ Shared definitions for this file:
 - **Preconditions / fixtures:** Install script with system-zone lookup stubbed (`FM_SYSTEM_TZ=America/Los_Angeles`).
 - **Steps:**
   1. `npm run news:schedule:install`.
-- **Expected:** Per AMB-06, one of: (a) install exits non-zero naming the zone mismatch; or (b) plist `StartCalendarInterval.Hour` = the local hour equal to 08:00 Manila (17 in PDT on 2026-09-30) and the script prints a warning that DST will shift it. Under (b), also assert a DST warning when the zone observes DST. The chosen behavior must be the only one that passes.
+- **Expected:** Per AMB-06, one of: (a) install exits non-zero naming the zone mismatch; or (b) plist `StartCalendarInterval.Hour` = the local hour equal to 07:00 Manila (16 in PDT on 2026-09-30) and the script prints a warning that DST will shift it. Under (b), also assert a DST warning when the zone observes DST. The chosen behavior must be the only one that passes.
 - **Notes:** With `FM_SYSTEM_TZ=Asia/Manila` install succeeds with `Hour: 8` and no warning.
 
 ### TC-E-56: node path changes after install (nvm upgrade)
@@ -701,12 +701,12 @@ Shared definitions for this file:
 - **Preconditions / fixtures:** Tagged `@manual`. Stakeholder Mac, real Supabase, real claude, installed agent.
 - **Steps:**
   1. `launchctl print gui/$(id -u)/tech.firstmate.playground.news`.
-  2. Next morning after 08:00 Manila, query the latest run row and tail `news.log`.
+  2. Next morning after 07:00 Manila, query the latest run row and tail `news.log`.
   3. Repeat for 5 consecutive mornings (M3).
-- **Expected:** Agent listed with the calendar trigger. Each morning has one run row with `trigger=schedule`, `status` in (success, partial), `started_at` between 08:00 and 08:10 Manila when awake. No manual intervention in 5 days.
+- **Expected:** Agent listed with the calendar trigger. Each morning has one run row with `trigger=schedule`, `status` in (success, partial), `started_at` between 07:00 and 07:10 Manila when awake. No manual intervention in 5 days.
 - **Notes:** Manual. Record results in the M3 PR.
 
-### TC-E-59: Mac asleep at 08:00 runs on wake
+### TC-E-59: Mac asleep at 07:00 runs on wake
 - **ACs:** I-5.4
 - **Level:** e2e
 - **Priority:** P0
@@ -715,14 +715,14 @@ Shared definitions for this file:
 - **Steps:**
   1. Wake the Mac; wait 2 minutes; query the run row.
 - **Expected:** A run with `trigger=schedule` started after wake (≈ 08:20), with new items `digest_date` = today's Manila date. Only one run for that day (launchd coalesces missed events).
-- **Notes:** Manual. Mac powered off at 08:00 → no run that day; `/news` shows the N-3 stale state (WS-F covers the UI).
+- **Notes:** Manual. Mac powered off at 07:00 → no run that day; `/news` shows the N-3 stale state (WS-F covers the UI).
 
 ### TC-E-60: Background job without keychain access
 - **ACs:** I-4.1, I-5.1
 - **Level:** e2e
 - **Priority:** P0
 - **Category:** Error
-- **Preconditions / fixtures:** Tagged `@manual`. Stakeholder Mac, user logged out of the GUI session (screen locked or fast-user-switched) at 08:00, or claude logged out.
+- **Preconditions / fixtures:** Tagged `@manual`. Stakeholder Mac, user logged out of the GUI session (screen locked or fast-user-switched) at 07:00, or claude logged out.
 - **Steps:**
   1. Let the scheduled run fire; inspect run row and log.
 - **Expected:** If claude cannot authenticate: items stored `pending` with `attempts+1`, run `partial`, log names the auth failure. Never `success` with 0 scored items silently.
