@@ -55,9 +55,17 @@ axis:
 
 So the **description is the trigger**. The agent matches your request against it, and nothing else. A description that says what the skill does and when to use it, in the words a person would type, loads at the right moment. A vague one never does.
 
-| Weak | Strong |
-|---|---|
-| `Helps with migrations` | `Review a SQL or Supabase migration for unsafe changes (table locks, dropped columns, missing RLS). Use when the user asks to review, check or sanity-check a migration or schema change.` |
+Weak:
+
+```text
+Helps with migrations
+```
+
+Strong:
+
+```text
+Review a SQL or Supabase migration for unsafe changes (table locks, dropped columns, missing RLS). Use when the user asks to review, check or sanity-check a migration or schema change.
+```
 
 Write it as "what it does" plus "Use when ..." with the phrases people really say. Put the key use case first, because long descriptions are cut. Keep it specific: "Use when the user asks about databases" makes the skill fire on everything.
 
@@ -65,11 +73,13 @@ Write it as "what it does" plus "Use when ..." with the phrases people really sa
 
 | Mechanism | Loads | Use it for |
 |---|---|---|
-| `CLAUDE.md` / `AGENTS.md` | Every session, in full | Facts and rules that always apply: commands, conventions, "never touch X". |
-| Skill | Description always, body when used | A procedure for one kind of task: steps, templates, scripts. |
-| Hook | Runs on a lifecycle event, no model decision | Something that must happen every time, and a script can check. A skill cannot promise that. |
-| Slash command | Only when you type it | Claude Code merged custom commands into skills, so a skill with `disable-model-invocation: true` is a command. Codex deprecated its file-based custom prompts in favour of skills. |
-| Subagent | A separate context with its own prompt and tools | Delegating work so the main session stays small. A skill runs in your conversation instead; Claude Code can also run one in a subagent with `context: fork`. |
+| `CLAUDE.md` / `AGENTS.md` | Every session | Facts and rules that always apply |
+| Skill | Description always, body when used | A procedure for one kind of task |
+| Hook | On a lifecycle event | Must happen every time |
+| Slash command | When you type it | A task you trigger yourself |
+| Subagent | Its own context | Delegated work |
+
+A skill cannot promise it runs, which is what a hook is for. Claude Code merged custom commands into skills, so a skill with `disable-model-invocation: true` is a command; Codex deprecated its file-based custom prompts in favour of skills. A skill runs in your conversation, while a subagent has its own prompt, tools and context, so the main session stays small. Claude Code can also run a skill in a subagent with `context: fork`.
 
 If a rule must hold every time, a skill is the wrong tool: move it to a hook.
 
