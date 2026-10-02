@@ -17,6 +17,14 @@ differences:
 exercise: ex-5-2-team
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Split work by file ownership, not by topic, so workers never edit the same file."
+    - "Write each worker a self-contained brief; it cannot see your conversation."
+    - "Pass results through files like `handoffs/<name>.md`, and lock shared resources."
+  try_this:
+    claude: { kind: command, text: "claude agents" }
+    codex: { kind: prompt, text: "/agent" }
 ---
 
 ## Concept

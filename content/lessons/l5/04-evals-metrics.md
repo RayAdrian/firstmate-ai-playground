@@ -17,6 +17,13 @@ differences:
 exercise: ex-5-4-evals-metrics
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Test prompts, skills and `CLAUDE.md` against a small set of real tasks."
+    - "Check outcomes in code first: tests pass, only expected files change, cost stays under a cap."
+    - "Track lead time, review rounds, escaped defects and cost per merged PR."
+  try_this:
+    all: { kind: command, text: "gh pr list --state merged --limit 100 --json number,createdAt,mergedAt,additions,deletions" }
 ---
 
 ## Concept

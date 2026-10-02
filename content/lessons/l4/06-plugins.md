@@ -18,6 +18,14 @@ differences:
 exercise: ex-4-6-plugin
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Package skills, hooks and MCP servers as one versioned plugin your team installs."
+    - "Share it from a team marketplace in a git repo, and enable it per project."
+    - "Read a plugin's hooks before you install it; they run with your permissions."
+  try_this:
+    claude: { kind: command, text: "claude plugin marketplace list" }
+    codex: { kind: command, text: "codex plugin list" }
 ---
 
 ## Concept

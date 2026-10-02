@@ -18,6 +18,14 @@ differences:
 exercise: ex-3-5-verify-unattended-run
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Commit before a long run, so a git checkpoint is always one command away."
+    - "Give every unattended run a stop condition and a cap on turns, time or spend."
+    - "Decide what evidence a run must leave (log, diff, test output) before you trust it."
+  try_this:
+    claude: { kind: command, text: "claude agents" }
+    codex: { kind: command, text: "codex cloud list" }
 ---
 
 ## Concept

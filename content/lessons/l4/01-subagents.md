@@ -18,6 +18,14 @@ differences:
 exercise: ex-4-1-subagents
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Hand noisy work, like test runs, to a subagent that returns a short summary."
+    - "Scope each subagent: a `tools` allowlist in Claude Code, `sandbox_mode` in Codex."
+    - "Stay in one session for small tasks; delegate when output would flood your context."
+  try_this:
+    claude: { kind: prompt, text: "Use the test-runner subagent to run the suite and tell me what is failing" }
+    codex: { kind: prompt, text: "Spawn the test-runner agent to run the suite and tell me what is failing." }
 ---
 
 ## Concept

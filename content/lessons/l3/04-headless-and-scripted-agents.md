@@ -18,6 +18,14 @@ differences:
 exercise: ex-3-4-headless-changelog
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Run agents from scripts with `claude -p` or `codex exec`, and read stdout."
+    - "Ask for JSON with `--json-schema` (Claude) or `--output-schema` (Codex), not parsed prose."
+    - "Grant only what the job needs: `--allowedTools` in Claude, the read-only default in `codex exec`."
+  try_this:
+    claude: { kind: command, text: "claude -p \"Summarize README.md\" --allowedTools \"Read\"" }
+    codex: { kind: command, text: "codex exec \"summarize the repo structure\"" }
 ---
 
 ## Concept

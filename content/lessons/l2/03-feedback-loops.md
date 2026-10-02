@@ -18,6 +18,13 @@ differences:
 exercise: ex-2-3-feedback-loop
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Put your test, typecheck and lint commands in the context file so the agent checks itself."
+    - "Ban shortcuts there too: no `@ts-ignore`, and no editing tests to get green."
+    - "Instructions can be skipped; a `Stop` hook that exits 2 blocks until checks pass."
+  try_this:
+    all: { kind: prompt, text: "Run npm run typecheck, npm run lint and npm test. Report what fails. Do not edit files." }
 ---
 
 ## Concept

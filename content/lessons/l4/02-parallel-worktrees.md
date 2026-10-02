@@ -17,6 +17,13 @@ differences:
 exercise: ex-4-2-worktrees
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Run parallel agents in separate `git worktree` checkouts, one branch each."
+    - "Give each agent different files, so merges do not conflict."
+    - "A new worktree has no `.env` or `node_modules`; set them up before you start."
+  try_this:
+    all: { kind: command, text: "git worktree list" }
 ---
 
 ## Concept

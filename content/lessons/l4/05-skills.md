@@ -18,6 +18,13 @@ differences:
 exercise: ex-4-5-skill-triggers
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Write a skill's description as when to use it, so the agent loads it at the right time."
+    - "Keep steps in `SKILL.md` and bulky detail in linked files, which load only when needed."
+    - "If a skill does not fire, check `/skills`, then make its description more specific."
+  try_this:
+    all: { kind: prompt, text: "/skills" }
 ---
 
 ## Concept

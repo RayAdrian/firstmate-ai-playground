@@ -17,6 +17,14 @@ differences:
 exercise: ex-5-1-routing
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Plan and review on a strong model, then implement on a faster, cheaper one."
+    - "Set model and effort per phase: `/model`, `--effort`, `opusplan`, or a Codex `--profile`."
+    - "Time and cost one real task on each setup before you standardize on it."
+  try_this:
+    claude: { kind: command, text: "claude --model sonnet --effort medium" }
+    codex: { kind: command, text: "codex debug models | jq -r '.models[] | select(.visibility==\"list\") | .slug'" }
 ---
 
 ## Concept

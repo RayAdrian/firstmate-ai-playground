@@ -17,6 +17,14 @@ differences:
 exercise: ex-4-3-mcp-browser
 claude_no_equivalent: false
 codex_no_equivalent: false
+tldr:
+  points:
+    - "Add an MCP server only when the agent needs a tool it lacks, like a real browser."
+    - "Choose the scope: private to you by default, or a committed project file your team shares."
+    - "Treat each server as code on your machine: read it and limit the tools it exposes."
+  try_this:
+    claude: { kind: command, text: "claude mcp list" }
+    codex: { kind: command, text: "codex mcp list" }
 ---
 
 ## Concept
