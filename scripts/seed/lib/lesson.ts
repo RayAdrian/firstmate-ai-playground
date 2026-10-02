@@ -1,5 +1,5 @@
 import type { ZodError } from "zod";
-import { lessonFrontmatterSchema } from "../../../src/lib/contracts";
+import { lessonFrontmatterSchema, type LessonTldr } from "../../../src/lib/contracts";
 import { validateLessonDiagrams } from "../../../src/components/diagram/fences";
 import type { SeedIssue } from "./issues";
 import { isRealDate, manilaDate, normalizeText, sha256 } from "./text";
@@ -36,6 +36,8 @@ export interface ParsedLesson {
   codex_workaround_md: string | null;
   differences: string[];
   tool_versions: { claude_code: string; codex_cli: string };
+  /** Lesson TL;DR (PRD §19); null when the lesson has none. */
+  tldr: LessonTldr | null;
   last_verified_on: string;
   content_hash: string;
   exerciseSlug: string | null;
@@ -265,6 +267,7 @@ export function parseLessonFile(raw: string, file: string, opts: { now: Date }):
     codex_workaround_md: fm.codex_no_equivalent ? codexBody : null,
     differences: fm.differences,
     tool_versions: fm.tool_versions,
+    tldr: fm.tldr ?? null,
     last_verified_on: fm.last_verified_on,
     content_hash: "",
     exerciseSlug: fm.exercise ?? null,
@@ -294,6 +297,7 @@ export function hashLesson(l: ParsedLesson): string {
       l.differences,
       [l.tool_versions.claude_code, l.tool_versions.codex_cli],
       l.last_verified_on,
+      l.tldr,
     ]),
   );
 }

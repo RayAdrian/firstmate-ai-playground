@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { newsTagSchema, scoringStatusSchema } from "./news";
-import { toolVersionsSchema } from "./lesson";
+import { lessonTldrSchema, toolVersionsSchema } from "./lesson";
 import { diagramSchema } from "./diagram";
 import { reactionKeySchema } from "./community";
 import {
@@ -45,6 +45,8 @@ export const lessonRowSchema = z
   codex_workaround_md: z.string().min(1).nullable(),
   differences: z.array(z.string()),
   tool_versions: toolVersionsSchema.partial(),
+  /** Lesson TL;DR (PRD §19.4); null until a lesson is seeded with one. */
+  tldr: lessonTldrSchema.nullable(),
   last_verified_on: date.nullable(),
   content_hash: z.string(),
   archived_at: ts.nullable(),

@@ -134,6 +134,7 @@ export async function applyContent(db: Db, content: LoadedContent, now: Date): P
       codex_workaround_md: l.codex_workaround_md,
       differences: l.differences,
       tool_versions: l.tool_versions,
+      tldr: l.tldr,
       last_verified_on: l.last_verified_on,
       content_hash: l.content_hash,
       archived_at: null,

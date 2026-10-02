@@ -114,7 +114,7 @@ describe("contracts", () => {
       slug: "l3-plan", sort: 1, title: "t", objective: "o", est_minutes: 10, concept_md: "c",
       claude_md: "x", codex_md: null, claude_no_equivalent: false, codex_no_equivalent: true,
       claude_workaround_md: null, codex_workaround_md: null, differences: ["d"],
-      tool_versions: {}, last_verified_on: null, content_hash: "h", archived_at: null,
+      tool_versions: {}, tldr: null, last_verified_on: null, content_hash: "h", archived_at: null,
       updated_at: "2026-09-30T00:00:00Z",
     };
     expect(lessonRowSchema.safeParse(lesson).success).toBe(false);
