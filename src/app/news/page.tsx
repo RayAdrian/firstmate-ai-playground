@@ -48,7 +48,7 @@ export default async function NewsPage({
         <DayStepper current={requested} prev={prev} next={next} show={show} />
         <div className="mt-4">
           <EmptyState icon={<Newspaper />} title={`No digest for ${day}`}>
-            There was no successful news run that day. Use the links above to jump to the nearest day with a digest.
+            There was no successful news run that day. Use Previous day or Next day to jump to the nearest digest.
           </EmptyState>
         </div>
         <div className="mt-2">
@@ -96,7 +96,9 @@ export default async function NewsPage({
   const scoredAll = digest.scoredAll ?? digest.ranked;
   const aboveBar = scoredAll.filter((i) => (i.score ?? 0) >= RELEVANCE_BAR);
   const belowBar = scoredAll.filter((i) => (i.score ?? 0) < RELEVANCE_BAR);
-  const shownAbove = show === "all" ? aboveBar : digest.ranked;
+  const topIds = new Set(digest.ranked.map((i) => i.id));
+  const alsoAbove = aboveBar.filter((i) => !topIds.has(i.id));
+  const shownAbove = digest.ranked;
   const archiveLink = (
     <Link
       href="/news/archive"
@@ -134,10 +136,16 @@ export default async function NewsPage({
           {title}
         </h1>
         <p className="mt-1 text-base text-fg-muted">
-          <time dateTime={digest.digestDate}>{day}</time> · updated {formatTime(digest.updatedAt)}
+          <time dateTime={digest.digestDate} className="sr-only">
+            {day}
+          </time>
+          Updated {formatTime(digest.updatedAt)}
           <span className="hidden lg:inline">
             {" "}
-            · {digest.ranked.length} {digest.ranked.length === 1 ? "item" : "items"} ≥ {RELEVANCE_BAR}
+            ·{" "}
+            {aboveBar.length > digest.ranked.length
+              ? `top ${digest.ranked.length} of ${aboveBar.length} ≥ ${RELEVANCE_BAR}`
+              : `${digest.ranked.length} ${digest.ranked.length === 1 ? "item" : "items"} ≥ ${RELEVANCE_BAR}`}
           </span>
         </p>
         <DayStepper current={digest.digestDate} prev={prev} next={next} show={show} />
@@ -146,7 +154,7 @@ export default async function NewsPage({
         <ShowToggle
           date={requested}
           show={show}
-          relevantCount={digest.ranked.length}
+          topCount={digest.ranked.length}
           allCount={scoredAll.length}
         />
 
@@ -188,15 +196,33 @@ export default async function NewsPage({
             ))}
           </ol>
         ) : null}
+        {show === "all" && alsoAbove.length > 0 ? (
+          <>
+            <h2 className="mt-8 border-t border-border pt-4 text-2xl font-bold text-fg-strong">
+              Also above the bar
+              <span className="text-base font-normal text-fg-muted">
+                {" "}
+                · scored {RELEVANCE_BAR}+, outside the top {digest.ranked.length} ({alsoAbove.length})
+              </span>
+            </h2>
+            <ol aria-label="Also above the relevance bar" className="mt-3 space-y-3 md:space-y-4">
+              {alsoAbove.map((item) => (
+                <li key={item.id}>
+                  <NewsCard item={item} />
+                </li>
+              ))}
+            </ol>
+          </>
+        ) : null}
         {show === "all" && belowBar.length > 0 ? (
           <>
-            <h3 className="mt-8 border-t border-border pt-4 text-lg font-bold text-fg-strong">
+            <h2 className="mt-8 border-t border-border pt-4 text-2xl font-bold text-fg-strong">
               Below the bar
-              <span className="font-normal text-fg-muted">
+              <span className="text-base font-normal text-fg-muted">
                 {" "}
-                · scored under {RELEVANCE_BAR}
+                · scored under {RELEVANCE_BAR} ({belowBar.length})
               </span>
-            </h3>
+            </h2>
             <ol aria-label="Below the relevance bar" className="mt-3 space-y-3">
               {belowBar.map((item) => (
                 <li key={item.id}>

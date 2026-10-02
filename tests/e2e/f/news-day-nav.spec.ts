@@ -27,7 +27,7 @@ test.describe("day navigation", () => {
   test("a past day shows its own digest, relevance bar and unscored section", async ({ page }) => {
     await go(page, "/news?date=2026-09-29");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Digest for Tue 29 Sep");
-    await expect(page.locator("body")).toContainText("Tue 29 Sep · updated 08:04");
+    await expect(page.locator("body")).toContainText("Updated 08:04");
     expect(await cardTitles(page.getByRole("list", { name: "Digest for Tue 29 Sep" }))).toEqual(
       titles(["n20", "n24", "n21"]),
     );
@@ -68,7 +68,7 @@ test.describe("day navigation", () => {
       await go(page, `/news?date=${bad}`);
       await expect(page.getByRole("heading", { level: 1 })).toHaveText("Today's digest");
       await expect(page.getByText(/Showing the latest digest/)).toBeVisible();
-      await expect(page.locator("body")).toContainText("Wed 30 Sep · updated 08:03");
+      await expect(page.locator("body")).toContainText("Updated 08:03");
     }
   });
 
@@ -91,11 +91,12 @@ test.describe("day navigation", () => {
 test.describe("relevance toggle", () => {
   test("defaults to Relevant with counts, matching the current list", async ({ page }) => {
     await go(page, "/news");
-    const rel = toggle(page).getByRole("link", { name: "Relevant (10)" });
+    const rel = toggle(page).getByRole("link", { name: "Top 10" });
     const all = toggle(page).getByRole("link", { name: "All (15)" });
-    await expect(rel).toHaveAttribute("aria-current", "true");
-    await expect(all).not.toHaveAttribute("aria-current", "true");
+    await expect(rel).toHaveAttribute("aria-current", "page");
+    await expect(all).not.toHaveAttribute("aria-current", "page");
     await expect(page.getByText("Below the bar")).toHaveCount(0);
+    await expect(page.getByText("Also above the bar")).toHaveCount(0);
     expect((await all.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
   });
 
@@ -103,12 +104,15 @@ test.describe("relevance toggle", () => {
     await go(page, "/news");
     await toggle(page).getByRole("link", { name: "All (15)" }).click();
     await expect(page).toHaveURL(/\/news\?show=all$/);
-    await expect(toggle(page).getByRole("link", { name: "All (15)" })).toHaveAttribute("aria-current", "true");
+    await expect(toggle(page).getByRole("link", { name: "All (15)" })).toHaveAttribute("aria-current", "page");
 
-    const above = await cardTitles(page.getByRole("list", { name: "Today's digest" }));
-    expect(above).toHaveLength(13);
-    expect(above.slice(0, 3)).toEqual(titles(["n01", "n02", "n19"]));
-    await expect(page.getByRole("heading", { name: /^Below the bar/ })).toBeVisible();
+    const top = await cardTitles(page.getByRole("list", { name: "Today's digest" }));
+    expect(top).toEqual(titles(["n01", "n02", "n19", "n03", "n04", "n05", "n06", "n07", "n08", "n09"]));
+    await expect(page.getByRole("heading", { level: 2, name: /^Also above the bar.*outside the top 10 \(3\)/ })).toBeVisible();
+    expect(await cardTitles(page.getByRole("list", { name: "Also above the relevance bar" }))).toEqual(
+      titles(["n10", "n11", "n12"]),
+    );
+    await expect(page.getByRole("heading", { level: 2, name: /^Below the bar/ })).toBeVisible();
     const below = page.getByRole("list", { name: "Below the relevance bar" });
     expect(await cardTitles(below)).toEqual(titles(["n13", "n14"]));
     await expect(below.getByRole("article").first()).toContainText("Relevance score 59 out of 100");
@@ -116,9 +120,17 @@ test.describe("relevance toggle", () => {
     await expect(page.getByRole("button", { name: /^Unscored \(3\)$/ })).toBeVisible();
   });
 
+  test("toggle does not clip the focus ring, and the meta line says top 10 of 13", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await go(page, "/news");
+    const overflow = await toggle(page).locator("ul").evaluate((el) => getComputedStyle(el).overflow);
+    expect(overflow).toBe("visible");
+    await expect(page.locator("body")).toContainText("top 10 of 13 ≥ 60");
+  });
+
   test("an invalid show value falls back to Relevant", async ({ page }) => {
     await go(page, "/news?show=everything");
-    await expect(toggle(page).getByRole("link", { name: /^Relevant/ })).toHaveAttribute("aria-current", "true");
+    await expect(toggle(page).getByRole("link", { name: /^Top / })).toHaveAttribute("aria-current", "page");
   });
 
   test("show and date combine: stepper keeps show, toggle keeps date", async ({ page }) => {
@@ -136,11 +148,11 @@ test.describe("relevance toggle", () => {
     expect(await cardTitles(page.getByRole("list", { name: "Below the relevance bar" }))).toEqual(
       titles(["n22", "n23"]),
     );
-    await expect(toggle(page).getByRole("link", { name: "Relevant (3)" })).toHaveAttribute(
+    await expect(toggle(page).getByRole("link", { name: "Top 3" })).toHaveAttribute(
       "href",
       "/news?date=2026-09-29",
     );
-    await toggle(page).getByRole("link", { name: "Relevant (3)" }).click();
+    await toggle(page).getByRole("link", { name: "Top 3" }).click();
     await expect(page).toHaveURL(/\/news\?date=2026-09-29$/);
     await expect(page.getByText("Below the bar")).toHaveCount(0);
   });

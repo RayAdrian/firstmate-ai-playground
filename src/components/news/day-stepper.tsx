@@ -26,7 +26,7 @@ export function DayStepper({
           </Link>
         ) : null}
       </div>
-      <span className="text-base font-bold text-fg-strong">{formatDigestDay(current)}</span>
+      <span className="text-base font-medium text-fg-muted">{formatDigestDay(current)}</span>
       <div className="flex min-w-0 flex-1 justify-end">
         {next ? (
           <Link href={digestDayHref(next, show)} prefetch={false} rel="next" className={stepLink}>
