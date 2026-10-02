@@ -12,7 +12,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import sharp from "sharp";
-import YAML from "yaml";
+import { spawnSync } from "node:child_process";
 import { bundle } from "@remotion/bundler";
 import { renderMedia, renderStill, selectComposition } from "@remotion/renderer";
 import { tldrSourceHash } from "../../src/lib/contracts/tldr-hash.ts";
@@ -44,37 +44,25 @@ for (let i = 0; i < argv.length; i++) {
 }
 
 // ---- lessons
+// Parsed and normalised by the seed's own parser (lessons-normalized.ts, run through the root tsx), so the hash input
+// (NFC title, trimmed points) is exactly what the seed and the CI walker hash. Nothing is re-implemented here.
 type Lesson = {
   slug: string;
   title: string;
   tool_versions: Record<string, string>;
-  tldr?: TldrInput;
+  tldr: TldrInput | null;
 };
-function readLessons(): Map<string, Lesson> {
-  const dir = path.join(repoRoot, "content/lessons");
-  const out = new Map<string, Lesson>();
-  for (const level of fs.readdirSync(dir)) {
-    const levelDir = path.join(dir, level);
-    if (!fs.statSync(levelDir).isDirectory()) continue;
-    for (const f of fs.readdirSync(levelDir).filter((n) => n.endsWith(".md"))) {
-      const text = fs.readFileSync(path.join(levelDir, f), "utf8");
-      const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-      if (!m) continue;
-      const fm = YAML.parse(m[1]) as Record<string, unknown>;
-      if (typeof fm.slug !== "string" || typeof fm.title !== "string") throw new Error(`${f}: slug and title are required`);
-      out.set(fm.slug, {
-        slug: fm.slug,
-        title: fm.title.trim(),
-        tool_versions: (fm.tool_versions ?? {}) as Record<string, string>,
-        tldr: fm.tldr as TldrInput | undefined,
-      });
-    }
-  }
-  return out;
-}
-
-const lessons = readLessons();
-const overrides: Record<string, { tldr: TldrInput; title?: string }> = propsFile ? JSON.parse(fs.readFileSync(propsFile, "utf8")) : {};
+const tsx = path.join(repoRoot, "node_modules/.bin/tsx");
+if (!fs.existsSync(tsx)) throw new Error("Run `npm ci` at the repo root first: the TL;DR render reads lessons through the seed's parser (tsx)");
+const read = spawnSync(tsx, [path.join(here, "../lessons-normalized.ts"), ...(propsFile ? ["--props", propsFile] : [])], {
+  cwd: repoRoot, // tsx reads the root tsconfig (the "@/" paths the seed parser uses)
+  encoding: "utf8",
+  maxBuffer: 1 << 26,
+});
+if (read.status !== 0) throw new Error(`Could not read the lessons:\n${read.stderr}`);
+const parsed = JSON.parse(read.stdout) as { lessons: Record<string, Lesson>; drafts: Record<string, { tldr: TldrInput; title?: string }> };
+const lessons = new Map(Object.entries(parsed.lessons));
+const overrides = parsed.drafts;
 const templateVersion: number = JSON.parse(fs.readFileSync(path.join(here, "src/tldr/template.json"), "utf8")).version;
 if (!Number.isInteger(templateVersion) || templateVersion < 1) throw new Error("template.json: version must be a positive integer");
 
