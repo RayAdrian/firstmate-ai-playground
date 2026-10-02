@@ -1,10 +1,10 @@
 // Renders every composition in src/<id>/steps.json (or only the ids given as arguments).
 //   npm run media:render              all items
 //   npm run media:render -- <id> ...  selected items
+//   npm run media:render -- --tldr [slug ...] [--force] [--props file.json] [--out dir]   TL;DR videos (render-tldr.ts)
 // Output per item, in public/media/lessons/<lesson_slug>/: <id>.mp4 .webp .vtt .txt .media.json (PRD 15.2, MD-4).
 // Run by Node directly (type stripping); keep imports as relative .ts files and avoid enums.
 import { createHash } from "node:crypto";
-import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -13,6 +13,7 @@ import { bundle } from "@remotion/bundler";
 import { renderMedia, renderStill, selectComposition } from "@remotion/renderer";
 import { buildVtt, validateSteps } from "./src/lib/vtt.ts";
 import type { StepsFile } from "./src/lib/vtt.ts";
+import { finalEncode } from "./src/lib/encode.ts";
 
 const here = import.meta.dirname;
 const repoRoot = path.resolve(here, "../..");
@@ -24,6 +25,12 @@ const outRoot = path.join(repoRoot, "public/media/lessons");
 const CAPS = { mp4: 4 * 1024 * 1024, poster: 60 * 1024 };
 
 const CRF = 24;
+
+// TL;DR videos (PRD §19.5) have their own script: npm run media:render -- --tldr [slug ...]
+if (process.argv.includes("--tldr")) {
+  await import("./render-tldr.ts");
+  process.exit(process.exitCode ?? 0);
+}
 
 const wanted = process.argv.slice(2).filter((a) => a !== "--");
 const items = fs
@@ -54,8 +61,6 @@ function lessonToolVersions(slug: string): { claude_code: string; codex_cli: str
   }
   throw new Error(`No lesson with slug ${slug}`);
 }
-
-const hasFfmpeg = spawnSync("ffmpeg", ["-version"]).status === 0;
 
 function sha256(file: string) {
   return createHash("sha256").update(fs.readFileSync(file)).digest("hex");
@@ -110,15 +115,7 @@ try {
     });
     // Final encode: limited-range yuv420p (Remotion's own output is full-range "yuvj420p", which some players render with
     // washed-out colours), faststart so playback can begin before the file arrives, and no audio track (MD-2).
-    if (!hasFfmpeg) throw new Error("ffmpeg with libx264 is required for the final encode (brew install ffmpeg)");
-    const enc = spawnSync("ffmpeg", [
-      "-y", "-loglevel", "error", "-i", rawMp4, "-an",
-      "-vf", "scale=in_range=pc:out_range=tv,format=yuv420p",
-      "-c:v", "libx264", "-preset", "slow", "-crf", String(CRF), "-profile:v", "high", "-level", "4.0",
-      "-color_range", "tv", "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
-      "-movflags", "+faststart", `${base}.mp4`,
-    ]);
-    if (enc.status !== 0) throw new Error(`ffmpeg encode failed: ${enc.stderr}`);
+    finalEncode(rawMp4, `${base}.mp4`, CRF);
 
     // Poster: one still. Remotion cannot set WebP quality, so render a PNG and encode it with sharp (bundled libwebp).
     const posterPng = path.join(tmp, `${id}.png`);
