@@ -1,0 +1,6 @@
+Title card: Long-running and unsupervised agents. Three takeaways and one thing to try.
+Point 1 of 3: Commit before a long run, so a git checkpoint is always one command away.
+Point 2 of 3: Give every unattended run a stop condition and a cap on turns, time or spend.
+Point 3 of 3: Decide what evidence a run must leave (log, diff, test output) before you trust it.
+Try this (command): git commit -am "checkpoint before agent run"
+Recap card: Long-running and unsupervised agents. The 3 points and Try this, all on screen again.

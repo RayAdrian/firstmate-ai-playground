@@ -1,0 +1,7 @@
+Title card: Model routing: strong to plan, fast to build. Three takeaways and one thing to try.
+Point 1 of 3: Plan and review on a strong model, then implement on a faster, cheaper one.
+Point 2 of 3: Set model and effort per phase: `/model`, `--effort`, `opusplan`, or a Codex `--profile`.
+Point 3 of 3: Time and cost one real task on each setup before you standardize on it.
+Try this in Claude Code (command): claude --model sonnet --effort medium
+Try this in Codex CLI (prompt): /model
+Recap card: Model routing: strong to plan, fast to build. The 3 points and Try this, all on screen again.

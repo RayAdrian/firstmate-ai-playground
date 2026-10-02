@@ -1,0 +1,7 @@
+Title card: Plugins: package and share a team setup. Three takeaways and one thing to try.
+Point 1 of 3: Package skills, hooks and MCP servers as one versioned plugin your team installs.
+Point 2 of 3: Share it from a team marketplace in a git repo, and enable it per project.
+Point 3 of 3: Read a plugin's hooks before you install it; they run with your permissions.
+Try this in Claude Code (command): claude plugin marketplace list
+Try this in Codex CLI (command): codex plugin list
+Recap card: Plugins: package and share a team setup. The 3 points and Try this, all on screen again.

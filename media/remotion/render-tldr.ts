@@ -24,6 +24,8 @@ const here = import.meta.dirname;
 const repoRoot = path.resolve(here, "../..");
 // Caps from TLDR_MEDIA_CAPS in src/lib/contracts/media.ts (TL-13). Duplicated because Node cannot import that extensionless TS.
 const CAPS = { mp4: 400 * 1024, poster: 30 * 1024 };
+// Headroom: the ladder aims for this size, so a later tweak does not tip a video over the hard cap. The hard cap still decides pass/fail.
+const MP4_TARGET = 380 * 1024;
 const CRF_LADDER = [24, 28, 32, 36];
 // Mostly static text with short fades: B-frames and more references make the fades cheap (about 20% smaller).
 const X264_EXTRA = ["-bf", "8", "-b_strategy", "2", "-refs", "5"];
@@ -143,14 +145,14 @@ if (todo.length === 0) {
           pixelFormat: "yuv420p",
         });
 
-        // Lowest CRF that meets the cap. If none does, fail: never silently lower the resolution.
+        // Lowest CRF that meets the target (<= 380 KiB), else the highest CRF tried must still meet the cap. If none does, fail: never silently lower the resolution.
         let mp4Size = Infinity;
         let crfUsed = 0;
         for (const crf of CRF_LADDER) {
           finalEncode(rawMp4, `${base}.mp4`, crf, X264_EXTRA);
           mp4Size = fs.statSync(`${base}.mp4`).size;
           crfUsed = crf;
-          if (mp4Size <= CAPS.mp4) break;
+          if (mp4Size <= MP4_TARGET) break;
         }
         if (mp4Size > CAPS.mp4) throw new Error(`${slug}: tldr.mp4 is ${mp4Size} bytes at CRF ${crfUsed}, over the ${CAPS.mp4} cap`);
 

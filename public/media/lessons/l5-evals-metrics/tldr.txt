@@ -1,0 +1,6 @@
+Title card: Evals and metrics: prove the agents help. Three takeaways and one thing to try.
+Point 1 of 3: Test prompts, skills and `CLAUDE.md` against a small set of real tasks.
+Point 2 of 3: Check outcomes in code first: tests pass, only expected files change, cost stays under a cap.
+Point 3 of 3: Track lead time, review rounds, escaped defects and cost per merged PR.
+Try this (command): gh pr list --state merged --json number,createdAt,mergedAt
+Recap card: Evals and metrics: prove the agents help. The 3 points and Try this, all on screen again.

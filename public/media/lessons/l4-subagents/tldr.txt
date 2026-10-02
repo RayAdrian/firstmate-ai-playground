@@ -1,0 +1,7 @@
+Title card: Subagents: delegate without polluting your context. Three takeaways and one thing to try.
+Point 1 of 3: Hand noisy work, like test runs, to a subagent that returns a short summary.
+Point 2 of 3: Scope each subagent: a `tools` allowlist in Claude Code, `sandbox_mode` in Codex.
+Point 3 of 3: Stay in one session for small tasks; delegate when output would flood your context.
+Try this in Claude Code (prompt): Use the test-runner subagent to run the suite
+Try this in Codex CLI (prompt): Spawn the test-runner agent to run the suite.
+Recap card: Subagents: delegate without polluting your context. The 3 points and Try this, all on screen again.

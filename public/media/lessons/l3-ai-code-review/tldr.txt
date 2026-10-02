@@ -1,0 +1,7 @@
+Title card: AI code review. Three takeaways and one thing to try.
+Point 1 of 3: Run a local review before you push, then check each finding against the code.
+Point 2 of 3: Tell the reviewer what counts as a bug and what to skip, such as formatting CI covers.
+Point 3 of 3: Run security as its own pass: `/security-review`, or a security-focused `codex review` prompt.
+Try this in Claude Code (prompt): /code-review high
+Try this in Codex CLI (command): codex review --uncommitted
+Recap card: AI code review. The 3 points and Try this, all on screen again.

@@ -1,0 +1,17 @@
+{
+  "id": "tldr",
+  "lesson_slug": "l2-memory-context",
+  "kind": "tldr",
+  "title": "TL;DR: Memory and context-window management",
+  "duration_s": 35.2,
+  "width": 1280,
+  "height": 720,
+  "tool_versions": {
+    "claude_code": "2.1.284",
+    "codex_cli": "0.154.0"
+  },
+  "made_on": "2026-10-02",
+  "model_calls": false,
+  "source_hash": "385e0294ba94c32faee14513e7571f0c260d21ee6cf5d7ecb30585bcffc61115",
+  "template_version": 1
+}

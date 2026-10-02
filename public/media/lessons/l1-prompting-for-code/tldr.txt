@@ -1,0 +1,7 @@
+Title card: Prompting for code. Three takeaways and one thing to try.
+Point 1 of 3: Put the goal, context, constraints and a done-when check in every prompt.
+Point 2 of 3: Point at files with `@path` instead of describing where the code lives.
+Point 3 of 3: Pipe logs into one-shot mode: `cat build.log | claude -p` or `| codex exec`.
+Try this in Claude Code (prompt): Explain the logic in @src/utils/auth.js
+Try this in Codex CLI (prompt): Explain the logic in @src/utils/auth.ts
+Recap card: Prompting for code. The 3 points and Try this, all on screen again.

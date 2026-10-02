@@ -1,0 +1,7 @@
+Title card: Plan before you code. Three takeaways and one thing to try.
+Point 1 of 3: Ask for a written plan first, and approve it before the agent edits any code.
+Point 2 of 3: Request files to change, steps, risks and verification commands, then edit the plan.
+Point 3 of 3: A read-only mode makes planning safe: plan mode in Claude Code, `-s read-only` in Codex.
+Try this in Claude Code (command): claude --permission-mode plan
+Try this in Codex CLI (command): codex -s read-only
+Recap card: Plan before you code. The 3 points and Try this, all on screen again.

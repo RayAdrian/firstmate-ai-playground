@@ -1,0 +1,17 @@
+{
+  "id": "tldr",
+  "lesson_slug": "l3-ai-code-review",
+  "kind": "tldr",
+  "title": "TL;DR: AI code review",
+  "duration_s": 36.13,
+  "width": 1280,
+  "height": 720,
+  "tool_versions": {
+    "claude_code": "2.1.284",
+    "codex_cli": "0.154.0"
+  },
+  "made_on": "2026-10-02",
+  "model_calls": false,
+  "source_hash": "80c296999e794784155aa63208ce8c0c1f33d267bd7660f95c19b01c70a5d7cb",
+  "template_version": 1
+}

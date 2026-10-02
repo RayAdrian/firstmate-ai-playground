@@ -1,0 +1,17 @@
+{
+  "id": "tldr",
+  "lesson_slug": "l2-feedback-loops",
+  "kind": "tldr",
+  "title": "TL;DR: Self-verifying agents: encode your feedback loop",
+  "duration_s": 34.4,
+  "width": 1280,
+  "height": 720,
+  "tool_versions": {
+    "claude_code": "2.1.284",
+    "codex_cli": "0.154.0"
+  },
+  "made_on": "2026-10-02",
+  "model_calls": false,
+  "source_hash": "ea7dcce0577f06fcffac5687ef19700a7ddfd3e8dfa41396a838ee17661cc740",
+  "template_version": 1
+}

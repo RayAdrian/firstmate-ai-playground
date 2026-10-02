@@ -1,0 +1,7 @@
+Title card: Capstone: ship like First Mate. Three takeaways and one thing to try.
+Point 1 of 3: Run the loop in order: spec, plan, failing tests, workers, gates, gated merge.
+Point 2 of 3: Give each worker its own worktree and an owned file list; implement only after tests fail.
+Point 3 of 3: Post each gate status on the exact commit reviewed, and rebase before the merge.
+Try this in Claude Code (prompt): /code-review main...HEAD
+Try this in Codex CLI (command): codex review --base main
+Recap card: Capstone: ship like First Mate. The 3 points and Try this, all on screen again.

@@ -1,0 +1,17 @@
+{
+  "id": "tldr",
+  "lesson_slug": "l4-hooks-skills-commands",
+  "kind": "tldr",
+  "title": "TL;DR: Hooks, skills and custom commands",
+  "duration_s": 33.27,
+  "width": 1280,
+  "height": 720,
+  "tool_versions": {
+    "claude_code": "2.1.284",
+    "codex_cli": "0.154.0"
+  },
+  "made_on": "2026-10-02",
+  "model_calls": false,
+  "source_hash": "ac3dd95a93b7428c500f8e76237bf3fbead75bdebc9f4744c1d05a277bd428f6",
+  "template_version": 1
+}

@@ -1,0 +1,17 @@
+{
+  "id": "tldr",
+  "lesson_slug": "l2-context-files",
+  "kind": "tldr",
+  "title": "TL;DR: Project instructions: CLAUDE.md vs AGENTS.md",
+  "duration_s": 36.47,
+  "width": 1280,
+  "height": 720,
+  "tool_versions": {
+    "claude_code": "2.1.284",
+    "codex_cli": "0.154.0"
+  },
+  "made_on": "2026-10-02",
+  "model_calls": false,
+  "source_hash": "b43d891650f720bfbc61d78be090b000f2c085785cab9b5d088209780060cde5",
+  "template_version": 1
+}

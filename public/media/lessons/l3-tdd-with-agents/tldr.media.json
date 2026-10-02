@@ -1,0 +1,17 @@
+{
+  "id": "tldr",
+  "lesson_slug": "l3-tdd-with-agents",
+  "kind": "tldr",
+  "title": "TL;DR: TDD with agents",
+  "duration_s": 33.53,
+  "width": 1280,
+  "height": 720,
+  "tool_versions": {
+    "claude_code": "2.1.284",
+    "codex_cli": "0.154.0"
+  },
+  "made_on": "2026-10-02",
+  "model_calls": false,
+  "source_hash": "faa115306c9e07f02e086b507294b71bb1595ce75a98123692021cf4d2bfb1a3",
+  "template_version": 1
+}

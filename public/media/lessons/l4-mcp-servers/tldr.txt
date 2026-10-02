@@ -1,0 +1,7 @@
+Title card: MCP servers: connect tools, scope them, trust carefully. Three takeaways and one thing to try.
+Point 1 of 3: Add an MCP server only when the agent needs a tool it lacks, like a real browser.
+Point 2 of 3: Choose the scope: private to you by default, or a committed project file your team shares.
+Point 3 of 3: Treat each server as code on your machine: read it and limit the tools it exposes.
+Try this in Claude Code (command): claude mcp list
+Try this in Codex CLI (command): codex mcp list
+Recap card: MCP servers: connect tools, scope them, trust carefully. The 3 points and Try this, all on screen again.

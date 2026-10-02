@@ -1,0 +1,6 @@
+Title card: Self-verifying agents: encode your feedback loop. Three takeaways and one thing to try.
+Point 1 of 3: Put your test, typecheck and lint commands in the context file so the agent checks itself.
+Point 2 of 3: Ban shortcuts there too: no `@ts-ignore`, and no editing tests to get green.
+Point 3 of 3: Instructions can be skipped; a `Stop` hook that exits 2 blocks the stop when checks fail.
+Try this (prompt): Run npm run typecheck, npm run lint and npm test; report failures.
+Recap card: Self-verifying agents: encode your feedback loop. The 3 points and Try this, all on screen again.

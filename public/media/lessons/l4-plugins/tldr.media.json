@@ -1,0 +1,17 @@
+{
+  "id": "tldr",
+  "lesson_slug": "l4-plugins",
+  "kind": "tldr",
+  "title": "TL;DR: Plugins: package and share a team setup",
+  "duration_s": 34.4,
+  "width": 1280,
+  "height": 720,
+  "tool_versions": {
+    "claude_code": "2.1.287",
+    "codex_cli": "0.154.0"
+  },
+  "made_on": "2026-10-02",
+  "model_calls": false,
+  "source_hash": "7e96b3137e30c687a04a9aa0bf2f2701257f32aba17e4edee907ceadada8d5b8",
+  "template_version": 1
+}

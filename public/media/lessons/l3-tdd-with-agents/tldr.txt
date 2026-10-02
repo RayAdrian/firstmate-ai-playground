@@ -1,0 +1,6 @@
+Title card: TDD with agents. Three takeaways and one thing to try.
+Point 1 of 3: Write the failing tests yourself and commit them before the agent starts.
+Point 2 of 3: Tell the agent the tests are the contract: do not edit, delete, skip or rename them.
+Point 3 of 3: Check with `git diff --exit-code -- tests/`; a deny rule or an instruction is not airtight.
+Try this (command): git diff --exit-code -- tests/ && echo "tests untouched"
+Recap card: TDD with agents. The 3 points and Try this, all on screen again.

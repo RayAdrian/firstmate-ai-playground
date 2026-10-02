@@ -2,7 +2,7 @@
 slug: l5-model-routing
 level: 5
 sort: 1
-title: "Model routing: strong for planning and review, fast for implementation"
+title: "Model routing: strong to plan, fast to build"
 objective: "Route each phase of a task to the right model and effort, in both Claude Code (/model, opusplan, subagent model fields) and Codex (-m, profiles, reasoning effort), and measure the cost and latency trade-off."
 est_minutes: 40
 tool_versions:
