@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "../../../src/lib/db/types";
 import type { LoadedContent } from "./load";
+import { lessonTldrColumns } from "./lesson";
 import { planUnique } from "./plan";
 
 export interface ApplyCounts {
@@ -134,6 +135,7 @@ export async function applyContent(db: Db, content: LoadedContent, now: Date): P
       codex_workaround_md: l.codex_workaround_md,
       differences: l.differences,
       tool_versions: l.tool_versions,
+      ...lessonTldrColumns(l),
       last_verified_on: l.last_verified_on,
       content_hash: l.content_hash,
       archived_at: null,

@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { MEDIA_CAPS, mediaManifestSchema } from "@/lib/contracts";
+import { checkTldrMedia } from "./tldr-walker";
 
 const root = path.resolve(__dirname, "../../../public/media/lessons");
 
@@ -41,5 +42,14 @@ describe("committed lesson media (MD-6)", () => {
       if (f.endsWith(".webp")) expect(size, rel).toBeLessThanOrEqual(MEDIA_CAPS.poster);
     }
     expect(total).toBeLessThanOrEqual(MEDIA_CAPS.total);
+  });
+
+  it("TL;DR videos are fresh, within the TL;DR caps and match their lesson (TL-11 to TL-13)", () => {
+    const problems = checkTldrMedia({
+      mediaRoot: root,
+      lessonsDir: path.resolve(__dirname, "../../../content/lessons"),
+      templatePath: path.resolve(__dirname, "../../../media/remotion/src/tldr/template.json"),
+    });
+    expect(problems).toEqual([]);
   });
 });

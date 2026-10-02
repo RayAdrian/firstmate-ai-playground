@@ -1,5 +1,5 @@
 import type { ZodError } from "zod";
-import { lessonFrontmatterSchema } from "../../../src/lib/contracts";
+import { lessonFrontmatterSchema, type LessonTldr } from "../../../src/lib/contracts";
 import { validateLessonDiagrams } from "../../../src/components/diagram/fences";
 import type { SeedIssue } from "./issues";
 import { isRealDate, manilaDate, normalizeText, sha256 } from "./text";
@@ -36,6 +36,8 @@ export interface ParsedLesson {
   codex_workaround_md: string | null;
   differences: string[];
   tool_versions: { claude_code: string; codex_cli: string };
+  /** Lesson TL;DR (PRD §19); null when the lesson has none. */
+  tldr: LessonTldr | null;
   last_verified_on: string;
   content_hash: string;
   exerciseSlug: string | null;
@@ -265,6 +267,7 @@ export function parseLessonFile(raw: string, file: string, opts: { now: Date }):
     codex_workaround_md: fm.codex_no_equivalent ? codexBody : null,
     differences: fm.differences,
     tool_versions: fm.tool_versions,
+    tldr: fm.tldr ?? null,
     last_verified_on: fm.last_verified_on,
     content_hash: "",
     exerciseSlug: fm.exercise ?? null,
@@ -272,6 +275,11 @@ export function parseLessonFile(raw: string, file: string, opts: { now: Date }):
   };
   value.content_hash = hashLesson(value);
   return { value, issues, warnings };
+}
+
+/** The `tldr` column for the upsert payload. Omitted when the lesson has none, so seeding works against a database without the column until TL;DR content exists. */
+export function lessonTldrColumns(l: Pick<ParsedLesson, "tldr">): { tldr?: LessonTldr } {
+  return l.tldr ? { tldr: l.tldr } : {};
 }
 
 /** Hash of every seeded content field (not the file path, not the exercise link), so unchanged lessons are skipped. */
@@ -294,6 +302,8 @@ export function hashLesson(l: ParsedLesson): string {
       l.differences,
       [l.tool_versions.claude_code, l.tool_versions.codex_cli],
       l.last_verified_on,
+      // Appended only when present, so lessons without a TL;DR keep their pre-TL0 hash.
+      ...(l.tldr ? [l.tldr] : []),
     ]),
   );
 }
