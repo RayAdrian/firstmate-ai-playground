@@ -10,7 +10,7 @@ tool_versions:
   codex_cli: "0.154.0"
 last_verified_on: "2026-10-02"
 differences:
-  - "Undo mid-session: Claude Code has `/rewind` (or `Esc` twice on an empty prompt), which restores code, conversation or both, but only for edits made by its file tools. The Codex docs list an `/undo` command that I did not run, so the portable checkpoint in both tools is a git commit."
+  - "Undo mid-session: Claude Code has `/rewind` (or `Esc` twice on an empty prompt), which restores code, conversation or both, but only for edits made by its file tools. Codex CLI has no undo command (`/undo` was removed), so in Codex, and as the portable habit in both tools, a git commit (or stash) is the checkpoint you roll back to."
   - "Scheduling: Claude Code has `/loop` (needs the session open), cloud routines created with `/schedule` (no machine needed, research preview) and `claude --bg` background sessions. Codex CLI has no scheduler of its own: its Automations live in the ChatGPT desktop app and web, so CLI jobs run from cron, launchd or CI."
   - "Cloud runs: Codex CLI submits and collects cloud tasks with `codex cloud exec --env <ENV_ID>`, then `status`, `diff` and `apply`. Claude Code's cloud side is routines and `claude --cloud`, managed from claude.ai/code."
   - "Unattended permissions: Claude Code uses `--permission-mode dontAsk` plus an `--allowedTools` allowlist. `codex exec` is read-only by default and you widen it with `--sandbox workspace-write`. Each has a bypass flag meant only for an already-isolated machine."
@@ -131,7 +131,7 @@ In a running session, `Ctrl+B` moves a long Bash command to the background (30 m
 
 Test the script once under `env -i` so you see what cron will see. This is the script you build in the exercise.
 
-**Check in from your phone: Remote Control.** Start `claude remote-control` (a server for new sessions), `claude --remote-control` (an interactive session) or `/remote-control` inside a session. You then watch and steer it from claude.ai/code or the Claude mobile app. Claude keeps running on your machine, so files and tools stay local. It makes outbound HTTPS connections only. It needs a Pro, Max, Team or Enterprise login (not an API key), and an Owner must enable it on Team and Enterprise. The process must stay up. In server mode it gives up after roughly 10 minutes without a connection. Permission prompts reach your phone, which is useful, but it also means a run stalls until you answer.
+**Check in from your phone: Remote Control.** Start `claude remote-control` (a server for new sessions), `claude --remote-control` (an interactive session) or `/remote-control` inside a session. You then watch and steer it from claude.ai/code or the Claude mobile app. Claude keeps running on your machine, so files and tools stay local. It makes outbound HTTPS connections only. It needs a Pro, Max, Team or Enterprise login (not an API key), and an Owner must enable it on Team and Enterprise. The process must stay up. In server mode it gives up if it loses the network for about 10 minutes. Permission prompts reach your phone, which is useful, but it also means a run stalls until you answer.
 
 **Permission modes for unattended runs.** `--permission-mode` takes `acceptEdits`, `auto`, `bypassPermissions`, `manual`, `dontAsk` or `plan`.
 
@@ -202,7 +202,7 @@ jobs:
           prompt: "Run the test suite and report failing tests with likely causes"
 ```
 
-**In a long session.** The docs list `/compact`, `/new`, `/resume`, `/fork`, `/undo`, `/diff`, `/status`, `/review` and `/goal` as slash commands. I confirmed `codex resume`, `codex fork` and `codex exec resume`/`fork` against `--help`, but not how `/undo` or `/goal` behave. Use git commits as your checkpoints, and the exit code and test gate of your script as the stop condition.
+**In a long session.** The docs list `/compact`, `/new`, `/resume`, `/fork`, `/diff`, `/status`, `/review` and `/goal` as slash commands. I confirmed `codex resume`, `codex fork` and `codex exec resume`/`fork` against `--help`, but not how `/goal` behaves. There is no `/undo`: that feature was removed. Use git commits as your checkpoints, and the exit code and test gate of your script as the stop condition.
 
 **Check in remotely.** `codex remote-control` is marked experimental in `--help` ("Manage the app-server daemon with remote control enabled", with `start`, `stop` and `pair` subcommands). Treat it as unproven until you have tried it with your own setup.
 
