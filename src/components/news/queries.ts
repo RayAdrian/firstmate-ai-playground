@@ -29,7 +29,14 @@ export function safeHttpUrl(value: string): string | null {
   }
 }
 
-export function toCardItem(row: NewsItemRow, sourceNames: ReadonlyMap<string, string>): NewsCardItem {
+/** The columns a news card (and the ranking) reads. */
+export const CARD_COLUMNS = "id,title,url,source_id,published_at,score,tags,why_it_matters,scoring_status";
+type CardRow = Pick<
+  NewsItemRow,
+  "id" | "title" | "url" | "source_id" | "published_at" | "score" | "tags" | "why_it_matters" | "scoring_status"
+>;
+
+export function toCardItem(row: CardRow, sourceNames: ReadonlyMap<string, string>): NewsCardItem {
   return {
     id: row.id,
     title: row.title,
@@ -41,6 +48,32 @@ export function toCardItem(row: NewsItemRow, sourceNames: ReadonlyMap<string, st
     why: row.why_it_matters,
     status: row.scoring_status,
   };
+}
+
+/** PostgREST caps a response at 1,000 rows by default. */
+const PAGE = 1000;
+
+/**
+ * Every shown item of a digest day. `skipped` rows (first-fetch backfill, thousands on a source's first
+ * run) are never shown on /news, so they are not read. Pages through the result in a stable order so a
+ * large day can never be silently truncated by the row cap.
+ */
+async function loadDigestItems(digestDate: string): Promise<CardRow[]> {
+  const db = getReadClient();
+  const all: CardRow[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const page: CardRow[] = await dbRead(
+      db
+        .from("news_items")
+        .select(CARD_COLUMNS)
+        .eq("digest_date", digestDate)
+        .in("scoring_status", ["scored", "pending", "failed"])
+        .order("id", { ascending: true })
+        .range(from, from + PAGE - 1),
+    );
+    all.push(...page);
+    if (page.length < PAGE) return all;
+  }
 }
 
 async function loadSources(): Promise<NewsSourceRow[]> {
@@ -94,10 +127,10 @@ export async function getDigest(
   const digestDate = manilaDate(new Date(run.started_at));
   const [sources, rows] = await Promise.all([
     loadSources(),
-    dbRead(db.from("news_items").select("*").eq("digest_date", digestDate)),
+    loadDigestItems(digestDate),
   ]);
   const names = new Map(sources.map((s) => [s.id, s.name]));
-  const items: NewsItemRow[] = rows;
+  const items = rows;
 
   const ranked = selectDigest(items, limit).map((r) => toCardItem(r, names));
   const scoredAll = items

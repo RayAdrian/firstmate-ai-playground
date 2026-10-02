@@ -610,6 +610,7 @@ test.describe("integration: fx-news-lowbar", () => {
     await go(page, "/news");
     await expect(page.locator("body")).toContainText("Updated 08:03");
     await expect(page.getByRole("region", { name: "Nothing above the relevance bar today" })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Items to show" }).getByRole("link", { name: "Top", exact: true })).toBeVisible();
     await expect(page.getByRole("list", { name: "Today's digest" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: /^Unscored/ })).toHaveCount(0);
     const link = page.getByRole("link", { name: "See today's items in the archive" });
