@@ -116,7 +116,7 @@ Add only the folders you use. Anything you save inside `.claude-plugin/` other t
 }
 ```
 
-Only `name` is required. Use kebab-case, with no spaces. The name prefixes every skill and agent. Names that pass as Anthropic's own (starting `claude-` or `anthropic-`, or equal to `claude` or `anthropic`) are rejected by the validator.
+Only `name` is required. Use kebab-case, with no spaces. The name prefixes every skill and agent. The validator rejects names that pass as Anthropic's own: a name starting `claude-`, `anthropic-`, `anthropics-` or `cc-plugin-`; the names `claude`, `anthropic`, `anthropics`, `claude-code` and `claude-mods`; and a name that puts `official` beside `claude` or `anthropic`.
 
 **`hooks/hooks.json`** has a top-level `hooks` key. Refer to bundled scripts with `${CLAUDE_PLUGIN_ROOT}`, which is the install path, and quote it:
 
@@ -206,7 +206,7 @@ That writes this to the client repo's `.claude/settings.json`, which you commit:
 }
 ```
 
-A teammate who opens the repo gets a trust prompt for the folder. `extraKnownMarketplaces` applies only after they accept it. A plugin the marketplace lists by relative path then loads from the marketplace copy. If the plugin comes from an external source, or Claude Code reports `Plugin ... is enabled in project settings but isn't installed`, the teammate runs `claude plugin install first-mate@first-mate-team --scope project` once. On a Team or Enterprise plan, admins can instead require marketplaces and plugins for everyone in managed settings.
+A teammate who opens the repo gets a trust prompt for the folder. `extraKnownMarketplaces` applies only after they accept it. A plugin the marketplace lists by relative path then loads from the marketplace copy. If the plugin comes from an external source, or Claude Code reports `Plugin ... is enabled in project settings but isn't installed here`, the teammate runs `claude plugin install first-mate@first-mate-team --scope project` once. On a Team or Enterprise plan, admins can instead require marketplaces and plugins for everyone in managed settings.
 
 ### Version and release
 

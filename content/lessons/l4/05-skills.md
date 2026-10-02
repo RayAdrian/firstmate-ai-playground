@@ -227,7 +227,7 @@ enabled = false
 
 ### Sharing
 
-Commit `.agents/skills/` so the repo carries its skills. To reuse skills across repos or ship them with a connector, package them as a plugin (lesson 4.6). Both tools document symlinked skill folders, so `.agents/skills/<name>` could point at `.claude/skills/<name>`. This repo copies the folder instead, and CI checks the copies are identical, so nothing depends on symlink handling.
+Commit `.agents/skills/` so the repo carries its skills. To reuse skills across repos or ship them with a connector, package them as a plugin (lesson 4.6). Both tools document symlinked skill folders, so `.agents/skills/<name>` could point at `.claude/skills/<name>`. The First Mate AI Playground repo copies the folder instead (for its own `share-workflow` skill), and CI checks the copies are identical, so nothing depends on symlink handling.
 
 ### Debugging a skill that does not trigger
 

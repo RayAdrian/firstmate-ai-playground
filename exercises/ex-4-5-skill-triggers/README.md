@@ -15,7 +15,7 @@ No dependencies to install.
 
 ## What to do
 
-1. Run `npm run check`. It prints every problem it finds, in plain words.
+1. Run `npm run check`. It prints the problems it finds, in plain words. If the frontmatter does not parse, it cannot check the description or the flags yet, so fix that first and run it again to see the rest.
 2. Work out what is wrong before you change anything. Use the troubleshooting list from the lesson: where the tool looks, whether the frontmatter parses, what the description says, what could block automatic use.
 3. Fix the skill:
    - **Move it, do not copy it.** Claude Code reads `.claude/skills/<name>/SKILL.md`. Codex reads `.agents/skills/<name>/SKILL.md`. Use either, or both. Keep `template.md` with it.
