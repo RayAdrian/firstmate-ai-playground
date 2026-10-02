@@ -42,12 +42,13 @@ function parseChecklist(md: string) {
 }
 
 describe("level 3 lessons", () => {
-  it("has the four lessons from PRD section 7", () => {
+  it("has the five lessons from PRD section 7", () => {
     expect(lessonFiles).toEqual([
       "01-plan-first.md",
       "02-tdd-with-agents.md",
       "03-ai-code-review.md",
       "04-headless-and-scripted-agents.md",
+      "05-long-running-agents.md",
     ]);
   });
 
@@ -56,9 +57,9 @@ describe("level 3 lessons", () => {
     return { file, data, content };
   });
 
-  it("uses unique slugs and sort values 1..4", () => {
-    expect(new Set(parsed.map((p) => p.data.slug)).size).toBe(4);
-    expect(parsed.map((p) => p.data.sort)).toEqual([1, 2, 3, 4]);
+  it("uses unique slugs and sort values 1..5", () => {
+    expect(new Set(parsed.map((p) => p.data.slug)).size).toBe(5);
+    expect(parsed.map((p) => p.data.sort)).toEqual([1, 2, 3, 4, 5]);
   });
 
   for (const { file, data, content } of parsed) {
@@ -66,7 +67,8 @@ describe("level 3 lessons", () => {
       it("frontmatter matches the lesson contract", () => {
         const fm = lessonFrontmatterSchema.parse(data);
         expect(fm.level).toBe(3);
-        expect(fm.tool_versions).toEqual({ claude_code: "2.1.284", codex_cli: "0.154.0" });
+        expect(["2.1.284", "2.1.287"]).toContain(fm.tool_versions.claude_code);
+        expect(fm.tool_versions.codex_cli).toBe("0.154.0");
       });
 
       it("has exactly the Concept, Claude Code and Codex CLI sections, all non-empty", () => {
@@ -86,6 +88,13 @@ describe("level 3 lessons", () => {
     });
   }
 
+  it("lesson 3.5 follows 3.4 and links back to it", () => {
+    const l35 = parsed.find((p) => p.data.slug === "l3-long-running-agents");
+    expect(l35?.data.sort).toBe(5);
+    expect(l35?.content).toContain("/lessons/l3-headless-agents");
+    expect(l35?.content).toMatch(/never auto-merge/i);
+  });
+
   it("lesson 3.4 says the news pipeline uses claude -p", () => {
     const l34 = parsed.find((p) => p.data.slug === "l3-headless-agents");
     expect(l34?.content).toMatch(/news/i);
@@ -94,7 +103,7 @@ describe("level 3 lessons", () => {
 });
 
 describe("level 3 exercises", () => {
-  const slugs = ["ex-3-1-plan-first", "ex-3-2-tdd", "ex-3-3-review-seeded-bugs", "ex-3-4-headless-changelog"];
+  const slugs = ["ex-3-1-plan-first", "ex-3-2-tdd", "ex-3-3-review-seeded-bugs", "ex-3-4-headless-changelog", "ex-3-5-verify-unattended-run"];
 
   for (const slug of slugs) {
     describe(slug, () => {
@@ -130,11 +139,11 @@ describe("level 3 exercises", () => {
   it("ex-3-3 is manual, the others have a verify command", () => {
     const verify = (s: string) => JSON.parse(readFileSync(path.join(exercisesDir, s, "exercise.json"), "utf8")).verify;
     expect(verify("ex-3-3-review-seeded-bugs")).toBe("manual");
-    for (const s of ["ex-3-1-plan-first", "ex-3-2-tdd", "ex-3-4-headless-changelog"]) expect(verify(s)).not.toBe("manual");
+    for (const s of ["ex-3-1-plan-first", "ex-3-2-tdd", "ex-3-4-headless-changelog", "ex-3-5-verify-unattended-run"]) expect(verify(s)).not.toBe("manual");
   });
 
   // PRD E-4: every automated verify command fails on the starter and passes on the solution.
-  for (const slug of ["ex-3-1-plan-first", "ex-3-2-tdd", "ex-3-4-headless-changelog"]) {
+  for (const slug of ["ex-3-1-plan-first", "ex-3-2-tdd", "ex-3-4-headless-changelog", "ex-3-5-verify-unattended-run"]) {
     it(`${slug}: verify fails on starter and passes on solution`, () => {
       const cmd: string = JSON.parse(readFileSync(path.join(exercisesDir, slug, "exercise.json"), "utf8")).verify;
       // A clean environment: node --test changes behaviour when it thinks it is nested in another runner.

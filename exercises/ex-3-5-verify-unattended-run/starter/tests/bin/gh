@@ -1,0 +1,4 @@
+#!/bin/sh
+# Test shim: the run script must never call the GitHub CLI.
+echo "$@" >> "$FM_GIT_LOG.gh"
+exit 1

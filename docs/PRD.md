@@ -372,6 +372,7 @@ Each lesson covers both tools. **Codex CLI capability notes marked (verify) must
 | 3.2 | TDD with agents | Write failing tests first, have the agent implement, and guard against the agent editing tests to pass. | `ex-3-2-tdd`: a pricing-rules module. Verify runs the tests, plus a check that the test files are unchanged from their committed hash. |
 | 3.3 | AI code review | Use Claude Code `/review` and `/security-review` against Codex `/review`. Write review instructions and triage findings. | `ex-3-3-review-seeded-bugs`: a diff with 5 seeded bugs, one of them a security issue. The checklist lists what a good review catches. |
 | 3.4 | Headless and scripted agents | `claude -p` and `codex exec`, structured (JSON) output, piping, and use in CI. This is the same mechanism the news pipeline uses. | `ex-3-4-headless-changelog`: a script that turns `git log` into a categorised changelog through headless mode in both tools. Verify checks the output schema. |
+| 3.5 | Long-running and unsupervised agents | Steer a multi-hour session (checkpoints, interrupting, `/rewind`, context health). Run work while you are away: background sessions, `/loop`, cloud routines, cron or launchd plus headless, Remote Control, and Codex cloud tasks. Decide what an unattended run must prove: tests the script runs itself, a diff summary, a command log and a stop condition. Choose permission modes for runs nobody watches, and never auto-merge. | `ex-3-5-verify-unattended-run`: a script that runs an agent task unattended but has no verification. Add a stop condition, a test gate, a failure for no change or edited tests, and evidence files, and remove the auto-merge. Verify runs against fake agents, with no model calls. |
 
 ### L4: Parallelism and extensibility
 | # | Lesson | Objective | Exercise |
@@ -1286,6 +1287,7 @@ Cross-field rules, in a `superRefine`, each a hard fail with a path: node ids ar
 | 3.2 `l3-tdd-with-agents` | flow: red → lock → implement → verify, plus a risk exit for "agent edits a test" |
 | 3.3 `l3-ai-code-review` | flow: triage; "can't reproduce" = unproven |
 | 3.4 `l3-headless-agents` | flow: input → `claude -p` → validate → retry (the recording shows the output; this shows the script) |
+| 3.5 `l3-long-running-agents` | flow: agent run → script checks → morning review → you merge, with a risk exit when any check fails |
 | 4.1 `l4-subagents` | boundary: brief in, summary out, noise stays inside |
 | 4.2 `l4-parallel-worktrees` | boundary: what a worktree isolates vs what is shared (DB, ports); the animation does not show this |
 | 4.4 `l4-hooks-skills-commands` (2nd) | flow: where hooks fire |
