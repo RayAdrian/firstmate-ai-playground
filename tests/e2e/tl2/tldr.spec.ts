@@ -196,6 +196,8 @@ test.describe("accessibility (TL-9)", () => {
 
   test("keyboard: the toggle opens with Enter, then Tab reaches the video and Read instead in DOM order", async ({ page }) => {
     await page.goto(FIRST);
+    // Let hydration finish first: under load, a key press during hydration can be lost.
+    await page.waitForLoadState("networkidle");
     await page.locator("#tldr-video-toggle").focus();
     await page.keyboard.press("Enter");
     await expect(card(page).locator("details").first()).toHaveAttribute("open", "");
