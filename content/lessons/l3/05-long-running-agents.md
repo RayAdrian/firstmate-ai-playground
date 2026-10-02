@@ -14,7 +14,7 @@ differences:
   - "Scheduling: Claude Code has `/loop` (needs the session open), cloud routines created with `/schedule` (no machine needed, research preview) and `claude --bg` background sessions. Codex CLI has no scheduler of its own: its Automations live in the ChatGPT desktop app and web, so CLI jobs run from cron, launchd or CI."
   - "Cloud runs: Codex CLI submits and collects cloud tasks with `codex cloud exec --env <ENV_ID>`, then `status`, `diff` and `apply`. Claude Code's cloud side is routines and `claude --cloud`, managed from claude.ai/code."
   - "Unattended permissions: Claude Code uses `--permission-mode dontAsk` plus an `--allowedTools` allowlist. `codex exec` is read-only by default and you widen it with `--sandbox workspace-write`. Each has a bypass flag meant only for an already-isolated machine."
-  - "Checking in from your phone: Claude Code has Remote Control (`claude remote-control`, `claude --remote-control` or `/remote-control`) for claude.ai/code and the Claude mobile app. Codex has an experimental `codex remote-control` command that I could not test end to end."
+  - "Checking in from your phone: Claude Code has Remote Control (`claude remote-control`, `claude --remote-control` or `/remote-control`) for claude.ai/code and the Claude mobile app. Codex has an experimental `codex remote-control` command (`start`, `stop`, `pair`) that manages a local app-server daemon."
 exercise: ex-3-5-verify-unattended-run
 claude_no_equivalent: false
 codex_no_equivalent: false
@@ -202,9 +202,9 @@ jobs:
           prompt: "Run the test suite and report failing tests with likely causes"
 ```
 
-**In a long session.** The docs list `/compact`, `/new`, `/resume`, `/fork`, `/diff`, `/status`, `/review` and `/goal` as slash commands. I confirmed `codex resume`, `codex fork` and `codex exec resume`/`fork` against `--help`, but not how `/goal` behaves. There is no `/undo`: that feature was removed. Use git commits as your checkpoints, and the exit code and test gate of your script as the stop condition.
+**In a long session.** The docs list `/compact`, `/new`, `/resume`, `/fork`, `/diff`, `/status`, `/review` and `/goal` as slash commands. From the shell, `codex resume`, `codex fork`, `codex exec resume` and `codex exec fork` reopen or branch an earlier session. There is no `/undo`: that command was removed. Use git commits as your checkpoints, and the exit code and test gate of your script as the stop condition.
 
-**Check in remotely.** `codex remote-control` is marked experimental in `--help` ("Manage the app-server daemon with remote control enabled", with `start`, `stop` and `pair` subcommands). Treat it as unproven until you have tried it with your own setup.
+**Check in remotely.** `codex remote-control` is experimental. It manages the app-server daemon with remote control enabled, with `start`, `stop` and `pair` (a short-lived pairing code) subcommands. Because it is experimental, check it with a throwaway task before relying on it for real work.
 
 **Evidence from the run.** `--json` turns stdout into JSONL events. Each shell command is a `command_execution` item, so the same morning review works:
 
