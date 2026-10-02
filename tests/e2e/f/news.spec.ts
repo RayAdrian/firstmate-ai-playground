@@ -619,6 +619,16 @@ test.describe("integration: fx-news-lowbar", () => {
     await expect(page.getByRole("article")).toHaveCount(5);
   });
 
+  test("nothing above the bar offers Show all, which lists the sub-bar items", async ({ page }) => {
+    await go(page, "/news");
+    const showAll = page.getByRole("region", { name: "Nothing above the relevance bar today" }).getByRole("link", { name: "Show all (5)" });
+    await expect(showAll).toHaveAttribute("href", "/news?show=all");
+    await showAll.click();
+    await expect(page).toHaveURL(/\/news\?show=all$/);
+    await expect(page.getByRole("link", { name: "All (5)" })).toHaveAttribute("aria-current", "true");
+    await expect(page.getByRole("list", { name: "Below the relevance bar" }).getByRole("article")).toHaveCount(5);
+  });
+
   test("axe on the empty and low-bar states", async ({ page }) => {
     await go(page, "/news");
     await expectNoSeriousA11y(page);
