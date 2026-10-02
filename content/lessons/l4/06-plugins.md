@@ -10,7 +10,7 @@ tool_versions:
   codex_cli: "0.154.0"
 last_verified_on: "2026-10-02"
 differences:
-  - "Manifest and layout: Claude Code reads `.claude-plugin/plugin.json` plus `skills/`, `commands/`, `agents/`, `hooks/hooks.json` and `.mcp.json` at the plugin root. Codex's current format is a root `plugin.json` (Agent Plugins schema) with `skills/` and `mcp.json`, and OpenAI-specific settings under `extensions.com.openai`. The older `.codex-plugin/plugin.json` still works. On 0.154.0 we also installed a Claude-style `.claude-plugin/plugin.json` plugin with `codex plugin add`."
+  - "Manifest and layout: Claude Code reads `.claude-plugin/plugin.json` plus `skills/`, `commands/`, `agents/`, `hooks/hooks.json` and `.mcp.json` at the plugin root. Codex's current format is a root `plugin.json` (Agent Plugins schema) with `skills/` and `mcp.json`, and OpenAI-specific settings under `extensions.com.openai`. The older `.codex-plugin/plugin.json` still works. On 0.154.0, `codex plugin add` also installs a Claude-style `.claude-plugin/plugin.json` plugin."
   - "Components: a Claude Code plugin can bundle skills, commands, subagents, hooks, MCP servers and more. The Codex docs list skills, MCP servers, apps, hooks and browser extensions, and no commands or subagents, so treat commands as Claude Code only."
   - "Marketplace: Claude Code uses `.claude-plugin/marketplace.json` and `claude plugin marketplace add owner/repo`. Codex uses `.agents/plugins/marketplace.json` (it also read a `.claude-plugin/marketplace.json` here) and `codex plugin marketplace add owner/repo`. A Codex entry also needs a `policy` and a `category`."
   - "Per-project enabling: Claude Code commits `extraKnownMarketplaces` and `enabledPlugins` in `.claude/settings.json`. Codex sets `[plugins.\"name@marketplace\"] enabled = true` in the project's `.codex/config.toml`, which it loads only for trusted projects."
@@ -289,7 +289,7 @@ codex plugin add first-mate@first-mate-team
 codex plugin marketplace upgrade                                    # refresh Git marketplace snapshots
 ```
 
-We checked this on 0.154.0 with a throwaway `CODEX_HOME`: adding a local marketplace and running `codex plugin add` installed the plugin, `codex plugin list` reported `installed, enabled`, and Codex wrote `[marketplaces.first-mate-team]` and `[plugins."first-mate@first-mate-team"]` entries to `config.toml`. The same worked for a plugin with a `.claude-plugin/plugin.json` listed in a `.claude-plugin/marketplace.json`, so a skills-only plugin can serve both tools from one repo. Installed skills become available in a new session, and `/plugins` in the CLI browses marketplaces, installs and uninstalls, and toggles a plugin with the space bar.
+On 0.154.0, adding a local marketplace and running `codex plugin add` installs the plugin, `codex plugin list` reports `installed, enabled`, and Codex writes `[marketplaces.first-mate-team]` and `[plugins."first-mate@first-mate-team"]` entries to `config.toml`. The same works for a plugin with a `.claude-plugin/plugin.json` listed in a `.claude-plugin/marketplace.json`, so a skills-only plugin can serve both tools from one repo. Installed skills become available in a new session, and `/plugins` in the CLI browses marketplaces, installs and uninstalls, and toggles a plugin with the space bar.
 
 ### Enabling per project
 

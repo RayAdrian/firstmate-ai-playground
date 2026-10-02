@@ -22,7 +22,7 @@ tldr:
   points:
     - "Start in plan mode or a read-only sandbox, and widen permissions only when needed."
     - "Allow test and lint commands; deny `curl`, `.env` reads and network access."
-    - "Branch with `git switch -c try-agent` first; `git restore .` then undoes a bad run."
+    - "Branch with `git switch -c try-agent` first, so a bad run is a branch you can drop."
   try_this:
     claude: { kind: command, text: "claude --permission-mode plan" }
     codex: { kind: command, text: "codex --sandbox read-only --ask-for-approval on-request" }
