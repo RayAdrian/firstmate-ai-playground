@@ -5,7 +5,7 @@ import path from "node:path";
 import { exerciseJsonSchema } from "../../src/lib/contracts";
 
 export const DEFAULT_TIMEOUT_MS = 5 * 60 * 1000;
-export const TOTAL_EXERCISES = 20;
+export const TOTAL_EXERCISES = 22;
 export const MIN_AUTOMATED = 12;
 
 type RunOutcome = "pass" | "fail" | "timeout";
@@ -101,7 +101,7 @@ async function runInCopy(src: string, verifyCmd: string, timeoutMs: number, env:
   }
 }
 
-/** E-4.3: at least 12 of the 20 exercises must use an automated verify command. Enforced once all 20 exist. */
+/** E-4.3: at least 12 of the 22 exercises must use an automated verify command. Enforced once all 22 exist. */
 export function automationCoverage(verifies: string[]): { ok: boolean; enforced: boolean; automated: number; total: number; message: string } {
   const total = verifies.length;
   const automated = verifies.filter((v) => v !== "manual").length;
