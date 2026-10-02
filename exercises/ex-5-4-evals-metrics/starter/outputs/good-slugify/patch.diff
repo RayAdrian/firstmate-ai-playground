@@ -1,0 +1,24 @@
+diff --git a/src/slug.js b/src/slug.js
+new file mode 100644
+--- /dev/null
++++ b/src/slug.js
+@@ -0,0 +1,7 @@
++export function slugify(input) {
++  return String(input)
++    .toLowerCase()
++    .trim()
++    .replace(/[^a-z0-9]+/g, "-")
++    .replace(/^-+|-+$/g, "");
++}
+diff --git a/tests/slug.test.js b/tests/slug.test.js
+new file mode 100644
+--- /dev/null
++++ b/tests/slug.test.js
+@@ -0,0 +1,7 @@
++import { test } from "node:test";
++import assert from "node:assert/strict";
++import { slugify } from "../src/slug.js";
++
++test("slugify", () => {
++  assert.equal(slugify("Hello, World!"), "hello-world");
++});

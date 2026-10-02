@@ -1,7 +1,7 @@
 ---
 slug: l5-capstone
 level: 5
-sort: 4
+sort: 5
 title: "Capstone: ship like First Mate"
 objective: "Run the full loop end to end, from spec to plan to parallel worktrees to test-first implementation to three gates to a gated merge, using the same process that built this app, in both Claude Code and Codex CLI."
 est_minutes: 120
@@ -83,7 +83,7 @@ When a gate fails, read the finding before you touch the code. A blocking review
 
 ### First Mate tip
 
-Run the capstone on a real but low-stakes internal repo before the first client engagement, then keep its `AGENTS.md`, PR template, gate scripts and worker brief as your starting kit. A client MVP does not need all ceremony on day one. It does need three things from the first commit: an ownership table, tests before code, and a merge that only happens through a gate. The rest, such as extra workstreams and a UI review, can be added when the team grows.
+Run the capstone on a real but low-stakes internal repo before the first client engagement, then keep its `AGENTS.md`, PR template, gate scripts and worker brief as your starting kit. A client MVP does not need all ceremony on day one. It does need three things from the first commit: an ownership table, tests before code, and a merge that only happens through a gate. The rest, such as extra workstreams and a UI review, can be added when the team grows. Once the loop runs, add a few evals for your `AGENTS.md` and a baseline of lead time (lesson 5.4), so you can show the process helps.
 
 ## Claude Code
 

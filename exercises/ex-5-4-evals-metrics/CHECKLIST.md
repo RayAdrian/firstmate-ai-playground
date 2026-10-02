@@ -1,0 +1,7 @@
+- [ ] c1: `npm test` passes and you did not edit `tests/`, `outputs/` or `evals/`
+- [ ] c2: `node bin/run-evals.js` prints a report with 12 cases, 4 passed, 7 failed, 1 unscored and a pass rate of 0.364, and exits 1 at the spec threshold of 0.8
+- [ ] c3: You can say why `file_not_contains` fails on a missing file, and why `diff_touches_only` rejects `src/../.github/workflows/ci.yml` even though `src/**` would match it
+- [ ] c4: A `rubric` check is reported as skipped and never counts as a pass, and a case with only rubric checks is `unscored`
+- [ ] c5: You wrote down which deterministic check you would add next for your own repo (for example "tests pass in a sandbox" or "no new dependencies") and why this harness leaves it out
+- [ ] c6: You can name two ways a pass rate can mislead (too few cases, cases the agent has already seen, a rubric nobody calibrated) and one thing you would do about each
+- [ ] c7: (Optional) You pointed the harness at 3 to 5 real saved outputs from your own repo, with a spec you wrote before looking at them

@@ -12,18 +12,21 @@ const lessonDir = path.join(root, "content/lessons/l5");
 const exercisesDir = path.join(root, "exercises");
 
 const EXPECTED_LESSONS = [
-  { file: "01-model-routing.md", slug: "l5-model-routing", exercise: "ex-5-1-routing" },
-  { file: "02-multi-agent-teams.md", slug: "l5-multi-agent-teams", exercise: "ex-5-2-team" },
-  { file: "03-gated-merge-pipelines.md", slug: "l5-gated-merge-pipelines", exercise: "ex-5-3-gates" },
-  { file: "04-capstone-ship-like-first-mate.md", slug: "l5-capstone", exercise: "ex-5-4-capstone" },
+  { file: "01-model-routing.md", slug: "l5-model-routing", exercise: "ex-5-1-routing", claude: "2.1.284" },
+  { file: "02-multi-agent-teams.md", slug: "l5-multi-agent-teams", exercise: "ex-5-2-team", claude: "2.1.284" },
+  { file: "03-gated-merge-pipelines.md", slug: "l5-gated-merge-pipelines", exercise: "ex-5-3-gates", claude: "2.1.284" },
+  { file: "04-evals-metrics.md", slug: "l5-evals-metrics", exercise: "ex-5-4-evals-metrics", claude: "2.1.287" },
+  // The capstone keeps its slug and its exercise slug (progress is keyed by them); only its sort moved to 5.
+  { file: "04-capstone-ship-like-first-mate.md", slug: "l5-capstone", exercise: "ex-5-4-capstone", claude: "2.1.284" },
 ];
+const EXERCISES = EXPECTED_LESSONS.map((l) => l.exercise);
 
 /** Remove fenced code blocks so headings inside examples are not counted. */
 const stripFences = (md: string) => md.replace(/^```[\s\S]*?^```/gm, "");
 
 describe("L5 lessons", () => {
-  it("has exactly the four lessons from PRD section 7", () => {
-    expect(readdirSync(lessonDir).sort()).toEqual(EXPECTED_LESSONS.map((l) => l.file));
+  it("has exactly the five lessons from PRD section 7", () => {
+    expect(readdirSync(lessonDir).sort()).toEqual(EXPECTED_LESSONS.map((l) => l.file).sort());
   });
 
   for (const expected of EXPECTED_LESSONS) {
@@ -47,7 +50,7 @@ describe("L5 lessons", () => {
 
       it("records the verified tool versions and a date that is not in the future", () => {
         const fm = lessonFrontmatterSchema.parse(parsed.data);
-        expect(fm.tool_versions).toEqual({ claude_code: "2.1.284", codex_cli: "0.154.0" });
+        expect(fm.tool_versions).toEqual({ claude_code: expected.claude, codex_cli: "0.154.0" });
         // Verified dates are Manila dates, which can be a day ahead of UTC.
         const tomorrow = new Date(Date.now() + 24 * 3600 * 1000).toISOString().slice(0, 10);
         expect(fm.last_verified_on <= tomorrow).toBe(true);
@@ -115,11 +118,11 @@ describe("L5 exercises", () => {
     (d) => d.startsWith("ex-5-") && statSync(path.join(exercisesDir, d)).isDirectory(),
   );
 
-  it("has exactly the four exercises from PRD section 7", () => {
-    expect(dirs.sort()).toEqual(["ex-5-1-routing", "ex-5-2-team", "ex-5-3-gates", "ex-5-4-capstone"]);
+  it("has exactly the five exercises from PRD section 7", () => {
+    expect(dirs.sort()).toEqual([...EXERCISES].sort());
   });
 
-  for (const dir of ["ex-5-1-routing", "ex-5-2-team", "ex-5-3-gates", "ex-5-4-capstone"]) {
+  for (const dir of EXERCISES) {
     describe(dir, () => {
       const base = path.join(exercisesDir, dir);
       const json = JSON.parse(readFileSync(path.join(base, "exercise.json"), "utf8"));

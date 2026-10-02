@@ -1,0 +1,18 @@
+{
+  "slug": "ex-5-4-evals-metrics",
+  "verify": "npm test",
+  "required_tool_features": ["headless-exec", "evals"],
+  "title": "A tiny eval harness: deterministic checks and a pass rate",
+  "goal": "Finish an eval harness that scores a folder of saved agent outputs against a spec. Implement the deterministic checks (file exists, file contains, diff touches only allowed paths, diff size) so that they fail closed, then build the pass-rate report. No model calls: the judge-style check is reported as skipped, never as a pass.",
+  "setup_cmd": "D=~/fm-ex/ex-5-4-evals-metrics; if [ -e \"$D\" ]; then echo \"Already set up at $D. Run: cd $D (or delete it first to start over).\"; else mkdir -p ~/fm-ex && cp -r exercises/ex-5-4-evals-metrics/starter \"$D\" && cd \"$D\" && git init -q -b main && git add -A && git -c user.name=fm-learner -c user.email=learner@example.com commit -q -m baseline && npm install; fi",
+  "starter_prompts": {
+    "claude": "Read AGENTS.md, src/checks.js, src/report.js and tests/harness.test.js. The harness is naive on purpose: it passes everything. Implement runCheck in src/checks.js and evaluateCase and buildReport in src/report.js so that npm test passes. Never edit tests/, outputs/ or evals/. Before you code, list the situations where a check should fail instead of pass (a missing file, a path that leaves the case folder, an empty diff, a .. segment in a diff path, an unknown check type) and tell me why a rubric check must never count as a pass. Then run npm test and node bin/run-evals.js and read the report.",
+    "codex": "Read AGENTS.md, src/checks.js, src/report.js and tests/harness.test.js. The harness is naive on purpose: it passes everything. Implement runCheck in src/checks.js and evaluateCase and buildReport in src/report.js so that npm test passes. Never edit tests/, outputs/ or evals/. Before you code, list the situations where a check should fail instead of pass (a missing file, a path that leaves the case folder, an empty diff, a .. segment in a diff path, an unknown check type) and tell me why a rubric check must never count as a pass. Then run npm test and node bin/run-evals.js and read the report."
+  },
+  "solution_notes": [
+    "Every doubtful situation is a failure: a missing file, a path that leaves the case folder (including through a symlink), an empty or missing diff, a bad regex, a bad limit and an unknown check type. file_not_contains on a missing file fails too, because a file that is not there cannot prove a pattern is absent.",
+    "diff_touches_only rejects any path with a '..' segment before it looks at the allow list, and it counts both sides of a rename. Otherwise 'src/../.github/workflows/ci.yml' would match 'src/**' and a rename out of a protected folder would look harmless.",
+    "A rubric check is 'skipped', not 'pass'. A case with nothing left to score is 'unscored' and stays out of the pass rate, so the number never includes a verdict that no judge gave. Deterministic checks decide first; a judge is only for what code cannot check.",
+    "The pass rate is over scored cases, rounded to three decimals, and it is null when nothing was scored. 'ok' needs a real rate at or above the threshold, so an empty or unscored run blocks instead of passing. evaluateCase never throws: a check that crashes is a failed check, so one bad case cannot hide the others."
+  ]
+}

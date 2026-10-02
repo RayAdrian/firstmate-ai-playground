@@ -97,13 +97,13 @@ describe("automationCoverage (TC-B-42)", () => {
   const make = (auto: number, total: number) =>
     Array.from({ length: total }, (_, i) => (i < auto ? "npm test" : "manual"));
 
-  it("fails at 11/18, passes at 12/18 and 18/18", () => {
-    expect(automationCoverage(make(11, 18)).ok).toBe(false);
-    expect(automationCoverage(make(12, 18)).ok).toBe(true);
-    expect(automationCoverage(make(18, 18)).ok).toBe(true);
+  it("fails at 11/19, passes at 12/19 and 19/19", () => {
+    expect(automationCoverage(make(11, 19)).ok).toBe(false);
+    expect(automationCoverage(make(12, 19)).ok).toBe(true);
+    expect(automationCoverage(make(19, 19)).ok).toBe(true);
   });
 
-  it("only warns before all 18 exercises exist", () => {
+  it("only warns before all 19 exercises exist", () => {
     const c = automationCoverage(make(2, 6));
     expect(c.ok).toBe(true);
     expect(c.enforced).toBe(false);
