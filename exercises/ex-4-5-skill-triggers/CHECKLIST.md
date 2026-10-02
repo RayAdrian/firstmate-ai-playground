@@ -1,0 +1,10 @@
+- [ ] c1: The skill folder is in `.claude/skills/release-notes/` (Claude Code) or `.agents/skills/release-notes/` (Codex), moved rather than copied, and the old `skills/` folder is gone
+- [ ] c2: The frontmatter parses: the value with the nested quotes is fixed, and the file starts with `---` on line 1
+- [ ] c3: The description says what the skill produces and has a "Use when ..." clause with the words people actually type (release notes, changelog, what changed since the last tag, what shipped)
+- [ ] c4: The description does not also match unrelated requests such as "fix the failing unit test"
+- [ ] c5: Nothing blocks automatic use: `disable-model-invocation` is gone (Claude Code), and `allow_implicit_invocation: false` is gone from `agents/openai.yaml` (Codex)
+- [ ] c6: `template.md` still sits beside `SKILL.md` and `SKILL.md` links to it instead of pasting it in
+- [ ] c7: In a fresh session, `/skills` lists `release-notes`
+- [ ] c8: In that session a natural request ("What changed since the last tag? I need a changelog for the team") loaded the skill and the notes came out in the template's format, with no skill name typed
+- [ ] c9: `npm test` passes and you did not edit anything under `tests/` or `scripts/`
+- [ ] c10: You can name the first three things to check when a skill does not trigger, in order

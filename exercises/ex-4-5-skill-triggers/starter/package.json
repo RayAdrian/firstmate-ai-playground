@@ -1,0 +1,10 @@
+{
+  "name": "ex-4-5-skill-triggers",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "check": "node scripts/check-skills.mjs"
+  }
+}

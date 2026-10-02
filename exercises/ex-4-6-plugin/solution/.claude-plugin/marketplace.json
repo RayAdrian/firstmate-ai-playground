@@ -1,0 +1,14 @@
+{
+  "name": "first-mate-team",
+  "description": "First Mate's shared Claude Code and Codex setup",
+  "owner": {
+    "name": "First Mate"
+  },
+  "plugins": [
+    {
+      "name": "fm-team-kit",
+      "source": "./plugin",
+      "description": "PR description skill and changelog command"
+    }
+  ]
+}

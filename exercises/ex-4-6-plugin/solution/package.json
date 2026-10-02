@@ -1,0 +1,10 @@
+{
+  "name": "ex-4-6-plugin",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "validate": "node scripts/validate-plugin.mjs"
+  }
+}

@@ -109,6 +109,8 @@ A skill is a folder with a `SKILL.md`: `name` and `description` frontmatter, the
 
 A slash command is a skill you invoke on purpose. Use one when a task has side effects or a fixed shape you want to trigger yourself, such as scaffolding, release notes or a PR description.
 
+Lesson 4.5 goes deeper on skills: how the agent decides to load one, multi-file skills, sharing, and fixing one that does not trigger.
+
 ### First Mate tip
 
 Client repos rotate through engineers and contractors, and every one of them has a different agent setup. Put the repeatable parts in the repo. A format hook and a `new-api-route` skill mean the tenth endpoint on a client MVP looks like the first, whoever (or whichever CLI) wrote it. Keep the deterministic checks in hooks and the "how we do it here" in one skill per task. Review hook scripts in PRs like any other code, because they run on everyone's machine.

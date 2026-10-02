@@ -1,0 +1,8 @@
+{
+  "name": "fm-team-kit",
+  "version": "1.0.0",
+  "description": "First Mate's shared PR and release helpers: a PR description skill and a changelog command",
+  "author": {
+    "name": "First Mate"
+  }
+}
