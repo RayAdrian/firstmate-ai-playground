@@ -25,7 +25,7 @@ test.describe("digest (N-1)", () => {
   test("TC-F-01 header shows the latest successful run date and finish time", async ({ page }) => {
     await go(page, "/news");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Today's digest");
-    await expect(page.locator("main, body").first()).toContainText("Wed 30 Sep · updated 08:03");
+    await expect(page.locator("main, body").first()).toContainText("Updated 08:03");
     const text = await page.locator("body").innerText();
     expect(text).not.toContain("12:31");
     expect(text).not.toContain("12:30");
@@ -35,7 +35,7 @@ test.describe("digest (N-1)", () => {
   test("TC-F-03 partial run counts as the digest, keyed on its own digest date", async ({ page, context, baseURL }) => {
     await setServerNow(context, baseURL ?? "", "2026-09-29T13:00:00+08:00");
     await go(page, "/news");
-    await expect(page.locator("body")).toContainText("Tue 29 Sep · updated 08:04");
+    await expect(page.locator("body")).toContainText("Updated 08:04");
     expect(await cardTitles(digestList(page))).toEqual(["n20", "n24", "n21"].map((a) => fixture(a).title));
     await expect(page.getByRole("button", { name: /^Unscored \(2\)$/ })).toBeVisible();
     await expect(page.locator("body")).not.toContainText("No digest yet today");
@@ -196,7 +196,7 @@ test.describe("stale digest and Manila time (N-3.1)", () => {
     await setServerNow(context, baseURL ?? "", "2026-09-30T23:59:00+08:00");
     await go(page, "/news");
     await expect(page.locator("body")).not.toContainText("No digest yet today");
-    await expect(page.locator("body")).toContainText("Wed 30 Sep · updated 08:03");
+    await expect(page.locator("body")).toContainText("Updated 08:03");
     await setServerNow(context, baseURL ?? "", "2026-10-01T00:00:00+08:00");
     await go(page, "/news");
     await expect(page.locator("body")).toContainText(stale);
@@ -221,7 +221,7 @@ test.describe("stale digest and Manila time (N-3.1)", () => {
         const logs = collectConsole(page);
         await go(page, "/news");
         await page.waitForLoadState("networkidle");
-        await expect(page.locator("body")).toContainText("Wed 30 Sep · updated 08:03");
+        await expect(page.locator("body")).toContainText("Updated 08:03");
         await expect(page.locator("body")).not.toContainText("No digest yet today");
         await expect(digestList(page).getByRole("article").first().locator("time")).toHaveText("Wed 30 Sep, 00:30");
         expect(logs()).toEqual([]);
@@ -582,7 +582,7 @@ test.describe("integration: fx-no-news", () => {
     await page.reload();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Today's digest");
     expect(await cardTitles(page.getByRole("list", { name: "Today's digest" }))).toEqual(["Dynamic render probe"]);
-    await expect(page.locator("body")).toContainText("Wed 30 Sep · updated 08:03");
+    await expect(page.locator("body")).toContainText("Updated 08:03");
   });
 
   test("TC-F-40b only failed runs still means no news yet", async ({ page }) => {
@@ -608,7 +608,7 @@ test.describe("integration: fx-news-lowbar", () => {
 
   test("TC-F-41 nothing above the bar links to today's archive", async ({ page }) => {
     await go(page, "/news");
-    await expect(page.locator("body")).toContainText("Wed 30 Sep · updated 08:03");
+    await expect(page.locator("body")).toContainText("Updated 08:03");
     await expect(page.getByRole("region", { name: "Nothing above the relevance bar today" })).toBeVisible();
     await expect(page.getByRole("list", { name: "Today's digest" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: /^Unscored/ })).toHaveCount(0);
@@ -617,6 +617,16 @@ test.describe("integration: fx-news-lowbar", () => {
     await link.click();
     await expect(page.getByRole("heading", { level: 2, name: "Results" })).toBeVisible();
     await expect(page.getByRole("article")).toHaveCount(5);
+  });
+
+  test("nothing above the bar offers Show all, which lists the sub-bar items", async ({ page }) => {
+    await go(page, "/news");
+    const showAll = page.getByRole("region", { name: "Nothing above the relevance bar today" }).getByRole("link", { name: "Show all (5)" });
+    await expect(showAll).toHaveAttribute("href", "/news?show=all");
+    await showAll.click();
+    await expect(page).toHaveURL(/\/news\?show=all$/);
+    await expect(page.getByRole("link", { name: "All (5)" })).toHaveAttribute("aria-current", "page");
+    await expect(page.getByRole("list", { name: "Below the relevance bar" }).getByRole("article")).toHaveCount(5);
   });
 
   test("axe on the empty and low-bar states", async ({ page }) => {

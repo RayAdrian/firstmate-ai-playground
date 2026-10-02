@@ -58,6 +58,8 @@ export type Digest =
       updatedAt: string;
       stale: boolean;
       ranked: NewsCardItem[];
+      /** Every scored item of the day, best first (the "All" view of /news). Optional so test doubles can omit it. */
+      scoredAll?: NewsCardItem[];
       /** How many scored items the digest date had, ranked or not. */
       scoredCount: number;
       unscored: NewsCardItem[];
@@ -69,19 +71,23 @@ export type Digest =
  */
 export async function getDigest(
   now: Date,
-  opts: { limit?: number; withUnscored?: boolean } = {},
+  opts: { limit?: number; withUnscored?: boolean; date?: string } = {},
 ): Promise<Digest> {
   const limit = opts.limit ?? DIGEST_SIZE;
   const db = getReadClient();
-  const runs: IngestRunRow[] = await dbRead(
-    db
-      .from("ingest_runs")
-      .select("*")
-      .in("status", ["success", "partial"])
-      .lte("started_at", now.toISOString())
-      .order("started_at", { ascending: false })
-      .limit(1),
-  );
+  let runQuery = db
+    .from("ingest_runs")
+    .select("*")
+    .in("status", ["success", "partial"])
+    .lte("started_at", now.toISOString());
+  if (opts.date) {
+    // A specific Manila day: runs that started within it (Manila has no DST, so a day is 24h).
+    const start = new Date(`${opts.date}T00:00:00+08:00`);
+    runQuery = runQuery
+      .gte("started_at", start.toISOString())
+      .lt("started_at", new Date(start.getTime() + 86_400_000).toISOString());
+  }
+  const runs: IngestRunRow[] = await dbRead(runQuery.order("started_at", { ascending: false }).limit(1));
   const run = runs[0];
   if (!run) return { kind: "none" };
 
@@ -94,6 +100,10 @@ export async function getDigest(
   const items: NewsItemRow[] = rows;
 
   const ranked = selectDigest(items, limit).map((r) => toCardItem(r, names));
+  const scoredAll = items
+    .filter((i) => i.scoring_status === "scored" && i.score !== null)
+    .sort(compareRanked)
+    .map((r) => toCardItem(r, names));
   const scoredCount = items.filter((i) => i.scoring_status === "scored").length;
   const unscored = opts.withUnscored
     ? items
@@ -106,11 +116,27 @@ export async function getDigest(
     kind: "digest",
     digestDate,
     updatedAt: run.finished_at ?? run.started_at,
-    stale: digestDate !== manilaDate(now),
+    stale: !opts.date && digestDate !== manilaDate(now),
     ranked,
+    scoredAll,
     scoredCount,
     unscored,
   };
+}
+
+/** Every Manila day that has a digest (a success/partial run that started by `now`), newest first. */
+export async function getDigestDates(now: Date): Promise<string[]> {
+  const db = getReadClient();
+  const runs: Pick<IngestRunRow, "started_at">[] = await dbRead(
+    db
+      .from("ingest_runs")
+      .select("started_at")
+      .in("status", ["success", "partial"])
+      .lte("started_at", now.toISOString())
+      .order("started_at", { ascending: false })
+      .limit(1000),
+  );
+  return [...new Set(runs.map((r) => manilaDate(new Date(r.started_at))))];
 }
 
 export { RELEVANCE_BAR };
