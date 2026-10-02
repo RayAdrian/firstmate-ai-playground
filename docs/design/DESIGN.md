@@ -957,7 +957,7 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 ```
 
 - Level section: `section[aria-labelledby="level-n-eyebrow level-n-title"][id=level-n]`, so its accessible name is "Level n Foundations: …" (§11), with the eyebrow "Level n", the `h2` title, the summary in `text-fg-muted`, and a progress row showing "2 / 4" text, a `ProgressBar md` and, when complete, a success Badge "Completed".
-- Lesson list: `<ol>` inside a `Card` (`bg-surface`, rows separated by `border-subtle`). Each row is a stretched link: `h3 > a` (`text-lg font-bold`), then the objective (`text-base text-fg`, clamped to 2 lines at 360 with `line-clamp-2`, and full at lg), then a meta row (`text-sm text-fg-muted`: "15 min · Verified 12 Sep 2026 · Claude Code v2.3 / Codex v0.9", wrapping allowed). The state badge sits top-right at lg and in the meta row at 360.
+- Lesson list: `<ol>` inside a `Card` (`bg-surface`, rows separated by `border-subtle`). Each row is a stretched link: `h3 > a` (`text-lg font-bold`), then the objective (`text-base text-fg`, clamped to 2 lines at 360 with `line-clamp-2`, and full at lg; **when the lesson has a `tldr`, its first point replaces the objective in the same element**, TL-7, §6.3.4), then a meta row (`text-sm text-fg-muted`: "15 min · Verified 12 Sep 2026 · Claude Code v2.3 / Codex v0.9", wrapping allowed). The state badge sits top-right at lg and in the meta row at 360.
 - Completion state per row: `success` Badge "Completed" or **nothing** for not started. Don't show a "Not started" badge; its absence is the state, and it avoids visual noise across 18 rows. The number prefix ("1.1") sits **outside** the `<a>` (in a preceding `<span>`), so the link name is exactly `<title>` (§11). The prefix is in `text-fg-muted tabular-nums`.
 - "May be outdated" (C-5): `warning` Badge, shown when `last_verified_on` is more than 60 days before today. It has a `title` attribute plus visible text, and the meta line keeps the actual date so the badge is explained.
 - Jump links at 360: a horizontal row of 5 `accent` badges-as-links (`h-11` touch). At lg this becomes the sticky left rail "On this page" with per-level counts.
@@ -969,7 +969,7 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 
 ### 6.3 `/lessons/[slug]` (`?tool=claude|codex`)
 
-**Hierarchy** (fixed order, L-1): 1. Header: title, objective, minutes, verified, bookmark. 2. Concept. 3. Tool tabs. 4. Key differences. 5. Exercise panel. 6. Mark complete + previous/next.
+**Hierarchy** (fixed order, L-1, amended by PRD §19.12): 1. Header: title, objective, minutes, verified, bookmark. 1a. TL;DR card (§6.3.4), when the lesson has a `tldr`. 2. Concept. 3. Tool tabs. 4. Key differences. 5. Exercise panel. 6. Mark complete + previous/next.
 
 ```
 360                                         1440
@@ -1008,9 +1008,9 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 ```
 
 - **Header**: breadcrumb `nav[aria-label=Breadcrumb]`; eyebrow "Lesson 2.1"; `h1`; objective `text-lg text-fg`; meta line; then the status and actions row, with the completion Badge (after mount) and the bookmark toggle button (`ghost sm`, `aria-pressed`, fixed label "Bookmark" with an outline or filled icon, L-8). "May be outdated" appears here too (C-5).
-- **Section headings**: "Concept" (`h2 id=concept`), "In your tool" (`h2 id=tools`, which gives the tabs a heading), "Key differences" (`h2 id=differences`, rendered inside the callout), "Exercise" (`h2 id=exercise`).
+- **Section headings**: "TL;DR" (`h2 id=tldr`, inside the card, only when the lesson has a `tldr`, §6.3.4), "Concept" (`h2 id=concept`), "In your tool" (`h2 id=tools`, which gives the tabs a heading), "Key differences" (`h2 id=differences`, rendered inside the callout), "Exercise" (`h2 id=exercise`).
 - **Key differences callout** (L-3): `section[aria-labelledby=differences]` (a `region` named "Key differences"; not `aside`, which would be `complementary`), `rounded-card bg-accent-soft border-l-4 border-link p-5`, with an `h2` at `text-xl` and a `<ul>` of 1–5 items (`text-prose`). It sits **outside and after** the tabs and is always visible.
-- **Right rail** (lg+): "On this lesson" anchor list, sticky at `top-[76px]`. It links to the four `h2` ids and highlights nothing (no scroll-spy in v1). Hidden below lg.
+- **Right rail** (lg+): "On this lesson" anchor list, sticky at `top-[76px]`. It links to the `h2` ids ("TL;DR" first when the card renders, §6.3.4) and highlights nothing (no scroll-spy in v1). Hidden below lg.
 - **Mark complete block** (L-5): `Card` with the text "Done with this lesson?" and a `primary` button "Mark complete". After clicking, the control area renders the PRD string **verbatim as one visible line: `Completed ✓ · Undo`**. Structure: `<span class="text-success font-bold">Completed ✓</span><span aria-hidden="true"> · </span><button type="button">Undo</button>`, so the visible text is exactly "Completed ✓ · Undo" and the only button is named "Undo". Also `announce("Lesson marked complete")`. Focus moves to the "Undo" button (the clicked node unmounts, so set it explicitly). Undo removes the entry, restores the "Mark complete" button, moves focus to it, and announces "Marked not complete". Pre-hydration, the button is disabled and labelled "Mark complete", with no state claimed.
   - Test note: PR #2 line "after: `getByRole('button', { name: /Completed ✓/ })`" must change to `getByText('Completed ✓ · Undo')` plus `getByRole('button', { name: 'Undo' })`. There is no button named "Completed ✓".
 - **Prev/next** (L-6): `nav[aria-label="Lesson"]`, two `Link`s showing the direction label plus the lesson number and title. At 360 they stack full-width (44px+). At the last L5 lesson, "Next" becomes "Back to curriculum →".
@@ -1065,6 +1065,8 @@ Wireframes are at **360px** (about 38 characters wide) and **1440px** (container
 #### 6.3.2 Watch block (PRD §15, MD-1, MD-2, MD-3)
 
 **Purpose.** This block plays a short, silent animation or terminal recording inside the Concept section. It adds to the lesson text and never replaces it, so it is visually quieter than the Key differences callout and the Exercise panel. It is a server component with no client JS.
+
+**Exclusion (TL-16).** Manifests of kind `tldr` never render here. They belong to the TL;DR card (§6.3.4), and the two players never merge.
 
 **Placement (MD-1).** The block goes inside `section[aria-labelledby=concept]`, after the concept prose and before the "In your tool" `h2`. The L-1 order, the four `h2` ids and the right rail stay as they are. The rail gets no "Watch" entry.
 
@@ -1664,6 +1666,425 @@ Check at 360, 768, **1024** and 1440, in light, dark and forced-colours:
 7. There is no horizontal scroll.
 8. A stacked horizontal form is intended, or the author was told how to shorten labels to get the row form.
 
+#### 6.3.4 TL;DR card and video (PRD §19, TL-5 to TL-16; resolves Q-TLD1 to Q-TLD7)
+
+**Purpose.** A busy engineer lands on a lesson between client tasks. In under 30 seconds they need the three takeaways and one thing to try, so they can decide whether to do the lesson now, later or never. The card is the TL;DR. The video is the same TL;DR in a second form, for people who would rather watch than read. The video never adds content the card lacks, so the card comes first and the video is something you open.
+
+**Hierarchy inside the card:** 1. The three points. 2. "Try this" and its Copy button. 3. The video, offered as a compact row that opens the player. The row sits *above* the points (see Q-TLD1), but it is quieter than they are: one 61px row against about 200px of text.
+
+##### Decisions (Q-TLD1 to Q-TLD7)
+
+| # | Question | Decision | Why |
+|---|---|---|---|
+| Q-TLD1 | Video inside the card or below it? Full poster or compact row at 360? | **Inside the card, as a compact row at every width,** placed directly under the `h2` and above the points. The row is a `<details>` summary with an 80×45 poster thumbnail (96×54 from md), "TL;DR video" and "0:31 · No sound". Opening it shows the full-width player inline. There is no full poster at any width. | A full poster is 185px at 360 and about 390px at 1440, and it would show the same text as the card in smaller type. The compact row costs 61px. It sits first because the people who want video should be offered it *before* they read, and readers skip a 61px row at no cost. One behaviour at every width also means one set of tests. |
+| Q-TLD2 | How do the two players differ on the 5 lessons with a §15 Watch block? | **Different place, frame, vocabulary, icon and poster.** See "Two players" below. | The two never touch: the Concept `h2` and its prose always sit between them. |
+| Q-TLD3 | Per-tool "Try this": show both, or follow the active tab? | **Show both, always,** in the fixed order Claude Code then Codex CLI, with the tool name as each block's label. The card ignores the tool tabs. | The tool preference is persisted (`prefs.tool` in localStorage, applied after mount by `ToolProvider`, §4.4 step 2). Following it would swap a block above the fold after hydration: a flash, and a layout shift when the two entries differ in length. Showing both also keeps principle 2: differences are never hidden behind a tab. The P2 "follow the tab" option is declined, not deferred. |
+| Q-TLD4 | Curriculum row: does the first point replace the objective or sit under it? | **It replaces the objective** (TL-7), with the same `text-base text-fg line-clamp-2 lg:line-clamp-none`. There is no "TL;DR" prefix and no second line. | Each row stays 3 lines tall across 22 rows, so scanning speed holds. The first point is the "what to do" point (authoring rule §19.3), which is the better reason to pick a lesson. The objective is still the lesson header's subtitle. |
+| Q-TLD5 | Where does "Read instead" go? Does the rail get a TL;DR entry? | **"Read instead" sits directly under the open player,** above the Transcript toggle. It links to `#tldr-points`, which is below the player. **The rail gets a "TL;DR" entry,** first in its list, only when the card renders. | With the row on top, "Read instead" does real work: you opened the video, changed your mind, and one link takes focus down to the points. The rail lists the page's `h2`s. Deep in the exercise, "what was the thing to try?" is a real question, and the rail is how you get back. |
+| Q-TLD6 | Captions repeat the on-screen text. Acceptable? | **No. Captions become one-line signposts** ("Point 1 of 3", "Try this in Codex CLI"). The full text stays on screen, in the card and in the transcript. Captions stay on by default (MD-2). See "Captions" below. | At 360 a 100-character point as a 15px cue wraps to 3 lines, about 62px. That's 242 source px, which overflows the 110px band and covers the point it repeats. That fails the owner's own TL-19 check ("the captions do not cover the text"). There is no audio, so WCAG 1.2.2 doesn't apply. The text alternative (1.2.1) is the transcript and the card. |
+| Q-TLD7 | The template: aspect, type scale, list build, Try this frame, end card, 360 legibility, safe areas | **16:9 at 1280×720, with large type,** specified in "Video template" below. Primary text is never under 48 source px (12.3px at 360). | 1:1 would gain 19% type size at 360. But it is 3× taller in the desktop card (or must be capped smaller than 16:9 renders), it fills only a third of a rotated phone in fullscreen, and it breaks the 1280×720 contract (TL-11). 16:9 in fullscreen on a rotated phone is the best way to watch on mobile. |
+
+##### Deltas vs PRD §19 (the coordinator applies these to the PRD and to TL0 or TL3)
+
+1. **The poster is the title frame (beat 1), not the hold frame** (§19.5 "Poster", TL-14). The PRD wanted the poster to be a complete TL;DR for reduced-motion users. The card above the video already is one, at full legibility. A summary frame shrunk to 328px renders its points at about 8px, so it would show the TL;DR a second time, illegibly. The title frame reads at every size: "TL;DR" at 48 and the title at 80 source px. It marks the video as *this lesson's TL;DR*, unlike a §15 scene poster. It is also frame 0, so the poster matches the first frame of playback exactly (no entrance animation on frame 0).
+2. **VTT cues are signposts, not the beat text** (§19.5 "Captions", TL-10). Each beat gets a `cue` string as well as its `text`. The VTT uses `cue`. The transcript (`tldr.txt`) uses `text`, unchanged. TL-10's test compares each VTT cue with its beat's `cue`, and each transcript line with its beat's `text`.
+3. **A per-tool Try this is two panels in sequence, each `clamp(4, 2 + chars / 15, 7)` s** (§19.5 beat table). Two 120-character entries can't share one frame at a legible mono size (each needs about 352px of height at 48px). The total range holds. The maximum is 3 + 3 × 8.67 + 2 × 7 + 2 = **45.0 s**. The minimum per-tool total is 31 s. A single `all` entry keeps the PRD formula (maximum 41 s).
+4. **`tldr.media.json` gains `template_version` (int)** (§19.5 manifest, TL0 `media.ts`). The page then recomputes `tldrSourceHash` at request time and hides a stale video (States, below). Without the field the app would have to import `media/remotion/src/tldr/template.json`, and the app never imports from `media/`.
+5. **TL-14's "the poster is visible" is checked after opening the video toggle.** On load, the poster shows as the row's thumbnail (the same `tldr.webp`). The "paused at `currentTime === 0` after 3 s" assertion is unchanged.
+6. **§11's `<details>` exception names two TL;DR cases, not one:** the video toggle and the transcript (PRD §19.12 names only the transcript). The card is a server component, and `<details>` lets the video open with no JS (no-JS state, below).
+
+##### Placement
+
+The card replaces the `<hr class="my-8">` between the lesson header and Concept. Header → card (`mt-8`) → Concept `h2` (`mt-10`). With no `tldr` the page renders exactly as today, `<hr>` included (TL-8).
+
+##### Wireframes
+
+```
+360 (column 328; card p-5 → 288 inside)          1440 (lg:col-span-8 ≈ 740; card p-6 → ≈ 692 inside)
+┌──────────────────────────────────────┐         ┌──────────────────────────────────────────────────────┐ ┌ rail ─────────────┐
+│ ← Curriculum / Level 1    (breadcr.) │         │ Curriculum / Level 1: Foundations      (breadcrumb)  │ │ ON THIS LESSON    │
+│ LESSON 1.1                   eyebrow │         │ LESSON 1.1                                           │ │ TL;DR        ← new│
+│ Your first agent session       (h1)  │         │ Your first agent session                      (h1)   │ │ Concept           │
+│ Install and authenticate both CLIs,  │         │ Install and authenticate both CLIs, run an …         │ │ Claude Code/Codex │
+│ run an interactive session, …        │         │ 25 min · Verified 30 Sep 2026 · CC 2.1.284 / …       │ │ Key differences   │
+│ 25 min · Verified 30 Sep    [🔖]     │         │ [✓ Completed]                         [🔖 Bookmark]   │ │ Exercise          │
+│                          ↕ mt-8      │         │                                       ↕ mt-8         │ └───────────────────┘
+│ ┌ card: surface, rounded-card ─────┐ │         │ ┌ card ─────────────────────────────────────────────┐│
+│ │ TL;DR                  (h2 xl)   │ │         │ │ TL;DR                                     (h2 xl) ││
+│ │ ┌──────┐ TL;DR video          ⌄  │ │ ← 61px  │ │ ┌───────┐ TL;DR video                          ⌄  ││ ← 70px row
+│ │ │ ▶    │ 0:31 · No sound         │ │   row   │ │ │  ▶    │ 0:31 · No sound                        ││
+│ │ └──────┘                         │ │         │ │ └───────┘                                        ││
+│ │ ① An agent is a model in a loop: │ │         │ │ ① An agent is a model in a loop: ask, edit,      ││
+│ │   ask, edit, approve, verify.    │ │         │ │   approve, verify.                               ││
+│ │ ② Approval prompts are your      │ │         │ │ ② Approval prompts are your brake. Learn what     ││
+│ │   brake. Learn what triggers     │ │         │ │   triggers them before you speed up.             ││
+│ │   them before you speed up.      │ │         │ │ ③ Commit before you start, so `git` can undo     ││
+│ │ ③ Commit before you start, so    │ │         │ │   anything the agent did.                        ││
+│ │   `git` can undo anything the    │ │         │ │ Try this                                   (h3)  ││
+│ │   agent did.                     │ │         │ │ Run it in your terminal, in any repo.            ││
+│ │ Try this                  (h3)   │ │         │ │ ┌ Terminal ─────────────────────────── [⧉ Copy] ┐││
+│ │ Run it in your terminal, in any  │ │         │ │ │ claude --version && codex --version           │││
+│ │ repo.                            │ │         │ │ └───────────────────────────────────────────────┘││
+│ │ ┌ Terminal ─────────── [⧉ Copy] ┐│ │         │ └──────────────────────────────────────────────────┘│
+│ │ │ claude --version && codex --v…││ │         │                                       ↕ mt-10        │
+│ │ └───────────────────────────────┘│ │         │ Concept                                       (h2)   │
+│ └──────────────────────────────────┘ │         └──────────────────────────────────────────────────────┘
+│                          ↕ mt-10     │
+│ Concept                        (h2)  │
+└──────────────────────────────────────┘
+
+360, video open (the player breaks out of the card padding to the full 328px, like the §6.3.3 band):
+│ ┌──────────────────────────────────┐ │
+│ │ TL;DR                            │ │
+│ │ TL;DR video                   ⌃  │ │ ← thumbnail hidden while open (group-open/video:hidden); row 44px
+│ │ 0:31 · No sound                  │ │
+│ ├──────────────────────────────────┤ │ ← border-y, no radius, -mx-5
+│ │  ▶ title frame (poster) 328×185  │ │
+│ │  ▶ 0:00 ────────────── 🔇 ⛶ ⋮    │ │
+│ ├──────────────────────────────────┤ │
+│ │ ↓ Read instead          (h-11)   │ │
+│ │ › Transcript            (h-11)   │ │
+│ │ ① An agent is a model in a loop… │ │
+```
+
+Per-tool Try this (4.2, for example) replaces the single block with two:
+
+```
+│ Try this                                   (h3)
+│ Type it into your agent.
+│ ┌ Claude Code ─────────────────────── [⧉ Copy] ┐
+│ │ Use a subagent to run the tests and report   │   ← prompt: wraps (pre-wrap)
+│ │ only the failures.                           │
+│ └──────────────────────────────────────────────┘
+│ ┌ Codex CLI ───────────────────────── [⧉ Copy] ┐
+│ │ Run the tests and report only the failures.  │
+│ │ Do not edit any files.                       │
+│ └──────────────────────────────────────────────┘
+```
+
+##### Anatomy and tokens
+
+- **Card:** `<section aria-labelledby="tldr" data-testid="tldr-card" class="mt-8 rounded-card bg-surface p-5 md:p-6 dark:border dark:border-border print:break-inside-avoid">`. This is the §4.2 Card. No accent fill, no left border.
+  - The Key differences callout (`accent-soft` with a `link` left border) and the Continue card own the accent fill. A third accent surface would weaken both.
+  - The Exercise panel is also a surface card, but it sits far down the page with its own eyebrow and numbered steps, so they can't be confused.
+- **Heading:** `<h2 id="tldr" class="text-xl font-bold text-fg-strong">TL;DR</h2>`. This is the same size as the Key differences `h2`, because both are headings inside a card. There is no eyebrow: the heading *is* the label, and "TL;DR" in eyebrow caps would just say it twice.
+- **Video row** (only when a valid, fresh manifest exists): `<details class="group/video mt-3 print:hidden">`. The named group keeps the nested transcript's `group-open` from clashing with it.
+  - Summary: `<summary id="tldr-video-toggle" class="flex min-h-11 cursor-pointer list-none items-center gap-3 rounded-xl border border-border bg-canvas p-2 pr-3 hover:bg-accent-subtle [&::-webkit-details-marker]:hidden focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-focus focus-visible:outline-offset-2">`.
+  - Its children, in order:
+    1. **Thumbnail:** `<span class="relative shrink-0 overflow-hidden rounded-lg border border-border group-open/video:hidden">` wrapping `<img src="…/tldr.webp" alt="" width="80" height="45" class="block h-[45px] w-20 md:h-[54px] md:w-24" decoding="async">`. Over it, a centred `size-7 rounded-full bg-primary text-primary-fg` badge holding a 14px lucide `Play` (`fill-current`, `aria-hidden`). It loads eagerly: it is above the fold and at most 30 KiB, and it is the same URL as the video poster, so opening costs no second fetch.
+    2. **Text column** `min-w-0 flex-1`: line 1 is `<span class="block font-bold text-link">TL;DR video</span>`, line 2 is `<span class="block text-sm text-fg-muted"><time datetime="PT31S">0:31</time> · No sound</span>`.
+    3. **Chevron:** a 16px `ChevronDown`, `aria-hidden`, `text-link transition-transform group-open/video:rotate-180 motion-reduce:transition-none`.
+  - Vocabulary: "TL;DR video", never "Watch …" (see Two players).
+- **Points:** `<ul id="tldr-points" tabindex="-1" class="mt-4 space-y-3 scroll-mt-[76px] rounded-lg">`. `scroll-mt` clears the 60px sticky header when "Read instead" or the rail jumps here.
+  - Each `li` is `grid grid-cols-[1.5rem_1fr] gap-3`.
+  - The first cell is a number badge, `<span aria-hidden="true" class="mt-0.5 inline-flex size-6 items-center justify-center rounded-full bg-accent-soft text-xs font-bold tabular-nums text-link">1</span>`. The numbers match the video's numbered points, so the card and the video visibly correspond. They are `aria-hidden` because the `ul` already conveys order, and the order carries no extra meaning.
+  - The second cell is `<span class="min-w-0 text-base text-fg md:text-prose [overflow-wrap:anywhere]"><InlineText text={point} /></span>`. Body size below md keeps a 3 × 100-character list near 300px at 360. From md up it is 17/28 prose, the same as Key differences.
+- **Try this:** `<h3 class="mt-5 text-base font-bold text-fg-strong">Try this</h3>`, then a lead line `<p class="mt-1 text-sm text-fg-muted">`, then the blocks in `<div class="mt-3 space-y-3">`.
+  - The lead line is generated from the kinds, never authored:
+    - Every entry is a command: "Run it in your terminal, in any repo."
+    - Every entry is a prompt: "Type it into your agent."
+    - The two entries differ: "Claude Code: type it into the agent. Codex CLI: run it in your terminal." (in that order, with the words matching each kind).
+  - Blocks are §4.5 `CommandLine`s, full card width:
+
+    | Shape | Label (figcaption, copy name) | Wrap |
+    |---|---|---|
+    | `all`, `command` | "Terminal" | no wrap; scrolls inside the block (§4.5) |
+    | `all`, `prompt` | "Prompt" | `wrap` (pre-wrap), like exercise prompts |
+    | `claude` + `codex` | "Claude Code", then "Codex CLI" | by each entry's kind, as above |
+
+  - The label is the tool name, not the kind, because TL-6 fixes it. The kind lives in the lead line.
+- **Open player panel** (the rest of the `<details>`, after the summary):
+  - The video: `<video controls preload="none" playsInline poster src width="1280" height="720" aria-label="TL;DR video: {lesson title}" style="aspect-ratio:1280/720" class="… mt-3 block h-auto bg-code-bg">`, with `<track kind="captions" srclang="en" label="English" src default>`. These are the MD-2 rules exactly: no `autoplay`, `loop`, `muted` or JS `play()`.
+  - Frame classes:
+    - Below md: `-mx-5 w-[calc(100%+2.5rem)] max-w-none border-y border-border`. That's a 328px band with no radius, edge to edge across the card.
+    - From md: `md:mx-0 md:w-full md:rounded-xl md:border`.
+    - At 360 the band gives the video the full column (scale 0.256) instead of 288px (0.225), which is the difference between 12.3px and 10.8px for 48px source text.
+  - Focus ring: `focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-focus focus-visible:outline-offset-2`.
+  - Captions use the Watch block's `::cue` rule: Satoshi, `rgb(0 0 0 / .8)` and a 15px floor below md. TL2 reuses `watch-block.module.css`'s `.video` class rather than copying it.
+  - Then **"Read instead"**: `<p class="mt-2"><a href="#tldr-points" class="inline-flex h-11 items-center gap-2 font-medium text-link hover:underline">` with a 16px `ArrowDown` (`aria-hidden`) and the text "Read instead".
+    - It's a plain fragment link, so it works without JS, through the same mechanism as the skip link (§5.1): the target has `tabindex="-1"`, so activating the link focuses it (TL-15).
+    - If the TL-15 `document.activeElement` assertion fails in a browser, TL2 adds an `onClick` that calls `focus()` on the list. Don't pre-emptively make the card a client component.
+  - Then **Transcript:** `<details class="group/transcript">`. Its markup is the Watch transcript's (§6.3.2), with summary `id="tldr-transcript-toggle"`, visible "Transcript", sr-only " for TL;DR video", and the plain-text `tldr.txt` panel `role="region" aria-labelledby="tldr-transcript-toggle"`. It uses `group-open/transcript:` for its chevron.
+
+**Spacing summary.**
+
+| From → to | Value |
+|---|---|
+| Header status row → card | `mt-8` (replaces the `<hr class="my-8">`) |
+| `h2` → video row | `mt-3` |
+| Video row (or `h2` when there is no video) → points | `mt-4` |
+| Point → point | `space-y-3` |
+| Points → "Try this" `h3` | `mt-5` |
+| `h3` → lead | `mt-1` |
+| Lead → first block, block → block | `mt-3`, `space-y-3` |
+| Summary → open video | `mt-3` |
+| Video → "Read instead" | `mt-2` (the 44px link carries its own air) |
+| Card → Concept `h2` | `mt-10` (the existing section rule) |
+
+**Responsive.** Nothing changes layout across breakpoints except the thumbnail size (80×45 → 96×54 at md), the point type (16 → 17px at md) and the video's band/rounded frame.
+
+| Width | Card inside | Open video | Scale | 48 / 56 / 80 source px render as |
+|---|---|---|---|---|
+| 360 | 288 | 328 × 185 (band) | 0.256 | 12.3 / 14.3 / 20.5 |
+| 768 | 672 | 672 × 378 | 0.525 | 25.2 / 29.4 / 42 |
+| 1024 | 581 | 581 × 327 | 0.454 | 21.8 / 25.4 / 36.3 |
+| 1440 | ≈ 692 | ≈ 692 × 389 | 0.541 | 26 / 30.3 / 43.3 |
+
+No horizontal scroll at any width. A 100-character point wraps (`overflow-wrap:anywhere` handles a long code span), and a long command scrolls inside its own `pre`.
+
+##### Two players on one page (the 5 lessons with a §15 Watch block)
+
+| | TL;DR player | Watch block (§6.3.2) |
+|---|---|---|
+| Job | "Is this lesson for me, and what do I try first?" | "Show me the mechanism." |
+| Place | Inside the TL;DR card, above Concept | Inside Concept, after the prose |
+| Frame | A `bg-surface` card; the player opens from a compact row | No card; an always-visible 16:9 poster |
+| Heading | Part of the card's `h2` "TL;DR"; no heading of its own | Its own `h3`, eyebrow "WATCH" plus the title |
+| Visible label | "TL;DR video" | "Watch" eyebrow plus the media title |
+| Kind word and icon | none needed (the label says it); the `Play` badge sits on the thumbnail | "Animation" (`Clapperboard`) or "Terminal recording" (`SquareTerminal`) |
+| Poster | The title frame: a big "TL;DR" and the lesson title on white | A scene from the animation or recording |
+| Video name | "TL;DR video: \<lesson title\>" | "Watch: \<media title\>" |
+| Captions | Signposts ("Point 2 of 3") | The scene captions (MD-4) |
+
+- The word "Watch" belongs to §15 only. The TL;DR row never says "Watch", so the two names can't be confused in a screen reader's list of controls either.
+- The Concept `h2` and at least one paragraph of prose always sit between the two players.
+- The Watch block never lists kind `tldr` (TL-16).
+
+##### Captions (signposts)
+
+- One cue per panel, at most 32 characters, so it is one line at 15px in a 296px cue box at 360 (about 39 characters fit).
+- Cue strings, exactly (generated by `beats.ts`):
+
+  | Beat | Cue |
+  |---|---|
+  | Title | "TL;DR: 3 points, 1 thing to try" |
+  | Point *n* | "Point *n* of 3" |
+  | Try this (`all`) | "Try this" |
+  | Try this (per tool) | "Try this in Claude Code", then "Try this in Codex CLI" |
+  | Recap | "Recap" |
+
+- **Why signposts, not silence.** The header strip that shows progress inside the frame renders at about 7px at 360. The cue carries the same orientation at a legible 15px. It also keeps MD-2's "captions on by default" true without covering the content.
+- The transcript stays the full description (§19.5): "Title card: Your first agent session. Point 1 of 3: …".
+- Fallback, if the owner keeps full-text cues: the template's content must then end at y = 470 for *every* beat (the band grows to 250px). Points must drop to 44px, below the 12px floor at 360. The design doesn't recommend it.
+
+##### Video template (TL3 builds this; `gate/uiux` checks the pilot against it)
+
+**Canvas.** 1280×720, 30 fps, light theme only (a dark render is PRD P2). The background is `canvas #ffffff` in every frame. Colours come from `media/remotion/src/theme.ts` (`c.*`) and type from `font.sans` / `font.mono`. Every pair used is already in the §2.4 ledger:
+- fg-strong / fg-muted / accent on canvas: 18.58 / 6.22 / 6.65
+- fg on accent-soft: 12.13
+- white on accent: 6.65
+- accent on accent-soft: 5.72
+- code-fg on code-bg: 15.13
+- code-muted on code-header: 6.40
+
+accent-2 is not used at all.
+
+**Safe areas (source px).**
+
+```
+0 ┌──────────────────────────────────────────────────────────────────────────┐
+  │  64 ←─────────────────────── text safe: x 64–1216 ───────────────────→  │
+48│ ┌ header strip (beats 2–5): y 48–96 ───────────────────────────────────┐ │
+96│ └──────────────────────────────────────────────────────────────────────┘ │
+  │   content: y 120–560 (points, Try this)                                 │
+  │   title frame and end card: y 48–470 (controls are showing while paused)│
+470│· · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · · ·│ ← paused: native controls + cue reach here at 360
+560│─────────────────────────────────────────────────────────────────────────│ ← nothing below this line but background
+610│ caption band (the §15 `layout` constant)                               │
+720└──────────────────────────────────────────────────────────────────────────┘
+```
+
+- **y 560–720 holds nothing.** A one-line 15px cue at 360 is about 24px rendered (94 source px), and Chromium's control bar, when it's showing, is about 40px (156 source). During playback the controls hide, and the cue sits inside the 110px band.
+- **The title frame and the end card are seen while paused,** so the controls and a cue overlap together. Their content ends at **y 470**, the top 65% of the frame (the same rule as the VHS tapes).
+- Beats 2–5 play with the controls hidden, so their content may run to y 560.
+
+**Type scale (source px; at 360 multiply by 0.256).**
+
+| Role | Size / line | Weight, colour | At 360 | Use |
+|---|---|---|---|---|
+| Title-frame eyebrow | 48 / 56, uppercase, tracking 0.12em | 700, accent | 12.3 | "TL;DR" |
+| Title-frame title | 80 / 92, max 2 lines | 700, fg-strong | 20.5 | Lesson title |
+| Title-frame subline | 32 / 40 | 500, fg-muted | 8.2 (context; ≥16.8 from md) | "Three takeaways and one thing to try" |
+| Current point | **56 / 68**, max 3 lines; steps to **48 / 60** if 3 lines won't hold it; never smaller | 500, fg-strong | 14.3 (12.3 floor) | The point being read |
+| Earlier points | 30 / 40, 1 line, ends in "…" | 500, fg-muted | 7.7 (context) | Points already read |
+| Try-this lead | 56 / 68, 1 line | 700, fg-strong | 14.3 | "Try this" / "Try this in Claude Code" |
+| Try-this kind line | 32 / 40 | 500, fg-muted | 8.2 (context) | "Run it in your terminal, in any repo." |
+| Code | **48 / 64 mono**, max 4 lines, wraps at spaces (any character only for a token longer than the line) | 400, code-fg | 12.3 | The command or prompt |
+| Code label | 26 mono | 500, code-muted on code-header | 6.7 (context; the cue names the tool) | "Terminal", "Prompt", "Claude Code", "Codex CLI" |
+| Header strip | 26 / 32 | "TL;DR" 700 accent; the title 500 fg-muted, 1 line, "…" at 800px | 6.7 (context) | Beats 2–5 |
+| End-card points | 30 / 40, max 3 lines | 500, fg | 7.7 (≥ 13.6 from md) | Recap |
+| End-card code | 26 / 34 mono, max 5 lines | 400, code-fg | 6.7 (≥ 11.8 from md) | Recap |
+
+- **Legibility rule (TL-19 "legible at 360"):** everything the viewer needs *in the moment* (the title, the current point, the Try-this lead and code) renders at **≥ 12px at 360**. The other rows give context and are legible from md up. At 360 the cue repeats the orientation, and the card above repeats the content.
+- **Fit check:** Fit is checked at render time on the real text: the TL;DR composition measures each bullet with `@remotion/layout-utils` `measureText` (Satoshi Medium, 48 px, the frame's text-box width) and fails the render, naming the lesson slug and bullet index, if a bullet needs more than 3 lines. `npm run seed -- --dry-run` still enforces the 100-character cap. Authors shorten a bullet that fails the render; the cap is not lowered.
+  - **The text-box width is 1080 px:** x 136 to 1216. That is the 1152px text-safe area (x 64–1216) less the 56px number badge and its 16px gap.
+  - The same measurement picks the size: 56 / 68 when the bullet fits 3 lines at 56 px, otherwise 48 / 60. The type scale is unchanged.
+  - The 100-character cap does not guarantee fit. Wide glyphs measure about 48 px each at 48 px, so 100 "W"s need 5 lines. That is why the check runs on the real text, not on a worst-case fixture.
+- **Inline code** in points: mono at 0.9em on an `accent-soft` pill (radius 10, padding 0 10px), text `fg`. Same rule as the card's `InlineText`: plain text plus code spans only.
+
+**Frames.**
+
+```
+TITLE (beat 1; also the poster; frame 0 is fully composed)
+┌────────────────────────────────────────────────────────────────────────┐
+│                                                                        │
+│   TL;DR                                     (48, accent, y≈150)        │
+│   Your first agent session                  (80 bold, ≤2 lines,        │
+│                                              y 220–404)                │
+│   Three takeaways and one thing to try      (32 muted, y≈430)          │
+│                                                                        │  ← ≤ y 470
+│                                                                        │
+│ ░░░░░░░░░░░░░░░░░ band: background only ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │
+└────────────────────────────────────────────────────────────────────────┘
+
+POINT n (beats 2–4)
+┌────────────────────────────────────────────────────────────────────────┐
+│ TL;DR · Your first agent session                         ▬▬ ▬▬ ▭▭ ▭▭  │ ← header strip, y 48–96; segments 40×8, gap 8
+│                                                                        │   (done/current: accent; upcoming: border)
+│ (1) An agent is a model in a loop: ask, edit, approve, verify.         │ ← earlier point: 32px accent-soft badge, 30px muted, 1 line
+│                                                                        │   ↕ 16
+│ (2)  Approval prompts are your brake. Learn                            │ ← current: 56px accent badge, white numeral 30/700;
+│      what triggers them before you speed up.                           │   text 56/68 at x 136, measure 1080
+│                                                                        │  ← ≤ y 560
+│ ░░░░░░░░░░░░░░░░░░░░░░░░░░░░ band ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │
+└────────────────────────────────────────────────────────────────────────┘
+
+TRY THIS (beat 5; per tool = two panels in sequence)
+┌────────────────────────────────────────────────────────────────────────┐
+│ TL;DR · Your first agent session                         ▬▬ ▬▬ ▬▬ ▬▬  │
+│ Try this                                    (56 bold)                  │
+│ Run it in your terminal, in any repo.       (32 muted)                 │
+│ ┌ code-header 48 · Terminal ───────────────────────────────────────┐   │ ← radius 24, full text width (1152)
+│ │ claude --version && codex --version          (48 mono, pad 24)    │   │   no Copy button: the video can't copy
+│ └───────────────────────────────────────────────────────────────────┘   │ ← worst case (4 lines) ends at y≈536
+│ ░░░░░░░░░░░░░░░░░░░░░░░░░░░░ band ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │
+└────────────────────────────────────────────────────────────────────────┘
+
+END CARD / RECAP (hold; the last frame, seen while paused after "ended")
+┌────────────────────────────────────────────────────────────────────────┐
+│ TL;DR · Your first agent session          (32 bold: accent + fg-strong)│
+│ ┌ left: x 64–736 ──────────────────┐   ┌ right: x 784–1216 ──────────┐ │
+│ │ (1) An agent is a model in a     │   │ Try this          (32 bold) │ │
+│ │     loop: ask, edit, approve, …  │   │ ┌ Terminal ───────────────┐ │ │
+│ │ (2) Approval prompts are your    │   │ │ claude --version &&     │ │ │
+│ │     brake. Learn what triggers … │   │ │ codex --version         │ │ │
+│ │ (3) Commit before you start, so  │   │ └─────────────────────────┘ │ │
+│ │     `git` can undo anything …    │   │ (per tool: two blocks)      │ │
+│ └──────────────────────────────────┘   └─────────────────────────────┘ │ ← typical content ends ≤ y 470;
+│                                                                        │   worst case (3-line points, 2 × 5-line code) ≤ y 560
+│ ░░░░░░░░░░░░░░░░░░░░░░░░░░░░ band ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+- The end card shows every point in full (30/40, up to 3 lines) and every Try-this entry (26/34 mono, up to 5 lines). The worst case with two per-tool blocks needs 512px. That doesn't fit within y 470, so it gets y 48–560: the content is read at md and up, where the controls bar is 71 source px, and a cue sits above it.
+- **No lesson number in any frame** (for example "1.1"). The number isn't in the hash inputs (§19.5). The owner's renumbering (the new 5.4 pushes the capstone to 5.5) would otherwise leave the capstone's video showing a wrong number without failing CI.
+- No logo, no URL and no call to action. The video plays inside the app, under a card that already has the Copy button.
+
+**Motion (every transition; nothing else moves).**
+
+| Moment | What happens | Duration, easing |
+|---|---|---|
+| Frame 0 | Fully composed title frame. No entrance animation. | — |
+| Title → point 1 | The title block fades out. The header strip fades in. Point 1 fades in and rises 24px. | 250 / 250 / 300 ms, `ease-out` |
+| Point n → n+1 | The current point fades out while its compact row fades in at the top of the list (no movement). The next point fades in and rises 24px. | 200 / 200 / 300 ms |
+| Points → Try this | The list fades out. The lead and block fade in and rise 24px. | 250 / 300 ms |
+| Claude panel → Codex panel | Crossfade. The Codex panel rises 24px. | 200 / 300 ms |
+| Try this → end card | Crossfade. No movement. | 300 ms |
+| Header segments | Fill instantly at each beat start (a state change, not an animation). | 0 |
+
+- There are no zooms, no font-size tweens (a shrinking point would be a zoom), no parallax, no looping motion and no flashing. A point's dwell starts when its entrance starts, so the formula's reading time includes the 300ms entrance.
+
+##### Storyboard: 1.1 "Your first agent session"
+
+Input (the PRD §19.3 example): points of 58, 78 and 66 characters, and `try_this.all` as a `command` of 35 characters (`claude --version && codex --version`). Dwell = `clamp(6, 2 + chars / 15, 10)`. **Total 30.6 s, 918 frames, shown as "0:31".** No padding is needed (≥ 30).
+
+| # | Time (s) | Frames | On screen | Cue |
+|---|---|---|---|---|
+| 1 | 0.0 – 3.0 | 0 – 89 | Title frame, static. Frame 0 is the poster. | "TL;DR: 3 points, 1 thing to try" |
+| 2 | 3.0 – 9.0 | 90 – 269 | Frames 90–97: the title fades out and the header strip fades in, with segment 1 filled. Frames 90–98: point 1 "An agent is a model in a loop: ask, edit, approve, verify." fades in and rises 24px, at 56px on 2 lines. It holds until frame 269. | "Point 1 of 3" |
+| 3 | 9.0 – 16.2 | 270 – 485 | Point 1 crossfades to its compact row (frames 270–275). Point 2 "Approval prompts are your brake. Learn what triggers them before you speed up." enters (frames 270–278), at 56px on 2 lines. Segment 2 fills. | "Point 2 of 3" |
+| 4 | 16.2 – 22.6 | 486 – 677 | Point 2 compacts. Point 3 enters, "Commit before you start, so `git` can undo anything the agent did.", with `git` on an accent-soft mono pill. Two compact rows above it. Segment 3 fills. | "Point 3 of 3" |
+| 5 | 22.6 – 28.6 | 678 – 857 | The list fades out (678–685). "Try this", "Run it in your terminal, in any repo." and the Terminal block with `claude --version && codex --version` (48 mono, 1 line) fade in and rise (678–686). Segment 4 fills. | "Try this" |
+| 6 | 28.6 – 30.6 | 858 – 917 | Crossfade (858–866) to the end card: the title strip, three points in full on the left, Try this on the right. It holds, and frame 917 is the last frame (shown after "ended"). | "Recap" |
+
+- Reading check: point 2 is 78 characters, about 14 words, held 7.2 s (about 117 wpm), well under the 180 wpm the formula targets. Every point can be read before the next appears (a TL-19 check).
+- At 360: point text is 14.3px and the code is 12.3px. The cue (15px, one line) sits in the band, below the 560 line.
+
+##### States
+
+| State | What renders | Notes |
+|---|---|---|
+| **No `tldr`** (null, or invalid at read time, TL-3) | Nothing. No card, no `h2`, no rail entry, and the old `<hr>` stays. | Not an empty state. It's the pre-rollout normal (TL-8). |
+| **`tldr` but no valid video** (no manifest, an invalid manifest, a missing `mp4`/`webp`/`vtt`/`txt`) | The card with text only: `h2`, then the points (`mt-4` from the `h2`), then Try this. No row, no empty box and no error text. | The reader checks that every referenced file exists, as MD-3 does, so a missing poster never paints a broken-image icon in the thumbnail. The server logs the slug. |
+| **Stale video at runtime** (the recomputed `tldrSourceHash` ≠ `source_hash`) | The same as "no valid video": text only, plus a server log line `tldr video stale: <slug>`. | CI keeps stale files off `main` (TL-12). The runtime check covers the hosted window, where the database is seeded separately from the deploy (§18.8), so the text can be newer than the video. A video showing different words from the card above it breaks principle 3 (honest state), so it isn't shown. Needs Delta 4. |
+| **Loading** | The card arrives in the same server render as the lesson. The lesson `loading.tsx` skeleton gains a card block (`rounded-card bg-skeleton`: an `h-7 w-24` title bar, a 61px row, 3 × two `Skeleton.Text` lines, an `h-5 w-20` bar and a 96px block), sized to the 360, 768 and 1440 card. | Unlike the Watch block (5 of 22 lessons), the card is on every lesson. Add the skeleton block in the PR after which every lesson on `main` has a `tldr` (TL1, or TL2 if TL1 is already in). Before that, a skeleton card would collapse on lessons without one. |
+| **Pre-hydration** | Everything is correct in the server HTML. No progress state, so P-5 doesn't apply. The Copy buttons follow §4.5's pre-hydration behaviour. | The card is a server component. Only `CommandLine` is a client island. |
+| **No JS** | Points, Try this text (selectable), video toggle, player, captions, transcript, and "Read instead" (fragment navigation) all work. Copy buttons do nothing. | This is why both disclosures are `<details>`. |
+| **Reduced motion (page)** | Nothing plays until the user presses play, under either setting (TL-14). Chevrons don't rotate. `<details>` opens instantly. | Smooth scrolling is already off globally (§3.5), so "Read instead" jumps. |
+| **Reduced motion (video)** | No separate render. The template's only motion is 200–300ms fades and ≤24px rises, which meets WCAG 2.3.3 for everyone. A viewer who wants no motion at all has the card, which holds the same content. | The video row stays: reduced motion is not "no video". |
+| **Playing / paused / ended** | Native controls. Ended shows the end card (the last frame). | |
+| **Playback error** (file gone, network) | The browser's native error state in the frame. The card text, "Read instead" and the transcript stay. | |
+| **Light** | Card `bg-surface`, no border. Row `bg-canvas` with `border-border`. | |
+| **Dark** | Card `dark:border dark:border-border`. The row stays `bg-canvas` (`#12131f`), a darker inset on the surface card. Link 8.17:1 and fg-muted 7.68:1 on canvas. The thumbnail and the frame are light-only renders seated in `border-border` and the `bg-code-bg` frame, the same accepted compromise as the §15 posters. | A dark render is PRD P2. |
+| **Forced colours** | The row's border and the thumbnail's border become `CanvasText`. The `Play` badge loses its fill but keeps its glyph. Status is never carried by colour here. | |
+| **Print** | The card prints its text. The video row is `print:hidden`. | |
+
+##### Accessibility
+
+- **Tab order inside the card:**
+  1. The video toggle (Enter or Space opens it).
+  2. When open: the video, then the native controls where the browser exposes them, then "Read instead", then the Transcript toggle.
+  3. The Try-this Copy button(s).
+
+  Nothing moves focus programmatically, except "Read instead", which follows the link.
+- **Names:**
+  - Region "TL;DR".
+  - Toggle: visible text "TL;DR video" plus "0:31 · No sound". The thumbnail `img` has `alt=""`, so it adds nothing to the name.
+  - Video: "TL;DR video: \<lesson title\>".
+  - Transcript: "Transcript for TL;DR video".
+  - "Read instead".
+  - Copy buttons: "Copy code: Terminal" / "Prompt" / "Claude Code" / "Codex CLI".
+  - The card's "Copy code: Prompt" can share its name with the visible exercise starter-prompt button. Tests scope to the region (`getByTestId('tldr-card')`).
+- **Touch:** the row is at least 61px tall with a thumbnail (44 when open), and "Read instead" and the transcript summary are 44px. The Copy buttons follow §4.5.
+- **Focus rings:** the global ring, with `outline-solid` written out wherever `focus-visible:outline-2` appears (the TW4 trap, §4.0).
+- **No new live-region messages.** Copy announces "Copied" as everywhere else.
+
+##### Curriculum row (TL-7)
+
+```
+360                                         1440 (row in the lg:col-span-9 list)
+┌──────────────────────────────────┐        ┌───────────────────────────────────────────────────────────────┐
+│ 1.1 Your first agent session     │        │ 1.1 Your first agent session                    [✓ Completed] │
+│ An agent is a model in a loop:   │ ← p[0] │ An agent is a model in a loop: ask, edit, approve, verify.    │
+│ ask, edit, approve, verify.      │        │ 25 min · Verified 30 Sep 2026 · Claude Code v2.1.284 / …      │
+│ [✓ Completed]  25 min            │        └───────────────────────────────────────────────────────────────┘
+│ Verified 30 Sep · CC 2.1.284 / … │
+└──────────────────────────────────┘
+```
+
+- `<p class="mt-1 text-base text-fg line-clamp-2 lg:line-clamp-none [overflow-wrap:anywhere]"><InlineText text={tldr.points[0]} /></p>` when `tldr` is present, otherwise the objective exactly as today. It's one element either way, so the curriculum skeleton doesn't change.
+- Code spans render as `INLINE_CODE_CLASS` (`bg-surface` on a `bg-surface` row): there is no contrast change, and the mono face carries the distinction.
+- At 360 a 100-character point is about 3 lines at 16px in the 288px row text width, so `line-clamp-2` ends it with "…". The full point is one click away, at the top of the lesson. Don't add a `title` tooltip: it doesn't work on touch, and it sits under the stretched link.
+
+##### Review checklist (gate/uiux on TL2 and the TL3 pilot)
+
+Check at 360, 768, 1024 and 1440, in light and dark, on 1.2 (no Watch block) and 4.2 (Watch block and per-tool Try this):
+
+1. The card sits between the header and Concept, and the L-1 order holds after it.
+2. The video row is closed on load. It opens inline, and the thumbnail hides while it's open.
+3. At 360 the open video is a 328px band.
+4. A per-tool Try this shows both blocks, labelled "Claude Code" then "Codex CLI", whichever tab is active, and nothing in the card changes when the tab changes.
+5. "Read instead" focuses the points list, and the sticky header doesn't cover the list.
+6. With a stale or missing manifest, the card renders text only, with no residue.
+7. On 4.2 both players are visible on one scroll, named "TL;DR video: …" and "Watch: …", with Concept prose between them.
+8. **Pilot frames** (from ffmpeg stills at each beat's midpoint, scaled to 328 wide):
+   - The current point and the code are ≥ 12px.
+   - Nothing sits below y 560.
+   - The title frame and end card sit within y 470 (the end card's worst case to 560).
+   - The cue never overlaps text.
+   - The poster equals frame 0.
+9. The curriculum rows show `points[0]`, clamped to 2 lines below lg. No horizontal scroll.
+
 ### 6.4 `/exercises` (P1, E-5)
 
 **Hierarchy**: 1. Exercise title and which lesson it belongs to. 2. My checklist progress. 3. Verify type and level.
@@ -1982,7 +2403,7 @@ WS-A restyles `error.tsx`. It keeps the detection logic and the constants and do
 - **Empty and error copy formula**: what's missing or wrong, then what fixes it, then the command or link.
 - **Dates**: absolute, Asia/Manila. Day-level: "Wed 30 Sep". With time: "Wed 30 Sep, 08:03". Archive: "Tue 29 Sep 2026, 06:10". Always wrap in `<time datetime>`. No relative times ("3h ago") in v1, because they go stale on a page left open.
 - **Tool names**: "Claude Code" and "Codex CLI" in full in tabs and headings. "CC" and "Codex" are allowed only in the meta line at 360.
-- **Canonical strings** (tests assert some of these; keep them identical): "Copied"; "Press ⌘C to copy" / "Press Ctrl+C to copy"; "Mark complete"; "Completed ✓ · Undo" (L-5, visible text verbatim; "Undo" is the only button, §6.3); "Exercise complete"; "Saved progress was unreadable and has been reset"; "Progress can't be saved in this browser"; "No digest yet today. Showing \<date\>"; "Unscored (N)"; "Item no longer available"; "No news yet. Run `npm run news:run`."; "Continue: \<lesson title\>"; "See all"; "Something went wrong"; "Try again"; "Database unavailable"; "Nothing above the relevance bar today"; "No items match these filters"; "Clear filters"; "Nothing bookmarked yet"; "No lessons seeded yet. Run `npm run seed`."; "Can't reach the local database. Run `supabase start` then `npm run seed`."; "May be outdated"; "No native equivalent in \<tool\> (as of vX)"; "Back to curriculum".
+- **Canonical strings** (tests assert some of these; keep them identical): "Copied"; "Press ⌘C to copy" / "Press Ctrl+C to copy"; "Mark complete"; "Completed ✓ · Undo" (L-5, visible text verbatim; "Undo" is the only button, §6.3); "Exercise complete"; "Saved progress was unreadable and has been reset"; "Progress can't be saved in this browser"; "No digest yet today. Showing \<date\>"; "Unscored (N)"; "Item no longer available"; "No news yet. Run `npm run news:run`."; "Continue: \<lesson title\>"; "See all"; "Something went wrong"; "Try again"; "Database unavailable"; "Nothing above the relevance bar today"; "No items match these filters"; "Clear filters"; "Nothing bookmarked yet"; "No lessons seeded yet. Run `npm run seed`."; "Can't reach the local database. Run `supabase start` then `npm run seed`."; "May be outdated"; "No native equivalent in \<tool\> (as of vX)"; "Back to curriculum"; "TL;DR"; "Try this"; "TL;DR video"; "No sound"; "Read instead"; "Transcript"; the Try-this lead lines and the signpost cues in §6.3.4.
 
 ---
 
@@ -2122,6 +2543,8 @@ Minor:    <ID> …
 | §6.1 home | M2 integration | `src/app/page.tsx` |
 | §6.2, §6.3, §6.4 | WS-C | `src/app/curriculum/`, `src/app/lessons/`, `src/app/exercises/`, `src/components/lesson/`, `src/components/exercise/` |
 | §6.3.2 Watch block, `video::cue` rule | V3 (the `::cue` rule goes in `src/app/globals.css` via WS-A, or in a V3-owned stylesheet imported by `media-block.tsx`) | `src/components/lesson/media-block.tsx`, `src/components/lesson/server/media.ts` |
+| §6.3.4 TL;DR card, curriculum first point, rail entry, lesson skeleton block | TL2 (sanctioned edits per PRD §19.10) | `src/components/lesson/tldr-card.tsx`; mounts in `src/app/lessons/[slug]/page.tsx`, `curriculum-list.tsx`, `lesson-sections.tsx` (rail), `skeletons.tsx`; reuses `watch-block.module.css` for `::cue` |
+| §6.3.4 "Video template" (frames, type scale, safe areas, motion, signpost cues) | TL3 (V1 extension) | `media/remotion/src/tldr/**` |
 | §6.5, §6.6, §4.12 | WS-F | `src/app/news/`, `src/components/news/` |
 | §4.13 Star and reactions (placement in W2's §6.11 card footer and §6.12 under the meta line) | R1 | `src/components/community/`, mounted into `src/components/workflows/` (granted single mounts, PRD §18.9) |
 | §6.7, §6.8, §4.11 banner logic | WS-D | `src/app/bookmarks/`, `src/app/progress/`, `src/lib/progress/` |
@@ -2139,7 +2562,7 @@ This is the authoritative list of **accessible roles and names** for every landm
 - A name comes from visible text wherever possible. `aria-label` is used only for icon-only controls and the listed landmarks, and it always contains the visible text (WCAG 2.5.3).
 - Hidden tab panels, collapsed disclosure panels and the closed mobile menu use the `hidden` attribute, so they are out of the accessibility tree.
 - **Announcements**: `#fm-live` has `role="status"`. Because Notices can also be `status`, tests locate announcements with `page.locator('#fm-live')` or `getByRole('status').filter({ hasText: '<text>' })`, never with a bare `getByRole('status')`.
-- **Disclosures** are always `button[aria-expanded][aria-controls]`. `<details>`/`<summary>` is not used anywhere, with **two named exceptions**: the Watch block transcript (§6.3.2, PRD MD-2) and "Diagram as text" (§6.3.3, PRD §17). Locate them with `region.locator('summary')` / `figure.locator('summary')`, not `getByRole('button')`.
+- **Disclosures** are always `button[aria-expanded][aria-controls]`. `<details>`/`<summary>` is not used anywhere, with **four named exceptions**: the Watch block transcript (§6.3.2, PRD MD-2), "Diagram as text" (§6.3.3, PRD §17), and the TL;DR video toggle and TL;DR transcript (§6.3.4, PRD §19). Locate them with `region.locator('summary')` / `figure.locator('summary')`, or by id (`#tldr-video-toggle`, `#tldr-transcript-toggle`), not `getByRole('button')`.
 
 ### 11.1 Shell (every page)
 
@@ -2220,7 +2643,7 @@ This is the authoritative list of **accessible roles and names** for every landm
 | Jump links (<lg) / rail (lg+) | `navigation` | "Levels" |
 | Level section | `region` | `/^Level \d/`, for example "Level 1 Foundations: prompting and tool basics" |
 | Level progress | `progressbar` | "Level \<n\>" |
-| Lesson row | `link` | `<title>` |
+| Lesson row | `link` | `<title>` (unchanged; the first TL;DR point or the objective is a sibling `p`, not part of the link name) |
 | Empty | `region` | "No lessons seeded yet. Run npm run seed." (EmptyState title; the command is inline code) |
 
 **`/lessons/[slug]`**
@@ -2230,7 +2653,7 @@ This is the authoritative list of **accessible roles and names** for every landm
 | Breadcrumb | `navigation` | "Breadcrumb" |
 | Heading | `heading` 1 | `<title>` |
 | Bookmark | `button` | "Bookmark" (fixed name; state is `aria-pressed` only, shown by a filled icon) |
-| Section headings | `heading` 2 | "Concept", "In your tool", "Key differences", "Exercise" |
+| Section headings | `heading` 2 | "TL;DR" (when present), "Concept", "In your tool", "Key differences", "Exercise" |
 | On-this-lesson rail (lg+) | `navigation` | "On this lesson" |
 | Tool tabs | see 11.2 | tablist "Tool" |
 | Key differences | `region` | "Key differences" |
@@ -2243,6 +2666,16 @@ This is the authoritative list of **accessible roles and names** for every landm
 | Watch video | `video` (no ARIA role; locate with `region.locator('video')`) | "Watch: \<title\>" via `aria-labelledby`; `track[kind=captions][default]` |
 | Transcript toggle | `summary` (not a `button` in Playwright; locate with `region.locator('summary')`) | Visible "Transcript"; accessible name "Transcript for \<title\>" |
 | Transcript panel | `region` (exposed only while open) | "Transcript for \<title\>" (`aria-labelledby` the summary) |
+| TL;DR card (§6.3.4, lessons with a `tldr` only) | `region` | "TL;DR" (`section[aria-labelledby="tldr"]`, `data-testid="tldr-card"`); absent when `tldr` is null |
+| TL;DR heading | `heading` 2 | "TL;DR" (`id="tldr"`) |
+| TL;DR points | `list` | No name; `ul#tldr-points[tabindex="-1"]` with exactly 3 `listitem`s in `points` order (the number badges are `aria-hidden`) |
+| Try this | `heading` 3 | "Try this"; then 1 or 2 `figure`s named "Terminal", "Prompt", or "Claude Code" then "Codex CLI"; Copy `button`s "Copy code: \<label\>" (scope to the card: the exercise can also have "Copy code: Prompt") |
+| TL;DR video toggle | `summary` (`#tldr-video-toggle`; not a `button` in Playwright) | Visible "TL;DR video" and "\<m:ss\> · No sound"; name `/^TL;DR video/`; never contains "Watch". Absent when the video is missing, invalid or stale |
+| TL;DR video | `video` (locate with `card.locator('video')`) | "TL;DR video: \<lesson title\>" (`aria-label`); `track[kind=captions][default]`; `preload="none"`, no `autoplay` |
+| Read instead | `link` | "Read instead" → `#tldr-points`; activating it focuses the points list |
+| TL;DR transcript toggle | `summary` (`#tldr-transcript-toggle`) | Visible "Transcript"; accessible name "Transcript for TL;DR video" |
+| TL;DR transcript panel | `region` (exposed only while open) | "Transcript for TL;DR video" |
+| Rail TL;DR entry (lg+) | `link` in `navigation` "On this lesson" | "TL;DR" → `#tldr`, first in the list; absent when the card is absent |
 | Mark complete | `button` | "Mark complete" |
 | Completed state | text + `button` | Visible text "Completed ✓ · Undo"; `button` "Undo" |
 | Prev/next | `navigation` | "Lesson"; links `/^Previous: /` and `/^Next: /`, or "Back to curriculum" on the last lesson |
