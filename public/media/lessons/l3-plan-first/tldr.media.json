@@ -1,0 +1,17 @@
+{
+  "id": "tldr",
+  "lesson_slug": "l3-plan-first",
+  "kind": "tldr",
+  "title": "TL;DR: Plan before you code",
+  "duration_s": 35.6,
+  "width": 1280,
+  "height": 720,
+  "tool_versions": {
+    "claude_code": "2.1.284",
+    "codex_cli": "0.154.0"
+  },
+  "made_on": "2026-10-02",
+  "model_calls": false,
+  "source_hash": "a7da54ca33234010cc5299400f66dd406168e92672e154e064f31200f7f8faba",
+  "template_version": 1
+}

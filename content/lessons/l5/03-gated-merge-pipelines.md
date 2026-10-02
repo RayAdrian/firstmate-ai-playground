@@ -2,7 +2,7 @@
 slug: l5-gated-merge-pipelines
 level: 5
 sort: 3
-title: "Gated merge pipelines: tests, agent review and UI review, pinned to the commit"
+title: "Gated merge pipelines"
 objective: "Merge only when tests pass, an agent code review is green and a UI review is green, with every approval tied to the exact commit that was reviewed, using Claude Code and Codex CLI in scripts and GitHub Actions."
 est_minutes: 55
 tool_versions:

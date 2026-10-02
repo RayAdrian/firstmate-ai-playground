@@ -1,0 +1,17 @@
+{
+  "id": "tldr",
+  "lesson_slug": "l1-first-session",
+  "kind": "tldr",
+  "title": "TL;DR: Your first agent session",
+  "duration_s": 33.87,
+  "width": 1280,
+  "height": 720,
+  "tool_versions": {
+    "claude_code": "2.1.284",
+    "codex_cli": "0.154.0"
+  },
+  "made_on": "2026-10-02",
+  "model_calls": false,
+  "source_hash": "cf2118a1df3f6e5515447e354a56b7d88f7d0ccb81110f7d7632d5ea45bf9329",
+  "template_version": 1
+}

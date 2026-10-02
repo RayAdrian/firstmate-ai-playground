@@ -1,0 +1,17 @@
+{
+  "id": "tldr",
+  "lesson_slug": "l5-capstone",
+  "kind": "tldr",
+  "title": "TL;DR: Capstone: ship like First Mate",
+  "duration_s": 35.53,
+  "width": 1280,
+  "height": 720,
+  "tool_versions": {
+    "claude_code": "2.1.284",
+    "codex_cli": "0.154.0"
+  },
+  "made_on": "2026-10-02",
+  "model_calls": false,
+  "source_hash": "8af19a0237c66ab8530b49d00023bac4c8f5692f6f85b8519b489f196c919820",
+  "template_version": 1
+}

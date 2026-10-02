@@ -1,0 +1,7 @@
+Title card: Permissions, sandboxing and undo. Three takeaways and one thing to try.
+Point 1 of 3: Start in plan mode or a read-only sandbox, and widen permissions only when needed.
+Point 2 of 3: Allow test and lint commands; deny `curl`, `.env` reads and network access.
+Point 3 of 3: Branch with `git switch -c try-agent` first, so a bad run is a branch you can drop.
+Try this in Claude Code (command): claude --permission-mode plan
+Try this in Codex CLI (command): codex --sandbox read-only --ask-for-approval on-request
+Recap card: Permissions, sandboxing and undo. The 3 points and Try this, all on screen again.

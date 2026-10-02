@@ -1,0 +1,7 @@
+Title card: Project instructions: CLAUDE.md vs AGENTS.md. Three takeaways and one thing to try.
+Point 1 of 3: Write commands, conventions and a definition of done in `CLAUDE.md` or `AGENTS.md`.
+Point 2 of 3: Keep the file short and specific; Claude Code follows it less past about 200 lines.
+Point 3 of 3: Import with `@AGENTS.md` inside `CLAUDE.md` so both tools read one set of rules.
+Try this in Claude Code (prompt): /context
+Try this in Codex CLI (prompt): Summarize the project instructions you loaded.
+Recap card: Project instructions: CLAUDE.md vs AGENTS.md. The 3 points and Try this, all on screen again.

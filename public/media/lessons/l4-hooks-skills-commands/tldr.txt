@@ -1,0 +1,6 @@
+Title card: Hooks, skills and custom commands. Three takeaways and one thing to try.
+Point 1 of 3: Use a hook, not an instruction, for anything that must happen every single time.
+Point 2 of 3: Format after each edit with a `PostToolUse` hook; block risky shell commands before they run.
+Point 3 of 3: Turn a repeatable task into a skill, then run it as `/name` or `$name`.
+Try this (prompt): /hooks
+Recap card: Hooks, skills and custom commands. The 3 points and Try this, all on screen again.

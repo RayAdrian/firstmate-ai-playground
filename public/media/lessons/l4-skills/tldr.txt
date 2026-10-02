@@ -1,0 +1,6 @@
+Title card: Skills. Three takeaways and one thing to try.
+Point 1 of 3: Write a skill's description as when to use it, so the agent loads it at the right time.
+Point 2 of 3: Keep steps in `SKILL.md` and bulky detail in linked files, which load only when needed.
+Point 3 of 3: If a skill does not fire, check `/skills`, then make its description more specific.
+Try this (prompt): /skills
+Recap card: Skills. The 3 points and Try this, all on screen again.

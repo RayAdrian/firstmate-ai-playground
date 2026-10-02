@@ -1,0 +1,7 @@
+Title card: Gated merge pipelines. Three takeaways and one thing to try.
+Point 1 of 3: Merge only when tests and reviews pass on the exact commit that was reviewed.
+Point 2 of 3: Make the review agent return JSON with `reviewed_sha` and a verdict a script can check.
+Point 3 of 3: Run the local review before you push: `/code-review`, or `codex review --base main`.
+Try this in Claude Code (prompt): /code-review
+Try this in Codex CLI (command): codex review --base main
+Recap card: Gated merge pipelines. The 3 points and Try this, all on screen again.

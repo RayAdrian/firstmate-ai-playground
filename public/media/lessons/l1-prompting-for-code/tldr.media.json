@@ -1,0 +1,17 @@
+{
+  "id": "tldr",
+  "lesson_slug": "l1-prompting-for-code",
+  "kind": "tldr",
+  "title": "TL;DR: Prompting for code",
+  "duration_s": 34.87,
+  "width": 1280,
+  "height": 720,
+  "tool_versions": {
+    "claude_code": "2.1.284",
+    "codex_cli": "0.154.0"
+  },
+  "made_on": "2026-10-02",
+  "model_calls": false,
+  "source_hash": "e628097ece93421b844fc7e604ec371aac2eae51229c2fa96616c90f859e0df0",
+  "template_version": 1
+}

@@ -1,0 +1,17 @@
+{
+  "id": "tldr",
+  "lesson_slug": "l4-mcp-servers",
+  "kind": "tldr",
+  "title": "TL;DR: MCP servers: connect tools, scope them, trust carefully",
+  "duration_s": 35.87,
+  "width": 1280,
+  "height": 720,
+  "tool_versions": {
+    "claude_code": "2.1.284",
+    "codex_cli": "0.154.0"
+  },
+  "made_on": "2026-10-02",
+  "model_calls": false,
+  "source_hash": "04abbe98a8de1e81d9db909ce465ce7458b53bb7cbdda4ef5f61cce1d48703d6",
+  "template_version": 1
+}

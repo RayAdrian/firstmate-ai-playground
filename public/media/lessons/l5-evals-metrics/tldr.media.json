@@ -1,0 +1,17 @@
+{
+  "id": "tldr",
+  "lesson_slug": "l5-evals-metrics",
+  "kind": "tldr",
+  "title": "TL;DR: Evals and metrics: prove the agents help",
+  "duration_s": 32.67,
+  "width": 1280,
+  "height": 720,
+  "tool_versions": {
+    "claude_code": "2.1.287",
+    "codex_cli": "0.154.0"
+  },
+  "made_on": "2026-10-02",
+  "model_calls": false,
+  "source_hash": "9d2b3b7a895c149e07a08eff400bf8a3e330d4992f608303c21364756d7840f6",
+  "template_version": 1
+}

@@ -1,0 +1,7 @@
+Title card: Memory and context-window management. Three takeaways and one thing to try.
+Point 1 of 3: Start a fresh session when the task changes; carry over context in a handoff file.
+Point 2 of 3: Before you stop, have the agent write `HANDOFF.md`: Done, Next and Constraints.
+Point 3 of 3: Resume with `claude --continue` or `codex resume --last` instead of re-explaining.
+Try this in Claude Code (prompt): /context
+Try this in Codex CLI (prompt): /status
+Recap card: Memory and context-window management. The 3 points and Try this, all on screen again.

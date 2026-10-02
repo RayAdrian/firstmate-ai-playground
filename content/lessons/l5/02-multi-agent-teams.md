@@ -2,7 +2,7 @@
 slug: l5-multi-agent-teams
 level: 5
 sort: 2
-title: "Multi-agent teams: an orchestrator, workers and file ownership"
+title: "Multi-agent teams and file ownership"
 objective: "Split a spec into tasks, dispatch workers in separate worktrees with explicit file ownership, and pass work between them through files, using Claude Code subagents, worktrees and agent teams and Codex subagents and codex exec."
 est_minutes: 50
 tool_versions:

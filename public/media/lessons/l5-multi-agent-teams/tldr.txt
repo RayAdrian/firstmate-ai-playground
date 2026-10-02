@@ -1,0 +1,7 @@
+Title card: Multi-agent teams and file ownership. Three takeaways and one thing to try.
+Point 1 of 3: Split work by file ownership, not by topic, so workers never edit the same file.
+Point 2 of 3: Write each worker a self-contained brief; it cannot see your conversation.
+Point 3 of 3: Pass results through files like `handoffs/<name>.md`, and lock shared resources.
+Try this in Claude Code (command): claude agents
+Try this in Codex CLI (prompt): /agent
+Recap card: Multi-agent teams and file ownership. The 3 points and Try this, all on screen again.

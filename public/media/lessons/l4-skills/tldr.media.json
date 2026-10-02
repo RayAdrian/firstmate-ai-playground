@@ -1,0 +1,17 @@
+{
+  "id": "tldr",
+  "lesson_slug": "l4-skills",
+  "kind": "tldr",
+  "title": "TL;DR: Skills",
+  "duration_s": 34.13,
+  "width": 1280,
+  "height": 720,
+  "tool_versions": {
+    "claude_code": "2.1.287",
+    "codex_cli": "0.154.0"
+  },
+  "made_on": "2026-10-02",
+  "model_calls": false,
+  "source_hash": "b888f4da4dd70af0b8d841e28d4881a8ea9abadcc177f9c51923b178afa88083",
+  "template_version": 1
+}

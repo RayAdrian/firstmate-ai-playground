@@ -1,0 +1,7 @@
+Title card: Headless and scripted agents. Three takeaways and one thing to try.
+Point 1 of 3: Run agents from scripts with `claude -p` or `codex exec`, and read stdout.
+Point 2 of 3: Ask for JSON with `--json-schema` (Claude) or `--output-schema` (Codex), not parsed prose.
+Point 3 of 3: Grant only what the job needs: `--allowedTools` in Claude, the read-only default in `codex exec`.
+Try this in Claude Code (command): claude -p "Summarize README.md" --allowedTools "Read"
+Try this in Codex CLI (command): codex exec "summarize the repo structure"
+Recap card: Headless and scripted agents. The 3 points and Try this, all on screen again.

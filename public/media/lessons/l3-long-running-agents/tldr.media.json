@@ -1,0 +1,17 @@
+{
+  "id": "tldr",
+  "lesson_slug": "l3-long-running-agents",
+  "kind": "tldr",
+  "title": "TL;DR: Long-running and unsupervised agents",
+  "duration_s": 32.53,
+  "width": 1280,
+  "height": 720,
+  "tool_versions": {
+    "claude_code": "2.1.287",
+    "codex_cli": "0.154.0"
+  },
+  "made_on": "2026-10-02",
+  "model_calls": false,
+  "source_hash": "3a7b4b161b5df48c3aef8a21ac1da044b28ecbfc1c5a907cc93edcbd547b6e99",
+  "template_version": 1
+}

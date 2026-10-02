@@ -1,0 +1,6 @@
+Title card: Parallel work with git worktrees. Three takeaways and one thing to try.
+Point 1 of 3: Run parallel agents in separate `git worktree` checkouts, one branch each.
+Point 2 of 3: Give each agent different files, so merges do not conflict.
+Point 3 of 3: A new worktree has no `.env` or `node_modules`; set them up before you start.
+Try this (command): git worktree list
+Recap card: Parallel work with git worktrees. The 3 points and Try this, all on screen again.

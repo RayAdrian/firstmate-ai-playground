@@ -1,0 +1,6 @@
+Title card: Your first agent session. Three takeaways and one thing to try.
+Point 1 of 3: Give the agent a check that returns pass or fail, then read the diff, not its summary.
+Point 2 of 3: Start from a clean `git status`, so `git diff` shows only what the agent did.
+Point 3 of 3: Keep one task per session; return later with `claude --continue` or `codex resume --last`.
+Try this (prompt): what does this project do?
+Recap card: Your first agent session. The 3 points and Try this, all on screen again.
