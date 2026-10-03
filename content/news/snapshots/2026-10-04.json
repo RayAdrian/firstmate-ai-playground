@@ -1,0 +1,154 @@
+{
+  "version": 1,
+  "digest_date": "2026-10-04",
+  "exported_at": "2026-10-03T23:03:49.236Z",
+  "runs": [
+    {
+      "id": "1bef9793-1f6f-43d7-ac03-7c70276cf5bc",
+      "started_at": "2026-10-03T23:03:16.281Z",
+      "finished_at": "2026-10-03T23:03:49.145Z",
+      "trigger": "schedule",
+      "status": "success",
+      "fetched": 3966,
+      "new": 6,
+      "scored": 6,
+      "pending": 0,
+      "failed": 0,
+      "skipped": 0,
+      "error_summary": null
+    }
+  ],
+  "items": [
+    {
+      "id": "b22c1244-0e6d-4761-aee2-82e3310fea16",
+      "source_slug": "codex-cli-releases",
+      "guid": "tag:github.com,2008:Repository/965415649/rust-v0.162.0-alpha.10",
+      "canonical_url": "https://github.com/openai/codex/releases/tag/rust-v0.162.0-alpha.10",
+      "url": "https://github.com/openai/codex/releases/tag/rust-v0.162.0-alpha.10",
+      "title": "0.162.0-alpha.10",
+      "author": "github-actions[bot]",
+      "published_at": "2026-10-03T10:08:11.000Z",
+      "first_seen_at": "2026-10-03T23:03:16.281Z",
+      "digest_date": "2026-10-04",
+      "excerpt": "Release 0.162.0-alpha.10",
+      "score": 30,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Another Codex CLI alpha build with no changelog. Low signal beyond showing that 0.162.0 is in active development.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-10-03T23:03:16.281Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "97d3e9eb-3c8c-46d8-8262-77de3966efcb",
+      "source_slug": "codex-cli-releases",
+      "guid": "tag:github.com,2008:Repository/965415649/rust-v0.162.0-alpha.11",
+      "canonical_url": "https://github.com/openai/codex/releases/tag/rust-v0.162.0-alpha.11",
+      "url": "https://github.com/openai/codex/releases/tag/rust-v0.162.0-alpha.11",
+      "title": "0.162.0-alpha.11",
+      "author": "github-actions[bot]",
+      "published_at": "2026-10-03T20:21:16.000Z",
+      "first_seen_at": "2026-10-03T23:03:16.281Z",
+      "digest_date": "2026-10-04",
+      "excerpt": "Release 0.162.0-alpha.11",
+      "score": 35,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Codex CLI alpha pre-release with no release notes. Worth tracking since engineers use Codex daily, but there is nothing actionable until a stable release.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-10-03T23:03:16.281Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "2aab091d-2454-450d-b59d-88b87ed69c72",
+      "source_slug": "codex-cli-releases",
+      "guid": "tag:github.com,2008:Repository/965415649/rust-v0.162.0-alpha.9",
+      "canonical_url": "https://github.com/openai/codex/releases/tag/rust-v0.162.0-alpha.9",
+      "url": "https://github.com/openai/codex/releases/tag/rust-v0.162.0-alpha.9",
+      "title": "0.162.0-alpha.9",
+      "author": "github-actions[bot]",
+      "published_at": "2026-10-03T01:36:18.000Z",
+      "first_seen_at": "2026-10-03T23:03:16.281Z",
+      "digest_date": "2026-10-04",
+      "excerpt": "Release 0.162.0-alpha.9",
+      "score": 30,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Codex CLI alpha pre-release with no release notes. Minor signal ahead of a stable 0.162.0 release.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-10-03T23:03:16.281Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "7b2b81d4-28af-46c8-a84e-ead69264a554",
+      "source_slug": "simon-willison",
+      "guid": "https://simonwillison.net/2026/Oct/2/rex-s-dino-store/",
+      "canonical_url": "https://simonwillison.net/2026/Oct/2/rex-s-dino-store",
+      "url": "https://simonwillison.net/2026/Oct/2/rex-s-dino-store/",
+      "title": "Rex's Dino Store",
+      "author": null,
+      "published_at": "2026-10-02T22:57:38.000Z",
+      "first_seen_at": "2026-10-03T23:03:16.281Z",
+      "digest_date": "2026-10-04",
+      "excerpt": "Museum: Rex's Dino Store Located just before the turnstiles in the Grand Army Plaza subway station at the north end of Brooklyn's Prospect Park is this former newsstand which is now operated by a dinosaur. The density of dinosaur puns is exceptional. Tags: art, new-york",
+      "score": 2,
+      "tags": [],
+      "why_it_matters": "Personal post about a dinosaur-themed former newsstand in a Brooklyn subway station. Unrelated to software delivery.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-10-03T23:03:16.281Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "79ec8493-3038-4718-88ca-6f00c845eeaa",
+      "source_slug": "simon-willison",
+      "guid": "https://simonwillison.net/2026/Oct/3/newsletter/",
+      "canonical_url": "https://simonwillison.net/2026/Oct/3/newsletter",
+      "url": "https://simonwillison.net/2026/Oct/3/newsletter/",
+      "title": "September sponsors-only newsletter",
+      "author": null,
+      "published_at": "2026-10-03T22:00:31.000Z",
+      "first_seen_at": "2026-10-03T23:03:16.281Z",
+      "digest_date": "2026-10-04",
+      "excerpt": "I just sent the September edition of my sponsors-only monthly newsletter. If you are a sponsor (or start a sponsorship now) you can access it here. This month: More Fable class models A pricing war 3D graphics, Blender, and pixel art LLMs come for mathematics So many more accidental cyberattacks The vulnapocalypse comes for Datasette What I'm using right now My software releases this month 2026 in LLMs (so far) Here's a copy of the August newsletter as a preview of what you'll get. Pay $10/month to stay a month ahead of the free copy! Tags: newsletter",
+      "score": 30,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "Paywalled sponsors-only newsletter announcement. Topics like the model pricing war and security incidents are relevant, but the item itself gives no actionable detail.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-10-03T23:03:16.281Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "12b7214c-bb04-4a38-9f0a-d58df966271e",
+      "source_slug": "latent-space",
+      "guid": "https://www.latent.space/p/ainews-not-much-happened-today-cee",
+      "canonical_url": "https://www.latent.space/p/ainews-not-much-happened-today-cee",
+      "url": "https://www.latent.space/p/ainews-not-much-happened-today-cee",
+      "title": "[AINews] not much happened today",
+      "author": "Latent.Space",
+      "published_at": "2026-10-03T08:45:15.000Z",
+      "first_seen_at": "2026-10-03T23:03:16.281Z",
+      "digest_date": "2026-10-04",
+      "excerpt": "If you’re even seeing this, you should probably just go enjoy your weekend.AI News for 10/1/2026-10/2/2026. We checked 12 subreddits, 544 Twitters and no further Discords. AINews’ website lets you search all past issues. As a reminder, AINews is now a section of Latent Space. You can opt in/out of email frequencies!AI Twitter RecapGPT-6.1 Sol and Sonnet 5.5 Reshape the Cost–Performance FrontierGPT-6.1 Sol launch: OpenAI priced Sol at $2/$10 per million input/output tokens, compared with $10/$50 for Astra (pricing summary).Claimed results: It reportedly beats GPT-6 Sol by 6.4 points on DeepSWE v1.1 and Opus 5.5 by 2.2 points on AutomationBench (summary).Positioning: OpenAI staff describe it as “good, cheap AND fast” (@reach_vb).Codex usage: A global Codex usage reset was set for Oct 2 at 10AM PT (@reach_vb).Tool use: Sol reportedly “REALLY loves codemode,” consistent with GPT models being trained on it (@badlogicgames, codemode note).Agent Arena placements: Sol [Max] entered at #5 (+11.23%) with a $0.56 median cost per task (@arena).Sol cost comparison: That is 39% cheaper than GPT-6 Sol while scoring 1.52 points higher. It is 81% cheaper than Astra while landing within 1.04 points.Sonnet 5.5: Sonnet 5.5 [Max] debuted at #3 (+12.5%) and ranked #1 in the Chat category. It costs $2.74 per task, versus $1.58 for #2 Opus 5.5, which keeps it off the Pareto frontier (debut, frontier).Anthropic’s position: Anthropic models now hold the top three Agent Arena spots.Code and Text Arena: Sol briefly entered WebDev at #3 before Sonnet 5.5 pushed it to #4 (weekly recap).Sonnet on WebDev: Sonnet now sits 2 points behind GPT-6 Astra [Max] at 80% lower cost.Gemini 4 Argon: Argon [High] took #1 in Text Arena.Open models: MiMo-V2.6-Pro and Flash entered Agent Arena at #5 and #9 among open models.Other independent evals: WeirdML v3 finds Sol very token-efficient, close to Astra but with a lower peak. On the same benchmark, Sonnet 5.5 beats Opus 5 and Grok 4.7 beats Kimi-K3; these resul",
+      "score": 85,
+      "tags": [
+        "new-model",
+        "business"
+      ],
+      "why_it_matters": "Reports GPT-6.1 Sol at $2/$10 per million tokens with improved DeepSWE results, plus Sonnet 5.5, shifting the cost-performance frontier for coding models we and our clients use.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-10-03T23:03:16.281Z",
+      "scorer_model": "claude-opus-5-5"
+    }
+  ]
+}
