@@ -1,0 +1,133 @@
+{
+  "version": 1,
+  "digest_date": "2026-10-05",
+  "exported_at": "2026-10-04T23:00:47.007Z",
+  "runs": [
+    {
+      "id": "0445b423-ac4d-4b23-a299-8e1549c13508",
+      "started_at": "2026-10-04T23:00:06.828Z",
+      "finished_at": "2026-10-04T23:00:46.836Z",
+      "trigger": "schedule",
+      "status": "partial",
+      "fetched": 3966,
+      "new": 5,
+      "scored": 5,
+      "pending": 0,
+      "failed": 0,
+      "skipped": 0,
+      "error_summary": "hacker-news: network"
+    }
+  ],
+  "items": [
+    {
+      "id": "1dfbadd9-5400-4db7-93e9-4ee7db5e71d2",
+      "source_slug": "claude-code-releases",
+      "guid": "tag:github.com,2008:Repository/937253475/v2.1.289",
+      "canonical_url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.289",
+      "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.289",
+      "title": "v2.1.289",
+      "author": "ashwin-ant",
+      "published_at": "2026-10-03T23:07:17.000Z",
+      "first_seen_at": "2026-10-04T23:00:06.828Z",
+      "digest_date": "2026-10-05",
+      "excerpt": "What's changed Fixed a deny or ask rule on a nested part of a compound shell command not holding over a user-installed mod's approval on managed machines Fixed the terminal freezing on short code blocks with many unclosed <script> tags or deeply nested ${ substitutions Fixed Read deny rules not applying to files @-mentioned, changed, or selected in the IDE through a symlink [VSCode] Reverted a 2.1.288 change to claude auth status that may have made sign-outs more frequent Improved how quickly large files open in a plugin code pane by laying the highlighted view out once at its final width Fixed plugin list, plugin eval and plugin update showing a stale copy of a plugin installed from a local folder marketplace, and hot reload for a symlinked --plugin-dir Fixed installed mods not loading in the first session after an upgrade Fixed a plugin's rows above the prompt showing a stale row while the Background tasks dialog was open in fullscreen Fixed plugin panes drawing nothing when a link used a localhost address, an @ in its path, an uppercase host or a file: path Fixed a user-installed plugin being able to rewrite the descriptions of an organization-managed MCP server's sign-in tools Fixed a freeze or forced quit at launch when a plugin drew a Box with a border style the terminal does not know Fixed supervised and background sessions ending when a plugin's on-screen handler threw asynchronously Fixed sessions ending with an interface error when a plugin region with no height kept growing Fixed Bash deny and ask rules missing a command behind an environment variable prefix with an expanded value (e.g. TZ=\"$HOME\" rm -rf build) when the sandbox auto-allows commands Fixed a Bash deny or ask rule being skipped under sandbox auto-allow when a bare variable assignment came before the command Fixed claude plugin validate skipping the plugin when the folder also holds a marketplace manifest Added agent.spawn for teammates, one agent id across plugin hook events, and idle and wa",
+      "score": 84,
+      "tags": [
+        "tooling",
+        "security"
+      ],
+      "why_it_matters": "Claude Code stable release fixing permission bypasses: deny/ask rules on compound shell commands and Read deny rules via symlinked IDE files. Directly affects agent safety in our daily workflow, so engineers should update.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-10-04T23:00:06.828Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "2292bd63-393e-4788-abc2-5fbe505729aa",
+      "source_slug": "codex-cli-releases",
+      "guid": "tag:github.com,2008:Repository/965415649/rust-v0.162.0-alpha.12",
+      "canonical_url": "https://github.com/openai/codex/releases/tag/rust-v0.162.0-alpha.12",
+      "url": "https://github.com/openai/codex/releases/tag/rust-v0.162.0-alpha.12",
+      "title": "0.162.0-alpha.12",
+      "author": "github-actions[bot]",
+      "published_at": "2026-10-04T05:58:47.000Z",
+      "first_seen_at": "2026-10-04T23:00:06.828Z",
+      "digest_date": "2026-10-05",
+      "excerpt": "Release 0.162.0-alpha.12",
+      "score": 32,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Another Codex CLI alpha build with no release notes. Worth tracking only as a lead-up to the stable release our engineers will adopt.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-10-04T23:00:06.828Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "a2290357-7c7c-40a0-bc5e-a983786fcda4",
+      "source_slug": "codex-cli-releases",
+      "guid": "tag:github.com,2008:Repository/965415649/rust-v0.162.0-alpha.13",
+      "canonical_url": "https://github.com/openai/codex/releases/tag/rust-v0.162.0-alpha.13",
+      "url": "https://github.com/openai/codex/releases/tag/rust-v0.162.0-alpha.13",
+      "title": "0.162.0-alpha.13",
+      "author": "github-actions[bot]",
+      "published_at": "2026-10-04T15:51:07.000Z",
+      "first_seen_at": "2026-10-04T23:00:06.828Z",
+      "digest_date": "2026-10-05",
+      "excerpt": "Release 0.162.0-alpha.13",
+      "score": 35,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Alpha prerelease of Codex CLI, which our engineers use daily. No changelog was given and alphas ship often, so it is low signal until a stable 0.162.0 lands.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-10-04T23:00:06.828Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "10f9eaf7-0117-436b-8270-daf87fd7e586",
+      "source_slug": "simon-willison",
+      "guid": "https://simonwillison.net/2026/Oct/3/default-hard-budget-caps/",
+      "canonical_url": "https://simonwillison.net/2026/Oct/3/default-hard-budget-caps",
+      "url": "https://simonwillison.net/2026/Oct/3/default-hard-budget-caps/",
+      "title": "We're going to need default hard budget caps on pretty much everything",
+      "author": null,
+      "published_at": "2026-10-03T23:34:02.000Z",
+      "first_seen_at": "2026-10-04T23:00:06.828Z",
+      "digest_date": "2026-10-05",
+      "excerpt": "Here's a product feature which the world is going to need a whole lot more of over the coming months and years: default hard budget caps. I'm talking about the feature of pay-by-usage services and APIs that lets you say \"after $X/month, cut this thing off and return errors\". These need to be hard limits. Soft caps, \"after $X/month, send me a warning email\", will not cut it. Coding agents, and personal agents (coding agents wrapped in a less threatening UI), greatly reduce the friction of spinning up code that can do useful things. Sometimes those things cost money - calls to paid APIs, or hosted web applications, or systems that can bill for additional storage and compute. Nobody wants to wake up to an email sent at midnight warning about a budget limit and find that, while they slept, their rogue service had consumed several hundred (or several thousand) more dollars of usage. An argument against this is that businesses don't want their hosted applications to start throwing errors because some budget was exceeded. I expect that most businesses and individuals would prefer errors to a surprise $10,000+ bill. I think hard budget caps need to be the default. If someone wants to live dangerously they should be able to do that, but it needs to be on an opt-in basis. Have a nice, clear checkbox somewhere prominent: Remove the budget cap. My application will not be shut down if I exceed the configured budget limit, and I will be responsible for subsequent charges. The service I most want to see this from is AWS. I've heard plenty of stories from people who refuse to use AWS for personal projects out of (justified) fear that a runaway service might bankrupt them. I've also heard stories from people who didn't anticipate this and ended up seriously burned. ... and it turns out AWS finally launched spending limits a few weeks ago! From their announcement New AWS experience helps builders get started and ship faster on 16th September: When you're ready to upgrade to a paid pl",
+      "score": 62,
+      "tags": [
+        "business",
+        "security"
+      ],
+      "why_it_matters": "Practical argument for hard spend caps as coding agents spin up paid API usage. Relevant to how we advise clients on cost controls for model APIs, Vercel and Supabase in agent-driven builds.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-10-04T23:00:06.828Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "09daecc8-e6ce-4378-ac78-947cedb56981",
+      "source_slug": "yt-theo",
+      "guid": "yt:video:kt_2wFglK3c",
+      "canonical_url": "https://www.youtube.com/watch?v=kt_2wFglK3c",
+      "url": "https://www.youtube.com/watch?v=kt_2wFglK3c",
+      "title": "I think I have a problem",
+      "author": "Theo - t3․gg",
+      "published_at": "2026-10-04T21:29:27.000Z",
+      "first_seen_at": "2026-10-04T23:00:06.828Z",
+      "digest_date": "2026-10-05",
+      "excerpt": "Sup nerds we got things to discuss.",
+      "score": 12,
+      "tags": [],
+      "why_it_matters": "Theo video with a vague title and no technical detail in the excerpt. Possibly dev-adjacent commentary, but nothing actionable for First Mate is visible.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-10-04T23:00:06.828Z",
+      "scorer_model": "claude-opus-5-5"
+    }
+  ]
+}
