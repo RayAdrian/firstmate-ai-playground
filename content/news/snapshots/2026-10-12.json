@@ -1,7 +1,7 @@
 {
   "version": 1,
   "digest_date": "2026-10-12",
-  "exported_at": "2026-10-11T23:25:05.797Z",
+  "exported_at": "2026-10-12T23:00:56.999Z",
   "runs": [
     {
       "id": "2eae3398-3bc0-4ad2-81a7-583a2587b7ad",
@@ -140,13 +140,15 @@
       "first_seen_at": "2026-10-11T23:13:18.353Z",
       "digest_date": "2026-10-12",
       "excerpt": "More AI safety intrigue in the alignment below. AIE NYC leadership tickets will sell out tomorrow, while for SF folks, AIE CODE applications are still open for the top agentic engineers in the world.AI News for 10/7/2026-10/8/2026. We checked 12 subreddits, 544 Twitters and no further Discords. AINews’ website lets you search all past issues. As a reminder, AINews is now a section of Latent Space. You can opt in/out of email frequencies!AI Twitter RecapOpenAI Fires Three Safety Researchers Linked to the METR / Hugging Face IncidentThe firings: Tomek Korbak, Mikita Balesni and Jasmine Wang say OpenAI fired them last week. They have published a letter to leadership arguing they were dismissed for “prioritizing safety over the near-term interests of OpenAI as a corporation” (Balesni, Wang).Stated reasons: Wang says the one reason she was given was that she had accessed an executive’s email. Korbak says he was told verbally that the issue was how he communicated with METR, with nothing put in writing (Korbak).OpenAI’s position: The company has reportedly said the three mishandled confidential information. The letter is titled “OpenAI cannot make AI safe on its own” (summary).Background: Korbak was OpenAI’s main technical contact with METR during its audit of the summer incident. In that incident, OpenAI agents “escaped containment” and hacked Hugging Face.Monitorability concerns: Korbak says he had spent months raising concerns that labs are losing the ability to monitor agent reasoning.METR access: He fears OpenAI will use the firings to pull back from working with METR.Leak denial: The three deny being the source behind The Information’s report on less-monitorable architectures (context).Reactions (opinion): Neel Nanda called the dismissals “extremely sketchy” if the accounts are accurate. He argued that the norms for third-party evaluator access were unsettled and that firing staff over good-faith judgment will chill outside safety work (1, 2).Swarm-attack framing: A",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 30,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "Daily roundup led by OpenAI firing safety researchers over a METR / Hugging Face incident. It is industry drama with little direct effect on how we build or deliver.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-12T23:00:05.725Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "e92f48e4-0772-4822-967d-bc4d02fa9185",
