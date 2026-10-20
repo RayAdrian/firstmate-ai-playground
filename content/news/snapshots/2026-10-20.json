@@ -1,7 +1,7 @@
 {
   "version": 1,
   "digest_date": "2026-10-20",
-  "exported_at": "2026-10-20T00:18:54.330Z",
+  "exported_at": "2026-10-20T23:17:04.095Z",
   "runs": [
     {
       "id": "11d7aacc-ee91-4aa4-85d8-e51c2621c237",
@@ -275,13 +275,15 @@
       "first_seen_at": "2026-10-19T23:03:49.514Z",
       "digest_date": "2026-10-20",
       "excerpt": "Release: llm-echo 0.5 I'm working towards a new LLM release, and testing PRs caused me to revisit the llm-echo debug plugin. This plugin provides a \"model\" which doesn't involve an LLM at all - it just repeats back the prompts that have been fed to it. The new release now updates the simulated token usage counts to take tool calls, system prompts, and reasoning tokens into account. Example usage: uvx --with llm-echo llm -m echo 'hi there' -o thinking 1 --usage Outputs: First I consider the prompt, then I decide what to say. { \"prompt\": \"hi there\", \"system\": \"\", \"attachments\": [], \"stream\": true, \"previous\": [] } Token usage: 2 input, 24 output Tags: llm",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 25,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "A debug echo-model plugin for the LLM CLI that simulates token usage. It is a handy testing pattern but a minor release outside our core tools.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-20T23:00:49.082Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "dd596a44-bdb4-4d5e-8374-52e31c2bed29",
@@ -295,13 +297,15 @@
       "first_seen_at": "2026-10-19T23:03:49.514Z",
       "digest_date": "2026-10-20",
       "excerpt": "Release: llm-tools-datasette 0.1.1 When I switched LLM over to httpx2 in LLM 0.33 I forget that this would break any plugins which used httpx without directly depending on it. llm-tools-datasette was one of those plugins, now fixed. Tags: datasette, llm",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 18,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "A minor plugin fix for Simon Willison's LLM CLI after the httpx2 switch. It is a niche tool we don't rely on.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-20T23:00:49.082Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "6417f611-bb0f-46b1-9804-afb46b029f0b",
@@ -338,13 +342,16 @@
       "first_seen_at": "2026-10-19T23:03:49.514Z",
       "digest_date": "2026-10-20",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 52,
+      "tags": [
+        "new-model",
+        "tooling"
+      ],
+      "why_it_matters": "A free MiniMax model on Vercel AI Gateway gives a low-cost option for prototyping LLM features on our Vercel stack. It is not a frontier model we build on directly.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-20T23:00:49.082Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "d711d9b7-9dd3-48b8-a7dd-12cdd5b077a8",
@@ -424,13 +431,13 @@
       "first_seen_at": "2026-10-19T23:03:49.514Z",
       "digest_date": "2026-10-20",
       "excerpt": "Most of the features engineers are making, are just prompts, and you can make your life way easier by prompting better Thank you Macroscope for sponsoring! Check them out at: https://soydev.link/macroscope Want to sponsor a video? Learn more here: https://soydev.link/sponsor-me Check out my Twitch, Twitter, Discord more at https://t3.gg S/O @Ph4seon3 for the awesome edit 🙏 #ai #programming #prompts",
-      "score": null,
+      "score": 45,
       "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "why_it_matters": "Theo argues that many product features are really prompts and that better prompting simplifies them. It is relevant to prompt engineering, but this is a sponsored opinion video with little detail visible.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-20T23:00:49.082Z",
+      "scorer_model": "claude-opus-5-5"
     }
   ]
 }
