@@ -1,7 +1,7 @@
 {
   "version": 1,
   "digest_date": "2026-10-19",
-  "exported_at": "2026-10-19T00:23:32.391Z",
+  "exported_at": "2026-10-20T00:18:54.330Z",
   "runs": [
     {
       "id": "35960330-1f77-4bc6-bb8f-29a1956d24eb",
@@ -31,13 +31,15 @@
       "first_seen_at": "2026-10-18T23:02:42.698Z",
       "digest_date": "2026-10-19",
       "excerpt": "What's changed Bug fixes and reliability improvements",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 45,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Claude Code patch release with only generic bug fixes and reliability improvements. Worth updating, but there are no workflow changes for engineers who use it daily.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-19T23:03:49.514Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "6790e7d1-5cf5-499e-9bab-7677cd8078b5",
@@ -51,13 +53,15 @@
       "first_seen_at": "2026-10-18T23:02:42.698Z",
       "digest_date": "2026-10-19",
       "excerpt": "Inline rendering with document​.currentScript Lean Rada describes a neat trick that takes advantage of the document.currentScript property. You can use that to drop in a tiny inline <script> element that replaces itself when the page loads: The year is <script> document.currentScript.replaceWith( new Date().getFullYear())</script> If you define a shortcut function like this: $=(...n)=>document.currentScript.replaceWith(...n) You get a tiny template language: The year is <script>$(new Date().getFullYear())</script> Tags: javascript",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 25,
+      "tags": [
+        "framework"
+      ],
+      "why_it_matters": "Neat JavaScript trick using document.currentScript for inline rendering. Mildly interesting, but of little practical use in Next.js and React apps.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-19T23:03:49.514Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "2ce8faaf-55ed-4718-bd2c-e40e47edf757",
@@ -71,13 +75,15 @@
       "first_seen_at": "2026-10-18T23:02:42.698Z",
       "digest_date": "2026-10-19",
       "excerpt": "Release: web-edit 0.1a2 web-edit (previously) is my tiny web app for browsing and editing files in a folder. I mainly built it for editing files on different machines via Tailscale. I added a \"copy to clipboard\" option for both text and image data. I needed this because I was running pelican prompts on a laptop from my phone (here's DeepSeek 4.1 Flash 1017) and I wanted an easy way to copy the resulting logs into a Gist. Tags: projects, pelican-riding-a-bicycle, deepseek",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 15,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Minor alpha release of a personal file-editing web app. It mentions DeepSeek 4.1 Flash only in passing, with little relevance to our delivery work.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-19T23:03:49.514Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "e752c6e3-3f76-40ed-9448-6d6ab1b5e7ee",
@@ -91,13 +97,15 @@
       "first_seen_at": "2026-10-18T23:02:42.698Z",
       "digest_date": "2026-10-19",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 20,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "Anthropic corporate announcement about a public benefit fund. It has no excerpt and likely no direct impact on models, pricing or tooling we use.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-19T23:03:49.514Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "acebf2c7-bf62-4a5a-9e29-11f6a38b7b20",
@@ -111,13 +119,16 @@
       "first_seen_at": "2026-10-18T23:02:42.698Z",
       "digest_date": "2026-10-19",
       "excerpt": "OpenCode reported a breach affecting Console users with linked AI providers. Here is what the vendor has said, and how to find OpenCode on your developer machines.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 85,
+      "tags": [
+        "security",
+        "tooling"
+      ],
+      "why_it_matters": "A breach at an AI coding tool vendor affected users with linked AI provider keys. Engineers and client teams should check machines for OpenCode and rotate any exposed Anthropic, OpenAI or Google keys.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-19T23:03:49.514Z",
+      "scorer_model": "claude-opus-5-5"
     }
   ]
 }
