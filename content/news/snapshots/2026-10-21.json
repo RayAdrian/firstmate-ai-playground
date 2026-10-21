@@ -1,7 +1,7 @@
 {
   "version": 1,
   "digest_date": "2026-10-21",
-  "exported_at": "2026-10-20T23:17:04.095Z",
+  "exported_at": "2026-10-21T23:10:56.286Z",
   "runs": [
     {
       "id": "97088cb5-3d37-42d3-9bfa-8eb4e61b7b76",
@@ -58,7 +58,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -78,7 +78,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -121,7 +121,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -141,7 +141,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -207,7 +207,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -271,7 +271,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -554,7 +554,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -638,7 +638,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -658,7 +658,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -678,7 +678,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     }
