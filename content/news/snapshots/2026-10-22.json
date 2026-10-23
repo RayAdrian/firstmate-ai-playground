@@ -1,7 +1,7 @@
 {
   "version": 1,
   "digest_date": "2026-10-22",
-  "exported_at": "2026-10-21T23:10:56.286Z",
+  "exported_at": "2026-10-23T00:07:02.691Z",
   "runs": [
     {
       "id": "cd954fa5-07ed-419c-bbc8-cde4e9543370",
@@ -35,7 +35,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -51,13 +51,16 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "You can now use expiring, automatically refreshing OAuth credentials in GitHub CLI as part of a public preview. When you opt in, gh stores an expiring access token alongside a rotating refresh token and automatically refreshes the token whenever it is needed. You stay authenticated without reauthenticating, and a leaked access token becomes unusable within hours instead of lasting indefinitely. Opting in at login Starting with v2.103.0, pass the new --expiring flag when you log in with gh auth login --expiring. To opt in for every sign-in without passing the flag each time, run gh config set expiring_credentials enabled. From then on, there is nothing new to run day to day: gh refreshes the credential for you in the background. To check the state of an expiring credential, including when the current access token expires, run gh auth status. Using expiring tokens with git If you authenticate to git over HTTPS and want to use expiring tokens, we strongly recommend configuring gh as your git credential helper by running gh auth setup-git. This lets gh serve and refresh the credential for git, so your expiring token is correctly handled. We also strongly recommend upgrading to git 2.46 or newer, which lets gh mark expiring credentials so they are not cached past their lifetime. On older git versions, gh still works but prints a one-time recommendation to upgrade. Good to know It’s opt-in and backward compatible. If you don’t opt in through the flag or configuration setting, nothing changes. Existing sign-ins and manually supplied tokens keep working exactly as before. You get whatever the server issues. --expiring requests refreshable credentials. If a server does not support them, gh falls back cleanly to a normal nonexpiring token. It will become the default over time. Expiring credentials are opt-in today. In a future release, we plan to make them the default for new sign-ins. Things to watch out for Expiring access tokens are short-lived, so anything that captures a",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 58,
+      "tags": [
+        "tooling",
+        "security"
+      ],
+      "why_it_matters": "gh CLI can now opt in to expiring, auto-refreshing OAuth tokens, so a leaked token only works for hours. It is a cheap hardening step for engineers and agents that use gh daily.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "3fdca6cc-d79b-4d05-8206-55154b9e532c",
@@ -75,7 +78,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -95,7 +98,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -115,7 +118,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -135,7 +138,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -151,13 +154,15 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "Release 0.164.0-alpha.9",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 35,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Codex CLI alpha prerelease with no release notes. Only worth tracking if you test Codex prereleases; there is nothing actionable for daily use yet.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "ceb10ed7-8e01-471e-a1de-98a1d483066c",
@@ -171,13 +176,15 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "Related ongoing thread: Today's PHP security release, and how we're strengthening security - https://news.ycombinator.com/item?id=50182987 Comments URL: https://news.ycombinator.com/item?id=50180873 Points: 948 # Comments: 527",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 38,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "PHP 8.2.35 is the security release for the critical RCE fixes. It matters only for client or legacy PHP deployments, since PHP is outside our core stack.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "b7df75d5-7409-4e42-b19b-1889c77877c6",
@@ -191,13 +198,15 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "AT&T is working with OpenAI to make legal knowledge easier to access. Learn how its LegalEdge team is rethinking intake and scaling legal judgment.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 32,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "An OpenAI enterprise case study on legal intake at AT&T. It is mostly marketing, but gives some useful signal for our legal tech clients scoping LLM features.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "2ee0ec1a-612c-41d7-8f4f-ca48d7421c9a",
@@ -215,7 +224,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -235,7 +244,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -255,7 +264,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -275,7 +284,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -291,13 +300,15 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "OpenAI outlines a blueprint for empowering cyber defenders with frontier AI, stronger safeguards, modernized cybersecurity, and more resilient public institutions.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 28,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "An OpenAI policy blueprint on AI for cyber defenders. It is mostly governance positioning with little immediate engineering impact.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "8be6d3b7-6020-4ddc-b8cb-376d44d07708",
@@ -315,7 +326,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -335,7 +346,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -351,13 +362,15 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "Terminal X’s Eval Agent grades outputs against a 54-criterion rubric, catching 25% more deviances from a fund’s mandate with GPT-6.1 Sol.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 42,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "An OpenAI case study of a rubric-based eval agent on GPT-6.1. It is a useful eval pattern for fintech-adjacent clients but is mostly marketing.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "bc5c5b3b-a4a8-4d03-87c0-53006ea428fc",
@@ -371,13 +384,15 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "Research: sparqlite: SPARQL 1.1 inside SQLite, written in Rust This research task is really an experiment in running Claude Code for web in \"Ultracode\" mode, as described in Orchestrate subagents at scale with dynamic workflows in the Claude Code documentation. With Ultracode turned on, Claude Code makes aggressive use of dynamic workflows - it generates JavaScript that defines and coordinates a network of subagents to take on complex problems. My initial prompt was this - I meant \"hit the rows directly\", the word \"delete\" was an accidental typo on my phone: Write a SQLite extension in Rust that implants SPARQL and runs really fast because it can hit the delete rows directly This caused Claude Code for web to churn for over 12 hours. I checked in on its progress the next day and sent a single follow-up prompt when I noticed how many Rust crates it had built: Every folder in the crates/ directory needs a README Include a tutorial.md teaching users how to install the extension and how to run it in the SQLite CLI and then teaching them SPARQL in addition to how to use the SQLite extension Include a script with the tutorial for populating a SQLite database with useful and realistic example data for that tutorial This project feels like next-level vibe coding - it's not remotely feasible to review the code that was produced here, and even following the documentation is a significant investment in work. I'm not entirely sure what to do with this - I appear to have a full SPARQL implementation in Rust inside SQLite now, but how valuable is that if I created it on a whim and can't (or won't) invest the necessary time to understand what it can do? Tags: rdf, semantic-web, sqlite, ai, rust, generative-ai, llms, coding-agents, claude-code",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 72,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Simon Willison tests Claude Code's Ultracode mode, which uses dynamic workflows to orchestrate subagents at scale. This is directly relevant to how we use Claude Code.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "a5b3aa82-6028-4f4b-bdaf-06defbff8d99",
@@ -391,13 +406,15 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "eMudhra Intermediate CA Compromise This is very, very bad news: The private keys of eight eMudhra intermediate CA certificates have been compromised. They chain to roots trusted by the Mozilla, Microsoft, Apple and Chrome root programs and by many downstream trust stores. Any software that bundles a list of trusted certificates needs to be updated. This site is tracking software updates via this GitHub repository - Linux distros need to update their ca-certificates packages. In Python world uv 0.13.4 and pip 26.2.2 and certifi 2026.10.19 have been released with upgraded certificate lists. Tags: encryption, https, pip, python, security, uv",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 90,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "The private keys of eight eMudhra intermediate CAs, trusted by all major root programs, are compromised. Update ca-certificates, certifi, pip and uv across client systems and containers.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "40199931-9c98-4c0a-89da-e84fc5091c6d",
@@ -411,13 +428,13 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "Panache — RTS Belle Époque pour mobile Well this is delightful: I released Battle Drones yesterday under an Apache 2.0 License and there's already a French language fork which reskins the game to take place in steampunk 1900s France and adds an animated intro! Panache est un jeu de stratégie en temps réel pour mobile et navigateur, dans la France de la Belle Époque (vers 1900) : dirigeables, Fardiers à vapeur, Creusot cuirassés, automates en képi, Gargantua la forteresse marchante — et beaucoup de panache. You can play Panache here - it's worth clicking that link just to experience the new intro video. So far it's mostly just aesthetic updates as opposed to gameplay changes. The music has had a French twist added to it as well. The new steampunk models are so cool! Here's a page with the original Battle Drones models and that same page with the new Panache alternatives. This is a comparison of the original and the new design for the Goliath: Via @Meffysto69 Tags: game-design, open-source",
-      "score": null,
+      "score": 12,
       "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "why_it_matters": "A fun open-source game fork with no real impact on software delivery for First Mate.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "c540ffef-f04d-4b91-ba46-ce5e4d8b34ee",
@@ -435,7 +452,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -451,13 +468,15 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "A supply chain attack compromised LiteLLM 1.107.0 on PyPI and Docker, spreading malware that steals cloud credentials, developer secrets, and AI provider keys.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 93,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "Socket confirms the LiteLLM 1.107.0 supply chain compromise, which steals cloud and AI provider keys. Pin versions, check lockfiles and Docker images, and rotate secrets on any affected machine.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "59f7958a-8690-4896-95eb-9c40a3c541c0",
@@ -471,13 +490,15 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "PHP releases emergency patches for two critical RCE vulnerabilities as agencies urge organizations to take unpatched sites offline.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 45,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "Critical PHP RCE flaws severe enough that agencies urge taking unpatched sites offline. PHP is not our stack, but check any client or legacy PHP systems we touch.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "bba558bf-35a2-48e7-a06f-9d0872c8a644",
@@ -495,7 +516,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -511,13 +532,16 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "vlt 1.5.0 links skills from JavaScript dependencies to coding agents, with lockfile versioning and Socket data to filter out known malicious packages.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 68,
+      "tags": [
+        "tooling",
+        "security"
+      ],
+      "why_it_matters": "vlt 1.5.0 links Agent Skills from JS dependencies to coding agents, with lockfile versioning and malicious-package filtering. Relevant to supply-chain safety in our agent workflows.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "03ca060b-2428-444e-b057-228b42dd12a3",
@@ -531,13 +555,15 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "Related ongoing thread: PHP 8.2.35 - https://news.ycombinator.com/item?id=50180873(links to more at https://news.ycombinator.com/item?id=50184935) Comments URL: https://news.ycombinator.com/item?id=50182987 Points: 608 # Comments: 304",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 40,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "The PHP Foundation's writeup on its security release and process changes. PHP is outside our stack, but relevant if staff-aug clients run PHP sites.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "2494b7ae-30be-4b30-b24c-27ce9802b559",
@@ -551,13 +577,16 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 45,
+      "tags": [
+        "new-model",
+        "framework"
+      ],
+      "why_it_matters": "Two Baseten models are now free on Vercel AI Gateway. That is cheap to experiment with, but these are not frontier models we rely on.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "10374d68-82d5-49e6-a334-aa9b0ed07f44",
@@ -571,13 +600,15 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 62,
+      "tags": [
+        "framework"
+      ],
+      "why_it_matters": "Vercel Routing Middleware adding Python support lets our Python ML services share Vercel routing logic, a plausible win for clients mixing Next.js frontends with Python backends.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "bd329ff1-6e02-47ca-ba2a-69aa2210807f",
@@ -591,13 +622,16 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 55,
+      "tags": [
+        "framework",
+        "business"
+      ],
+      "why_it_matters": "Skipped monorepo deployments no longer count toward Vercel limits. This is a practical cost and quota win for client monorepos on Vercel.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "a3eb22d1-87c2-4d59-b1f2-fcd443f0371f",
@@ -615,7 +649,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -635,7 +669,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -655,7 +689,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -675,7 +709,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -691,13 +725,15 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "litellm 1.107.0 PyPI wheels and Docker images shipped a .pth credential stealer and an hourly remote code loader that exfiltrate to litellm.dev. Analysis, IOCs, and how to respond.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 95,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "litellm 1.107.0 on PyPI and Docker is backdoored with a credential stealer and an hourly remote code loader. Audit Python ML projects and CI right away, and rotate any AI provider and cloud keys that were exposed.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "9392df66-58de-41f2-a6f0-7ad308073fd1",
@@ -715,7 +751,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -735,7 +771,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -755,7 +791,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     }

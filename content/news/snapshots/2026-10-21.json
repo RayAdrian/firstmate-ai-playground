@@ -1,7 +1,7 @@
 {
   "version": 1,
   "digest_date": "2026-10-21",
-  "exported_at": "2026-10-21T23:10:56.286Z",
+  "exported_at": "2026-10-23T00:07:02.691Z",
   "runs": [
     {
       "id": "97088cb5-3d37-42d3-9bfa-8eb4e61b7b76",
@@ -54,13 +54,15 @@
       "first_seen_at": "2026-10-20T23:00:49.082Z",
       "digest_date": "2026-10-21",
       "excerpt": "You can now convert all branch protection rules of a repository to rulesets in a single action. This is an extension of the ability to convert a single branch protection rule to a ruleset that we released previously, now allowing for at-scale conversions. How it works Navigate to Settings → Rulesets in your repository and click Import branch protection rules. In the Review import dialog, you can: Preview the rulesets that will be created before you confirm the conversion. See which branch protection rules are already covered by an existing ruleset. Review cases where one branch protection rule produces multiple rulesets to preserve its original behavior. Choose an enforcement status (e.g., Active, Evaluate, or Disabled) and select which rulesets to create. After you click Create rulesets, choose whether to keep or delete the original branch protection rules. Why migrate to rulesets? Rulesets offer several advantages over classic branch protections: Apply rules across multiple branches with pattern matching Layer multiple rulesets for granular policy control Manage rulesets at the organization or enterprise level Configure fine-grained bypass permissions for users, teams, and apps Availability This feature is available for all repositories where rulesets are available. Learn more about converting your branch protections to repository rulesets. Join the discussion within GitHub Community. The post Bulk migrate branch protections to rulesets for a repository appeared first on The GitHub Blog.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 42,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Bulk conversion of branch protections to rulesets simplifies repo governance across client GitHub orgs and helps standardize gated review pipelines.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "5e99b789-8c1b-4703-8808-c2a3bb81e529",
@@ -74,13 +76,16 @@
       "first_seen_at": "2026-10-20T23:00:49.082Z",
       "digest_date": "2026-10-21",
       "excerpt": "You can now get the version of a vulnerable dependency directly from Dependabot alert responses in the REST API. Each alert’s dependency object includes a new version_requirement field with the version or version constraint that Dependabot last recorded for the alert. Alert responses already included the advisory’s vulnerable version range, but not the version in your repository. If you sync alerts to other security tools, you no longer need to parse lockfiles or make a separate GraphQL request for vulnerableRequirements to get that version. The value depends on how Dependabot detected the dependency: Lockfiles: The resolved version. Manifests without a lockfile: The version or version constraint declared in the manifest. Dependency submission API: The resolved version submitted by your build tooling. The field is null when no value is available. If an alert covers more than one vulnerable version of a dependency, the field holds one recorded value and may not represent all of them. Long version constraints may also be truncated. You’ll find version_requirement in responses for individual alerts, in repository, organization, and enterprise alert lists, and in dependabot_alert webhook payloads. This field is available now on github.com and GitHub Enterprise Cloud with data residency, and will be included in GitHub Enterprise Server 3.24. Learn more about the REST API endpoints for Dependabot alerts and the dependabot_alert webhook event. The post Dependabot alerts REST API now includes dependency versions appeared first on The GitHub Blog.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 45,
+      "tags": [
+        "security",
+        "tooling"
+      ],
+      "why_it_matters": "Dependabot alerts REST API now returns the dependency version, which simplifies syncing vulnerability data into client security tooling without parsing lockfiles.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "c6e85e67-ed5d-4ad3-8a8e-8a46b7db32ba",
@@ -117,13 +122,16 @@
       "first_seen_at": "2026-10-20T23:00:49.082Z",
       "digest_date": "2026-10-21",
       "excerpt": "An increasing number of malware attacks exploit systems at package installation time, harvesting credentials on CI/CD hosts or developer workstations without even running the package’s code. To stem this tide of attacks, GitHub is introducing a new package firewall capability. The package firewall sits between endpoints like Actions runners or coding agents and the upstream package repositories, inspecting both metadata requests and package downloads for signs of malicious activity. The package firewall is available today in public preview for all GitHub Enterprise Cloud customers, including data-resident GitHub Enterprise Cloud. How it works First, administrators set policy controls for their enterprise. The controls available today include a configurable cooldown period, checking the GitHub Advisory Database for malware or vulnerability alerts, and supply-chain checks like attestation downgrades. Then endpoints like coding agents and CI/CD hosts need configuration to use the firewall for their requests instead of pointing directly at the upstream package registries. Metadata requests for package lists as well as the actual package downloads then flow through the firewall, which evaluates them against the policy. If a package is blocked erroneously, the user can request an exception with a workflow similar to other GitHub Advanced Security features. Availability and limitations The package firewall is available in public preview as we scale up the infrastructure behind it and continue to add features based on customer demand. It is available to GitHub Enterprise Cloud customers, including GitHub Enterprise Cloud with data residency. The service is free while in the preview period. When it reaches general availability, it will be charged based on metered usage, similar to Actions billing. Currently the package firewall only supports npm packages. How to use it For detailed setup instructions, see Protecting endpoints with package firewall. Join the discussion in Git",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 85,
+      "tags": [
+        "security",
+        "tooling"
+      ],
+      "why_it_matters": "GitHub's package firewall inspects package installs for Actions runners and coding agents, directly targeting supply-chain attacks on CI and agent workflows we rely on. Public preview for Enterprise Cloud.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "16aeca29-5678-4266-9612-28c32c0dacfd",
@@ -137,13 +145,16 @@
       "first_seen_at": "2026-10-20T23:00:49.082Z",
       "digest_date": "2026-10-21",
       "excerpt": "This update covers improvements and bug fixes for GitHub secret scanning. Update to audit log events On November 12, 2026, the business field in affected secret_scanning_alert.* and secret_scanning_push_protection.bypass audit log events will change from the enterprise display name to the enterprise slug. To avoid disruption to any automated workflows, you should update integrations that filter by display name before rollout to accept both formats or use business_id instead. The business field remains a string. Event names and numeric business_id values are unchanged. Recent improvements and bug fixes Custom pattern alerts: Existing open alerts stay open when a rescan finds that they still match an edited custom pattern, rather than being closed and reopened. Base64-encoded GitHub tokens: In private and internal repositories on github.com with secret scanning enabled, the existing revocation action (public preview) now supports encoded personal access tokens (classic), fine-grained personal access tokens, OAuth access tokens, and GitHub App user access tokens. GitHub automatically decodes the value. Dismissal-request webhooks: Payloads now include exemption_request.number, the repository-scoped request number also available in the REST API. Use the repository and request number together to correlate requests across integrations. Accessibility: The Request pending status on an alert is now keyboard-focusable without activating an action. The revocation flow announces progress to screen readers and moves focus to its completion panel when that panel appears. Bypass-request metadata: Fixed empty secret-type and location details in bypass-request API responses and webhook payloads for command-line pushes when another repository rule ran after secret scanning. Delegated bypass: Fixed push failures caused by existing organization-role entries in reviewer lists, and 500 errors when setting valid reviewer configurations for organization-owned repositories through the REST A",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 45,
+      "tags": [
+        "security",
+        "tooling"
+      ],
+      "why_it_matters": "Secret scanning audit log events change the business field to the enterprise slug on Nov 12, 2026. Teams with automations that filter on display name should update them before rollout.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "ba08687e-17ad-46ff-9491-e43a0572676d",
@@ -203,13 +214,15 @@
       "first_seen_at": "2026-10-20T23:00:49.082Z",
       "digest_date": "2026-10-21",
       "excerpt": "https://devblogs.microsoft.com/typescript/announcing-typescript-7-1-beta/ Downloads are available on npm.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 80,
+      "tags": [
+        "framework"
+      ],
+      "why_it_matters": "TypeScript 7.1 beta is out for our core language. Worth testing early against Next.js and Node projects to catch breaking changes and pick up compiler improvements.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "075cf311-1db4-45d7-9cc0-88ec5a808c2f",
@@ -267,13 +280,15 @@
       "first_seen_at": "2026-10-20T23:00:49.082Z",
       "digest_date": "2026-10-21",
       "excerpt": "Article URL: https://mistral.ai/news/voxtral-3/ Comments URL: https://news.ycombinator.com/item?id=50168396 Points: 469 # Comments: 129",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 50,
+      "tags": [
+        "new-model"
+      ],
+      "why_it_matters": "Mistral released Voxtral 3, a speech model with strong HN traction. Worth knowing for client AI products that need voice or transcription features.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "912edf98-6359-4250-8889-5ea3b7127add",
@@ -550,13 +565,15 @@
       "first_seen_at": "2026-10-20T23:00:49.082Z",
       "digest_date": "2026-10-21",
       "excerpt": "This was recorded on the sidelines of the new Compute Trading track at AIE NYC. Catch us next at AIE CODE, our last flagship for the top agentic engineers in the world.In the early days of cloud, former guest Martin Casado made something so disruptive that Cisco was threatened enough to pay $600m for it, and VMware outbid for $1.3B:That concept was software-defined networking, which virtualized the routing network by separating the control plane from the data plane. That revolution is now coming for GPUs - where previously running your own supercompute cluster required $50-100m upfront to get commitments and do the entire stack from hardware to firmware to kernels, SF Compute is now enabling you to not only buy or sell GPU hours now and in the future, but also to programmatically control everything from your network to memory.We last spoke with Evan about commoditizing compute. At AI Engineer New York, we went deeper: what does it take to physically deliver a GPU contract, and what has to be true before a market in compute can become liquid?From selling a room to running the hotelEvan describes SF Compute’s expansion with a hotel analogy. A customer wants a room, then asks for cleaning, room service, and security. Eventually you discover that delivering the room means operating the hotel. SF Compute began by trying to sublease a cluster; the company has since built much of the operating capacity of a cloud to deliver the compute traded on its market.That work is physical settlement: the buyer gets usable compute, rather than simply a cash payment against an index. It brings the physical constraints of a cluster into the market itself. Can a workload be interrupted? How quickly can it recover from storage? Which GPU generation, networking and software configuration does it need? Those details affect both the contract and the price.Making compute tradeableRather than waiting for every GPU cluster to become interchangeable, SF Compute matches orders with different cons",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 22,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "Podcast on GPU compute markets and software-defined data centers. Interesting infra context but little near-term impact on how First Mate builds or ships client products.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "42633566-4a94-4a45-924a-1b1d4dfd8710",
@@ -634,13 +651,15 @@
       "first_seen_at": "2026-10-20T23:00:49.082Z",
       "digest_date": "2026-10-21",
       "excerpt": "Most docs at work are shared, so Claude Docs is built for a team. Claude works in the doc alongside everyone: it pulls the numbers, checks your claims, and picks up questions in the comments. Doug, a product engineer at Anthropic, shares how he uses it for standups and launch reviews. Create a doc with Claude: https://claude.ai/artifacts Read the announcement: https://claude.com/blog/cowork-is-now-claude",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 35,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Demo of Claude Docs for team standups and launch reviews. A collaboration product rather than a coding tool, so it is only marginally useful for engineering delivery.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "899b25bf-8e47-430a-aa59-da8e378b2575",
@@ -654,13 +673,16 @@
       "first_seen_at": "2026-10-20T23:00:49.082Z",
       "digest_date": "2026-10-21",
       "excerpt": "Harness engineering is how we make AI agents better over time: improving the rules, skills and memory around the model every time the agent gets something wrong. Most of us still do that by hand. In this video I show you how to let your agent do its own harness engineering, learning from real conversations and proposing changes to its own harness, while you stay in the driver's seat and approve everything it learns. It's the same playbook that makes coding agents reliable, applied to any agent you run in production, with LangChain's Managed Deep Agents and LangSmith Engine. ~~~~~~~~~~~~~~~~~~~~~~~~~~ - Try Managed Deep Agents with $50 in LangSmith credit (use code ColeM): https://www.langchain.com/referral/cole-medin/?utm_medium=creator&utm_source=youtube&utm_campaign=q3-2026_cole-medin-dedicated-1_aw Thanks to LangChain for working with me on this video! ~~~~~~~~~~~~~~~~~~~~~~~~~~ - Join Dynamous for the new Agentic Coding Course 2.0 - the core of the course is now COMPLETE: https://dynamous.ai - Managed Deep Agents docs: https://docs.langchain.com/langsmith/python/managed-deep-agents-overview - LangSmith Engine: https://docs.langchain.com/langsmith/engine ~~~~~~~~~~~~~~~~~~~~~~~~~~ 0:00 Harness Engineering Beyond Coding Agents 0:55 Production Agents Are Built Like Coding Agents 1:26 The Harness, Mapped to Production Agents 2:01 Two Loops for Improving Your Agent 2:39 Managed Deep Agents 3:54 Building the Agent 5:33 Loop 1: Memory from Escalations 7:20 Where the Lessons Live 7:48 Live Demo: Teaching It a Lesson 10:23 Same Problem, Different Member 10:59 Private Memory per User 11:34 Loop 2: LangSmith Engine 13:27 Staying in Control 14:16 Versions, Rollbacks, and Slack 14:47 The Results 15:18 Final Thoughts ~~~~~~~~~~~~~~~~~~~~~~~~~~ Join me as I push the limits of what is possible with AI. I'll be uploading videos weekly - at least every Wednesday at 7:00 PM CDT!",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 58,
+      "tags": [
+        "tooling",
+        "framework"
+      ],
+      "why_it_matters": "Practical walkthrough of agents proposing improvements to their own rules, skills and memory under human approval. Relevant to our context-file and harness practices, though it is LangChain-centric.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "68c4740c-cf26-4bc1-9b5d-935d95eeb664",
@@ -674,13 +696,15 @@
       "first_seen_at": "2026-10-20T23:00:49.082Z",
       "digest_date": "2026-10-21",
       "excerpt": "Macroscope can auto-approve your team's PRs safely. Try it here: https://macroscope.com/?utm_source=fireship Google’s new model claims to beat GPT-6 and Opus 5.5, so I took them all for a test drive. Let's dive in. Want more Fireship? 🗞️ Newsletter: https://bytes.dev 🧠 Courses: https://fireship.dev",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 68,
+      "tags": [
+        "new-model"
+      ],
+      "why_it_matters": "Fireship hands-on comparing Google's new model against GPT-6 and Opus 5.5. It signals a frontier model release worth evaluating for coding, though the video itself is a sponsored overview.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-22T23:05:53.118Z",
+      "scorer_model": "claude-opus-5-5"
     }
   ]
 }
