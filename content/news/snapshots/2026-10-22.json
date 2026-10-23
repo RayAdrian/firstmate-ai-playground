@@ -1,7 +1,7 @@
 {
   "version": 1,
   "digest_date": "2026-10-22",
-  "exported_at": "2026-10-23T00:07:02.691Z",
+  "exported_at": "2026-10-23T23:29:13.764Z",
   "runs": [
     {
       "id": "cd954fa5-07ed-419c-bbc8-cde4e9543370",
@@ -31,13 +31,15 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "Article URL: https://claude.com/product/claude-duet Comments URL: https://news.ycombinator.com/item?id=50186037 Points: 270 # Comments: 220",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 42,
+      "tags": [
+        "new-model"
+      ],
+      "why_it_matters": "Hacker News discussion of the Claude Duet launch with strong engagement. It is useful context on proactive agent UX, though it duplicates the official announcement.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "7d3a810a-d86f-4b36-81d8-8c592d9cf94f",
@@ -77,8 +79,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -94,13 +96,16 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "What's changed Added /claude-api api-version to move Claude API code to API version 2026-10-21 Added the claude_code.safety_event OpenTelemetry event for each tool call a permission rule, auto mode, a safety check, a hook or the sandbox stopped, prompted or sent back Fixed requests failing with a model-not-found error when CLAUDE_CODE_DISABLE_1M_CONTEXT is set and the model is an alias with the [1m] suffix, such as opus[1m] Fixed the prompt-caching-scope beta header being sent behind custom ANTHROPIC_BASE_URL gateways and on Foundry, where it has no effect Fixed MCP servers showing \"needs authentication\" in claude -p on macOS while the login keychain was locked; they now say why, and the next run after an unlock connects without a new sign-in Fixed MCP servers being reported as timed out, and staying failed in headless runs, when a macOS or Linux computer went to sleep while they were connecting Fixed HTTP MCP tool calls being sent twice when the connection closed mid-call; only read-only or idempotent tools are now retried Fixed a turn sometimes starting without an SDK MCP server's latest tools when a background task was running Fixed some \"Autocompact is thrashing\" errors in turns that read many PDF pages, images or other large tool results Fixed /autocompact in cloud sessions going back to the default window after the session restarted Fixed a conversation cleared with /clear sometimes coming back when a cloud or self-hosted runner session restarted Fixed CLAUDE_STREAM_FIRST_BYTE_TIMEOUT_MS being ignored in Claude apps gateway sessions Fixed telemetry from Claude Desktop sessions behind a Claude apps gateway being rejected when OTEL_EXPORTER_OTLP_HEADERS is set Fixed /permissions > Recently denied not showing the denied shell command, and auto mode's local classifier ignoring an approval from there when it checks a retried command; approving a row now names the command, not its description Fixed /help and the / command menu showing long model-facing descriptions ",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 86,
+      "tags": [
+        "tooling",
+        "new-model"
+      ],
+      "why_it_matters": "Claude Code release adds a /claude-api command to migrate code to API version 2026-10-21 and an OpenTelemetry safety_event for blocked tool calls. It also fixes [1m] alias and MCP auth bugs, all directly relevant to daily workflows.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "b2733c51-5fd4-49f0-8873-6f17b6ae4f28",
@@ -114,13 +119,15 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "Release 0.163.0-alpha.11.1",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 30,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Alpha patch build of Codex CLI with no notes. There is little actionable here beyond awareness of the release cadence.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "bf7834fa-9b2e-4627-b2c8-0f66b71f2c55",
@@ -134,13 +141,15 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "Release 0.164.0-alpha.10",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 35,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Alpha prerelease of Codex CLI, which the team uses daily, but with no release notes. Worth a glance only for those tracking prereleases.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "a1261fdf-73c5-450b-82b5-fc1127016f8d",
@@ -220,13 +229,15 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "How OpenAI works with distribution partners to uphold consistent safeguards, support responsible access, and clarify expectations in our Usage Policies.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 35,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "OpenAI clarifies usage policy expectations for distribution partners. This could matter to clients reselling or embedding OpenAI models, but it is mostly policy messaging.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "c0613e55-46ff-462c-ac0e-f0fca83a9b9a",
@@ -243,8 +254,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -263,8 +274,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -283,8 +294,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -325,8 +336,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -345,8 +356,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -448,13 +459,15 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "Today's PHP Security Release, and How We're Strengthening PHP Security If you're running anything on PHP it's vital you upgrade - today's updates (across the entire PHP 8.x line) address two remote code execution holes, and there have been exploits circulating since last night, thanks to a leak in the coordinated disclosure process. This post from the PHP Foundation explain what went so wrong: On Tuesday, October 20th, at around 15:00 UTC, the two CVE IDs began circulating on online forums and social media. They came with a wrong release time and a wrong CVSS score of 10.0 (the actual score is 9.2). No technical details leaked. In response, the PHP project brought its pre-announcement forward and published it at 19:30 UTC. It also moved the release from October 22nd, 14:00 UTC, to October 21st, 14:00 UTC [...] As a result of the leak and pre-announcement around 20:00 UTC, Calif, one of the security firms that had reported the issues mistakenly published a video. It showed their proof of concept working against a number of targets and revealed a few additional, though limited, details about the vulnerabilities. Copies of the deleted video started circulating on social media soon after. The video contributed to accelerated development of various PoCs (exploitation proof of concepts), which then increased circulation on October 21st. This article from the team that discovered the original vulnerability includes a more detailed timeline of the original intended responsible disclosure: August 19, 2026: Wiz Research discovers the first PHP vulnerability using Wiz Atlas, Gemini 4 Argon, and GPT-5.6 Sol. August 20, 2026: Unauthenticated RCE is confirmed against Drupal. August 21, 2026: Unauthenticated RCE is confirmed against WordPress. August 24, 2026: Wiz Research reports the vulnerabilities to the PHP security team. September 21, 2026: PHP acknowledges the reports and begins developing a coordinated fix. October 21, 2026: Patched PHP releases become available. October 21",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 62,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "Two RCE flaws across PHP 8.x are being actively exploited after a disclosure leak. Engineers advising clients with PHP services, such as WordPress or legacy backends, should push upgrades today.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "7feac3dd-f1dd-4fe7-a99b-5a3019955591",
@@ -512,13 +525,15 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "The PHP Foundation says Chainguard broke a security embargo ahead of critical RCE patches, as leaks disrupted the coordinated release.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 55,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "A broken embargo on PHP RCE patches shows supply chain disclosure risks. PHP is outside the core stack, but client legacy systems may be affected.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "6ad8a9e8-e4aa-4a7a-a8b2-9375b3b32109",
@@ -645,13 +660,15 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 8,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "Governance appointment at Anthropic with no effect on models, APIs or tooling that First Mate engineers use.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "4234e310-9349-4961-89b5-109bb2794db9",
@@ -668,8 +685,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -688,8 +705,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -708,8 +725,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -747,13 +764,15 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "Claude Duet is a new app where Claude comes to you with what needs your attention and keeps working after you put your phone down. It decides what needs you and what can wait, and checks with you before it acts on your behalf. The research preview is open by waitlist to Pro and Max subscribers in the US. Join the waitlist: https://claude.com/claude-duet Read more: https://claude.com/resources/articles/claude-duet",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 45,
+      "tags": [
+        "new-model"
+      ],
+      "why_it_matters": "New proactive Claude agent app, in a US-only waitlist research preview. It signals Anthropic's direction on autonomous agents but is consumer-facing rather than a developer tool.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "fc687fc4-c956-418c-a0d0-10d1c9f1679d",
@@ -770,8 +789,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -787,13 +806,13 @@
       "first_seen_at": "2026-10-21T23:09:58.990Z",
       "digest_date": "2026-10-22",
       "excerpt": "Sup nerds we got things to discuss.",
-      "score": null,
+      "score": 15,
       "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "why_it_matters": "Opinion video with no stated technical content. It is low signal for a five-minute digest.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     }
   ]
 }

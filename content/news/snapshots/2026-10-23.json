@@ -1,7 +1,7 @@
 {
   "version": 1,
   "digest_date": "2026-10-23",
-  "exported_at": "2026-10-23T00:07:02.691Z",
+  "exported_at": "2026-10-23T23:29:13.764Z",
   "runs": [
     {
       "id": "ccc8d7c5-4e92-45e3-a40f-16ca49dff441",
@@ -51,13 +51,15 @@
       "first_seen_at": "2026-10-22T23:05:53.118Z",
       "digest_date": "2026-10-23",
       "excerpt": "In September, we announced a global default policy for generally available GitHub Copilot features and supported client capabilities on Copilot Business and Copilot Enterprise plans. Starting today, we’re gradually rolling out enforcement of the policy through October 26, so it may take effect at different times for different enterprises and organizations. Eligible features left unconfigured will be set according to the global policy. Administrators can still make explicit choices for individual features at any time. The policy applies to eligible settings on “Features & clients” and “MCP servers in Copilot”. You can review your setting under AI Controls → Copilot → Default policy for new features. For eligibility and exceptions, see the documentation on default availability. What’s changing Once the policy takes effect for your enterprise or organization: Eligible generally available features and capabilities left Unconfigured will be set according to the selected global default of Enabled, Disabled, or Let organizations decide. This is a one-time change. Subsequent changes to the default policy won’t change feature policies that are already set. Explicit choices are preserved. If you’ve enabled or disabled an individual feature, the rollout won’t change that setting. Preview features remain opt-in. If you opted into a preview that later becomes generally available, your choice will be preserved. Otherwise, the default policy will apply when it becomes eligible. Join the discussion within GitHub Community. The post Global default for Copilot features generally available appeared first on The GitHub Blog.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 45,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "GitHub is enforcing global default policies for Copilot features and MCP servers on Business and Enterprise plans. This matters for clients whose admins manage Copilot settings.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "6821b808-88de-40ce-9110-774a14d8159c",
@@ -93,13 +95,15 @@
       "first_seen_at": "2026-10-22T23:05:53.118Z",
       "digest_date": "2026-10-23",
       "excerpt": "We’re adding blob storage endpoints for GitHub Actions on github.com as part of our ongoing work to improve capacity and reliability. The meta API now includes these new endpoints. If your organization uses a network allowlist to access GitHub Actions blob storage, review your network access settings and ensure you allow the following new hosts (both ranges are inclusive): productionresultssa30.blob.core.windows.net through productionresultssa49.blob.core.windows.net productionresultssa100.blob.core.windows.net through productionresultssa199.blob.core.windows.net If you already allow productionresultssa*.blob.core.windows.net, no changes are needed for these additions. If you allow individual hosts, add the new hosts to avoid interruptions to job summaries and logs. For guidance on allowlisting GitHub traffic, see GitHub’s IP addresses. You can retrieve the current endpoint list using the REST API endpoints for meta data. The post Meta API endpoints updated for Actions blob storage appeared first on The GitHub Blog.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 40,
+      "tags": [
+        "framework"
+      ],
+      "why_it_matters": "New GitHub Actions blob storage hosts were added to the meta API. Clients with network allowlists must update them or CI may break.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "6800260f-3e49-4758-a40e-c5ffff4bfd41",
@@ -113,13 +117,15 @@
       "first_seen_at": "2026-10-22T23:05:53.118Z",
       "digest_date": "2026-10-23",
       "excerpt": "Public monitoring is now available in public preview for GitHub Enterprise Cloud with data residency (GHEC DR). Public monitoring with data residency Public monitoring extends secret scanning beyond internal repositories by monitoring public commits across github.com, attributing exposed credentials back to your enterprise in real time. For enterprises hosted in data residency regions, attribution is powered exclusively by verified domain matching. Because data residency environments maintain strict tenant isolation from github.com, enterprise membership rosters are not shared across the boundary. Instead, when a commit author’s email matches a domain your enterprise has verified, the alert is encrypted and delivered directly to your enterprise dashboard while ensuring data stays within your designated geography. Eligibility and billing Public monitoring is available in public preview for GitHub Enterprise Cloud customers with data residency. Using public monitoring requires an active GitHub Advanced Security or GitHub Secret Protection license. Enterprise admins and enterprise security managers can enable the feature under enterprise security settings. Public monitoring is included with your GitHub Advanced Security or GitHub Secret Protection license at no additional cost. Learn more Learn more about secret scanning and verifying domains for your enterprise, or share your feedback in the community discussion. The post Public monitoring now available with data residency appeared first on The GitHub Blog.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 30,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "Public secret-scanning monitoring is now in preview for GHEC data residency customers. This is a niche enterprise feature that is relevant to only a few clients.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "7fe45be7-d87d-4124-8550-2417fee0aebc",
@@ -222,13 +228,16 @@
       "first_seen_at": "2026-10-22T23:05:53.118Z",
       "digest_date": "2026-10-23",
       "excerpt": "What's changed Fixed sandboxed Bash commands on macOS and Linux running the shell's startup files outside the sandbox before each command Fixed macOS sandbox denyWrite glob patterns not applying at a path's real location when the pattern's folder is reached through a symlink Fixed sandboxed commands and auto-accepted edits being able to modify the MCP config file passed with --mcp-config Fixed a disabled MCP server being reconnected by a later permission prompt in print and SDK sessions Fixed the Bash permission check trusting a variable set by a command whose redirect can fail to open Fixed Bash permission checks not prompting for some compound commands that change directory before running git when the cd is wrapped or prefixed, as they do for a plain cd Fixed an Edit(path) deny rule not blocking a Bash redirect to that path in some commands that also held a subshell Fixed worktree-isolated sessions accepting some locale-prefixed commands the isolation guard should refuse Fixed worktree-isolated sessions on zsh accepting some arithmetic commands that the isolation guard should refuse Fixed worktrees and branch checkouts that Claude Code creates so they ignore git replace refs, as its other git operations already do Fixed profile store write protection not applying when the config directory is reached through a symlink Fixed sessions compacting repeatedly after reading files under a very large nested CLAUDE.md; a nested CLAUDE.md over the size limit now loads only its start Fixed ctrl+enter (send now) only queuing a message when pressed before the response had started, and restarting a prompt's hooks while leaving the message queued when pressed while those hooks were running Fixed key-bound slash commands running in the shell from ! mode Fixed ctrl+o not showing messages from other agents and sessions that are still waiting to be delivered; they now appear in full under the transcript, marked as waiting Fixed long tool output previews being cut through an emoji, le",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 88,
+      "tags": [
+        "tooling",
+        "security"
+      ],
+      "why_it_matters": "Claude Code release with many sandbox and permission security fixes, including shell startup files escaping the sandbox and MCP config tampering. Engineers should update promptly.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "2e5aa6cc-2425-4fba-9bd3-c05d651102a5",
@@ -350,13 +359,16 @@
       "first_seen_at": "2026-10-22T23:05:53.118Z",
       "digest_date": "2026-10-23",
       "excerpt": "Cloudflare uses OpenAI Daybreak to investigate vulnerabilities and propose fixes for review. Its developers use Codex to build faster and improve code quality.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 48,
+      "tags": [
+        "security",
+        "tooling"
+      ],
+      "why_it_matters": "Shows OpenAI Daybreak and Codex being used for vulnerability discovery and fix proposals with human review, a useful pattern for agent-assisted security work on client code.",
+      "scoring_status": "scored",
       "attempts": 0,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "fccfc91d-ad76-4d93-add8-9d1bd8ce91f1",
@@ -370,13 +382,16 @@
       "first_seen_at": "2026-10-22T23:05:53.118Z",
       "digest_date": "2026-10-23",
       "excerpt": "Fast, focused, low-cost decisions for any application.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 78,
+      "tags": [
+        "new-model",
+        "tooling"
+      ],
+      "why_it_matters": "OpenAI's new Decisions API offers fast, low-cost classification-style calls. It is a plausible build-vs-buy option for LLM features in client apps.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "bd76c4ea-c795-4ded-9ed8-edb43a2f9ba8",
@@ -412,13 +427,15 @@
       "first_seen_at": "2026-10-22T23:05:53.118Z",
       "digest_date": "2026-10-23",
       "excerpt": "Uber is rolling out ChatGPT Work to more than 30,000 employees, helping teams research, analyze data, create presentations, and complete complex workflows.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 22,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "Enterprise ChatGPT rollout at Uber is an adoption signal but has little direct engineering impact on how First Mate builds or delivers.",
+      "scoring_status": "scored",
       "attempts": 0,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "a763117c-b96b-48eb-a535-1868af0e5911",
@@ -454,13 +471,13 @@
       "first_seen_at": "2026-10-22T23:05:53.118Z",
       "digest_date": "2026-10-23",
       "excerpt": "DE STAAT - FREEDOM (Official Music Video) OK well this is a first for me... at 00:44 in this new music video by Dutch alternative rock band De Staat: The visual effects are credited to Matties Grooten of Fake it or Leave it. Via flir on Hacker News Tags: music, ai, generative-ai, pelican-riding-a-bicycle",
-      "score": null,
+      "score": 8,
       "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "why_it_matters": "A music video with an AI-generated pelican cameo. Fun, but it has no engineering relevance.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "c88e64a0-855c-4554-9e01-45571795694c",
@@ -474,13 +491,16 @@
       "first_seen_at": "2026-10-22T23:05:53.118Z",
       "digest_date": "2026-10-23",
       "excerpt": "Donating Agent Skills to the Agentic AI Foundation News today from Anthropic: We’re committed to keeping Agent Skills open, community-driven, and vendor-neutral. Today, we are donating the standard to the Agentic AI Foundation (AAIF) under the Linux Foundation, which we co-founded with Block and OpenAI last year, and to which we donated the Model Context Protocol (MCP). I'm pleased to note I called this one last December, when Anthropic first declared skills to be an \"open standard\": I wouldn't be surprised to see this end up in the AAIF, recently the new home of the MCP specification. Fun side note: since my blog content is available to Claude via the datasette-mcp plugin I found that post by prompting Claude to \"Use simonwillison.net MCP to find if I ever talked about how I want skills to be donated to a standards body\". Tags: standards, ai, generative-ai, llms, anthropic, model-context-protocol, skills",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 65,
+      "tags": [
+        "tooling",
+        "business"
+      ],
+      "why_it_matters": "Anthropic donated the Agent Skills standard to the Linux Foundation's AAIF alongside MCP. This signals that skills will be portable across vendors in the agent tooling we use daily.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "db46024f-5f3e-400a-94a0-aa22bab3455d",
@@ -541,13 +561,15 @@
       "first_seen_at": "2026-10-22T23:05:53.118Z",
       "digest_date": "2026-10-23",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 20,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "Minor Vercel Pro perk adding more free-domain TLDs. Handy for client launches but has no engineering impact.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "f7fe5895-20ac-48c7-a05f-68735ccfb2d3",
@@ -692,13 +714,15 @@
       "first_seen_at": "2026-10-22T23:05:53.118Z",
       "digest_date": "2026-10-23",
       "excerpt": "Compromised eMudhra intermediate CA keys put Python dependency downloads at risk. Here are the affected tools, verified certificate-trust results, and remediation steps for pip, uv, virtual environments, and CI/CD images.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 85,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "A compromised CA puts pip and uv dependency downloads and CI images at risk. This directly affects our Python ML work and GitHub Actions pipelines, and remediation steps are included.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "4c9e5bd3-3711-4159-ae3a-cd6f8f8f3731",
@@ -735,13 +759,15 @@
       "first_seen_at": "2026-10-22T23:05:53.118Z",
       "digest_date": "2026-10-23",
       "excerpt": "Everything seems like it's gotten hacked, on an unprecedented day in software history. We have to talk about it Thank you Coderabbit for sponsoring! Check them out at: https://soydev.link/coderabbit Want to sponsor a video? Learn more here: https://soydev.link/sponsor-me Check out my Twitch, Twitter, Discord more at https://t3.gg S/O @Ph4seon3 for the awesome edit 🙏",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 55,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "Theo covers a day of widespread hacks across software. It is useful context on current incidents, but the video is light on technical specifics.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-23T23:06:16.356Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "04954a79-b83e-47c7-a25d-8d38cddb4ace",
