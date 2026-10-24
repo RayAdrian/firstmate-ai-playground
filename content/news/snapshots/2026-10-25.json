@@ -1,0 +1,200 @@
+{
+  "version": 1,
+  "digest_date": "2026-10-25",
+  "exported_at": "2026-10-24T23:16:42.572Z",
+  "runs": [
+    {
+      "id": "909fe642-35f1-4465-baf6-6ecc6a74c9bf",
+      "started_at": "2026-10-24T23:08:10.829Z",
+      "finished_at": "2026-10-24T23:16:42.478Z",
+      "trigger": "schedule",
+      "status": "partial",
+      "fetched": 4081,
+      "new": 8,
+      "scored": 8,
+      "pending": 0,
+      "failed": 0,
+      "skipped": 0,
+      "error_summary": "latent-space: timeout; mcp-blog: timeout; yt-latent-space: timeout"
+    }
+  ],
+  "items": [
+    {
+      "id": "590f1bb2-2c2e-4ff0-98d9-22e5ec7d95a8",
+      "source_slug": "github-changelog",
+      "guid": "https://github.blog/changelog/2026-10-23-public-monitoring-adds-triage-validity-api-and-webhooks",
+      "canonical_url": "https://github.blog/changelog/2026-10-23-public-monitoring-adds-triage-validity-api-and-webhooks",
+      "url": "https://github.blog/changelog/2026-10-23-public-monitoring-adds-triage-validity-api-and-webhooks",
+      "title": "Public monitoring adds triage, validity, API, and webhooks",
+      "author": "Allison",
+      "published_at": "2026-10-23T17:17:58.000Z",
+      "first_seen_at": "2026-10-24T23:08:10.829Z",
+      "digest_date": "2026-10-25",
+      "excerpt": "Public monitoring now includes alert management capabilities like automatic validity checks to help you triage and remediate leaked secrets at scale. Alert management with dismissals, timelines, and filtering Always-on validity checks for supported secret types REST API and webhook support for public monitoring alerts Alert management Enterprises with public monitoring can now triage findings directly from the enterprise security dashboard: Dismiss and reopen alerts: Close alerts as Dismissed or Fixed, provide an optional comment explaining the decision, or reopen closed alerts if circumstances change. Activity timeline: Review an audit trail of all actions and state changes taken on an alert. Filter and sort: Filter the alert list by repository, committer, secret type, attribution method (membership or verified domain), and state (i.e., open or closed) to focus on the exposures that matter most. Closing an alert updates its state for your enterprise. It does not revoke the exposed credential or remove it from the public repository. Always-on validity checks Public monitoring now automatically checks token validity on an ongoing basis for supported providers. Alerts display whether a credential is Active, Inactive, or Unknown, allowing security teams to quickly prioritize response for live tokens. REST API and webhook integration Bring public monitoring findings into your custom incident response pipelines: REST API: Enterprise admins and enterprise security managers can query attributed findings programmatically using GET /enterprises/{enterprise}/secret-scanning/public-monitoring-alerts. This returns alert metadata, secret type, attribution, and exposed locations. Enterprise webhooks: Subscribe to the secret_scanning_public_monitoring_alert webhook event at the enterprise level to receive real-time notifications whenever a newly detected leak is attributed to your organization. Eligibility and billing Public monitoring remains available in public preview for GitHu",
+      "score": 55,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "GitHub public secret monitoring adds validity checks, triage, an API and webhooks. This is useful for detecting and remediating leaked credentials for enterprise clients.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-10-24T23:08:10.829Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "cf90d6a2-f634-4ca9-a98c-fbee49d532b5",
+      "source_slug": "github-changelog",
+      "guid": "https://github.blog/changelog/2026-10-23-usage-metrics-api-adds-usage-from-tools-like-opencode",
+      "canonical_url": "https://github.blog/changelog/2026-10-23-usage-metrics-api-adds-usage-from-tools-like-opencode",
+      "url": "https://github.blog/changelog/2026-10-23-usage-metrics-api-adds-usage-from-tools-like-opencode",
+      "title": "Usage metrics API adds usage from tools like OpenCode",
+      "author": "Allison",
+      "published_at": "2026-10-23T23:42:03.000Z",
+      "first_seen_at": "2026-10-24T23:08:10.829Z",
+      "digest_date": "2026-10-25",
+      "excerpt": "The Copilot usage metrics API now reports model usage from more of the tools your developers use with Copilot, including tools like OpenCode that weren’t previously captured in your reports. A new totals_by_client array is available in the enterprise, organization, enterprise-user, and organization-user 1-day and 28-day reports. What’s new Each totals_by_client entry represents one client and includes: client: The tool that sent the requests, such as opencode, claude_code, codex, zed, copilot_cli, github_app, cloud_agent, code_review, vscode, or jetbrains. Unrecognized clients are grouped under other. request_count: The number of successful model requests from the client. session_count: The number of distinct sessions from the client. token_usage: Prompt tokens, output tokens, and average tokens per request. totals_by_model: The same request and token metrics broken down by model, with a model_selection_mode that shows whether the model was requested directly (user_selected), chosen by auto (auto), or chosen by the product (product_selected). Selection modes that aren’t reported individually yet appear as other, and values that can’t be normalized appear as unknown. Why this matters More developers now use Copilot as the model provider behind tools outside the IDE. Because those tools often don’t send editor telemetry, their usage was missing from totals_by_ide and hard to account for. Counting requests on the server closes that gap, so you can see which tools drive Copilot usage, compare request and token volume across them, and base tool support and governance decisions on real usage. This is different from agent app activity, which counts jobs started by agent apps such as Claude and Codex on GitHub. totals_by_client measures model traffic, meaning requests and tokens, from any tool that uses Copilot. Important notes Scope: Enterprise, organization, enterprise-user, and organization-user reports, in both 1-day and 28-day versions. In the aggregated 28-day reports",
+      "score": 50,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Copilot usage metrics now break usage down by client, including claude_code and codex. This helps clients with Copilot enterprise plans track AI tool adoption across teams.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-10-24T23:08:10.829Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "c5e5c4fd-ade8-497c-90d5-74a9d5ae26b3",
+      "source_slug": "claude-code-releases",
+      "guid": "tag:github.com,2008:Repository/937253475/v2.1.310",
+      "canonical_url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.310",
+      "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.310",
+      "title": "v2.1.310",
+      "author": "ashwin-ant",
+      "published_at": "2026-10-23T23:39:00.000Z",
+      "first_seen_at": "2026-10-24T23:08:10.829Z",
+      "digest_date": "2026-10-25",
+      "excerpt": "What's changed Added the Monitor tool and plugin monitors on Bedrock, Vertex, and Foundry, and when telemetry or nonessential traffic is disabled; long foreground sleeps are now blocked there too Fixed requests failing behind some gateways and compatible servers that reject the effort-2025-11-24 beta value or mid-conversation system messages; Claude Code now retries without them Fixed background cleanup deleting some recent files, such as pasted images, when cleanupPeriodDays is set to a very large value Fixed compaction after a \"Prompt is too long\" error keeping too much of a conversation with dense text, such as base64 or SVG, so the next request could fail again Fixed file read permission prompts not showing where a symbolic link leads Fixed a question's auto-continue timeout firing the moment the external editor closed after a long edit Windows: Fixed PreToolUse and PermissionRequest hooks letting a tool call through when Git Bash is missing and the hook's command is only quoted strings, such as a quoted path Improved auto mode's prompt before the first read outside the working directories: it now says when blocking those reads makes shell commands ask for permission Improved memory use of non-interactive sessions (-p, Agent SDK) during compaction when the transcript file is very large Improved a mod's Image to draw inside tmux with allow-passthrough and focus-events on, in kitty, Ghostty, and iTerm2 3.5+ with fullscreen rendering, where it showed only its alt text Linux: Improved /sandbox and the sandbox startup warning to name Ubuntu's AppArmor restriction on user namespaces, and how to lift it, when it keeps bubblewrap from starting the sandbox Changed the error for an MCP tool call that times out in a non-interactive session while the server's elicitation is unanswered: it now tells Claude that no answer came and not to repeat the call [VSCode] Fixed pressing Enter on the plan review card's \"Send feedback and keep planning\" button approving the plan instead ",
+      "score": 85,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Claude Code release adds the Monitor tool on Bedrock, Vertex and Foundry and fixes gateway compatibility, file cleanup and compaction bugs. This directly affects our daily agent workflows.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-10-24T23:08:10.829Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "0e4c5943-bb0e-48c7-8ef8-6e76b481c764",
+      "source_slug": "simon-willison",
+      "guid": "https://simonwillison.net/2026/Oct/24/battledrones/",
+      "canonical_url": "https://simonwillison.net/2026/Oct/24/battledrones",
+      "url": "https://simonwillison.net/2026/Oct/24/battledrones/",
+      "title": "battledrones v14: Compass Rose, a four player map",
+      "author": null,
+      "published_at": "2026-10-24T03:59:57.000Z",
+      "first_seen_at": "2026-10-24T23:08:10.829Z",
+      "digest_date": "2026-10-25",
+      "excerpt": "Release: battledrones v14: Compass Rose, a four player map I added four player online mode to Battledrones - previous maps were limited to two. Here's the initial prompt I used: Add a new map for a four player battle - four way rotational symmetry, up to four AI players, works with the WebSocket non-audio based multiplayer mode so up to four human players can join (any spare slots use AI) Claude Opus 5.5 added a new map called \"Compass Rose\" and modified the WebSockets multiplayer network code to support up to four players for that map, joining via share links or QR codes. The new teams use robots themed in purple and green, joining the existing blue and red designs. You can preview those colors in the updated model browser. Here's a replay link to watch a four way AI battle with the \"Goliath Armada\" mutator turned on, where each side starts with four giant Goliath mech units. Tags: game-design, projects, claude",
+      "score": 45,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "A practical example of Claude Opus 5.5 extending WebSocket multiplayer code from a single prompt. It is a modest real-world signal of agentic coding capability.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-10-24T23:08:10.829Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "08cfd1ce-ea25-4237-a1c2-d9ab58d3c8f5",
+      "source_slug": "vercel-blog",
+      "guid": "https://vercel.com/changelog/deploy-with-vercel-drop-without-an-account",
+      "canonical_url": "https://vercel.com/changelog/deploy-with-vercel-drop-without-an-account",
+      "url": "https://vercel.com/changelog/deploy-with-vercel-drop-without-an-account",
+      "title": "Deploy with Vercel Drop without an account",
+      "author": "TMO",
+      "published_at": "2026-10-19T00:00:00.000Z",
+      "first_seen_at": "2026-10-24T23:08:10.829Z",
+      "digest_date": "2026-10-25",
+      "excerpt": null,
+      "score": 48,
+      "tags": [
+        "framework"
+      ],
+      "why_it_matters": "Vercel Drop now supports deploys without an account, a convenience for quick static previews. It has limited impact on our production workflows.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-10-24T23:08:10.829Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "aa1c69c2-cf9d-4f3d-9b0a-6ea7e96303c1",
+      "source_slug": "vercel-blog",
+      "guid": "https://vercel.com/changelog/deploy-without-an-account-using-vercel-cli",
+      "canonical_url": "https://vercel.com/changelog/deploy-without-an-account-using-vercel-cli",
+      "url": "https://vercel.com/changelog/deploy-without-an-account-using-vercel-cli",
+      "title": "Deploy without an account using Vercel CLI",
+      "author": "TMO",
+      "published_at": "2026-10-22T00:00:00.000Z",
+      "first_seen_at": "2026-10-24T23:08:10.829Z",
+      "digest_date": "2026-10-25",
+      "excerpt": null,
+      "score": 62,
+      "tags": [
+        "framework",
+        "tooling"
+      ],
+      "why_it_matters": "Vercel CLI can now deploy without an account, which could speed up agent-driven prototypes and demos. It also raises questions about governance of unclaimed deployments.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-10-24T23:08:10.829Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "6c4d5fe3-b88b-45bf-a170-a08428b62f54",
+      "source_slug": "hacker-news",
+      "guid": "https://news.ycombinator.com/item?id=50224463",
+      "canonical_url": "https://www.apollo.com/wealth/insights-news/insights/daily-spark/no-signs-of-ai-payoff-outside-the-tech-sector",
+      "url": "https://www.apollo.com/wealth/insights-news/insights/daily-spark/no-signs-of-ai-payoff-outside-the-tech-sector",
+      "title": "No signs of AI payoff outside the tech sector",
+      "author": "the-mitr",
+      "published_at": "2026-10-24T19:47:19.000Z",
+      "first_seen_at": "2026-10-24T23:08:10.829Z",
+      "digest_date": "2026-10-25",
+      "excerpt": "Article URL: https://www.apollo.com/wealth/insights-news/insights/daily-spark/no-signs-of-ai-payoff-outside-the-tech-sector Comments URL: https://news.ycombinator.com/item?id=50224463 Points: 407 # Comments: 379",
+      "score": 35,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "Macro commentary on weak AI ROI outside tech. Useful context for fractional CTOs advising clients on AI spend, but no technical substance.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-10-24T23:08:10.829Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "eeb86b01-076c-490f-984f-edf80d963d1b",
+      "source_slug": "stepsecurity-blog",
+      "guid": "https://www.stepsecurity.io/blog/ovhcloud-cli-github-release-swap-glassworm",
+      "canonical_url": "https://www.stepsecurity.io/blog/ovhcloud-cli-github-release-swap-glassworm",
+      "url": "https://www.stepsecurity.io/blog/ovhcloud-cli-github-release-swap-glassworm",
+      "title": "OVHcloud CLI Compromised via GitHub Release Swap: Detonating the Real GlassWorm Loader and What We Found",
+      "author": null,
+      "published_at": "2026-10-24T16:21:08.000Z",
+      "first_seen_at": "2026-10-24T23:08:10.829Z",
+      "digest_date": "2026-10-25",
+      "excerpt": "An attacker swapped the binaries on five OVHcloud CLI releases, stayed live for 94 minutes, and deleted the evidence. We rebuilt the exact attacker build, recovered the GlassWorm loader from an orphaned commit, and detonated the full chain in an isolated chamber. The replay shows that install.sh never exposed arm64 Linux, Homebrew was never a path in, and a single ovhcloud version command was enough to spot the malicious build.",
+      "score": 78,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "A supply-chain attack that swapped CLI release binaries shows how GitHub release artifacts can be poisoned. It is relevant to how we vet the CLIs and agent tooling we install, though OVHcloud is not in our stack.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-10-24T23:08:10.829Z",
+      "scorer_model": "claude-opus-5-5"
+    }
+  ]
+}
