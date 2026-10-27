@@ -1,7 +1,7 @@
 {
   "version": 1,
   "digest_date": "2026-10-27",
-  "exported_at": "2026-10-26T23:22:24.647Z",
+  "exported_at": "2026-10-27T23:34:42.871Z",
   "runs": [
     {
       "id": "b2735a4d-2744-4e1d-8bf1-b3108197c12c",
@@ -53,13 +53,16 @@
       "first_seen_at": "2026-10-26T23:05:23.932Z",
       "digest_date": "2026-10-27",
       "excerpt": "GPT-6.1 Terra, OpenAI’s newest model, is now generally available in GitHub Copilot. It is designed for everyday agentic coding and terminal work at a lower cost than GPT-6.1 Sol. In early testing, GPT-6.1 Terra solved noticeably more terminal and C# coding tasks than GPT-5.6 Terra. It works in focused, consolidated steps on well-scoped tasks. This model is billed at provider list pricing under usage-based billing. See Models and pricing for GitHub Copilot for details. Availability in GitHub Copilot GPT-6.1 Terra is available to Copilot Pro, Pro+, Max, Business, and Enterprise users. You can select the model in the model picker in: Visual Studio Code Visual Studio Copilot CLI GitHub Copilot cloud agent GitHub Copilot app github.com GitHub Mobile on iOS and Android JetBrains IDEs Xcode Eclipse Rollout will be gradual. Check back soon if you don’t see it yet. Enabling access Copilot Enterprise and Copilot Business plan administrators can manage access to GPT-6.1 Terra through the model policy in Copilot settings. Under default model enablement, new models are automatically enabled unless an administrator has turned off the global default or explicitly disables this model. Learn more To explore all models available in GitHub Copilot, see our documentation on models and get started with Copilot. Share your feedback Join the GitHub Community to share your feedback. The post GPT-6.1 Terra in GitHub Copilot appeared first on The GitHub Blog.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 80,
+      "tags": [
+        "new-model",
+        "tooling"
+      ],
+      "why_it_matters": "GPT-6.1 Terra, OpenAI's new cheaper agentic coding model, is GA in Copilot; it is a relevant model option for coding and terminal work and may come to Codex and the API.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-27T23:15:36.300Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "6fa4f710-fde6-478b-9625-2bc3e8a42db6",
@@ -73,13 +76,15 @@
       "first_seen_at": "2026-10-26T23:05:23.932Z",
       "digest_date": "2026-10-27",
       "excerpt": "What's changed Added --hold-idle-file and --max-hold-min to self-hosted-runner, to keep an idle session while your host reports processes it left running Added a tip for the Explanatory output style, shown when you ask Claude for explanations Fixed long freezes at startup and after reading or editing files when a CLAUDE.md file holds a very long list item Fixed interrupting Claude not taking effect until a timeout while an MCP server had not answered a resource read or a skill was still downloading Fixed standard-context sessions stopping with \"Usage credits required for 1M context\" when a request ran over 200K tokens; Claude Code now compacts the conversation and continues Fixed Write and Edit stalling for up to 5 seconds after they ran, and reporting 0 lines changed, when changing thousands of lines in a file Fixed subagents being unable to use MCP tools from servers that finish connecting after the subagent starts Fixed Claude seeing stale MEMORY.md and CLAUDE.md content right after automatic compaction when those files were edited earlier in the session Fixed claude -p and SDK sessions saving transcript messages out of order or keeping messages that were taken back Fixed SubagentStop hooks running about twice a minute for each running subagent instead of once when it finishes Fixed the @ file picker ignoring .ignore/.rgignore negation rules that re-include git-ignored files Fixed a subagent's isolated worktree being removed while a background subagent it started was still working in it Fixed background agents in auto mode that wait on their own shells starting a new main conversation turn on every wake Fixed the Bash tool description claiming the working directory always persists between calls Fixed the environment block naming a shell commands don't run in, such as fish when the Bash tool uses zsh Fixed claude mcp add, claude mcp remove and /mcp naming the current folder instead of the project entry in ~/.claude.json that holds a local-scope server when run bel",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 82,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Claude Code release fixing startup freezes from long CLAUDE.md items, MCP interrupt hangs and a spurious 1M-context credits error, plus self-hosted runner options; directly affects daily workflows.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-27T23:15:36.300Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "7b362214-a7c5-495d-9ae6-e959b97f65f7",
@@ -93,13 +98,15 @@
       "first_seen_at": "2026-10-26T23:05:23.932Z",
       "digest_date": "2026-10-27",
       "excerpt": "Release 0.165.0-alpha.1.1",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 35,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Codex CLI alpha patch release with no listed changes; worth noting only for engineers tracking pre-release builds of a tool we use daily.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-27T23:15:36.300Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "defc82b8-5f1e-436e-8f3a-4fe82dc7445b",
@@ -135,13 +142,15 @@
       "first_seen_at": "2026-10-26T23:05:23.932Z",
       "digest_date": "2026-10-27",
       "excerpt": "Release 0.165.0-alpha.3",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 38,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Another Codex CLI 0.165.0 alpha with no release notes; signals an upcoming release of a tool our engineers use daily but has no actionable changes yet.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-27T23:15:36.300Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "888d80e5-7e15-45aa-8a50-8d5dc76a3285",
@@ -242,13 +251,16 @@
       "first_seen_at": "2026-10-26T23:05:23.932Z",
       "digest_date": "2026-10-27",
       "excerpt": "How Greptile uses GPT-6 Astra to test user workflows, Daybreak to strengthen security, and Codex to reduce rework.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 55,
+      "tags": [
+        "tooling",
+        "new-model"
+      ],
+      "why_it_matters": "Case study of Greptile using GPT-6 Astra and Codex for workflow testing and code review; relevant to verifying agent-generated code, though partly marketing.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-27T23:15:36.300Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "012858e5-a22d-4c0b-92bb-110fdb4d9df1",
@@ -326,13 +338,13 @@
       "first_seen_at": "2026-10-26T23:05:23.932Z",
       "digest_date": "2026-10-27",
       "excerpt": "Because big tech platforms essentially do not have customer support and make it impossible for their users to contact a human, many people experiencing run-of-the-mill tech problems have turned to ChatGPT. And, increasingly, ChatGPT is telling people that have normal tech support problems that they have discovered something journalistically notable and that 404 Media, specifically, can help them. — Jason Koebler, ChatGPT Keeps Telling People 404 Media Can Solve Their Tech Support Problems Tags: jason-koebler, openai, journalism, ai, llms, ai-ethics, ai-misuse, generative-ai, chatgpt, 404-media",
-      "score": null,
+      "score": 15,
       "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "why_it_matters": "Commentary on ChatGPT sending tech-support users to 404 Media; consumer AI misuse anecdote with no direct engineering impact.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-27T23:15:36.300Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "ad94dabe-5aba-4d4a-afbd-2ef5e9a159b2",
@@ -346,13 +358,15 @@
       "first_seen_at": "2026-10-26T23:05:23.932Z",
       "digest_date": "2026-10-27",
       "excerpt": "Fixes for eMudhra and Brotli are out. Getting them everywhere they’re needed means tracking down bundled libraries, runtimes, and certificate stores.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 55,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "Brotli and eMudhra fixes need tracking through bundled libraries, runtimes and certificate stores; relevant to Node dependencies and supply-chain hygiene in client projects.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-27T23:15:36.300Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "13422e62-9833-4b1b-8af6-f98a84bdb2e3",
@@ -366,13 +380,15 @@
       "first_seen_at": "2026-10-26T23:05:23.932Z",
       "digest_date": "2026-10-27",
       "excerpt": "Socket Threat Intel now shows which malware campaigns were blocked or detected in your organization, with links to scans and Firewall events.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 45,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "Socket feature update showing which supply-chain malware campaigns were blocked in an org; useful if we or clients use Socket to protect npm dependencies.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-27T23:15:36.300Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "163fc70a-ae74-4f8f-ba2e-efd7969fb7ba",
@@ -453,13 +469,16 @@
       "first_seen_at": "2026-10-26T23:05:23.932Z",
       "digest_date": "2026-10-27",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 60,
+      "tags": [
+        "framework",
+        "tooling"
+      ],
+      "why_it_matters": "Vercel CLI can now discover 1000+ services through Vercel Connect, which could speed integration setup on our main deployment platform.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-27T23:15:36.300Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "cbeaf514-2b8b-4282-9a32-942fdba86d7a",
@@ -585,13 +604,15 @@
       "first_seen_at": "2026-10-26T23:05:23.932Z",
       "digest_date": "2026-10-27",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 62,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "Anthropic filing for an IPO is a major market shift for a core model vendor we and clients depend on, with possible implications for pricing, roadmap and enterprise adoption.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-10-27T23:15:36.300Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "1e63917a-7a53-4d8b-87bb-a42addc91b37",
