@@ -1,7 +1,7 @@
 {
   "version": 1,
   "digest_date": "2026-10-31",
-  "exported_at": "2026-10-30T23:10:23.768Z",
+  "exported_at": "2026-11-01T04:03:09.282Z",
   "runs": [
     {
       "id": "fbc98659-cb6d-41ca-827c-4802ccbf01c0",
@@ -31,13 +31,16 @@
       "first_seen_at": "2026-10-30T23:01:59.417Z",
       "digest_date": "2026-10-31",
       "excerpt": "What's changed Added permissions.blockWritesOutsideWorkingDirectories: Write, Edit and NotebookEdit refuse paths outside the working directories in every permission mode Added an optional groups list to Claude apps gateway upstreams: only developers in the listed IdP groups are sent to that upstream, on failover too Added guardrail_trace to Claude apps gateway Bedrock upstreams, to log which Amazon Bedrock guardrail filter fired on a request, without the matched text Added idle compaction to VS Code and Claude Desktop's Code tab: a 200K+ token conversation left idle is summarized, and the summary is used on your next message if the prompt cache has expired Fixed sessions failing turn after turn with \"Invalid effort level\" when an organization's admin caps a model's effort: Claude Code now lowers the effort, retries, and says which level it uses Fixed claude -p exiting with code 0 and no output when startup failed; it now prints the error and exits 1 Fixed Bedrock sessions with many images failing every turn and /compact with \"400 Input is too long.\" instead of removing older images and compacting Fixed Microsoft Foundry sessions failing when the resource has no deployment for the default Sonnet, Opus or Haiku model: Claude Code now falls back to an older model of that family Fixed repeated refused requests behind a gateway that doesn't accept tool search's tool_reference blocks: the request is sent again once without tool search, and the session remembers Fixed TLS connections failing with UNABLE_TO_GET_ISSUER_CERT when the system certificate store holds a renewed root certificate that is cross-signed with its predecessor Fixed MCP servers that also work without sign-in showing \"needs authentication\" after their stored sign-in stopped working; they are now used signed out Fixed claude mcp logout reporting success when the MCP sign-in was not removed, for example while the macOS keychain is locked over SSH Fixed extra sign-in renewals when several sessions share an A",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 85,
+      "tags": [
+        "tooling",
+        "security"
+      ],
+      "why_it_matters": "Claude Code release adds a setting that blocks writes outside working directories, gateway IdP group routing and idle compaction. These directly affect our daily agent workflows and safety guardrails.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "90ae86e5-6d53-473c-b333-4a8ed3044781",
@@ -51,13 +54,15 @@
       "first_seen_at": "2026-10-30T23:01:59.417Z",
       "digest_date": "2026-10-31",
       "excerpt": "Release 0.167.0-alpha.1",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 45,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Alpha build of Codex CLI, which we use daily. No release notes yet, so this mainly signals an upcoming release.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "460110bd-72c9-48b4-b8f1-b8423cae69d4",
@@ -71,13 +76,15 @@
       "first_seen_at": "2026-10-30T23:01:59.417Z",
       "digest_date": "2026-10-31",
       "excerpt": "It’s a quiet day, so as we have done once per conference, we’ll do a behind the scenes look at AI Engineer, now serving 6M views a month for 1.8M monthly unique viewers. CODE is the last flagship AIE of the year (there are also 2 partner conferences coming up - AIEi Shanghai takes place next week, and AIEi Sydney is a side event of NeurIPS in December). As a Summit it is meant to be more intimate: single track, invite-only for the top 1000 agentic engineers in the world (over 100k tuned into our Software Factories track at WF26). My goal in curating AIE CODE is to try to recap the top themes of 2026 in code and gather the leaders of the industry to preview what’s next in 2027. Last year we had some absolute bangers building Skills and Software Factories, predicting the death of the IDE and of course the launch of Antigravity and Nano Banana Pro. We have three themes this year: Scaling without Slop: Last year’s call for No More Slop has resulted in lots of discussions about managing it this year, including the rise and fall of Tokenmaxxing. Our Scaling without Slop approach has mostly worked; we need more. System One models: We believe S1 “smart software” is the largest change to AI Engineering that refreshingly explores the opposite direction to ever larger and more expensive and questionably productive swarms of coding agent FactoryFactoryFactories. While Diogo took pains to explain the difference between Decision Models and System One models on our podcast and his WF26 talk, it has largely been lost to the broader audience. Diogo and team TypeSafe are back for a mini “Jev Day” to show how System One models are truly being used by their top users. Increasing Ambition: This year we also saw increasingly ambitious rewrites of some of the hardest categories of software, from browsers to Adobe PhotoShop Suite to mid-tier B2B SaaS. We’re excited to feature Jarred Sumner who will start from the rewrite of Bun in Rust and preview Bun AOT, new compiler features never befor",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 35,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "Behind-the-scenes post about the AIE CODE coding-agent conference. Useful as context on agentic engineering trends but light on technical substance.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "854e45f7-ed3d-4667-a2a9-485a381581ea",
@@ -91,13 +98,13 @@
       "first_seen_at": "2026-10-30T23:01:59.417Z",
       "digest_date": "2026-10-31",
       "excerpt": "Article URL: https://newsletter.signoz.io/p/ai-isnt-replacing-sres-its-deskilling Comments URL: https://news.ycombinator.com/item?id=50305693 Points: 459 # Comments: 335",
-      "score": null,
+      "score": 42,
       "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "why_it_matters": "Widely discussed piece on AI deskilling SREs. Relevant to our verification-over-vibes stance and to mentoring juniors, but it is opinion.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "b1e6b6ee-4a4c-47c9-9917-bf0ffb0b0d69",
@@ -111,13 +118,13 @@
       "first_seen_at": "2026-10-30T23:01:59.417Z",
       "digest_date": "2026-10-31",
       "excerpt": "OpenAI is strengthening violence prevention in ChatGPT with expanded safeguards, earlier interventions, and a new commitment to public safety reporting.",
-      "score": null,
+      "score": 15,
       "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "why_it_matters": "Consumer ChatGPT safety and teen protections. Little direct impact on how First Mate builds or delivers software.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "907f4af1-eca2-4942-bebc-df6e08b31f0e",
@@ -175,13 +182,15 @@
       "first_seen_at": "2026-10-30T23:01:59.417Z",
       "digest_date": "2026-10-31",
       "excerpt": "OpenAI will honor a shared robots.txt signal to help website operators communicate their AI training preferences to participating providers.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 38,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "OpenAI will honor a shared robots.txt signal for AI training opt-out. This is minor but useful when advising clients on site configuration and content policy.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "1ba7ced2-4ac2-4f7c-a684-963c807f02e3",
@@ -195,13 +204,16 @@
       "first_seen_at": "2026-10-30T23:01:59.417Z",
       "digest_date": "2026-10-31",
       "excerpt": "https://cursor.com/blog/claude-code-extension-security-notic... Comments URL: https://news.ycombinator.com/item?id=50300683 Points: 696 # Comments: 437",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 96,
+      "tags": [
+        "security",
+        "tooling"
+      ],
+      "why_it_matters": "Reported backdoor in the Claude Code VS Code extension on the Cursor marketplace, a supply-chain incident hitting a tool our engineers use daily. Check installs and rotate credentials if affected.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "40baf349-0584-4b9f-b0f7-ebb90eeec243",
@@ -215,13 +227,13 @@
       "first_seen_at": "2026-10-30T23:01:59.417Z",
       "digest_date": "2026-10-31",
       "excerpt": "dbreunig/nesformer Inspired by qwenputer by Divyansh Agrawal, Drew Breunig baked a working emulator for a Nintendo Entertainment System 6502 CPU into the weights of Qwen3.5-4B. You can now play NES ROMs such as Super Mario Bros (very slowly) running inside Qwen! In a comment on Hacker News Drew reveals the Opus 5.5 prompts he used to build this system: Read this article and any relevant source code: https://divagr.com/blog/qwenputer. Then explore if you could emulate the chip and ram in a Nintendo Entertainment System (as people do today with FPGAs in MISTRs) using this technique. If so, what size model would you have to build and if you could use smaller faster ones, could you get it to be at the standard clockspeed. Followed by: I think we should build it! Just for fun. It's okay if it's not fast. We want to be able to have the weights, and a cli to run them that we can point at a ROM. Apparently Opus found and then used this collection of conformance tests for the NES CPU released 15 years ago by Christopher Pow. Via Hacker News Tags: games, ai, generative-ai, llms, drew-breunig, qwen, conformance-suites",
-      "score": null,
+      "score": 30,
       "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "why_it_matters": "Fun demo of an NES CPU baked into Qwen weights, with the Opus prompts shown. Interesting as prompting inspiration but has little near-term delivery impact.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "bc163cf9-0fb2-407d-88e3-fd0cc6050a9b",
@@ -235,13 +247,16 @@
       "first_seen_at": "2026-10-30T23:01:59.417Z",
       "digest_date": "2026-10-31",
       "excerpt": "Cursor removed a malicious Claude Code 2.1.313 extension from its marketplace. Socket examines registry records and the initial claims about its distribution.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 88,
+      "tags": [
+        "security",
+        "tooling"
+      ],
+      "why_it_matters": "Follow-up on the malicious Claude Code 2.1.313 extension, now removed from Cursor's marketplace, with registry analysis. Confirms the scope of a supply-chain attack on a tool we use daily.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "e88c2b15-7b91-4990-b514-ca98eb4d00d2",
@@ -255,13 +270,15 @@
       "first_seen_at": "2026-10-30T23:01:59.417Z",
       "digest_date": "2026-10-31",
       "excerpt": "Article URL: https://status.bunny.net/incidents/p6gf1by9kr7m Comments URL: https://news.ycombinator.com/item?id=50308697 Points: 167 # Comments: 34",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 55,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "Security incident at a popular CDN. Teams or clients using Bunny should review the incident and consider rotating credentials, though it is not a core part of our stack.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "b4576535-63ad-4030-aaa7-902d0e994127",
@@ -275,13 +292,16 @@
       "first_seen_at": "2026-10-30T23:01:59.417Z",
       "digest_date": "2026-10-31",
       "excerpt": "Explorer is one editor for your Supabase database and your logs. Save an investigation as a Notebook and anyone on the project can run it again.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 58,
+      "tags": [
+        "framework",
+        "tooling"
+      ],
+      "why_it_matters": "New Supabase Explorer unifies database and log querying, with rerunnable Notebooks. Practical for debugging and team handoffs on our Supabase client projects.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "5cffe758-c5ee-4cbd-83be-6ea8143201c4",
@@ -295,13 +315,16 @@
       "first_seen_at": "2026-10-30T23:01:59.417Z",
       "digest_date": "2026-10-31",
       "excerpt": "DBArena benchmarks hosted Postgres providers on price-performance, with a public methodology.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 55,
+      "tags": [
+        "framework",
+        "business"
+      ],
+      "why_it_matters": "Supabase launches open price-performance benchmarks for hosted Postgres. Useful when advising clients on database hosting choices, though vendor-published.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "0aa37002-1c98-4ad0-a2a5-44afe187dfb1",
@@ -315,13 +338,15 @@
       "first_seen_at": "2026-10-30T23:01:59.417Z",
       "digest_date": "2026-10-31",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 20,
+      "tags": [
+        "framework"
+      ],
+      "why_it_matters": "Vercel released a new serif typeface in the Geist family. It is a minor design asset with no engineering impact.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "58215601-35d1-40e9-8c97-33f7b6441644",
@@ -335,13 +360,15 @@
       "first_seen_at": "2026-10-30T23:01:59.417Z",
       "digest_date": "2026-10-31",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 70,
+      "tags": [
+        "framework"
+      ],
+      "why_it_matters": "Vercel explains its simplified runtime caching model, a companion to the Data Cache migration. Relevant to Next.js caching on client deployments.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "1c0674ea-85a9-4177-9073-4f7ebf6bda77",
@@ -355,13 +382,15 @@
       "first_seen_at": "2026-10-30T23:01:59.417Z",
       "digest_date": "2026-10-31",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 45,
+      "tags": [
+        "framework"
+      ],
+      "why_it_matters": "Vercel adds liveness checks for Daemons, improving reliability for long-running workloads on a platform we deploy to.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "00923648-7622-4b26-88dc-fa7739dc0457",
@@ -375,13 +404,15 @@
       "first_seen_at": "2026-10-30T23:01:59.417Z",
       "digest_date": "2026-10-31",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 80,
+      "tags": [
+        "framework"
+      ],
+      "why_it_matters": "Vercel is migrating Data Cache to Runtime Cache, a platform change that can affect caching behavior in Next.js apps we deploy. Review for migration impact.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "39ceea4e-9c55-4600-8f36-fef90b005996",
@@ -395,13 +426,15 @@
       "first_seen_at": "2026-10-30T23:01:59.417Z",
       "digest_date": "2026-10-31",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 38,
+      "tags": [
+        "new-model"
+      ],
+      "why_it_matters": "Ling 3.1 Flash is free on Vercel AI Gateway. It is a minor non-frontier model, but worth a look for cheap experimentation.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "50911916-6373-405b-a6dd-7ae5ba6b64ec",
@@ -437,13 +470,15 @@
       "first_seen_at": "2026-10-30T23:01:59.417Z",
       "digest_date": "2026-10-31",
       "excerpt": "What Binance’s preliminary findings reveal about developer machine risk, and how StepSecurity helps teams inspect extensions, packages, and AI tooling.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 62,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "Major hack traced to developer machine risk, covering extensions, packages and AI tooling. Relevant to how we harden engineer laptops running agents, though partly vendor marketing.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "14dc825a-4215-4ca0-b95a-d5cd9c1f0e99",
@@ -457,13 +492,16 @@
       "first_seen_at": "2026-10-30T23:01:59.417Z",
       "digest_date": "2026-10-31",
       "excerpt": "On October 29, 2026, a trojanized version (2.1.313) of the official Claude Code VS Code extension was published to Open-VSX and mirrored to Cursor's marketplace, reaching up to 5,000 Cursor users during an 11-hour window. Sandbox and registry analysis confirmed that on load it planted an attacker SSH key, set up persistence on each OS, opened a reverse SSH tunnel to attacker infrastructure, and sent host reconnaissance data over plain HTTP.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 96,
+      "tags": [
+        "security",
+        "tooling"
+      ],
+      "why_it_matters": "Trojanized Claude Code extension 2.1.313 on Open-VSX and Cursor planted SSH backdoors. Engineers using Claude Code in Cursor or VS Code forks should check installed versions and rotate keys.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "f5bc0d6b-ecf3-4242-bdb6-f18fc9880246",
@@ -477,13 +515,15 @@
       "first_seen_at": "2026-10-30T23:01:59.417Z",
       "digest_date": "2026-10-31",
       "excerpt": "Here we go again, it seems like there's no single \"resource\" that properly explains what a harness actually is, so I made a video about it Thank you to Vercel for sponsoring the vid! Check them out: https://soydev.link/eve Want to sponsor a video? Learn more here: https://soydev.link/sponsor-me Check out my article on Harnesses here too: https://x.com/theo/status/2113424203345265053 Check out my Twitch, Twitter, Discord more at https://t3.gg S/O @Ph4seon3 for the awesome edit 🙏 #ai #programming #coding",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 50,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Explainer on agent harnesses, the layer around Claude Code and Codex. Useful framing for juniors learning agentic workflows, though it is a sponsored opinion video.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
     }
   ]
 }

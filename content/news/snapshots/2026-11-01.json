@@ -1,0 +1,219 @@
+{
+  "version": 1,
+  "digest_date": "2026-11-01",
+  "exported_at": "2026-11-01T04:03:09.282Z",
+  "runs": [
+    {
+      "id": "aaf6855e-2d50-400c-95bb-223505157296",
+      "started_at": "2026-11-01T04:00:05.858Z",
+      "finished_at": "2026-11-01T04:03:09.053Z",
+      "trigger": "schedule",
+      "status": "partial",
+      "fetched": 4568,
+      "new": 9,
+      "scored": 29,
+      "pending": 0,
+      "failed": 0,
+      "skipped": 0,
+      "error_summary": "yt-claude: http 404"
+    }
+  ],
+  "items": [
+    {
+      "id": "04f29751-16dc-463b-85f2-833047793742",
+      "source_slug": "claude-code-releases",
+      "guid": "tag:github.com,2008:Repository/937253475/v2.1.316",
+      "canonical_url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.316",
+      "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.316",
+      "title": "v2.1.316",
+      "author": "ashwin-ant",
+      "published_at": "2026-10-31T01:01:35.000Z",
+      "first_seen_at": "2026-11-01T04:00:05.858Z",
+      "digest_date": "2026-11-01",
+      "excerpt": "What's changed Added CLAUDE_CODE_DISABLE_ULTRATHINK, which turns the ultrathink keyword off Added pooled group budgets to the Claude apps gateway: one monthly budget that a group's members share, on top of each member's own limit, set with pooled_budget on the spend limits admin API Added CLAUDE_CODE_DISABLE_LOOPED_CROSS_CERT_DROP to keep system cross-certificates that certify each other in a loop, for servers whose private CA needs one Added CLAUDE_CODE_SUBAGENT_EFFORT to set the effort level subagents run at when nothing else names one, instead of inheriting the session's Added managed.policy_mode: layered to the Claude apps gateway: every policy that matches a developer applies, each merged over the ones listed below it, not only the first Added guardrail.input_tagging on Claude apps gateway Bedrock upstreams, which wraps prompts in the input tags that an Amazon Bedrock guardrail's prompt attacks filter needs; all_messages_and_system also tags the system prompt Deprecated fast mode for Opus 4.8 as of October 30, 2026; it will be removed on November 30, 2026. After removal, fast mode requests on Opus 4.8 return an error and do not fall back to standard Opus 4.8. Migrate to Opus 5.5 to keep the speedup Fixed shell commands being left running on macOS and Linux when Claude Code exits by itself, for example when credentials are refused or a cloud session is archived Fixed bash aliases with line breaks in their value (except in Git Bash), and functions whose names start with a dash, being garbled or lost in the Bash tool's shell Fixed bash scripts started from the Bash tool stopping after their first command when SHELLOPTS is exported Fixed PowerShell hooks not blocking on exit code 2 when the command begins with a type cast, param, using or an attribute Fixed some network requests hanging when a compressed response was cut off or corrupted Fixed sonnet, opus and haiku on Vertex AI and Amazon Bedrock showing an error mid-session instead of switching to an older model ",
+      "score": 85,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "New Claude Code release adding a subagent effort setting, pooled group budgets, an ultrathink disable flag and CA certificate handling. Directly affects daily agentic workflows and team spend controls.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "137d2cf4-0030-4194-97d0-7d36a2652eb7",
+      "source_slug": "latent-space",
+      "guid": "urn:latent-space:post:post_da09d759-cdcb-4e0e-8da3-a546632e0a0f",
+      "canonical_url": "https://latent.space/p/ainews-google-admits-ai-mode-hurts-search-revenue-15-500b-drop-worst-since-2004-ipo-ai-bear-market-c",
+      "url": "https://latent.space/p/ainews-google-admits-ai-mode-hurts-search-revenue-15-500b-drop-worst-since-2004-ipo-ai-bear-market-c/",
+      "title": "[AINews] Google admits AI Mode hurts Search revenue; -15% $500B drop worst since 2004 IPO. AI Bear Market coming?",
+      "author": "swyx .ai",
+      "published_at": "2026-10-31T05:00:48.000Z",
+      "first_seen_at": "2026-11-01T04:00:05.858Z",
+      "digest_date": "2026-11-01",
+      "excerpt": "As an engineer-focused newsletter we only very rarely let financial stories through (our last example was Jan 2025), but when this is about the future of Google and Google Search, with a recently departed AI leadership, you cannot not care. At its heart is the tension between overview pages and underlying pages they summarize. Any good enough summary obviates the need for you reading the source. Google’s Featured Snippets or Knowledge Panels have long had that tension with the publishers that supply that data. But now, Google’s own AI Overviews are potentially affecting traffic with… Google's Search revenue. Google doesn’t break out AI Mode in sufficient detail that we can make any sort of rigorous analysis, but most people are quoting Philipp Schindler (Chief Business Officer): “It’s worth noting that the strong growth in AI Mode queries had an impact because of the lower monetization we were seeing in AI Mode.” Together with other bad earnings results it set off a range of steep declines throughout tech: View post on X ↗ This is against a backdrop of souring tech/AI sentiment in public markets - and with OpenAI raising at $1.25T not $1.4T, not the sort of thing you want in the lead up to one of the biggest tech IPOs of all time. View post on X ↗AI News for 10/29/2026-10/30/2026. We checked 12 subreddits, 544 Twitters and no further Discords. AINews' website lets you search all past issues. As a reminder, AINews is now a section of Latent Space. You can opt in/out of email frequencies!AI Twitter RecapClaude Ultra Drops the 5-Hour Limit as Anthropic Renames Its Max TiersPlan rename: Anthropic renamed its Max tiers. Max 5x is now \"Max\" at $100/month, and Max 20x is now \"Ultra\" at $200/month. Existing subscribers do not need to take any action (announcement). 5-hour limit removed: Verified Ultra accounts no longer have the 5-hour session limit. The change starts today for most existing subscribers (@claudeai, @bcherny, @alexalbert__). Rollout caveat: Newer accounts ke",
+      "score": 25,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "Market story on Google search revenue and AI Overviews. Limited direct impact on software delivery, though relevant context for clients relying on SEO traffic.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "6691592d-edf2-42e0-9b08-fe3168615408",
+      "source_slug": "latent-space",
+      "guid": "urn:latent-space:post:post_5b764e38-11dc-428b-b25b-2b9b740ebb8b",
+      "canonical_url": "https://latent.space/p/arca",
+      "url": "https://latent.space/p/arca/",
+      "title": "Agents Prompt People: Using Agents for Long-Horizon Financial Work",
+      "author": "Richard MacManus",
+      "published_at": "2026-10-31T16:05:00.000Z",
+      "first_seen_at": "2026-11-01T04:00:05.858Z",
+      "digest_date": "2026-11-01",
+      "excerpt": "At AI Engineer New York this month, we sat down with Aman Singh, the lead AI Engineer at Arca, an “AI-native” company providing wealth management services. We discovered that while agents do most of the background work in the firm, there are guardrails in place to ensure that human advisors are making the final decisions. The goal is for AI to guide the process; or as Singh nicely put it, “agents prompt people more than people prompt agents.” Arca recently raised $48.5 Million in a round led by General Catalyst, with participation from Index Ventures and Venrock. One of the features of using AI in financial services, explained Singh, is that it’s typically long-horizon work — although not long-running. In his AIE presentation, Singh noted that agent tasks at Arca can take up to ten days. “It's very stop-start, there's many actors in between, many decision points, many handoffs,” he said. For this reason, Arca has developed an internal memory system. “So we have this persistence for every client,” Singh said in our podcast discussion. “What has happened so far? What are we tracking for next? What needs to happen immediately in the next couple of days [and] what are we tracking for the long term? Which individual is responsible for which action? All of this is being tracked by our memory systems that our agents contribute to.” Arca uses models from frontier labs like Anthropic and OpenAI, with Claude its primary model provider. The company has built its own harness, which automatically selects the best model to use for a particular task, based on the company’s internal benchmarks. Owning the harness, rather than using a managed agent harness, also means that Arca has the flexibility to change model providers if it needs to. Safety is obviously key for financial services. Singh noted that although agents do much of the work, an agent’s role is limited to analysis and proposing solutions. Trading and any other money movement is handled by a human advisor. “All of our sa",
+      "score": 42,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "Case study of long-horizon agent workflows with human-in-the-loop guardrails at a fintech firm. Useful patterns for fintech-adjacent AI client builds.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "7dde9f15-5761-4fab-8af4-e5b0dda19405",
+      "source_slug": "simon-willison",
+      "guid": "https://simonwillison.net/2026/Oct/31/datasette-llm/",
+      "canonical_url": "https://simonwillison.net/2026/Oct/31/datasette-llm",
+      "url": "https://simonwillison.net/2026/Oct/31/datasette-llm/",
+      "title": "datasette-llm 0.1a9",
+      "author": null,
+      "published_at": "2026-10-31T22:10:01.000Z",
+      "first_seen_at": "2026-11-01T04:00:05.858Z",
+      "digest_date": "2026-11-01",
+      "excerpt": "Release: datasette-llm 0.1a9 I have some big upgrades to Datasette Agent in the pipeline, but in the meantime here's a tiny user experience improvement to the underlying datasette-llm plugin. It now picks up the default model used by LLM, which means you can start using Datasette Agent without needing to explicitly configure a default model: uvx --with datasette-agent datasette content.db --internal internal.db Previously you would also need to specify a model with -s plugins.datasette-agent.default_model gpt-6-astra. Tags: datasette, llm, datasette-agent",
+      "score": 18,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Minor alpha release of a Datasette plugin that now picks up the default LLM model. Little impact on First Mate's stack or client work.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "bdac665d-e89d-4fe9-8194-66d383073b59",
+      "source_slug": "simon-willison",
+      "guid": "https://simonwillison.net/2026/Oct/31/how-we-took-over-chatgpt-accounts/",
+      "canonical_url": "https://simonwillison.net/2026/Oct/31/how-we-took-over-chatgpt-accounts",
+      "url": "https://simonwillison.net/2026/Oct/31/how-we-took-over-chatgpt-accounts/",
+      "title": "How We Took Over ChatGPT Accounts",
+      "author": null,
+      "published_at": "2026-10-31T23:15:22.000Z",
+      "first_seen_at": "2026-11-01T04:00:05.858Z",
+      "digest_date": "2026-11-01",
+      "excerpt": "How We Took Over ChatGPT Accounts Parameter Labs describe an exploit they found against ChatGPT's implementation of the artifacts pattern (OpenAI used to call this \"Canvas\" but it looks like the latest revision is called HTML previews), where interactive custom HTML apps are displayed in a sandboxed iframe. It's important that HTML in these stays tightly sandboxed to avoid untrusted code interacting with OpenAI APIs and accessing private data. Parameter found quite a complex attack chain. OpenAI use the MathLive JavaScript library as part of their graph support, and that library includes its own virtual keyboard, which can be triggered in the parent page via postMessage() from the sandboxed iframe. That message receiving code uses innerHTML, so anything that sends a message can add custom HTML to the parent - and there was no mechanism to prevent other sandboxed frames, including HTML preview frames, from calling that method. This meant untrusted code in an iframe could insert HTML, and while innerHTML doesn't directly execute script elements it could be used to inject a new iframe without sandbox restrictions. OpenAI’s CSP rules blocked inline scripts entirely, and only allowed script loading from a handful of domains, but one of those was YouTube - and the YouTube oEmbed endpoint could be used to reflect JavaScript back in a way that executed it. Once the attack had JavaScript execution on ChatGPT, it was trivial to fetch private user data from APIs and exfiltrate it via an image reference. The end result: you could create a ChatGPT share URL which, when visited by another signed-in user, could exfiltrate their private data or take actions on their behalf. OpenAI closed the hole and paid out a $5,000 bug bounty, which I think was a bit cheap for a vulnerability this serious. Via Hacker News Tags: iframes, javascript, sandboxing, security, xss, openai, chatgpt, content-security-policy",
+      "score": 72,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "Detailed ChatGPT account-takeover chain via a sandboxed HTML preview and a third-party JS library (MathLive). Useful lessons for anyone building artifact or iframe sandboxes in AI products for clients.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "0e81acf0-6d7b-4053-83c4-be26150e8d2a",
+      "source_slug": "hacker-news",
+      "guid": "https://news.ycombinator.com/item?id=50314699",
+      "canonical_url": "https://www.parameter.ai/labs/we-found-a-gap-at-openai",
+      "url": "https://www.parameter.ai/labs/we-found-a-gap-at-openai",
+      "title": "Do the math: How we took over ChatGPT accounts",
+      "author": "armcat",
+      "published_at": "2026-10-31T10:30:11.000Z",
+      "first_seen_at": "2026-11-01T04:00:05.858Z",
+      "digest_date": "2026-11-01",
+      "excerpt": "Article URL: https://www.parameter.ai/labs/we-found-a-gap-at-openai Comments URL: https://news.ycombinator.com/item?id=50314699 Points: 311 # Comments: 153",
+      "score": 65,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "Original Parameter Labs write-up of the ChatGPT account-takeover exploit, with strong HN discussion. Shows how a third-party JS library can break iframe sandboxing in AI apps.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "8dc14264-9757-401c-9b63-a347c5c69acd",
+      "source_slug": "yt-cole-medin",
+      "guid": "yt:video:BlbxhsItZPg",
+      "canonical_url": "https://www.youtube.com/watch?v=BlbxhsItZPg",
+      "url": "https://www.youtube.com/watch?v=BlbxhsItZPg",
+      "title": "Anthropic's New Study: You're Not Controlling AI as Much as You Think You Are",
+      "author": "Cole Medin",
+      "published_at": "2026-10-31T16:51:47.000Z",
+      "first_seen_at": "2026-11-01T04:00:05.858Z",
+      "digest_date": "2026-11-01",
+      "excerpt": "Open a Revolut Business account and get a $200 welcome bonus: https://get.revolut.com/Kjth/nn8ax572 How much control do you really have when AI helps you make decisions? Anthropic's new study shows how strongly an agent's recommendations can shape expert judgment, and it made me question a habit in my own planning sessions: accepting the recommended answer and feeling like I was the one steering. I walk through the study, show how this comes up in Claude Code, and share three practical ways to stay involved in the decisions. There's also a free planning skill you can use in your own project to work out your priorities before the agent recommends an approach! ~~~~~~~~~~~~~~~~~~~~~~~~~~ - Join Dynamous for the new Agentic Coding Course 2.0 - the core of the course is now COMPLETE: https://dynamous.ai - Anthropic's study: https://www.anthropic.com/research/agents-judgment-calls - Plan With Priorities skill: https://github.com/coleam00/skills/tree/main/.claude/skills/plan-with-priorities - Matt Pocock's Grill Me guide: https://www.aihero.dev/skills-grill-me ~~~~~~~~~~~~~~~~~~~~~~~~~~ 0:00 Are you really making the decisions? 0:53 How we plan with coding agents 2:31 What Anthropic tested 3:25 Analysts followed the agent 86% of the time 4:16 They explained choices in the agent's words 4:50 Sponsor: Revolut Business 6:29 Limitations of the study 7:04 Key takeaways 8:37 What this means: AI disempowerment 10:40 Anthropic's three areas for future study 11:55 My Solutions 12:21 1. Ask about priorities first 13:50 2. Prototype to decide 15:01 3. Ask what would change the advice 15:44 Wrap up ~~~~~~~~~~~~~~~~~~~~~~~~~~ Open a Revolut Business account through my link or QR code and get $200 when you add a minimum of $0.01 to your account. T&Cs apply. Offer expires on 12/31/2026. Exclusions apply. $200 bonus paid by Revolut subject to the terms and conditions found https://www.revolut.com/en-US/legal/influencer-topup-getcashback. Revolut is not a bank, banking services are provide",
+      "score": 45,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Covers Anthropic research on how agent recommendations sway expert judgment, with practical tips for staying in control during Claude Code planning sessions. Relevant to plan-first workflows.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "79e612b5-8017-439c-820a-c49fb7ce3017",
+      "source_slug": "yt-latent-space",
+      "guid": "yt:video:KM3VQZKjpiY",
+      "canonical_url": "https://www.youtube.com/watch?v=KM3VQZKjpiY",
+      "url": "https://www.youtube.com/watch?v=KM3VQZKjpiY",
+      "title": "Using Agents for Long-Horizon Financial Work — Aman Singh, Arca",
+      "author": "Latent Space",
+      "published_at": "2026-10-31T16:00:03.000Z",
+      "first_seen_at": "2026-11-01T04:00:05.858Z",
+      "digest_date": "2026-11-01",
+      "excerpt": "Arca head of AI Aman Singh joins Latent Space head of editorial Richard MacManus at AI Engineer New York, to discuss how Arca is building an AI-native wealth management firm. Singh explains Arca's architecture, which includes a custom harness and persistent memory. He also digs into how Arca runs agentic workflows that span days, not hours. Arca: https://arcawealth.ai/ AI Engineer: https://ai.engineer/ Latent Space: https://www.latent.space/ Chapters: 00:00 Introducing Arca’s AI-native wealth management firm 01:40 How AI supports human financial advisors 02:40 Choosing models with internal benchmarks 04:01 Building a custom harness and routing tasks 05:25 Handling a $100,000 tax bill: Agents and human approvals 07:20 Agent memory across long-running tasks 09:22 Safety guardrails and prompt injection defenses 11:02 Compliance and auditability by default 12:14 “Agents prompt people more than people prompt agents” 13:46 Why Arca owns its agent infrastructure 15:05 AI-native firms versus firms using AI tools 16:09 Sandboxes and financial plan verification 18:40 Decision models and checking financial facts 19:51 Why trade execution stays with human experts 20:32 Turning staff feedback into evals and improvements 22:22 Turning operational knowledge into agent context 23:41 Client examples: Hidden fees and proactive service Sponsorship and business inquiries: business@latent.space",
+      "score": 40,
+      "tags": [],
+      "why_it_matters": "Video version of the Arca interview covering a custom agent harness, persistent memory and multi-day workflows. Some architecture insight for AI product builds.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "6067724f-e330-4c03-b0c6-41a95019b74d",
+      "source_slug": "yt-latent-space",
+      "guid": "yt:video:v-d1WTqIULs",
+      "canonical_url": "https://www.youtube.com/watch?v=v-d1WTqIULs",
+      "url": "https://www.youtube.com/watch?v=v-d1WTqIULs",
+      "title": "Building ChatGPT for Finance — Joseph Kim, OpenAI's Head of Financial Services",
+      "author": "Latent Space",
+      "published_at": "2026-10-31T03:41:20.000Z",
+      "first_seen_at": "2026-11-01T04:00:05.858Z",
+      "digest_date": "2026-11-01",
+      "excerpt": "What does it take to build AI for finance on top of a general-purpose model? Joseph Kim, who leads work on ChatGPT for Financial Services at OpenAI, joins swyx and Richard at AI Engineer New York to discuss the decisions behind the product: training financial reasoning into a shared model, connecting market data, and building workflows financial professionals can review and trust. Joseph explains why OpenAI bundled financial data even when connectors already existed, what startups can build with the same plugin primitives, and why human taste and expert judgment are hard to measure. The conversation moves from analyst workflows and review chains to investment ideas and the problem of building useful financial evaluations. Chapters 0:00 Cold open 0:25 Introducing Joseph Kim 0:56 ChatGPT for Financial Services 2:19 Training financial reasoning into the model 3:31 Codex adoption inside OpenAI 4:27 Building a finance product 5:29 Why bundle financial data? 6:39 What can startups build? 9:18 Safety and human review 12:04 The banking review chain 12:36 Financial mistakes and AI adoption 14:56 Judgment, taste and the limits of accuracy 15:46 Training models on human taste 18:40 Code quality as a taste benchmark 19:04 Investment ideas and moving up the analyst stack 22:14 Why financial evaluations are hard 25:25 OpenAI’s finance team is hiring Joseph’s AI Engineer keynote: https://www.youtube.com/watch?v=jiUC6IUMdvc&t=4350s ChatGPT for Financial Services: https://openai.com/index/introducing-chatgpt-financial-services/ AI Engineer: https://ai.engineer/ Latent Space: https://www.latent.space/ Sponsorship and business inquiries: business@latent.space",
+      "score": 40,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "OpenAI on building ChatGPT for Financial Services and the plugin primitives startups can reuse. Moderately relevant for fintech-adjacent AI product work.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-01T04:00:05.858Z",
+      "scorer_model": "claude-opus-5-5"
+    }
+  ]
+}
