@@ -1,0 +1,151 @@
+{
+  "version": 1,
+  "digest_date": "2026-11-02",
+  "exported_at": "2026-11-01T23:03:26.894Z",
+  "runs": [
+    {
+      "id": "68bd3d95-7a51-4e4e-95fc-ba47f992f011",
+      "started_at": "2026-11-01T23:02:39.867Z",
+      "finished_at": "2026-11-01T23:03:26.785Z",
+      "trigger": "schedule",
+      "status": "partial",
+      "fetched": 4569,
+      "new": 6,
+      "scored": 6,
+      "pending": 0,
+      "failed": 0,
+      "skipped": 0,
+      "error_summary": "socket-blog: http 403"
+    }
+  ],
+  "items": [
+    {
+      "id": "db79aabb-3c63-43b6-bc9a-31fa7bcff0a7",
+      "source_slug": "codex-cli-releases",
+      "guid": "tag:github.com,2008:Repository/965415649/rust-v0.167.0-alpha.2",
+      "canonical_url": "https://github.com/openai/codex/releases/tag/rust-v0.167.0-alpha.2",
+      "url": "https://github.com/openai/codex/releases/tag/rust-v0.167.0-alpha.2",
+      "title": "0.167.0-alpha.2",
+      "author": "github-actions[bot]",
+      "published_at": "2026-11-01T19:05:03.000Z",
+      "first_seen_at": "2026-11-01T23:02:39.867Z",
+      "digest_date": "2026-11-02",
+      "excerpt": "Release 0.167.0-alpha.2",
+      "score": 42,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Earlier Codex CLI 0.167.0 alpha, superseded the same day by alpha.3 and lacking release notes, so it has limited standalone value.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-01T23:02:39.867Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "75a12b51-a093-41c7-90ce-e34a88afe470",
+      "source_slug": "codex-cli-releases",
+      "guid": "tag:github.com,2008:Repository/965415649/rust-v0.167.0-alpha.3",
+      "canonical_url": "https://github.com/openai/codex/releases/tag/rust-v0.167.0-alpha.3",
+      "url": "https://github.com/openai/codex/releases/tag/rust-v0.167.0-alpha.3",
+      "title": "0.167.0-alpha.3",
+      "author": "github-actions[bot]",
+      "published_at": "2026-11-01T22:30:00.000Z",
+      "first_seen_at": "2026-11-01T23:02:39.867Z",
+      "digest_date": "2026-11-02",
+      "excerpt": "Release 0.167.0-alpha.3",
+      "score": 45,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Codex CLI alpha pre-release with no changelog details. Worth tracking since engineers use Codex daily, but alphas rarely change workflows until stable.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-01T23:02:39.867Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "89aab9e5-c5e7-48d6-81df-bdd59009df42",
+      "source_slug": "hacker-news",
+      "guid": "https://news.ycombinator.com/item?id=50326821",
+      "canonical_url": "https://hackerbooks.org",
+      "url": "https://hackerbooks.org/",
+      "title": "Show HN: HackerBooks – HackerTube, but for books mentioned on HN",
+      "author": "roansh",
+      "published_at": "2026-11-01T15:58:28.000Z",
+      "first_seen_at": "2026-11-01T23:02:39.867Z",
+      "digest_date": "2026-11-02",
+      "excerpt": "Saw Karpathy's HackerTube and wanted the same thing for books. So I had Claude build one (Opus 5.5).It's ~16.5k books that at least two different HN commenters brought up, from 2007 till now. Each book links back to the comments that mentioned it. Data is downloadable from the about page.To be clear: Claude wrote almost all of it, including the data pipeline and the site. I mostly steered and made calls, bought the domain name, etc.It counts mentions, so it's not perfect (praising a book and trashing it both count). If your favourite book is missing or matched to the wrong thing, tell me. Comments URL: https://news.ycombinator.com/item?id=50326821 Points: 733 # Comments: 160",
+      "score": 30,
+      "tags": [],
+      "why_it_matters": "A Show HN side project mostly built by Claude Opus 5.5. It is a mild example of agent-driven building, but it offers no technical depth or workflow lessons.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-01T23:02:39.867Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "43f9e228-7e9a-4859-8d16-9dc016992465",
+      "source_slug": "hacker-news",
+      "guid": "https://news.ycombinator.com/item?id=50322173",
+      "canonical_url": "https://jetstream.security/insights/brazilian-court-sanctions-prompt-injection-filing",
+      "url": "https://jetstream.security/insights/brazilian-court-sanctions-prompt-injection-filing/",
+      "title": "Brazilian Court Sanctions Lawyers for Prompt Injection in Court Filing",
+      "author": "doodlesdev",
+      "published_at": "2026-11-01T02:19:53.000Z",
+      "first_seen_at": "2026-11-01T23:02:39.867Z",
+      "digest_date": "2026-11-02",
+      "excerpt": "Article URL: https://jetstream.security/insights/brazilian-court-sanctions-prompt-injection-filing/ Comments URL: https://news.ycombinator.com/item?id=50322173 Points: 303 # Comments: 188",
+      "score": 58,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "Real-world prompt injection in legal filings, with court sanctions. It matters for legal tech clients and for anyone building LLM pipelines that ingest untrusted documents.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-01T23:02:39.867Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "695ef0f3-43b0-453d-98bc-696c71e9f1f2",
+      "source_slug": "hacker-news",
+      "guid": "https://news.ycombinator.com/item?id=50323088",
+      "canonical_url": "https://nolanlawson.com/2026/10/28/the-ai-cost-of-javascript-frameworks",
+      "url": "https://nolanlawson.com/2026/10/28/the-ai-cost-of-javascript-frameworks/",
+      "title": "The AI cost of JavaScript frameworks",
+      "author": "luu",
+      "published_at": "2026-11-01T06:06:19.000Z",
+      "first_seen_at": "2026-11-01T23:02:39.867Z",
+      "digest_date": "2026-11-02",
+      "excerpt": "Article URL: https://nolanlawson.com/2026/10/28/the-ai-cost-of-javascript-frameworks/ Comments URL: https://news.ycombinator.com/item?id=50323088 Points: 270 # Comments: 210",
+      "score": 62,
+      "tags": [
+        "framework"
+      ],
+      "why_it_matters": "Nolan Lawson on how JS framework choice affects AI-assisted development. Relevant to our Next.js and React stack decisions with agents, and it drew heavy HN discussion.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-01T23:02:39.867Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "7dc5d0e7-ceff-4944-90e9-5ce60aae509d",
+      "source_slug": "simon-willison",
+      "guid": "https://simonwillison.net/2026/Nov/1/kyle-kingsbury/",
+      "canonical_url": "https://simonwillison.net/2026/Nov/1/kyle-kingsbury",
+      "url": "https://simonwillison.net/2026/Nov/1/kyle-kingsbury/",
+      "title": "Quoting Kyle Kingsbury",
+      "author": null,
+      "published_at": "2026-11-01T16:49:04.000Z",
+      "first_seen_at": "2026-11-01T23:02:39.867Z",
+      "digest_date": "2026-11-02",
+      "excerpt": "More broadly, the use of LLMs erodes trust in documentation, in software, and in the organizations which produce them. Perhaps engineers will begin to treat any new software project with suspicion—the signals we used to rely on as markers of a mature system are now easier to counterfeit. [...] In the age of LLMs, what can maintainers do to ensure correct software and accurate documentation? Having done that work, how can they demonstrate its quality to users? — Kyle Kingsbury, Jepsen results for ParticleDB 1.1.4 Tags: kyle-kingsbury, llms, ai, generative-ai, ai-misuse",
+      "score": 45,
+      "tags": [],
+      "why_it_matters": "Kingsbury on LLMs eroding trust in software and docs fits our verification-over-vibes stance and is useful framing for CTOs advising clients on AI-generated code quality.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-01T23:02:39.867Z",
+      "scorer_model": "claude-opus-5-5"
+    }
+  ]
+}
