@@ -1,7 +1,7 @@
 {
   "version": 1,
   "digest_date": "2026-11-05",
-  "exported_at": "2026-11-05T10:35:45.476Z",
+  "exported_at": "2026-11-06T00:01:35.479Z",
   "runs": [
     {
       "id": "1305212f-9dd1-4599-8e3b-3bdda0de5c24",
@@ -222,13 +222,15 @@
       "first_seen_at": "2026-11-05T09:09:36.768Z",
       "digest_date": "2026-11-05",
       "excerpt": "Release 0.168.0-alpha.1",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 55,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "New Codex CLI alpha release. It has no release notes, but engineers using Codex daily should watch for changes before the stable release.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-06T00:00:06.782Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "089a8b0a-4c5a-4564-822c-73c962c61600",
@@ -286,13 +288,15 @@
       "first_seen_at": "2026-11-05T09:09:36.768Z",
       "digest_date": "2026-11-05",
       "excerpt": "Article URL: https://hy.tencent.ai/research/hy4 Comments URL: https://news.ycombinator.com/item?id=50365780 Points: 238 # Comments: 88",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 45,
+      "tags": [
+        "new-model"
+      ],
+      "why_it_matters": "Tencent released the Hy4 model research and it is drawing strong HN interest. It is worth watching as an open-model alternative, but it is not a frontier API we use.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-06T00:00:06.782Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "17452f7c-f8ca-469b-aaa2-f4ff34dbad51",
@@ -349,13 +353,15 @@
       "first_seen_at": "2026-11-05T09:09:36.768Z",
       "digest_date": "2026-11-05",
       "excerpt": "I'm curious how people on HN are using AI day to day, and came up with a list of questions I thought could be interesting to know. No need to answer every question of course, just wanted to get a gut feel how people are using AI.1) What AI subscriptions are you personally paying for? (Claude, ChatGPT/Codex, Cursor, etc)- Which tiers?- Have you purchased multiple subscriptions from the same provider (eg two Claude accounts)?2) Are you using models outside (or instead) of those subscriptions? For example, pay-as-you-go APIs, OpenRouter, or locally hosted models.- Which models and providers?3) What coding harnesses and interfaces are you using? Are you sticking with the default CLIs or IDE integrations, or using alternatives like OpenCode, Pi, Aider, Muse Code, or custom-built harnesses?- What made you switch harnesses (if you switched)?4) Are you using any agent orchestration or swarm tools?- For example, Munder Difflin, Gas Town, Ruflo, or something custom.5) Are you using broader agent platforms like OpenClaw / Hermes Agent / Grok bot / Dots / Muse?- If you are using them, what are your main use cases?-----I know my workflow has differed significantly from a year ago, and so it would be interesting to capture a snapshot today of what people are using and why. Comments URL: https://news.ycombinator.com/item?id=50366117 Points: 312 # Comments: 331",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 45,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Community thread on real-world agentic setups and subscriptions. Useful for benchmarking our Claude Code and Codex workflows and tool spend.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-06T00:00:06.782Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "bb980acb-f4f1-4f0e-996c-054b016a4326",
@@ -391,13 +397,15 @@
       "first_seen_at": "2026-11-05T09:09:36.768Z",
       "digest_date": "2026-11-05",
       "excerpt": "OpenAI built an autonomous pipeline that found, validated, and generated patches for 948 local privilege-escalation vulnerabilities in the Linux kernel.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 68,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "OpenAI's autonomous pipeline found and patched 948 Linux kernel privilege-escalation bugs. This shows agentic security verification at scale and points to many upcoming kernel patches on infrastructure.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-06T00:00:06.782Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "9b1aa7cc-4ba2-47d2-b6d4-b8dbe6366f49",
@@ -411,13 +419,16 @@
       "first_seen_at": "2026-11-05T09:09:36.768Z",
       "digest_date": "2026-11-05",
       "excerpt": "Daybreak Red brings GPT-5.6 Cyber to approved customers in AWS GovCloud (US-East) through Amazon Bedrock for authorized cybersecurity work.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 30,
+      "tags": [
+        "new-model",
+        "security"
+      ],
+      "why_it_matters": "GPT-5.6 Cyber is now available in AWS GovCloud for approved cyber work. This is government-specific availability and rarely applies to our startup clients.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-06T00:00:06.782Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "b27558b0-52a3-47c3-90e0-2aec44434d5f",
@@ -475,13 +486,16 @@
       "first_seen_at": "2026-11-05T09:09:36.768Z",
       "digest_date": "2026-11-05",
       "excerpt": "OpenAI will acquire Pierre Computer Company, expanding Codex’s tools for building, understanding, and reviewing code.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 72,
+      "tags": [
+        "business",
+        "tooling"
+      ],
+      "why_it_matters": "OpenAI is buying Pierre to expand Codex's code building, understanding and review tools. This signals upcoming Codex capability changes that affect our daily workflow and review pipelines.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-06T00:00:06.782Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "65d68ddb-7d2c-4f35-8a6e-84945bc66e8b",
@@ -561,13 +575,15 @@
       "first_seen_at": "2026-11-05T09:09:36.768Z",
       "digest_date": "2026-11-05",
       "excerpt": "Release: datasette-llm 0.1a10 Fixes a bug that affected my agent.datasette.io demo site, where the set of available LLM models was not correctly restricted to just those in the configuration. Tags: datasette, llm",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 20,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Small alpha bugfix release of a Datasette LLM plugin. Niche and not part of our stack.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-06T00:00:06.782Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "f71fc0c8-53ac-449b-bc21-ff457d8b182e",
@@ -627,13 +643,15 @@
       "first_seen_at": "2026-11-05T09:09:36.768Z",
       "digest_date": "2026-11-05",
       "excerpt": "Article URL: https://spectrum.ieee.org/ai-in-cybersecurity-php2shell-vulnerability Comments URL: https://news.ycombinator.com/item?id=50364336 Points: 1175 # Comments: 684",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 62,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "Popular IEEE piece on how AI-driven vulnerability discovery, including a PHP RCE, is exposing legacy debt. Relevant to how we advise clients on security posture.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-06T00:00:06.782Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "b616e04b-4fa7-4291-aa57-d0ce653d36e7",
@@ -669,13 +687,16 @@
       "first_seen_at": "2026-11-05T09:09:36.768Z",
       "digest_date": "2026-11-05",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 35,
+      "tags": [
+        "framework",
+        "business"
+      ],
+      "why_it_matters": "Vercel AI Gateway adds more zero-data-retention providers for Kimi K3.1 Pro. Minor, but useful for client projects needing ZDR guarantees on non-frontier models.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-06T00:00:06.782Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "fdcaf373-8d00-4032-9cd4-42981ff1c670",
@@ -712,13 +733,15 @@
       "first_seen_at": "2026-11-05T09:09:36.768Z",
       "digest_date": "2026-11-05",
       "excerpt": "Galen Gao (https://substack.com/@linkloud1, https://x.com/Ninggao88) interviews Shawn Wang (swyx) ahead of AIEi Shanghai, the first AI Engineer conference in China. They talk about how a blog on open-source AI became Latent Space, how the AI Engineer community grew, and what local builders brought to Shanghai. Then they get into Kill My SaaS. An agent can rebuild a tool and pass the entry checks. Choosing a winner still takes someone who knows what an organizer needs to get done. The conversation also covers OpenClaw adoption in China and what Thinking Machines' interaction models change about talking to AI. Chapters 0:00 AIEi Shanghai 2:31 Cold open 3:28 Galen Gao and swyx 8:01 Learn in Public 10:54 How Latent Space started 13:05 The idea for AI Engineer 25:10 The conference as a dataset 29:57 Kill My SaaS 39:31 What the contest judge measured 46:45 Jev and System One models 52:49 Writing and founder stories 1:02:13 Legora and product taste 1:03:29 OpenClaw adoption in China 1:07:35 Thinking Machines and interaction models 1:10:02 Reading and listening recommendations AI Engineer Shanghai — https://ai.engineer/shanghai/2026 The Rise of the AI Engineer — https://latent.space/p/ai-engineer/ Kill My SaaS — https://www.youtube.com/watch?v=zlD-CkLVKtU Latent Space — https://latent.space",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 28,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "Podcast interview on the AI Engineer community and agents rebuilding SaaS. Mostly commentary with little actionable engineering content.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-06T00:00:06.782Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "9b67faaa-e88d-48d0-a53f-9fc515abc0c5",
