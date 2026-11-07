@@ -1,0 +1,222 @@
+{
+  "version": 1,
+  "digest_date": "2026-11-08",
+  "exported_at": "2026-11-07T23:23:03.969Z",
+  "runs": [
+    {
+      "id": "c2a73709-d970-453d-b6c5-3b527a7fe94e",
+      "started_at": "2026-11-07T23:07:08.536Z",
+      "finished_at": "2026-11-07T23:23:03.870Z",
+      "trigger": "schedule",
+      "status": "partial",
+      "fetched": 4546,
+      "new": 9,
+      "scored": 9,
+      "pending": 0,
+      "failed": 0,
+      "skipped": 0,
+      "error_summary": "yt-claude: http 404; yt-anthropic: http 404; yt-matt-pocock: http 404; yt-indydevdan: http 404; yt-latent-space: http 404; yt-cole-medin: http 404; yt-theo: http 404; yt-fireship: http 404"
+    }
+  ],
+  "items": [
+    {
+      "id": "13d9f268-8f48-4e93-8cfa-1ea8cf8f21f0",
+      "source_slug": "hacker-news",
+      "guid": "https://news.ycombinator.com/item?id=50403097",
+      "canonical_url": "https://8rank.ai/game/apple-intelligence-personal-knowledge-graph",
+      "url": "https://8rank.ai/game/apple-intelligence-personal-knowledge-graph",
+      "title": "Every Mac comes with an (undocumented) family member classifier",
+      "author": "infwhispers",
+      "published_at": "2026-11-07T09:46:03.000Z",
+      "first_seen_at": "2026-11-07T23:07:08.536Z",
+      "digest_date": "2026-11-08",
+      "excerpt": "Article URL: https://8rank.ai/game/apple-intelligence-personal-knowledge-graph Comments URL: https://news.ycombinator.com/item?id=50403097 Points: 548 # Comments: 323",
+      "score": 30,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "Claims an undocumented on-device personal knowledge graph in Apple Intelligence. This is a privacy story for consumers rather than a risk to our stack.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-07T23:07:08.536Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "12051183-32cf-48b4-8e1f-faaff557502c",
+      "source_slug": "github-changelog",
+      "guid": "https://github.blog/changelog/2026-11-06-copilot-code-review-api-management-and-review-overview-updates",
+      "canonical_url": "https://github.blog/changelog/2026-11-06-copilot-code-review-api-management-and-review-overview-updates",
+      "url": "https://github.blog/changelog/2026-11-06-copilot-code-review-api-management-and-review-overview-updates",
+      "title": "Copilot code review: API management and review overview updates",
+      "author": "Allison",
+      "published_at": "2026-11-07T00:27:19.000Z",
+      "first_seen_at": "2026-11-07T23:07:08.536Z",
+      "digest_date": "2026-11-08",
+      "excerpt": "You can now manage GitHub Copilot code review settings through the REST and GraphQL APIs, from enterprise policy down to individual repositories. Copilot’s review overview comment is now more compact, and this update includes fixes for billing, automatic reviews, and reliability. These updates are available to Copilot Pro, Pro+, Max, Business, and Enterprise plans. 🔌 Manage settings and identify Copilot’s output through the API You can already request reviews, choose their effort level, and get information back through the REST API. You can now also: Identify Copilot’s reviews and comments through explicit attribution fields. See the review effort a review used, when that metadata is available. See which skills, MCP servers, and custom instructions Copilot reported as sources for a comment. Depending on your role, you can also read and update code review settings: Enterprise administrators can enable or disable code review for all organizations, or leave the choice to organization administrators. Organization administrators can manage code review enablement, the default review effort, and the runner configuration. Settings your enterprise manages can’t be overridden. Repository administrators can manage review effort and whether reviews use custom instructions and MCP tools. The REST API accepts the same review effort levels as the web interface, and organization and repository settings responses list the levels available to you. ⚠️ The enterprise and organization settings endpoints, including the organization runner endpoint, don’t support GitHub Apps or fine-grained personal access tokens. The repository settings endpoints support both, with Administration: read permission to read settings and Administration: write permission to update them. Classic personal access tokens need repository administrator access. To get started, see Configuring Copilot code review with the API. 📋 A more compact review overview New review overviews keep your findings together at the to",
+      "score": 55,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Copilot code review settings can now be managed through the REST and GraphQL APIs. This matters for client teams running gated AI review pipelines on GitHub.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-07T23:07:08.536Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "2b146c01-7bb4-4138-a74f-843261c3fa5e",
+      "source_slug": "github-changelog",
+      "guid": "https://github.blog/changelog/2026-11-06-github-copilot-in-slack-and-teams-is-generally-available",
+      "canonical_url": "https://github.blog/changelog/2026-11-06-github-copilot-in-slack-and-teams-is-generally-available",
+      "url": "https://github.blog/changelog/2026-11-06-github-copilot-in-slack-and-teams-is-generally-available",
+      "title": "@GitHub in Slack and Teams is generally available and more",
+      "author": "Allison",
+      "published_at": "2026-11-06T20:31:08.000Z",
+      "first_seen_at": "2026-11-07T23:07:08.536Z",
+      "digest_date": "2026-11-08",
+      "excerpt": "Turn conversations into code with @GitHub in Slack and Teams! Investigate bugs, create issues, implement changes, and open pull requests—all without leaving your conversation. What’s new Build and review together with Canvas in Teams Turn team discussions into working code. With Canvas, you can review implementation plans, code changes, and previews alongside your conversation. Continue the discussion with teammates, share feedback, and refine the implementation together—all without leaving Teams. Additional improvements Faster onboarding: Go from request to coding session with fewer steps. @GitHub now identifies the repository from your message and launches your session without requiring you to select it again. Getting started is also easier when you’re not signed in, don’t have a default repository, want to switch repositories, or need app access. More reliable conversations: Fixed an issue that could prevent responses to follow-up messages, helping you keep work moving. Clearer attribution: Issues and pull requests created by @GitHub now include “Created from a Slack/Teams conversation with @username” in their description. Get started Try @GitHub in Slack or Teams. Join the discussion in the GitHub Community. The post @GitHub in Slack and Teams is generally available and more appeared first on The GitHub Blog.",
+      "score": 40,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "The @GitHub coding agent is now generally available in Slack and Teams. It is moderately useful for client teams that work from chat tools.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-07T23:07:08.536Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "c580fb2c-06f2-4e35-8221-40ec6b12cbb0",
+      "source_slug": "github-changelog",
+      "guid": "https://github.blog/changelog/2026-11-06-github-copilot-weekly-releases-november-2",
+      "canonical_url": "https://github.blog/changelog/2026-11-06-github-copilot-weekly-releases-november-2",
+      "url": "https://github.blog/changelog/2026-11-06-github-copilot-weekly-releases-november-2",
+      "title": "GitHub Copilot weekly releases — November 2",
+      "author": "Allison",
+      "published_at": "2026-11-06T21:00:26.000Z",
+      "first_seen_at": "2026-11-07T23:07:08.536Z",
+      "digest_date": "2026-11-08",
+      "excerpt": "This week, Copilot comes to JetBrains Air and Xcode’s coding assistant, with updates to help you manage pull requests, settings, and agent sessions. GitHub Copilot app Set up Agent Merge directly from a pull request to have Copilot merge it when it’s ready. It now stays enabled while required checks or rules are pending. You can also check reviewer status, request additional reviews, and select comment text to quote it or discuss it with Copilot. Keep working when a conversation reaches its context limit. Compact the conversation or review what’s using the available space directly from the error. Start a session by dropping files on “New” in the sidebar. CSV and TSV files now open as tables with sticky headers and an option to view the source. Manage sessions in fewer steps. Archive pinned sessions whose pull requests have merged or closed, pin or unpin multiple sessions, and separate nested chats without losing the conversation. My Work now supports more than ten saved custom views. Give Copilot guidance on which tool requests to approve without asking you. Personal instructions for assisted approval are opt-in and apply to local sessions. Install the GitHub Copilot app. GitHub Copilot CLI Manage your whole setup in one place. /settings now opens a unified dashboard for your plugins, MCP servers, and more, and you can search across all of your settings. Install Copilot CLI. GitHub Copilot in JetBrains Introducing a new way to use GitHub Copilot in JetBrains IDEs, with Copilot now available in JetBrains Air. Track multiple agent sessions and run tasks locally in your JetBrains IDE or in the cloud through Air Teams, using your existing Copilot subscription. Get started with Copilot in JetBrains Air. GitHub Copilot in Xcode You can now work with GitHub Copilot directly in Xcode’s built-in coding assistant, bringing Copilot into your native Xcode workflow. The integration is now in public preview, available starting with Xcode 27.3 beta. Get started with Copilot in Xco",
+      "score": 55,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Weekly Copilot updates add Agent Merge, context compaction and management of agent sessions. These are relevant to agentic workflows on client teams that use Copilot.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-07T23:07:08.536Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "091aaba7-a7e3-42bf-8a28-40c22fed0d6c",
+      "source_slug": "codex-cli-releases",
+      "guid": "tag:github.com,2008:Repository/965415649/rust-v0.169.0-alpha.3",
+      "canonical_url": "https://github.com/openai/codex/releases/tag/rust-v0.169.0-alpha.3",
+      "url": "https://github.com/openai/codex/releases/tag/rust-v0.169.0-alpha.3",
+      "title": "0.169.0-alpha.3",
+      "author": "github-actions[bot]",
+      "published_at": "2026-11-07T19:36:41.000Z",
+      "first_seen_at": "2026-11-07T23:07:08.536Z",
+      "digest_date": "2026-11-08",
+      "excerpt": "Release 0.169.0-alpha.3",
+      "score": 45,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Alpha pre-release of Codex CLI, which our engineers use daily. No notes are given, so it is only worth watching until a stable release lands.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-07T23:07:08.536Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "8fa46426-d514-4c47-bcc3-519d4e7e03f9",
+      "source_slug": "hacker-news",
+      "guid": "https://news.ycombinator.com/item?id=50406563",
+      "canonical_url": "https://hunch.net?p=13764006",
+      "url": "https://hunch.net/?p=13764006",
+      "title": "The end of Microsoft Research's AI Frontiers group",
+      "author": "srean",
+      "published_at": "2026-11-07T18:02:17.000Z",
+      "first_seen_at": "2026-11-07T23:07:08.536Z",
+      "digest_date": "2026-11-08",
+      "excerpt": "https://archive.is/AaY5Ohttps://businessexaminer.ca/victoria-articles/item/microsoft... Comments URL: https://news.ycombinator.com/item?id=50406563 Points: 294 # Comments: 162",
+      "score": 22,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "Microsoft Research is shutting down an AI research group. This is industry news with little direct effect on how we deliver software.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-07T23:07:08.536Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "dc259fb3-eba3-4be3-9336-f52ef0fb3830",
+      "source_slug": "latent-space",
+      "guid": "urn:latent-space:post:post_7716b2e3-ddac-48e0-8890-6bd0b896d287",
+      "canonical_url": "https://latent.space/p/ainews-anthropic-ipo-whither-now",
+      "url": "https://latent.space/p/ainews-anthropic-ipo-whither-now/",
+      "title": "[AINews] Anthropic IPO: Whither Now?",
+      "author": "swyx .ai",
+      "published_at": "2026-11-07T03:04:53.000Z",
+      "first_seen_at": "2026-11-07T23:07:08.536Z",
+      "digest_date": "2026-11-08",
+      "excerpt": "It’s a relatively quiet news day, and the AI market rout we referenced obliquely two days ago has deepened, though it might be leveling off not even halfway into bear market territory (-10% on Nasdaq, not -20%). That said, everything being “priced to perfection” means any surprise that is not to the upside is probably to the downside, knocking valuation estimates down as low as $1T and probability down 18%. Anthropic’s year end target is $100B run rate, and they’re now at $80B. We discuss all the most important lessons and assumptions in today’s bonus weekend pod, our second in the series covering the Anthropic IPO, with friend of the show Jamin Ball: If you liked our pod, or think the economy is going to hell in a handbasket, you’re gonna need to back up your data to the cloud. We use it for Smol. Help the pod and check out their new offers! Sponsored by Backblaze B2If your data is growing faster than planned, you need storage that grows with your business, feeds flash and GPUs with terabit-scale throughput, and doesn’t charge egress.Backblaze B2 has delivered capacity tier storage for twenty years, manages more than six exabytes, and is trusted by leading neoclouds, labs, and gen AI companies.Growth shouldn’t be something you sweat. We’ve got room for whatever you’re building. Come and try it out. enquiries: business@latent.space Thanks for helping us make AINews sustainable! AI News for 11/05/2026-11/06/2026. We checked 12 subreddits, 544 Twitters and no further Discords. AINews' website lets you search all past issues. As a reminder, AINews is now a section of Latent Space. You can opt in/out of email frequencies!AI Twitter RecapThinking Machines' Inkling 2 Small Sets a New Bar for US Open ModelsRelease and specs: Thinking Machines launched Inkling 2 Small, a natively multimodal MoE model (@Haoxiang__Wang). Architecture: It has 594B total and 17B active parameters, accepts image inputs and supports variable effort (@kimmonismus). Licensing and availability: Full",
+      "score": 42,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "Covers Anthropic IPO prospects, an $80B revenue run rate and a sell-off in AI stocks. Useful market context for fractional CTOs advising clients who depend on Claude.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-07T23:07:08.536Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "a7d4c2e5-9614-4677-b6ae-0816f74394b5",
+      "source_slug": "vercel-blog",
+      "guid": "https://vercel.com/changelog/deepseek-v4-1-flash-1017-ultrafast-now-available-on-ai-gateway",
+      "canonical_url": "https://vercel.com/changelog/deepseek-v4-1-flash-1017-ultrafast-now-available-on-ai-gateway",
+      "url": "https://vercel.com/changelog/deepseek-v4-1-flash-1017-ultrafast-now-available-on-ai-gateway",
+      "title": "DeepSeek V4.1 Flash 1017 Ultrafast now available on AI Gateway",
+      "author": null,
+      "published_at": "2026-11-07T00:00:00.000Z",
+      "first_seen_at": "2026-11-07T23:07:08.536Z",
+      "digest_date": "2026-11-08",
+      "excerpt": null,
+      "score": 48,
+      "tags": [
+        "new-model"
+      ],
+      "why_it_matters": "A fast DeepSeek V4.1 Flash variant is now on Vercel AI Gateway. It is a cheap, low-latency model option for client AI features built on Vercel.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-07T23:07:08.536Z",
+      "scorer_model": "claude-opus-5-5"
+    },
+    {
+      "id": "fe698ab0-920f-4403-ab6e-bc3f64b19560",
+      "source_slug": "vercel-blog",
+      "guid": "https://vercel.com/changelog/json-render-and-chat-sdk-agents",
+      "canonical_url": "https://vercel.com/changelog/json-render-and-chat-sdk-agents",
+      "url": "https://vercel.com/changelog/json-render-and-chat-sdk-agents",
+      "title": "Chat SDK agents can now stream generative UI with json-render",
+      "author": null,
+      "published_at": "2026-11-06T21:00:00.000Z",
+      "first_seen_at": "2026-11-07T23:07:08.536Z",
+      "digest_date": "2026-11-08",
+      "excerpt": null,
+      "score": 62,
+      "tags": [
+        "framework",
+        "tooling"
+      ],
+      "why_it_matters": "Vercel Chat SDK agents can now stream generative UI with json-render. This fits our Next.js and Vercel stack for building AI product features.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-07T23:07:08.536Z",
+      "scorer_model": "claude-opus-5-5"
+    }
+  ]
+}
