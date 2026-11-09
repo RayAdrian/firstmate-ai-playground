@@ -1,7 +1,7 @@
 {
   "version": 1,
   "digest_date": "2026-11-09",
-  "exported_at": "2026-11-08T23:00:45.864Z",
+  "exported_at": "2026-11-09T23:01:04.708Z",
   "runs": [
     {
       "id": "ced708b9-bf88-4524-89d5-a4e462ca6880",
@@ -35,7 +35,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -55,7 +55,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -75,7 +75,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -95,7 +95,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -115,7 +115,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -135,7 +135,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -155,7 +155,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -175,7 +175,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -195,7 +195,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -215,7 +215,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -235,7 +235,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -255,7 +255,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -275,7 +275,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -295,7 +295,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     },
@@ -315,7 +315,7 @@
       "tags": [],
       "why_it_matters": null,
       "scoring_status": "pending",
-      "attempts": 1,
+      "attempts": 2,
       "scored_at": null,
       "scorer_model": null
     }
