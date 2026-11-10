@@ -1,7 +1,7 @@
 {
   "version": 1,
   "digest_date": "2026-11-09",
-  "exported_at": "2026-11-09T23:01:04.708Z",
+  "exported_at": "2026-11-10T23:03:29.617Z",
   "runs": [
     {
       "id": "ced708b9-bf88-4524-89d5-a4e462ca6880",
@@ -34,8 +34,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -54,8 +54,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -74,8 +74,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -94,8 +94,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -114,8 +114,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -134,8 +134,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -154,8 +154,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -174,8 +174,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -194,8 +194,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -214,8 +214,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -234,8 +234,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -254,8 +254,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -274,8 +274,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -294,8 +294,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -314,8 +314,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     }
