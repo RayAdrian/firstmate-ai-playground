@@ -1,7 +1,7 @@
 {
   "version": 1,
   "digest_date": "2026-11-10",
-  "exported_at": "2026-11-10T23:03:29.617Z",
+  "exported_at": "2026-11-12T01:04:19.735Z",
   "runs": [
     {
       "id": "65f9b8f6-9ffa-4e39-97fc-ebbd695f0a50",
@@ -34,8 +34,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -54,8 +54,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -71,13 +71,16 @@
       "first_seen_at": "2026-11-09T23:00:06.839Z",
       "digest_date": "2026-11-10",
       "excerpt": "GitHub secret scanning now detects secrets in GitHub Actions workflow logs, in addition to issues, wikis, discussions, and pull requests. Actions workflow log scanning is available in public preview. How does Actions workflow log scanning work? When a workflow run completes, GitHub scans its logs for provider patterns. Findings appear in your repository’s secret scanning alert list, alongside alerts from code and other content, with a link back to the Actions workflow log. Validity checks run for supported secret types, and alerts remain available even after the logs are deleted. How do I enable it? The preview is available to enterprises on GitHub Enterprise Cloud with GitHub Secret Protection or GitHub Advanced Security, including those with data residency on GHE.com. Enterprise owners can enable Secret scanning for Actions workflow logs by opening their enterprise settings and selecting Policies, then Advanced Security. Select Enabled in the All repositories dropdown. The policy is disabled by default and applies only to repositories with secret scanning enabled under those licenses. What should I know about the preview? Only workflow runs that complete after you enable the feature are scanned; existing logs aren’t backfilled. Generic patterns, custom patterns, AI-detected secrets, and secrets already masked by Actions aren’t detected. Alerts from Actions workflow logs don’t generate notifications during the preview, so check your repository’s secret scanning alert list directly. Learn more Learn more about secret scanning in our product documentation. Have feedback? Let us know by joining the discussion. We’re listening. The post Secret scanning detects secrets in GitHub Actions workflow logs appeared first on The GitHub Blog.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 80,
+      "tags": [
+        "security",
+        "tooling"
+      ],
+      "why_it_matters": "GitHub secret scanning now covers Actions workflow logs (public preview). We run CI on GitHub Actions, so this catches leaked keys in logs and is worth enabling on client repos.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-12T01:00:02.746Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "6ac0447e-91ed-4220-b2a8-39b18f80eb4d",
@@ -94,8 +97,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -114,8 +117,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -131,13 +134,15 @@
       "first_seen_at": "2026-11-09T23:00:06.839Z",
       "digest_date": "2026-11-10",
       "excerpt": "Release 0.169.0-alpha.4",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 28,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Another Codex CLI alpha pre-release with no notes. It has low signal until the stable 0.169 release ships.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-12T01:00:02.746Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "3188446c-7b48-4148-a7a5-52e44849d383",
@@ -151,13 +156,15 @@
       "first_seen_at": "2026-11-09T23:00:06.839Z",
       "digest_date": "2026-11-10",
       "excerpt": "Release 0.169.0-alpha.5",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 30,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Codex CLI alpha pre-release with no release notes. We use Codex daily, but alpha builds rarely change how we work until a stable release lands.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-12T01:00:02.746Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "07aa6f15-2f6f-493b-85f1-c75da17d5509",
@@ -174,8 +181,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -194,8 +201,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -214,8 +221,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -234,8 +241,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -254,8 +261,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -271,13 +278,15 @@
       "first_seen_at": "2026-11-09T23:00:06.839Z",
       "digest_date": "2026-11-10",
       "excerpt": "CodeRabbit uses OpenAI models to govern and trust AI-generated code and Codex to ship 20 times more software with the same engineering team.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 38,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "OpenAI case study on CodeRabbit using Codex and OpenAI models for AI code review. It is relevant to governing agent-written code but is mostly marketing with little technical detail.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-12T01:00:02.746Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "f7dff9b6-f757-49a4-a4dc-19394067beee",
@@ -294,8 +303,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -311,13 +320,13 @@
       "first_seen_at": "2026-11-09T23:00:06.839Z",
       "digest_date": "2026-11-10",
       "excerpt": "Kuken Industries uses the OpenAI API to search 70 years of cooling tower drawings. Engineers can find the drawing for a repair in 4.5 minutes, down from nearly an hour.",
-      "score": null,
+      "score": 18,
       "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "why_it_matters": "OpenAI customer story about searching engineering drawings with the API. It is a generic retrieval use case with little technical depth for our delivery work.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-12T01:00:02.746Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "b41e06fc-66f8-4b4f-a3c5-1d78bfa48c79",
@@ -334,8 +343,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -351,13 +360,13 @@
       "first_seen_at": "2026-11-09T23:00:06.839Z",
       "digest_date": "2026-11-10",
       "excerpt": "My comment on AI is destroying my CS degree — Hacker News.I don't envy educators right now. AI clearly means you need to change how you teach and evaluate students. We are only a few years in though, and it's still extremely unclear what effective teaching with these tools looks like. The worst part is that the evaluation loop is measured in multiple years! If you start trying some new education mechanism today you won't get a robust idea of how well it works until your current cohort graduate in 3-6 years time. Students effectively all become guinea pigs for untested new ways of learning and teaching. Tags: education, hacker-news, ai, ai-ethics",
-      "score": null,
+      "score": 25,
       "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "why_it_matters": "An opinion piece on AI in CS education. It is loosely relevant to how we mentor juniors in agentic workflows but has no technical substance.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-12T01:00:02.746Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "b94b8d5d-38e3-4647-97d9-5a7288824455",
@@ -371,13 +380,13 @@
       "first_seen_at": "2026-11-09T23:00:06.839Z",
       "digest_date": "2026-11-10",
       "excerpt": "My comment on Terry Pratchett's Study — Hacker News.Terry Pratchett once wrote about the concept of \"horizontal wealth\". Vertical wealth is where you spend money on rich people stuff - yachts and suchlike. Horizontal wealth is where you spend more money on the things you liked before you got rich: https://chibuikeani.blogspot.com/2017/02/the-price-of-happin... But horizontal wealth means not letting your increased income dictate your tastes. You like books and now you have money? Buy more books! Change those catenary bookshelves for good hardwood ones! In my case, build a library extension to your office. And, of course, you buy what will be useful for that most wonderful of pursuits, blind research, which is research without direction for the sheer joy of it. (Original source is his book A Slip of the Keyboard - this linked blog post quotes that bit.) Tags: hacker-news, terry-pratchett",
-      "score": null,
+      "score": 3,
       "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "why_it_matters": "A personal comment about Terry Pratchett and horizontal wealth. It has nothing to do with software delivery.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-12T01:00:02.746Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "35546d0b-b6a5-4650-93ff-79c941c7b9a7",
@@ -391,13 +400,15 @@
       "first_seen_at": "2026-11-09T23:00:06.839Z",
       "digest_date": "2026-11-10",
       "excerpt": "Most of the changes I make to my projects these days come in the form of PRs opened for me by Claude Code or Codex. The PR is my unit of work - I use them to bundle commits together, iterating on them until a feature is complete, document decisions and then merge the finished result. Today's coding agents are great at writing PR descriptions. They're too good at describing the work The problem is that they are too good. An agent-written PR description is accurate and comprehensive. It describes the problem, the detailed solution, and the steps taken to verify it. That's a lot of information to absorb. It's not necessarily slop, but it reads like slop! It's very easy to spot an AI-written PR, and as with other forms of AI writing my instant reaction is best summarized as \"I'm not reading all of that\". It doesn't matter how accurate or useful the information is, I'm instantly put off by the thought that it will take me longer to read than it took the driving author to write... even when that driving author is me! I want human editorial judgement. I want someone to have thought just long enough about the PR to give me a human-approved introduction that helps me understand, at a high level, what the PR is for and whether it deserves more of my attention. I think I've found a low-effort way to do this that feels right. Hide most of it in a details/summary The HTML <details><summary> elements render as a collapsed heading (the summary) that can be expanded to view the larger piece of text. The code looks like this: <details> <summary>Claude Opus 5.5</summary> <h2>The hook</h2> Plugins implement <code>register_agent_reference_types(datasette)</code>... </details> When rendered, it looks like this: Crucially, <details><summary> is supported in GitHub Markdown. You can drop those tags directly into an issue comment or PR description and GitHub will hide the details and display just the summary plus an expansion arrow. I've started using this for my AI-generated pull requests",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 58,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Practical tip for agent-written PRs from Claude Code and Codex: put verbose descriptions inside details/summary tags. This applies directly to our gated review workflow.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-12T01:00:02.746Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "bf9be774-ab5f-4390-ac8e-4aa3075fc68f",
@@ -411,13 +422,13 @@
       "first_seen_at": "2026-11-09T23:00:06.839Z",
       "digest_date": "2026-11-10",
       "excerpt": "My comment on The Web Is More Than Enough, by Paul Ford — Hacker News.OK, this comment convinced me to give that a shot. Here's a thing I made in Three.js this morning - a Nudibranch themed Faberge Egg: https://static.simonwillison.net/static/2026/Hidden-Reef-Egg... (77KB) I just asked Claude (Opus 5.5 Medium running in regular Claude Chat) to port that to Vanilla JS, in the same thread where it had built it, and got this: https://static.simonwillison.net/static/2026/Hidden-Reef-Egg... (98KB) They aren't identical - you can see what Claude said about that in the transcript (I don't fully understand why it differed): https://claude.ai/share/e56d163e-2793-4677-aa11-191d5058b414 But yeah, it turns out Claude Opus 5.5 is perfectly capable of 3D modeling in Vanilla JS + WebGL without Three.js. In eyeballing the code I find the Three.js slightly easier to understand myself, but I rarely look at the code for these 3D projects so that isn't a particularly big deal. Tags: hacker-news, javascript, ai, generative-ai, llms, claude, three-js",
-      "score": null,
+      "score": 25,
       "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "why_it_matters": "Simon Willison HN comment showing Claude porting a Three.js demo to vanilla JS. It is a light anecdote with limited practical value.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-12T01:00:02.746Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "48f5b72a-5815-4843-bc9e-05507934225c",
@@ -434,8 +445,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -451,13 +462,15 @@
       "first_seen_at": "2026-11-09T23:00:06.839Z",
       "digest_date": "2026-11-10",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 62,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "Vercel AI Gateway production index shows Anthropic winning new teams 2:1 and decision models taking 26% of requests. This is useful market data for advising clients on model choice.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-12T01:00:02.746Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "c27c9f37-12ec-4223-8dfc-458f6d346c09",
@@ -471,13 +484,15 @@
       "first_seen_at": "2026-11-09T23:00:06.839Z",
       "digest_date": "2026-11-10",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 50,
+      "tags": [
+        "framework"
+      ],
+      "why_it_matters": "Doubling Vercel build disk space to 64 GB removes a limit on large monorepo and Next.js builds for us and our clients.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-12T01:00:02.746Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "6e16298c-b7dd-4542-a2ed-7bec5f389a3a",
@@ -491,13 +506,15 @@
       "first_seen_at": "2026-11-09T23:00:06.839Z",
       "digest_date": "2026-11-10",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 80,
+      "tags": [
+        "new-model"
+      ],
+      "why_it_matters": "A new Claude model now reachable through Vercel AI Gateway is directly relevant to our Anthropic-heavy AI work and client LLM features on Vercel.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-12T01:00:02.746Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "a0257d78-2171-43d9-8bc2-b2bdba2d74eb",
@@ -511,13 +528,16 @@
       "first_seen_at": "2026-11-09T23:00:06.839Z",
       "digest_date": "2026-11-10",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 40,
+      "tags": [
+        "new-model",
+        "business"
+      ],
+      "why_it_matters": "A cheap GLM Flash model added to Vercel Token Pass gives a possible low-cost option for client LLM features. It is not a core frontier model for us.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-12T01:00:02.746Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "63c72615-bfe4-4b73-b40d-cbe2252e83bb",
@@ -531,13 +551,15 @@
       "first_seen_at": "2026-11-09T23:00:06.839Z",
       "digest_date": "2026-11-10",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 45,
+      "tags": [
+        "new-model"
+      ],
+      "why_it_matters": "A new model on Vercel AI Gateway widens model options for client AI features. Its coding relevance is unclear from the title alone.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-12T01:00:02.746Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "3e959c4b-8de5-474a-af0e-66e39c9ce50d",
@@ -551,13 +573,15 @@
       "first_seen_at": "2026-11-09T23:00:06.839Z",
       "digest_date": "2026-11-10",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 40,
+      "tags": [
+        "framework"
+      ],
+      "why_it_matters": "Vercel is in our stack. Larger container image layers in Vercel Container Registry may help clients shipping heavier containerized or ML workloads.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-12T01:00:02.746Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "57ad41cc-6d22-4140-a242-bc5999ca8219",
@@ -574,8 +598,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -591,13 +615,16 @@
       "first_seen_at": "2026-11-09T23:00:06.839Z",
       "digest_date": "2026-11-10",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 55,
+      "tags": [
+        "framework",
+        "tooling"
+      ],
+      "why_it_matters": "Vercel Workflow SDK moving writes to WebSockets could change latency and behavior for durable agent and workflow features we build on Vercel.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-12T01:00:02.746Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "45ff441c-65dc-4a76-aa13-a4af0271413f",
@@ -614,8 +641,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -631,13 +658,15 @@
       "first_seen_at": "2026-11-09T23:00:06.839Z",
       "digest_date": "2026-11-10",
       "excerpt": "@ethersphere/bee-js 13.3.0 is compromised. Malicious install-time code targets Swarm wallet data and attempts to establish persistent access on affected systems.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 70,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "npm supply-chain compromise: @ethersphere/bee-js 13.3.0 runs malicious install-time code. The package is niche for us, but it shows ongoing npm attacks on Node stacks, so check lockfiles and install-script policies.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-12T01:00:02.746Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "418150e7-410e-4725-a2f3-3f4a437711aa",
@@ -654,8 +683,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -674,8 +703,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -694,8 +723,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -711,13 +740,13 @@
       "first_seen_at": "2026-11-09T23:00:06.839Z",
       "digest_date": "2026-11-10",
       "excerpt": "AI has given engineers a new job, which is much more akin to gardening rather than coding, so let's talk about it Thank you Coderabbit for sponsoring! Check them out at: https://soydev.link/coderabbit Want to sponsor a video? Learn more here: https://soydev.link/sponsor-me Check out my Twitch, Twitter, Discord more at https://t3.gg S/O @Ph4seon3 for the awesome edit 🙏",
-      "score": null,
+      "score": 30,
       "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "why_it_matters": "Theo opinion video on engineering shifting from writing code to tending AI output. Loosely relevant to agentic workflows but light on technical substance.",
+      "scoring_status": "scored",
       "attempts": 2,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-12T01:00:02.746Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "9ae9c0a0-e305-4a44-9b89-6ef2f0a18f12",
@@ -734,8 +763,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -754,8 +783,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     },
@@ -774,8 +803,8 @@
       "score": null,
       "tags": [],
       "why_it_matters": null,
-      "scoring_status": "pending",
-      "attempts": 2,
+      "scoring_status": "failed",
+      "attempts": 3,
       "scored_at": null,
       "scorer_model": null
     }
