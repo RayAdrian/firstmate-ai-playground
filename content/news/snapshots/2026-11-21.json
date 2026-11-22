@@ -1,7 +1,7 @@
 {
   "version": 1,
   "digest_date": "2026-11-21",
-  "exported_at": "2026-11-20T23:11:21.054Z",
+  "exported_at": "2026-11-22T01:04:09.577Z",
   "runs": [
     {
       "id": "3530c286-d1f5-44e3-ba01-4dbc9f99d695",
@@ -31,13 +31,13 @@
       "first_seen_at": "2026-11-20T23:05:12.812Z",
       "digest_date": "2026-11-21",
       "excerpt": "Article URL: https://architectlabs.com/blog/frostbite Comments URL: https://news.ycombinator.com/item?id=50572503 Points: 599 # Comments: 316",
-      "score": null,
+      "score": 30,
       "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "why_it_matters": "A CPU architecture reportedly designed and verified by AI. It's an impressive result for agentic engineering, but hardware design has no near-term effect on our web and ML delivery.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-22T01:02:54.339Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "288efb13-113f-497f-a249-c72b4bb5970e",
@@ -118,13 +118,15 @@
       "first_seen_at": "2026-11-20T23:05:12.812Z",
       "digest_date": "2026-11-21",
       "excerpt": "Choose which repositories appear on the Dashboard with the new Favorite repositories section. If the new dashboard experience isn’t enabled, Top repositories remains unchanged. Select Edit or Add repositories to open the picker. Search for repositories and select or deselect them. Your selections stay visible as you search. Select Save to apply your changes. New favorites are added to the end of your list. To discard your changes, select Cancel. Your favorites sync with your pinned repositories in GitHub Mobile. Changes you make in either place appear in the other after you refresh. You can pin up to 25 repositories across both experiences. If saving would put you over the limit, you’ll see an error and your list won’t change. Leave your feedback in the GitHub Community discussion. The post Pin your favorite repositories to your dashboard appeared first on The GitHub Blog.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 15,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "A small GitHub dashboard change that lets you pin favorite repositories. It's convenient but doesn't affect workflows, Actions or security.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-22T01:02:54.339Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "60ee183d-1d2b-43b6-a9bf-9bce705c5a73",
@@ -272,13 +274,15 @@
       "first_seen_at": "2026-11-20T23:05:12.812Z",
       "digest_date": "2026-11-21",
       "excerpt": "As we previewed on our Know Before You IPO pod, Anthropic set its IPO price at $83 and today $ANT closed at $97.17, up 17% from the offering price (drifting -5% to $92.60 after the close). The $81.3B offering overtook SpaceX's June IPO as the largest in history. Dario and Daniela (Dario’s remarks, Founders’ letter) used the occasion to say Anthropic would pace training and deployment based on whether it could keep its systems safe and under human control. Their Class F shares carry 50.1% of voting power on most shareholder matters. Expect the lockup expiries to weigh on the stock price as about a trillion dollars of shares free up over the next year, while Anthropic has to keep the world’s top model...for now. AI News for 11/18/2026–11/19/2026. We checked 12 subreddits and 544 accounts on X. Search past issues in the AINews archive.AI Twitter RecapAnthropic listed on Nasdaq under $ANT, priced at $83, and opened 34% higher, putting it near a $2T valuation.Listing: Anthropic rang the Nasdaq opening bell (@kimmonismus, @yacinelearning). The official account posted a media-only launch item that drew by far the day's highest engagement (@AnthropicAI). Opening trade: $ANT opened at $111.50, which is $28.50 (34.3%) above the $83 IPO price (@TheRundownAI, @kimmonismus). Pre-open indications were up ~32% at ~$110 (@kimmonismus). Record raise: The $81.3B raised beats SpaceX's $75B (June) as the largest IPO ever (@TheRundownAI). Net proceeds: Expected net proceeds are $104.8B including a concurrent private placement. Fully diluted valuation was ~$2T at the open (@kimmonismus). AMD investment: AMD agreed to invest $2.5B in Anthropic alongside the IPO. The same morning, AMD fell after a Hunterbrook report that a US-blacklisted Chinese server maker kept shipping newer AMD firmware (@kimmonismus, source). CEO statement: Dario Amodei published IPO remarks with a strong safety commitment (details below) (@AnthropicAI). Employee wealth: The average employee could be worth >$40M, per ",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 58,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "Anthropic's IPO values it at $1.5T, the largest IPO ever, and it has pledged to pace releases on safety. This affects how stable and how fast Claude releases will be, which matters since we rely on Claude for daily delivery and client products.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-22T01:02:54.339Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "bc5aada2-6d3c-49d0-b21c-b51d20e2b0ba",
@@ -450,13 +454,15 @@
       "first_seen_at": "2026-11-20T23:05:12.812Z",
       "digest_date": "2026-11-21",
       "excerpt": "OpenAI’s layered approach to adversarial distillation combines model training, safeguards, detection, and enforcement to protect against capability extraction.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 32,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "OpenAI explains how it detects and blocks attempts to copy its models' capabilities. It's mostly policy; the only practical point is that clients training on OpenAI outputs should check the terms of use.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-22T01:02:54.339Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "ac2f814b-d452-4d34-ab43-09b610f751ed",
@@ -490,13 +496,13 @@
       "first_seen_at": "2026-11-20T23:05:12.812Z",
       "digest_date": "2026-11-21",
       "excerpt": "I believe I have, working with Claude, discovered a proof of the Riemann Hypothesis. In fact, the method easily extends much further, resolving the so-called Generalized Riemann Hypothesis, and I expect, with more time, the Extended Riemann Hypothesis too. Claude and I have also formalized the arguments without assumptions. It is natural to feel that this is an end, in my case a loss of a principal guiding light, but what I saw during the course of progress so amazed me that I believe it is one dawn across science of something far greater. [...] Claude and I have had a great time together with such breadth in recent months, but this time Claude far outpaced me near the finish line. No, Claude flew, and danced, and sparkled near that finish line. — Levent Alpöge, alpo.ge/remark.pdf Tags: anthropic, claude, generative-ai, mathematics, ai, llms, levent-alpoge",
-      "score": null,
+      "score": 35,
       "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "why_it_matters": "A researcher says he proved the Riemann Hypothesis with Claude and formalized the proof. It hasn't been verified and doesn't change delivery work, but it's a striking claim about Claude's reasoning.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-22T01:02:54.339Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "d7eb1d1d-f86e-4584-820d-35a1efdc0cee",
@@ -665,13 +671,15 @@
       "first_seen_at": "2026-11-20T23:05:12.812Z",
       "digest_date": "2026-11-21",
       "excerpt": null,
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 62,
+      "tags": [
+        "framework"
+      ],
+      "why_it_matters": "Vercel Functions now accept request bodies up to 20MiB. That makes direct file uploads and larger payloads possible in Next.js apps on Vercel without routing them through storage first.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-22T01:02:54.339Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "d0f55b70-755e-4b2d-a33f-b864c18e829f",
@@ -707,13 +715,15 @@
       "first_seen_at": "2026-11-20T23:05:12.812Z",
       "digest_date": "2026-11-21",
       "excerpt": "Article URL: https://www.motherjones.com/politics/2026/11/google-alphabet-union-school-ai-protest-gemini-workers-petition/ Comments URL: https://news.ycombinator.com/item?id=50577901 Points: 229 # Comments: 166",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 12,
+      "tags": [
+        "business"
+      ],
+      "why_it_matters": "Google employees are protesting over AI in schools. It's labor and policy news about education, with no effect on how First Mate builds software or on our stack.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-22T01:02:54.339Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "c34e916c-8842-4ba9-8c34-5b5703a8b346",
@@ -727,13 +737,15 @@
       "first_seen_at": "2026-11-20T23:05:12.812Z",
       "digest_date": "2026-11-21",
       "excerpt": "nginx 1.31.9 and 1.30.7 fix an HTTP/2 flaw that a public exploit turns into unauthenticated code execution. See what stopped the exploit in our lab, how to patch and confirm the fix, and how to find nginx on developer machines.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 80,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "An HTTP/2 flaw in nginx has a public exploit that gives unauthenticated remote code execution; versions 1.31.9 and 1.30.7 fix it. Teams should patch any nginx in client infrastructure, self-hosted services or on developer machines.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-22T01:02:54.339Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "dbbf934e-42e4-478a-9351-ffc4550d9cee",
@@ -747,13 +759,15 @@
       "first_seen_at": "2026-11-20T23:05:12.812Z",
       "digest_date": "2026-11-21",
       "excerpt": "I don't know what black magic Google used to make this model, but Gemini 4 Neon is insane Thanks to WorkOS for sponsoring! Check them out here: https://soydev.link/workos Want to sponsor a video? Learn more here: https://soydev.link/sponsor-me Check out my Twitch, Twitter, Discord more at https://t3.gg S/O @Ph4seon3 for the awesome edit 🙏 #ai #programming #coding",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 72,
+      "tags": [
+        "new-model"
+      ],
+      "why_it_matters": "Theo reacts to Gemini 4 Neon, apparently a new Google model with strong coding results. Worth checking Google's official release notes for pricing and benchmarks before switching any client work to it.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-22T01:02:54.339Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "82c9556d-e2e3-479f-9168-634c02ce752e",
@@ -767,13 +781,16 @@
       "first_seen_at": "2026-11-20T23:05:12.812Z",
       "digest_date": "2026-11-21",
       "excerpt": "The most dangerous AI agent is an overly helpful one. It'll take risky actions just to get the job done, even something like deleting a production database! In this video I go through the five things I need for every agent before it goes to production: tool permissions, human in the loop, network limits, memory, and observability. I show a real example of each with a LangGraph agent running in MongoDB's Atlas Agent Engine. ~~~~~~~~~~~~~~~~~~~~~~~~~~ Atlas Agent Engine, MongoDB's platform to build, deploy, and govern AI agents: https://fandf.co/48YyBaz This video is sponsored by MongoDB. Thank you to MongoDB for partnering on this one! ~~~~~~~~~~~~~~~~~~~~~~~~~~ - Join me for the live AI Software Factory bootcamp in Dynamous on Dec 2: https://dynamous.ai/ai-software-factory-bootcamp ~~~~~~~~~~~~~~~~~~~~~~~~~~ 0:00 The Most Dangerous AI Agent 0:37 An AI Agent Deleted a Production Database 1:05 Why Rules Aren't Enough 1:46 The 5 Things Every Production Agent Needs 3:09 My LangGraph Agent on Atlas Agent Engine 3:56 Guardrail 1: Tool Permissions 6:42 Guardrail 2: Human in the Loop 9:03 Guardrail 3: Network Limits 11:03 Agent Memory That Stays Current 13:58 Observability for Every Run 15:41 Final Thoughts ~~~~~~~~~~~~~~~~~~~~~~~~~~ Join me as I push the limits of what is possible with AI. I'll be uploading videos weekly - at least every Wednesday at 7:00 PM CDT!",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 55,
+      "tags": [
+        "security",
+        "tooling"
+      ],
+      "why_it_matters": "A practical checklist for putting agents into production: tool permissions, human-in-the-loop, network limits, memory and observability. Useful for client AI features, though the video is sponsored by MongoDB.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-22T01:02:54.339Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "6ce7c220-ca64-40ed-8263-2d5104137209",
