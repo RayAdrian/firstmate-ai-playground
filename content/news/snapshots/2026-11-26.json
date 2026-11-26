@@ -1,7 +1,7 @@
 {
   "version": 1,
   "digest_date": "2026-11-26",
-  "exported_at": "2026-11-25T23:12:39.282Z",
+  "exported_at": "2026-11-26T23:01:27.851Z",
   "runs": [
     {
       "id": "643376e6-23b9-46d3-a95e-7e78090f8dc2",
@@ -53,13 +53,16 @@
       "first_seen_at": "2026-11-25T23:03:45.047Z",
       "digest_date": "2026-11-26",
       "excerpt": "If you haven’t chosen how to bill Copilot code review for members with a Copilot license, those reviews will be billed to your organization starting December 30, 2026. To keep billing unchanged, select Member before then. This change applies to organizations and enterprises with Copilot Business or Copilot Enterprise. What’s changing Today, when no billing choice is saved, reviews by members who have a paid Copilot license use the member’s Copilot entitlement. Starting December 30, 2026, those reviews will be billed to the organization that owns the repository. Accounts that don’t have AI Credits paid usage enabled, have a billing lock, or have no billable customer will be set to Member instead. If you already chose Member or Organization, your choice stays in effect. The separate setting for members without a Copilot license doesn’t change. Keep member billing Until then, unset settings show Default (Member) with a notice about the change. To keep using members’ Copilot entitlements, select Member in your enterprise or organization Copilot policy settings. That choice stays in effect after the default changes. If your enterprise manages this setting, an enterprise owner makes this choice. Organization billing requires AI Credits paid usage and can increase your organization’s spending. To learn more, see Configuring code review by GitHub Copilot. The post Copilot code review billing will default to the organization appeared first on The GitHub Blog.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 62,
+      "tags": [
+        "business",
+        "tooling"
+      ],
+      "why_it_matters": "Copilot code review billing will default to the organization on December 30, 2026. Fractional CTOs advising clients on Copilot Business or Enterprise should check their billing settings before then.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-26T23:00:04.390Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "0fa1b6ef-7cf9-49f9-80c1-3f7692615c91",
@@ -205,13 +208,15 @@
       "first_seen_at": "2026-11-25T23:03:45.047Z",
       "digest_date": "2026-11-26",
       "excerpt": "PolinRider malware was force-pushed into AsyncAPI, CircuitVerse and Open Food Facts pull requests and ran in CircuitVerse's release CI. How it works, IOCs, and how to check your projects.",
-      "score": null,
-      "tags": [],
-      "why_it_matters": null,
-      "scoring_status": "pending",
+      "score": 88,
+      "tags": [
+        "security"
+      ],
+      "why_it_matters": "Supply-chain malware was force-pushed into open-source PRs and ran in release CI. It's directly relevant to our GitHub Actions pipelines, and the post includes IOCs and steps for checking our projects.",
+      "scoring_status": "scored",
       "attempts": 1,
-      "scored_at": null,
-      "scorer_model": null
+      "scored_at": "2026-11-26T23:00:04.390Z",
+      "scorer_model": "claude-opus-5-5"
     },
     {
       "id": "48f15f3e-4c13-4f79-a28f-288fdc2691f5",
