@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "digest_date": "2026-11-28",
+  "exported_at": "2026-11-27T23:08:54.852Z",
+  "runs": [
+    {
+      "id": "9048af68-ab73-4c9b-b65b-6a59cb49d5bf",
+      "started_at": "2026-11-27T23:03:28.787Z",
+      "finished_at": "2026-11-27T23:08:54.700Z",
+      "trigger": "schedule",
+      "status": "partial",
+      "fetched": 2328,
+      "new": 1,
+      "scored": 1,
+      "pending": 0,
+      "failed": 0,
+      "skipped": 0,
+      "error_summary": "claude-code-releases: timeout; hacker-news: timeout; simon-willison: timeout; typescript-releases: timeout; stepsecurity-blog: timeout; latent-space: timeout; mcp-blog: timeout; cursor-changelog: timeout; yt-claude: timeout; yt-anthropic: timeout; yt-matt-pocock: timeout; yt-indydevdan: timeout; yt-latent-space: timeout; yt-cole-medin: timeout; yt-theo: timeout; yt-fireship: timeout"
+    }
+  ],
+  "items": [
+    {
+      "id": "27b97a3d-1c45-46a3-9aa0-47add2c9c68b",
+      "source_slug": "codex-cli-releases",
+      "guid": "tag:github.com,2008:Repository/965415649/rust-v0.174.0-alpha.9",
+      "canonical_url": "https://github.com/openai/codex/releases/tag/rust-v0.174.0-alpha.9",
+      "url": "https://github.com/openai/codex/releases/tag/rust-v0.174.0-alpha.9",
+      "title": "0.174.0-alpha.9",
+      "author": "github-actions[bot]",
+      "published_at": "2026-11-27T17:01:23.000Z",
+      "first_seen_at": "2026-11-27T23:03:28.787Z",
+      "digest_date": "2026-11-28",
+      "excerpt": "Release 0.174.0-alpha.9",
+      "score": 35,
+      "tags": [
+        "tooling"
+      ],
+      "why_it_matters": "Codex CLI is a daily tool for First Mate engineers, but this is an alpha prerelease with no release notes, so there is no confirmed change that affects day-to-day work yet.",
+      "scoring_status": "scored",
+      "attempts": 0,
+      "scored_at": "2026-11-27T23:03:28.787Z",
+      "scorer_model": "claude-opus-5-5"
+    }
+  ]
+}
